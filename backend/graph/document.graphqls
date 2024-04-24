@@ -1,0 +1,143 @@
+enum ProductionItemType {
+    finalProduct
+    rawMaterial
+}
+
+
+type DocumentLight{
+    h_id: String!
+    series: String
+    number: String!
+    date: String!
+    partner: String!
+    is_deleted: Boolean!
+    status:String
+
+}
+
+type Document{
+    h_id: String!
+    type: DocumentType!
+    series: String
+    number: String!
+    date: String!
+    due_date: String
+    partner: Partner!
+    person_id: String
+    person_name: String
+    notes: String
+    is_deleted: Boolean!
+    document_items: [DocumentItem]
+}
+
+input DocumentInput{
+    document_type: Int!
+    series: String
+    number: String!
+    date: String!
+    due_date: String
+    partner_id: String!
+    person_id: String
+    recipe_id:Int
+    notes: String
+    transaction_id: Int
+    document_items: [DocumentItemInput]!
+}
+
+input DocumentItemInput{
+    item_id: String!
+    quantity: Float!
+    item_name: String
+    price: Float
+    amount_net: Float
+    amount_vat: Float
+    amount_gross: Float
+    generated_d_id:[String!]
+    item_type_pn: String
+}
+
+type DocumentType{
+    id:Int!
+    name_ro:String!
+    name_en:String!
+}
+type DocumentPartner{
+    id:String!
+    name:String!
+}
+
+
+type DocumentItem{
+    d_id: String
+    item_id: String!
+    item_code: String
+    item_name: String!
+    quantity: Float!
+    um: Um!
+    price: Float
+    vat: Vat
+    amount_net: Float
+    amount_vat: Float
+    amount_gross: Float
+    item_type_pn: String
+}
+
+input GetDocumentsInput{
+    document_type: Int!
+    start_date: String!
+    end_date: String!
+    status: String
+    partner: [String!]
+}
+type DocumentTransaction{
+    id: Int!
+    name: String!
+    document_type_source_id: Int!
+    document_type_destination_id: Int!
+}
+
+input GetGenerateAvailableItemsInput{
+    document_type_id:Int!
+    partner_id:String!
+    date:String!
+    transaction_id:Int!
+}
+
+type GenerateAvailableItems{
+    h_id:String!
+    series: String
+    number: String!
+    date:String!
+    partnerId:String
+    document_item:DocumentItem!
+}
+
+input DeleteDocumentInput{
+    h_id:String!
+    delete_generated:Boolean!
+}
+
+type GeneratedDocument{
+    document_type: String!
+    number: String!
+    document_source_number:String!
+}
+
+type Currency{
+    id:Int!
+    name:String!
+}
+
+extend type Query {
+    getDocuments(input: GetDocumentsInput!): [DocumentLight]
+    getDocumentById(documentId: String): Document
+    getDocumentTransactions:[DocumentTransaction]
+    getGenerateAvailableItems(input:GetGenerateAvailableItemsInput!):[GenerateAvailableItems]
+    getCurrencyList:[Currency]
+}
+extend type Mutation {
+    saveDocument(input: DocumentInput!): String
+    deleteDocument(input: DeleteDocumentInput!): String
+    generatePNAllDoc(start:Boolean): String
+    regenerateProductionNotes(input: GetDocumentsInput!):String
+}

@@ -1,0 +1,30 @@
+type User{
+    id: String!
+    phoneNumber: String!
+    userType: String!
+    name: String!
+    email: String
+    deviceID: String
+}
+
+input SaveUserInput {
+    phoneNumber :String!
+    userType:String!
+    name: String!
+    email: String
+    deviceID: String
+}
+
+input UpdateUserInput{
+    name: String!
+    email: String
+}
+
+extend type Query {
+    getUser: User
+}
+
+extend type Mutation {
+    saveUser(input: SaveUserInput!): String
+    updateUser(input: UpdateUserInput!): User
+}

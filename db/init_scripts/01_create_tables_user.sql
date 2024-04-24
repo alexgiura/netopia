@@ -1,0 +1,12 @@
+
+CREATE SCHEMA IF NOT EXISTS core;
+
+CREATE TABLE IF NOT EXISTS core.users(
+    id TEXT PRIMARY KEY UNIQUE,
+    phone_number VARCHAR(20) NOT NULL UNIQUE,
+    user_type VARCHAR(20) NOT NULL,
+    name VARCHAR(50) NOT NULL,
+    device_id VARCHAR(50) NULL,
+    email VARCHAR(50) NULL
+);
+

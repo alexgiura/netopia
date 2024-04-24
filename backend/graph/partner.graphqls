@@ -1,0 +1,35 @@
+input GetPartnersInput{
+    code: String
+    name: String
+    type: String
+    tax_id: String
+}
+type Partner{
+    id: String!
+    code: String
+    name: String!
+    type: String!
+    tax_id:String
+    company_number:String
+    personal_id:String
+    is_active:Boolean!
+}
+input PartnerInput{
+    id: String
+    code: String
+    name: String!
+    type: String!
+    tax_id:String
+    company_number:String
+    personal_id:String
+    is_active:Boolean
+}
+
+extend type Query {
+    getPartners(input: GetPartnersInput!): [Partner]
+    getPartnerByTaxId(taxId: String):Partner
+}
+
+extend type Mutation {
+    savePartner(input: PartnerInput!): String
+}

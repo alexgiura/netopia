@@ -1,0 +1,51 @@
+services:
+  erp-app:
+    container_name: "erp-api"
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: erp-api:latest
+    ports:
+      - "8080:8080"
+    environment:
+      - POSTGRES_SSL_CERT=../certificate.pem
+      - POSTGRES_DB_HOST=$POSTGRES_DB_HOST
+      - POSTGRES_DB_PORT=$POSTGRES_DB_PORT
+      - POSTGRES_DB_USER=$POSTGRES_DB_USER
+      - POSTGRES_DB_PASSWORD=$POSTGRES_DB_PASSWORD
+      - POSTGRES_DB_NAME=$POSTGRES_DB_NAME
+      - EFACTURA_CLIENT_ID=$EFACTURA_CLIENT_ID
+      - EFACTURA_CLIENT_SECRET=$EFACTURA_CLIENT_SECRET
+      - EFACTURA_CALLBACK_URL=$EFACTURA_CALLBACK_URL
+      - EFACTURA_CALLBACK_PATH=$EFACTURA_CALLBACK_PATH
+      - EFACTURA_AUTHORIZATION_REDIRECT_URL=$EFACTURA_AUTHORIZATION_REDIRECT_URL
+#    depends_on:
+#      - erp-postgres
+    env_file: ./.env
+
+  erp-frontend:
+    container_name: "erp-frontend"
+    build:
+      context: ../frontend
+      dockerfile: Dockerfile
+    ports:
+      - "80:80"
+
+#   erp-postgres:
+#     platform: linux/amd64
+#     build:
+#       context: ../db
+#       dockerfile: Dockerfile
+#     container_name: erp-postgres
+#     environment:
+#       POSTGRES_USER: postgres
+#       POSTGRES_PASSWORD: postgres
+#       POSTGRES_DB: db
+#     ports:
+#       - "5432:5432"
+#     volumes:
+#       - erp-data:/var/lib/postgresql/data
+#       - ../db/init_scripts:/docker-entrypoint-initdb.d
+
+# volumes:
+#   erp-data:

@@ -1,0 +1,15 @@
+
+type Company{
+    id: String!
+    name: String!
+    vat_number: String!
+    registration_number: String
+    address: String!
+    email: String
+    bank_name: String
+    bank_account: String
+}
+
+extend type Query {
+    getCompany: Company
+}

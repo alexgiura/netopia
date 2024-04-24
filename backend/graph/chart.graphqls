@@ -1,0 +1,10 @@
+
+type ChartData{
+    x: String!
+    y: Float!
+    second_y:Float
+}
+
+extend type Query {
+    getRevenueChart: [ChartData]
+}

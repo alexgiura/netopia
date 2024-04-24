@@ -1,0 +1,70 @@
+input GetItemsInput{
+    category_list: [Int!]
+}
+
+type Item{
+    id: String!
+    code: String
+    name: String!
+    is_active: Boolean!
+    is_stock: Boolean!
+    um: Um!
+    vat: Vat!
+    category: ItemCategory
+}
+
+type Um{
+    id: Int!
+    name: String!
+    code: String!
+}
+type Category{
+    id: Int!
+    name: String!
+    is_active: Boolean!
+}
+
+type Vat{
+    id: Int!
+    name: String!
+    percent: Float!
+    exemption_reason: String
+    exemption_reason_code: String
+    is_active: Boolean!
+}
+
+type ItemCategory{
+    id: Int!
+    name: String!
+    is_active: Boolean!
+    generate_pn: Boolean!
+}
+
+input ItemInput{
+    id: String
+    code: String
+    name: String!
+    id_um: Int!
+    id_vat: Int!
+    id_category: Int
+    is_active:Boolean!
+    is_stock:Boolean!
+}
+
+input ItemCategoryInput{
+    id: Int
+    name: String!
+    is_active:Boolean!
+    generate_pn:Boolean!
+}
+
+extend type Query {
+    getItems(input: GetItemsInput!): [Item]
+    getUmList:[Um]
+    getVatList:[Vat]
+    getItemCategoryList:[ItemCategory]
+}
+extend type Mutation {
+    saveItem(input: ItemInput!): String
+    saveItemCategory(input: ItemCategoryInput!): String
+}

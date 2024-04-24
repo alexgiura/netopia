@@ -1,0 +1,10 @@
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.json
+.idea
+*.iml
+.DS_Store
+package-lock.json
+.env.local
+backend/.vscode/launch.json
+notes.md
