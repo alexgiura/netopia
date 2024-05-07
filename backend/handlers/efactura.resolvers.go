@@ -6,6 +6,7 @@ package handlers
 
 import (
 	_err "backend/errors"
+	"backend/graph/model"
 	"backend/util"
 	"context"
 	"log"
@@ -33,9 +34,13 @@ func (r *mutationResolver) GenerateEfacturaAuthorizationLink(ctx context.Context
 }
 
 // UploadEfacturaDocument is the resolver for the uploadEfacturaDocument field.
-func (r *mutationResolver) UploadEfacturaDocument(ctx context.Context, documentID string) (*string, error) {
-	docID := util.StrToUUID(&documentID)
-	efacturaDocID, _, err := r._EfacturaGenerateAndUpload(ctx, docID, false)
+func (r *mutationResolver) UploadEfacturaDocument(ctx context.Context, input model.GenerateEfacturaDocumentInput) (*string, error) {
+	docID := util.StrToUUID(&input.HID)
+	regenerate := false
+	if input.Regenerate != nil {
+		regenerate = *input.Regenerate
+	}
+	efacturaDocID, _, err := r._EfacturaGenerateAndUpload(ctx, docID, regenerate)
 	if err != nil {
 		return nil, err
 	}

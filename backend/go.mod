@@ -1,6 +1,8 @@
 module backend
 
-go 1.21.1
+go 1.22.1
+
+toolchain go1.22.2
 
 //toolchain go1.22.1
 
@@ -15,7 +17,7 @@ require (
 	github.com/jackc/pgx/v4 v4.18.1
 	github.com/joho/godotenv v1.5.1
 	github.com/pkg/errors v0.9.1
-	github.com/printesoi/e-factura-go v0.0.0-20240411211647-c69f31f57e7b
+	github.com/printesoi/e-factura-go v0.0.0-20240504175133-cc38ef399ab1
 	github.com/rs/cors v1.9.0
 	github.com/shopspring/decimal v1.3.1
 	github.com/vektah/gqlparser/v2 v2.5.11

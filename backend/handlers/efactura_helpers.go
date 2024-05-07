@@ -5,6 +5,7 @@ import (
 	"backend/util"
 	"context"
 	"crypto/md5"
+	"database/sql"
 	"encoding/hex"
 	"errors"
 	"fmt"
@@ -14,39 +15,44 @@ import (
 
 	"github.com/google/uuid"
 	pgx "github.com/jackc/pgx/v4"
-	efactura "github.com/printesoi/e-factura-go"
+	efactura "github.com/printesoi/e-factura-go/efactura"
 	efactura_oauth2 "github.com/printesoi/e-factura-go/oauth2"
+	efactura_text "github.com/printesoi/e-factura-go/text"
 	"go.uber.org/zap"
-	"go.uber.org/zap/zapcore"
 	xoauth2 "golang.org/x/oauth2"
 )
 
+// EfacturaProcessAuthorizationCallback process a request sent to the e-factura
+// authorization callback endpoint. If the request has an `error` param, the
+// authorization failed, otherwise the request should have a `code` param which
+// represents the authorization code that must be exchanged to a token. The
+// callback request must have the `code` param, which represents the UUID of
+// the e-factura authorization.
 func (r *Resolver) EfacturaProcessAuthorizationCallback(req *http.Request) error {
 	var authCode *string
 	authorizationID := req.URL.Query().Get("state")
 	if authorizationID == "" {
-		return errors.New("invalid request: state param not set")
+		return errors.New("e-factura: authorization: invalid request: state param not set")
 	}
 
-	if err := r.DBPool.BeginFunc(req.Context(), func(tx pgx.Tx) error {
+	if err := r.DBPool.BeginFunc(req.Context(), func(tx pgx.Tx) (err error) {
 		transaction := r.DBProvider.WithTx(tx)
 
 		if authErr := req.URL.Query().Get("error"); authErr != "" {
-			transaction.UpdateAuthorizationStatus(req.Context(), db.UpdateAuthorizationStatusParams{
+			err = transaction.UpdateAuthorizationStatus(req.Context(), db.UpdateAuthorizationStatusParams{
 				AID:    util.StrToUUID(&authorizationID),
 				Status: db.CoreEfacturaAuthorizationStatusError,
 			})
 		} else if code := req.URL.Query().Get("code"); code != "" {
 			authCode = &code
-			transaction.UpdateAuthorizationCode(req.Context(), db.UpdateAuthorizationCodeParams{
+			err = transaction.UpdateAuthorizationCode(req.Context(), db.UpdateAuthorizationCodeParams{
 				AID:  util.StrToUUID(&authorizationID),
 				Code: util.NullableStr(authCode),
 			})
 		}
-
-		return nil
+		return
 	}); err != nil {
-		return err
+		return fmt.Errorf("e-factura: authorization: update failed: %w", err)
 	}
 
 	if authCode != nil {
@@ -55,17 +61,17 @@ func (r *Resolver) EfacturaProcessAuthorizationCallback(req *http.Request) error
 			efactura_oauth2.ConfigRedirectURL(r.EfacturaSettings.CallbackURL),
 		)
 		if err != nil {
-			return err
+			return fmt.Errorf("e-factura: authorization: create oauth2 config failed: %w", err)
 		}
 
 		token, err := oauth2Cfg.Exchange(req.Context(), *authCode)
 		if err != nil {
 			// XXX(victor): maybe better update db status?
-			return err
+			return fmt.Errorf("e-factura: authorization: oauth2 exchange code failed: %w", err)
 		}
 
 		if err := r._EfacturaUpdateAuthorizationToken(req.Context(), util.StrToUUID(&authorizationID), token); err != nil {
-			return err
+			return fmt.Errorf("e-factura: authorization: update token failed: %w", err)
 		}
 	}
 
@@ -89,9 +95,11 @@ func (r *Resolver) _EfacturaUpdateAuthorizationToken(ctx context.Context, aid uu
 	})
 }
 
-func (r *Resolver) _EfacturaGenerateDocument(ctx context.Context, documentID uuid.UUID, tx *db.Queries) (
+// _EfacturaGenerateXMLDocument generates the XML invoice for e-factura and stores in the efactura_xml_documents table.
+// NOTE: this method does not check if we can / are allowed to generate the record.
+func (r *Resolver) _EfacturaGenerateXMLDocument(ctx context.Context, documentID uuid.UUID, tx *db.Queries) (
 	efacturaInvoiceXML string,
-	efacturaDocID uuid.UUID,
+	xmlDocID int64,
 	err error,
 ) {
 	md5sum := func(data []byte) string {
@@ -134,37 +142,41 @@ func (r *Resolver) _EfacturaGenerateDocument(ctx context.Context, documentID uui
 		return locality
 	}
 
-	var company db.GetCompanyRow
-	company, err = tx.GetCompany(ctx)
-	if err != nil {
-		return
-	}
-
 	var documentHeader db.GetDocumentHeaderRow
 	documentHeader, err = tx.GetDocumentHeader(ctx, documentID)
 	if err != nil {
+		err = fmt.Errorf("e-factura: generate: fetch document header failed: %w", err)
+		return
+	}
+
+	var company db.GetCompanyRow
+	company, err = tx.GetCompany(ctx)
+	if err != nil {
+		err = fmt.Errorf("e-factura: generate: fetch company failed: %w", err)
 		return
 	}
 
 	var documentItems []db.GetDocumentItemsRow
 	documentItems, err = tx.GetDocumentItems(ctx, documentHeader.HID)
 	if err != nil {
+		err = fmt.Errorf("e-factura: generate: fetch document items failed: %w", err)
 		return
 	}
 
 	partner, err := tx.GetDocumentHeaderPartnerBillingDetails(ctx, documentHeader.DocumentPartnerBillingDetailsID.Int32)
 	if err != nil {
+		err = fmt.Errorf("e-factura: generate: fetch document partner billing details failed: %w", err)
 		return
 	}
 
-	// TODO: if document currency if not RON, then TaxCurrencyCode should
-	// be set and use BNR currency exchange rate.
 	var documentCurrencyID = efactura.CurrencyCodeType(documentHeader.Currency.String)
 	if documentCurrencyID == "" {
 		documentCurrencyID = efactura.CurrencyRON
 	}
+	// TODO: if document currency if not RON, then TaxCurrencyCode should
+	// be set and use BNR currency exchange rate.
 	if documentCurrencyID != efactura.CurrencyRON {
-		err = fmt.Errorf("currency `%s` is not supported without an exchange", documentCurrencyID)
+		err = fmt.Errorf("e-factura: generate: currency `%s` is not supported without an exchange rate", documentCurrencyID)
 		return
 	}
 
@@ -179,85 +191,22 @@ func (r *Resolver) _EfacturaGenerateDocument(ctx context.Context, documentID uui
 		WithInvoiceTypeCode(efactura.InvoiceTypeCommercialInvoice).
 		WithDocumentCurrencyCode(documentCurrencyID)
 
-	// Supplier info
-	companyVatID := company.VatNumber
-	if company.Vat && !strings.HasPrefix(companyVatID, "RO") {
-		companyVatID = "RO" + companyVatID
-	}
-	supplierAddrSubentityCode := getAddressCountrySubentity(company.CountyCode.String)
-	supplierParty := efactura.InvoiceSupplierParty{
-		Identifications: []efactura.InvoicePartyIdentification{{
-			ID: efactura.MakeValueWithAttrs(company.VatNumber),
-		}},
-		CommercialName: &efactura.InvoicePartyName{
-			Name: efactura.Transliterate(company.Name),
-		},
-		LegalEntity: efactura.InvoiceSupplierLegalEntity{
-			Name:             efactura.Transliterate(company.Name),
-			CompanyID:        efactura.NewValueWithAttrs(companyVatID),
-			CompanyLegalForm: company.RegistrationNumber.String,
-		},
-		PostalAddress: efactura.MakeInvoiceSupplierPostalAddress(efactura.PostalAddress{
-			Line1:            efactura.Transliterate(company.Address),
-			CityName:         efactura.Transliterate(getAddressCityName(supplierAddrSubentityCode, company.Locality.String)),
-			CountrySubentity: supplierAddrSubentityCode,
-			Country: efactura.Country{
-				Code: efactura.CountryCodeRO,
-			},
-		}),
-	}
-	// Vânzator plătitor de TVA   => BT-31
-	// Vânzator neplătitor de TVA => BT-32
-	vatAppliedToInvoice := true // TODO:
-	if company.Vat && vatAppliedToInvoice {
-		supplierParty.TaxScheme = newPartyTaxScheme(companyVatID, true)
-	} else {
-		supplierParty.TaxScheme = newPartyTaxScheme(companyVatID, false)
-	}
-	invoiceBuilder.WithSupplier(supplierParty)
-
-	// Buyer info
-	// TODO: fetch date for buyer company
-	buyerVatID := partner.CorePartner.TaxID.String
-	if partner.CoreDocumentPartnerBillingDetail.Vat && !strings.HasPrefix(buyerVatID, "RO") {
-		buyerVatID = "RO" + buyerVatID
-	}
-	customerAddrSubentityCode := getAddressCountrySubentity(partner.CoreDocumentPartnerBillingDetail.CountyCode.String)
-	customerParty := efactura.InvoiceCustomerParty{
-		Identifications: []efactura.InvoicePartyIdentification{{
-			ID: efactura.MakeValueWithAttrs(partner.CorePartner.TaxID.String),
-		}},
-		CommercialName: &efactura.InvoicePartyName{
-			Name: efactura.Transliterate(partner.CorePartner.Name),
-		},
-		LegalEntity: efactura.InvoiceCustomerLegalEntity{
-			Name:      efactura.Transliterate(partner.CorePartner.Name),
-			CompanyID: efactura.NewValueWithAttrs(buyerVatID),
-		},
-		PostalAddress: efactura.MakeInvoiceCustomerPostalAddress(efactura.PostalAddress{
-			Line1:            efactura.Transliterate(partner.CoreDocumentPartnerBillingDetail.Address),
-			CityName:         efactura.Transliterate(getAddressCityName(customerAddrSubentityCode, partner.CoreDocumentPartnerBillingDetail.Locality.String)),
-			CountrySubentity: customerAddrSubentityCode,
-			Country: efactura.Country{
-				Code: efactura.CountryCodeRO,
-			},
-		}),
-	}
-	// Cumpărător plătitor de TVA   => BT-48
-	// Cumpărător neplătitor de TVA => BT-47
-	if partner.CoreDocumentPartnerBillingDetail.Vat {
-		customerParty.TaxScheme = newPartyTaxScheme(buyerVatID, false)
-	} else {
-		customerParty.LegalEntity.CompanyID = efactura.NewValueWithAttrs(buyerVatID)
-	}
-	invoiceBuilder.WithCustomer(customerParty)
-
 	// Build invoice line items
 	totalAmount := float64(0)
 	for i, item := range documentItems {
 		totalAmount += item.GrosValue.Float64
 		var lineTaxCategory efactura.InvoiceLineTaxCategory
-		if item.VatPercent > 0 {
+		if !company.Vat {
+			if item.VatValue.Float64 != 0 {
+				err = fmt.Errorf("e-factura: generate: item=%s: company is not VAT enabled but item has VAT amount", item.DID)
+				return
+			}
+			lineTaxCategory = efactura.InvoiceLineTaxCategory{
+				TaxScheme: efactura.TaxSchemeVAT,
+				ID:        efactura.TaxCategoryNotSubjectToVAT,
+			}
+			invoiceBuilder.AddTaxExemptionReason(efactura.TaxCategoryNotSubjectToVAT, "", efactura.TaxExemptionCodeVATEX_EU_O)
+		} else if item.VatValue.Float64 != 0 {
 			lineTaxCategory = efactura.InvoiceLineTaxCategory{
 				TaxScheme: efactura.TaxSchemeVAT,
 				ID:        efactura.TaxCategoryVATStandardRate,
@@ -275,10 +224,11 @@ func (r *Resolver) _EfacturaGenerateDocument(ctx context.Context, documentID uui
 			WithUnitCode(efactura.UnitCodeType(item.UmCode)).
 			WithInvoicedQuantity(efactura.D(item.Quantity)).
 			WithGrossPriceAmount(efactura.D(item.Price.Float64)).
-			WithItemName(efactura.Transliterate(item.ItemName)).
+			WithItemName(efactura_text.Transliterate(item.ItemName)).
 			WithItemTaxCategory(lineTaxCategory)
 		line, er := lineBuilder.Build()
 		if err = er; err != nil {
+			err = fmt.Errorf("e-factura: generate: item=%s: build line failed: %w", item.DID, err)
 			return
 		}
 
@@ -290,48 +240,203 @@ func (r *Resolver) _EfacturaGenerateDocument(ctx context.Context, documentID uui
 	// vat is computed on each item (line).
 	invoiceBuilder.WithExpectedTaxInclusiveAmount(efactura.D(totalAmount))
 
+	// Supplier info
+	companyVatID := company.VatNumber
+	if company.Vat && !strings.HasPrefix(companyVatID, "RO") {
+		companyVatID = "RO" + companyVatID
+	}
+	supplierAddrSubentityCode := getAddressCountrySubentity(company.CountyCode.String)
+	supplierParty := efactura.InvoiceSupplierParty{
+		Identifications: []efactura.InvoicePartyIdentification{{
+			ID: efactura.MakeValueWithAttrs(company.VatNumber),
+		}},
+		CommercialName: &efactura.InvoicePartyName{
+			Name: efactura_text.Transliterate(company.Name),
+		},
+		LegalEntity: efactura.InvoiceSupplierLegalEntity{
+			Name:             efactura_text.Transliterate(company.Name),
+			CompanyID:        efactura.NewValueWithAttrs(companyVatID),
+			CompanyLegalForm: company.RegistrationNumber.String,
+		},
+		PostalAddress: efactura.MakeInvoiceSupplierPostalAddress(efactura.PostalAddress{
+			Line1:            efactura_text.Transliterate(company.Address),
+			CityName:         efactura_text.Transliterate(getAddressCityName(supplierAddrSubentityCode, company.Locality.String)),
+			CountrySubentity: supplierAddrSubentityCode,
+			Country: efactura.Country{
+				Code: efactura.CountryCodeRO,
+			},
+		}),
+	}
+	// Vânzator plătitor de TVA   => BT-31
+	// Vânzator neplătitor de TVA => BT-32
+	if company.Vat {
+		supplierParty.TaxScheme = newPartyTaxScheme(companyVatID, true)
+	} else {
+		supplierParty.TaxScheme = newPartyTaxScheme(companyVatID, false)
+	}
+	invoiceBuilder.WithSupplier(supplierParty)
+
+	// Buyer info
+	buyerVatID := partner.CorePartner.TaxID.String
+	if partner.CoreDocumentPartnerBillingDetail.Vat && !strings.HasPrefix(buyerVatID, "RO") {
+		buyerVatID = "RO" + buyerVatID
+	}
+	customerAddrSubentityCode := getAddressCountrySubentity(partner.CoreDocumentPartnerBillingDetail.CountyCode.String)
+	customerParty := efactura.InvoiceCustomerParty{
+		Identifications: []efactura.InvoicePartyIdentification{{
+			ID: efactura.MakeValueWithAttrs(partner.CorePartner.TaxID.String),
+		}},
+		CommercialName: &efactura.InvoicePartyName{
+			Name: efactura_text.Transliterate(partner.CorePartner.Name),
+		},
+		LegalEntity: efactura.InvoiceCustomerLegalEntity{
+			Name:      efactura_text.Transliterate(partner.CorePartner.Name),
+			CompanyID: efactura.NewValueWithAttrs(buyerVatID),
+		},
+		PostalAddress: efactura.MakeInvoiceCustomerPostalAddress(efactura.PostalAddress{
+			Line1:            efactura_text.Transliterate(partner.CoreDocumentPartnerBillingDetail.Address),
+			CityName:         efactura_text.Transliterate(getAddressCityName(customerAddrSubentityCode, partner.CoreDocumentPartnerBillingDetail.Locality.String)),
+			CountrySubentity: customerAddrSubentityCode,
+			Country: efactura.Country{
+				Code: efactura.CountryCodeRO,
+			},
+		}),
+	}
+	// Cumpărător plătitor de TVA   => BT-48
+	// Cumpărător neplătitor de TVA => BT-47
+	if partner.CoreDocumentPartnerBillingDetail.Vat {
+		customerParty.TaxScheme = newPartyTaxScheme(buyerVatID, false)
+	} else {
+		customerParty.LegalEntity.CompanyID = efactura.NewValueWithAttrs(buyerVatID)
+	}
+	invoiceBuilder.WithCustomer(customerParty)
+
 	var efacturaInvoice efactura.Invoice
 	efacturaInvoice, err = invoiceBuilder.Build()
 	if err != nil {
+		err = fmt.Errorf("e-factura: generate: build invoice object failed: %w", err)
 		return
 	}
 
 	invoiceXML, err := efacturaInvoice.XMLIndent("", " ")
 	if err != nil {
+		err = fmt.Errorf("e-factura: generate: generate invoice XML failed: %w", err)
 		return
 	}
 
 	efacturaInvoiceXML = string(invoiceXML)
-	efacturaDocID, err = tx.CreateEfacturaDocument(ctx, db.CreateEfacturaDocumentParams{
+	xmlDocID, err = tx.CreateEfacturaXMLDocument(ctx, db.CreateEfacturaXMLDocumentParams{
 		HID:           documentHeader.HID,
 		InvoiceXml:    efacturaInvoiceXML,
 		InvoiceMd5Sum: md5sum(invoiceXML),
 	})
 	if err != nil {
-		return
+		err = fmt.Errorf("e-factura: generate: create xml document failed: %w", err)
 	}
-
 	return
-
 }
 
-func (r *Resolver) _EfacturaUpload(ctx context.Context, efacturaDocID uuid.UUID) (uploadIndex int64, err error) {
-	var efacturaDocument db.GetEfacturaDocumentRow
-	efacturaDocument, err = r.DBProvider.GetEfacturaDocument(ctx, efacturaDocID)
-	if err != nil {
-		return
-	}
-	// If status is success - the invoice was already uploaded;
-	// if status is processing - it's not safe to upload until the processing is done.
-	if efacturaDocument.Status == db.CoreEfacturaDocumentStatusSuccess ||
-		efacturaDocument.Status == db.CoreEfacturaDocumentStatusProcessing {
-		err = fmt.Errorf("not uploading e-factura document `%s`, status `%s`", efacturaDocument.EID, efacturaDocument.Status)
-		return
-	}
+// _EfacturaGenerateDocument generates a record in the efactura_documents table
+// for a given document header ID, check if generation is allowed and logs the error if any.
+// Returns the uuid of the record from the efactura_documents table. If regenerate is false
+// and a record already exists, this returns the UUID of the existing record and no error.
+// If regenerate is true and we are not allowed to regenerate the XML (an upload is in progress,
+// the invoice is uploaded but still processing, or already processed) then an error is returned.
+func (r *Resolver) _EfacturaGenerateDocumentCheck(ctx context.Context, documentID uuid.UUID, regenerate bool) (
+	efacturaDocID uuid.UUID,
+	err error,
+) {
+	if err = r.DBPool.BeginFunc(ctx, func(tx pgx.Tx) (err error) {
+		transaction := r.DBProvider.WithTx(tx)
 
+		var efacturaDocument db.GetEfacturaDocumentForHeaderIDLockForUpdateRow
+		efacturaDocument, err = transaction.GetEfacturaDocumentForHeaderIDLockForUpdate(ctx, documentID)
+		if err != nil && err != pgx.ErrNoRows {
+			err = fmt.Errorf("e-factura: generate: fetch document failed: %w", err)
+			return
+		}
+		switch efacturaDocument.Status {
+		case db.CoreEfacturaDocumentStatusSuccess, db.CoreEfacturaDocumentStatusProcessing:
+			efacturaDocID = efacturaDocument.EID
+			// If status is success - the invoice was already uploaded;
+			// if status is processing - it's not safe to upload until the processing is done.
+			if regenerate {
+				err = fmt.Errorf("e-factura: generate: document has status `%s`", efacturaDocument.Status)
+				return
+			}
+		case db.CoreEfacturaDocumentStatusNew:
+			efacturaDocID = efacturaDocument.EID
+			if regenerate && efacturaDocument.UploadRecordID.Valid {
+				err = fmt.Errorf("e-factura: generate: not generating: upload in progress")
+				return
+			}
+		}
+		if efacturaDocument.Status != "" && !regenerate {
+			// Don't regenerate if already generated the XML and not forcing a regeneration
+			efacturaDocID = efacturaDocument.EID
+			return
+		}
+
+		_, xmlDocID, err := r._EfacturaGenerateXMLDocument(ctx, documentID, transaction)
+
+		if (uuid.UUID{}) == efacturaDocument.EID {
+			efacturaDocID, err = transaction.CreateEfacturaDocument(ctx, db.CreateEfacturaDocumentParams{
+				HID:    documentID,
+				XID:    xmlDocID,
+				Status: db.CoreEfacturaDocumentStatusNew,
+			})
+			if err != nil {
+				err = fmt.Errorf("e-factura: generate: insert failed: %w", err)
+				return
+			}
+		} else {
+			efacturaDocID = efacturaDocument.EID
+			err = transaction.UpdateEfacturaDocumentXMLDocumentID(ctx, db.UpdateEfacturaDocumentXMLDocumentIDParams{
+				EID: efacturaDocument.EID,
+				XID: xmlDocID,
+			})
+			if err != nil {
+				err = fmt.Errorf("e-factura: generate: update failed: %w", err)
+				return
+			}
+		}
+
+		return
+	}); err != nil {
+		fields := []zap.Field{
+			zap.Error(err),
+			zap.String("document_headers.h_id", documentID.String()),
+		}
+		if (uuid.UUID{}) != efacturaDocID {
+			fields = append(fields, zap.String("efactura_documents.e_id", efacturaDocID.String()))
+		}
+		r.Logger.Error("e-factura: generate failed", fields...)
+		return
+	}
+	return
+}
+
+func (r *Resolver) _EfacturaOnTokenChangedFunc(authorizationID uuid.UUID) func(ctx context.Context, t *xoauth2.Token) error {
+	return func(ctx context.Context, t *xoauth2.Token) error {
+		r.Logger.Info("e-factura: token refreshed", zap.String("efactura_authorizations.a_id", authorizationID.String()), zap.Time("expires_at", t.Expiry))
+		return r.trx(ctx, func(tx *db.Queries) (err error) {
+			_, err = tx.CloneAuthorizationWithToken(ctx, db.CloneAuthorizationWithTokenParams{
+				AID:            authorizationID,
+				Token:          util.MarshalToPgtypeJSON(t),
+				TokenExpiresAt: util.NullableTime(&t.Expiry),
+			})
+			return
+		})
+	}
+}
+
+// _EfacturaUpload upload the e-factura document given by e_id to e-factura
+// system. This method DOES NOT update the status of the e-factura document.
+func (r *Resolver) _EfacturaUpload(ctx context.Context, efacturaDocument db.GetEfacturaDocumentLockForUpdateRow) (uploadIndex int64, err error) {
 	var company db.GetCompanyRow
 	company, err = r.DBProvider.GetCompany(ctx)
 	if err != nil {
+		err = fmt.Errorf("e-factura: upload: fetch company failed: %w", err)
 		return
 	}
 
@@ -340,111 +445,142 @@ func (r *Resolver) _EfacturaUpload(ctx context.Context, efacturaDocID uuid.UUID)
 		efactura_oauth2.ConfigRedirectURL(r.EfacturaSettings.CallbackURL),
 	)
 	if err != nil {
-		r.Logger.Error("efactura_oauth2.MakeConfig failed", zap.Error(err))
-		return 0, err
+		err = fmt.Errorf("e-factura: upload: create config failed: %w", err)
+		return
 	}
 
 	authorization, err := r.DBProvider.FetchLastAuthorization(ctx)
 	if err != nil {
-		return 0, err
+		err = fmt.Errorf("e-factura: upload: fetch authorization failed: %w", err)
+		return
 	}
 
+	// We don't check the authorization expires_at because even if the access
+	// token is expired, the refresh can be still valid, so we will first
+	// (automatically) try to refresh it and only fail if refresh did not
+	// succeed.
 	token, err := efactura_oauth2.TokenFromJSON(authorization.Token.Bytes)
 	if err != nil {
-		r.Logger.Error("failed to parse stored token", zap.Error(err))
-		return 0, err
+		err = fmt.Errorf("e-factura: upload: parse token failed: %w", err)
+		return
 	}
 
 	// If the token is refreshed, update the authorization
-	onTokenChanged := func(ctx context.Context, t *xoauth2.Token) error {
-		r.Logger.Info("Token refreshed", zap.Field{
-			Key:       "authorization_id",
-			Type:      zapcore.StringType,
-			Interface: authorization.AID},
-		)
-		return r._EfacturaUpdateAuthorizationToken(ctx, authorization.AID, t)
-	}
-	client, err := efactura.NewClient(
-		context.Background(),
-		efactura.ClientOAuth2TokenSource(oauth2Cfg.TokenSourceWithChangedHandler(ctx, token, onTokenChanged)),
-		efactura.ClientProductionEnvironment(false), // TODO: use true for production
-	)
+	// TODO: use efactura.NewProductionClient for production
+	client, err := efactura.NewSandboxClient(ctx,
+		oauth2Cfg.TokenSourceWithChangedHandler(ctx, token, r._EfacturaOnTokenChangedFunc(authorization.AID)))
 	if err != nil {
-		r.Logger.Error("efactura.NewClient failed", zap.Error(err))
-		return 0, err
+		err = fmt.Errorf("e-factura: upload: create client failed: %w", err)
+		return
 	}
 
 	uploadRes, err := client.UploadXML(ctx, strings.NewReader(efacturaDocument.InvoiceXml),
 		efactura.UploadStandardUBL, company.VatNumber)
 	if err != nil {
-		r.Logger.Error("client.UploadXML failed", zap.Error(err))
-		return 0, err
+		err = fmt.Errorf("e-factura: upload: upload invoice API call failed: %w", err)
+		return
 	}
 	if uploadRes.IsOk() {
 		uploadIndex = uploadRes.GetUploadIndex()
-		r.Logger.Info("document uploaded", zap.Field{
-			Key:       "efactura_documents.id",
-			Type:      zapcore.StringType,
-			Interface: efacturaDocID.String(),
-		}, zap.Field{
-			Key:       "upload_index",
-			Type:      zapcore.Int64Type,
-			Interface: uploadIndex,
-		})
-		if err := r.trx(ctx, func(tx *db.Queries) error {
-			return tx.UpdateEfacturaDocumentUploadIndex(ctx, db.UpdateEfacturaDocumentUploadIndexParams{
-				EID:         efacturaDocID,
-				UploadIndex: util.NullableInt64(&uploadIndex),
-			})
-		}); err != nil {
-			r.Logger.Error("failed to store e-factura document upload index", zap.Error(err))
-			return uploadIndex, err
-		}
 	} else {
-		err := errors.New(uploadRes.GetFirstErrorMessage())
-		r.Logger.Error("e-factura upload failed", zap.Error(err))
-		if terr := r.trx(ctx, func(tx *db.Queries) error {
-			return tx.UpdateEfacturaDocumentStatus(ctx, db.UpdateEfacturaDocumentStatusParams{
-				EID:    efacturaDocID,
-				Status: db.CoreEfacturaDocumentStatusError,
-			})
-		}); terr != nil {
-			r.Logger.Error("failed to update e-factura document status", zap.Error(terr))
-		}
-		return 0, err
+		err = fmt.Errorf("e-factura: upload: upload failed: error message: %s", uploadRes.GetFirstErrorMessage())
+		return
 	}
 	return
 }
 
-func (r *Resolver) _EfacturaGenerateAndUpload(ctx context.Context, documentID uuid.UUID, regenerate bool) (efacturaDocID uuid.UUID, uploadedIndex *int64, err error) {
-	if err = r.DBPool.BeginFunc(ctx, func(tx pgx.Tx) (err error) {
-		transaction := r.DBProvider.WithTx(tx)
+// _EfacturaUploadUpdateStatus same as _EfacturaUpload but also update the
+// e-factura document status on success or on error.
+func (r *Resolver) _EfacturaUploadUpdateStatus(ctx context.Context, efacturaDocID uuid.UUID) (uploadIndex int64, err error) {
+	var efacturaDocument db.GetEfacturaDocumentLockForUpdateRow
+	var uploadRecordID int64
 
-		var efacturaDocument db.GetEfacturaDocumentForHeaderIDRow
-		efacturaDocument, err = transaction.GetEfacturaDocumentForHeaderID(ctx, documentID)
-		if err != nil && err != pgx.ErrNoRows {
+	if err = r.trx(ctx, func(tx *db.Queries) (err error) {
+		efacturaDocument, err = r.DBProvider.GetEfacturaDocumentLockForUpdate(ctx, efacturaDocID)
+		if err != nil {
+			err = fmt.Errorf("e-factura: upload: fetch record failed: %w", err)
 			return
 		}
-		// If status is success - the invoice was already uploaded;
-		// if status is processing - it's not safe to upload until the processing is done.
-		if efacturaDocument.Status == db.CoreEfacturaDocumentStatusSuccess ||
-			efacturaDocument.Status == db.CoreEfacturaDocumentStatusProcessing {
-			err = fmt.Errorf("e-factura document `%s` has status `%s`", efacturaDocument.EID, efacturaDocument.Status)
+		switch efacturaDocument.Status {
+		case db.CoreEfacturaDocumentStatusSuccess, db.CoreEfacturaDocumentStatusProcessing:
+			// If status is success - the invoice was already uploaded;
+			// if status is processing - it's not safe to upload until the processing is done.
+			err = fmt.Errorf("e-factura: upload: not uploading: status=`%s`", efacturaDocument.Status)
 			return
-		} else if efacturaDocument.Status != "" && !regenerate {
-			// Don't regenerate if already generated the XML and not forcing a regeneration
-			return
+		case db.CoreEfacturaDocumentStatusNew:
+			if efacturaDocument.UploadRecordID.Valid {
+				err = fmt.Errorf("e-factura: upload: not uploading: upload in progress")
+				return
+			}
 		}
 
-		_, efacturaDocID, err = r._EfacturaGenerateDocument(ctx, documentID, transaction)
-		return
+		uploadRecordID, err = tx.CreateEfacturaDocumentUpload(ctx, db.CreateEfacturaDocumentUploadParams{
+			EID:    efacturaDocID,
+			XID:    efacturaDocument.XID,
+			Status: db.CoreEfacturaDocumentStatusNew,
+		})
+		if err != nil {
+			err = fmt.Errorf("e-factura: upload: store record failed: %w", err)
+			return
+		}
+		return nil
 	}); err != nil {
-		r.Logger.Error("failed to generate and store E-factura XML", zap.Error(err))
+		r.Logger.Error("e-factura: store upload failed",
+			zap.Error(err),
+			zap.String("efactura_documents.id", efacturaDocID.String()))
 		return
 	}
 
-	uid, err := r._EfacturaUpload(ctx, efacturaDocID)
+	uploadIndex, err = r._EfacturaUpload(ctx, efacturaDocument)
 	if err != nil {
+		r.Logger.Error("e-factura: upload failed",
+			zap.Error(err),
+			zap.String("efactura_documents.id", efacturaDocID.String()))
+		if terr := r.trx(ctx, func(tx *db.Queries) error {
+			return tx.UpdateEfacturaUploadStatus(ctx, db.UpdateEfacturaUploadStatusParams{
+				ID:     uploadRecordID,
+				Status: db.CoreEfacturaDocumentStatusError,
+			})
+		}); terr != nil {
+			// Return the error from _EfacturaUpload instead of returning the
+			// update status error, but log the latter.
+			r.Logger.Error("e-factura: update document status failed",
+				zap.Error(terr),
+				zap.String("efactura_documents.id", efacturaDocID.String()))
+		}
+	} else {
+		r.Logger.Info("e-factura: invoice uploaded",
+			zap.String("efactura_documents.id", efacturaDocID.String()),
+			zap.Int64("upload_index", uploadIndex))
+		if err = r.trx(ctx, func(tx *db.Queries) error {
+			return tx.UpdateEfacturaUploadIndex(ctx, db.UpdateEfacturaUploadIndexParams{
+				ID:          uploadRecordID,
+				UploadIndex: util.NullableInt64(&uploadIndex),
+			})
+		}); err != nil {
+			r.Logger.Error("e-factura: update document upload index failed",
+				zap.Error(err),
+				zap.String("efactura_documents.id", efacturaDocID.String()))
+			err = fmt.Errorf("e-factura: upload: efactura.document=%s: update failed: %w", efacturaDocID, err)
+			return
+		}
+	}
+	return
+}
+
+// _EfacturaGenerateAndUpload will generate if needed the efactura_documents
+// record for a given document header ID and will upload it to the e-factura
+// system.
+func (r *Resolver) _EfacturaGenerateAndUpload(ctx context.Context, documentID uuid.UUID, regenerate bool) (efacturaDocID uuid.UUID, uploadedIndex *int64, err error) {
+	efacturaDocID, err = r._EfacturaGenerateDocumentCheck(ctx, documentID, regenerate)
+	if err != nil {
+		// Don't log the error, the _EfacturaGenerateDocumentCheck should do this.
+		return
+	}
+
+	uid, err := r._EfacturaUploadUpdateStatus(ctx, efacturaDocID)
+	if err != nil {
+		// Don't log the error, the _EfacturaUploadUpdateStatus should do this.
 		return
 	}
 
@@ -453,17 +589,23 @@ func (r *Resolver) _EfacturaGenerateAndUpload(ctx context.Context, documentID uu
 }
 
 func (r *Resolver) _EfacturaCheckUploadState(ctx context.Context, efacturaDocID uuid.UUID) (status db.CoreEfacturaDocumentStatus, err error) {
+	logError := func(err error) {
+		r.Logger.Error("e-factura: check upload state failed", zap.Error(err), zap.String("efactura_documents.eid", efacturaDocID.String()))
+	}
 	var efacturaDocument db.GetEfacturaDocumentRow
 	efacturaDocument, err = r.DBProvider.GetEfacturaDocument(ctx, efacturaDocID)
 	if err != nil {
+		err = fmt.Errorf("e-factura: check: fetch record failed: %w", err)
+		logError(err)
 		return
 	}
 	if efacturaDocument.Status == db.CoreEfacturaDocumentStatusSuccess || efacturaDocument.Status == db.CoreEfacturaDocumentStatusError {
 		status = efacturaDocument.Status
 		return
 	}
-	if !efacturaDocument.UploadIndex.Valid {
-		err = fmt.Errorf("cannot check to message state for efactura document %s, nil upload_index", efacturaDocID)
+	if !efacturaDocument.UploadIndex.Valid || !efacturaDocument.UploadRecordID.Valid {
+		err = fmt.Errorf("e-factura: check: nil upload index")
+		logError(err)
 		return
 	}
 
@@ -472,147 +614,112 @@ func (r *Resolver) _EfacturaCheckUploadState(ctx context.Context, efacturaDocID 
 		efactura_oauth2.ConfigRedirectURL(r.EfacturaSettings.CallbackURL),
 	)
 	if err != nil {
-		r.Logger.Error("efactura_oauth2.MakeConfig failed", zap.Error(err))
+		err = fmt.Errorf("e-factura: check: create oauth2 config failed: %w", err)
+		logError(err)
 		return
 	}
 
 	authorization, err := r.DBProvider.FetchLastAuthorization(ctx)
 	if err != nil {
+		err = fmt.Errorf("e-factura: check: fetch authorization failed: %w", err)
+		logError(err)
 		return
 	}
 
 	token, err := efactura_oauth2.TokenFromJSON(authorization.Token.Bytes)
 	if err != nil {
-		r.Logger.Error("failed to parse stored token", zap.Error(err))
+		err = fmt.Errorf("e-factura: check: parse token failed: %w", err)
+		logError(err)
 		return
 	}
 
 	// If the token is refreshed, update the authorization
-	onTokenChanged := func(ctx context.Context, t *xoauth2.Token) error {
-		r.Logger.Info("Token refreshed", zap.Field{
-			Key:       "authorization_id",
-			Type:      zapcore.StringType,
-			Interface: authorization.AID},
-		)
-		return r._EfacturaUpdateAuthorizationToken(ctx, authorization.AID, t)
-	}
-	client, err := efactura.NewClient(
-		context.Background(),
-		efactura.ClientOAuth2TokenSource(oauth2Cfg.TokenSourceWithChangedHandler(ctx, token, onTokenChanged)),
-		efactura.ClientProductionEnvironment(false), // TODO: use true for production
-	)
+	// TODO: use efactura.NewProductionClient for production
+	client, err := efactura.NewSandboxClient(ctx,
+		oauth2Cfg.TokenSourceWithChangedHandler(ctx, token, r._EfacturaOnTokenChangedFunc(authorization.AID)))
 	if err != nil {
-		r.Logger.Error("efactura.NewClient failed", zap.Error(err))
+		err = fmt.Errorf("e-factura: upload: create client failed: %w", err)
+		logError(err)
 		return
 	}
 
 	stateResponse, err := client.GetMessageState(ctx, efacturaDocument.UploadIndex.Int64)
 	if err != nil {
+		err = fmt.Errorf("e-factura: check: get message state API call failed: %w", err)
+		logError(err)
 		return
 	}
-	r.Logger.Info("message state", zap.Field{
-		Key:       "efactura_documents.id",
-		Type:      zapcore.StringType,
-		Interface: efacturaDocID.String(),
-	}, zap.Field{
-		Key:       "state",
-		Type:      zapcore.StringType,
-		Interface: stateResponse.State,
-	}, zap.Field{
-		Key:       "download_id",
-		Type:      zapcore.Int64Type,
-		Interface: stateResponse.GetDownloadID(),
-	})
+
+	fields := []zap.Field{
+		zap.String("efactura_documents.id", efacturaDocID.String()),
+		zap.String("state", string(stateResponse.State)),
+	}
+	downloadID := stateResponse.GetDownloadID()
+	if downloadID != 0 {
+		fields = append(fields, zap.Int64("download_id", downloadID))
+	}
+	firstErrorMessage := stateResponse.GetFirstErrorMessage()
+	if firstErrorMessage != "" {
+		fields = append(fields, zap.String("first_error_message", stateResponse.GetFirstErrorMessage()))
+	}
+	r.Logger.Info("e-factura: check message state", fields...)
+
+	updateStatus := func(messageState db.CoreEfacturaMessageState, documentStatus db.CoreEfacturaDocumentStatus,
+		downloadID int64, errorMessage string) error {
+		var dbDownloadID sql.NullInt64
+		if downloadID != 0 {
+			dbDownloadID = util.NullableInt64(&downloadID)
+		}
+		var dbErrorMessage sql.NullString
+		if errorMessage != "" {
+			dbErrorMessage = util.NullableStr(&errorMessage)
+		}
+
+		return r.DBPool.BeginFunc(ctx, func(tx pgx.Tx) (err error) {
+			dbTrx := r.DBProvider.WithTx(tx)
+
+			_, err = dbTrx.CreateEfacturaMessage(ctx, db.CreateEfacturaMessageParams{
+				UID:          efacturaDocument.UploadRecordID.Int64,
+				State:        messageState,
+				DownloadID:   dbDownloadID,
+				ErrorMessage: dbErrorMessage,
+			})
+			if err != nil {
+				return
+			}
+			err = dbTrx.UpdateEfacturaUploadStatus(ctx, db.UpdateEfacturaUploadStatusParams{
+				ID:         efacturaDocument.UploadRecordID.Int64,
+				Status:     status,
+				DownloadID: dbDownloadID,
+			})
+			return
+		})
+	}
+
 	switch {
 	case stateResponse.IsOk():
 		status = db.CoreEfacturaDocumentStatusSuccess
-		err = r.DBPool.BeginFunc(ctx, func(tx pgx.Tx) (err error) {
-			dbTrx := r.DBProvider.WithTx(tx)
-
-			downloadID := stateResponse.GetDownloadID()
-			_, err = dbTrx.CreateEfacturaMessage(ctx, db.CreateEfacturaMessageParams{
-				EID:        efacturaDocument.EID,
-				State:      db.CoreEfacturaMessageStateOk,
-				DownloadID: util.NullableInt64(&downloadID),
-			})
-			if err != nil {
-				return
-			}
-
-			err = dbTrx.UpdateEfacturaDocumentStatus(ctx, db.UpdateEfacturaDocumentStatusParams{
-				EID:        efacturaDocument.EID,
-				Status:     status,
-				DownloadID: util.NullableInt64(&downloadID),
-			})
-			return
-		})
+		err = updateStatus(db.CoreEfacturaMessageStateOk, status, downloadID, firstErrorMessage)
 
 	case stateResponse.IsNok():
 		status = db.CoreEfacturaDocumentStatusError
-		err = r.DBPool.BeginFunc(ctx, func(tx pgx.Tx) (err error) {
-			dbTrx := r.DBProvider.WithTx(tx)
-
-			downloadID := stateResponse.GetDownloadID()
-			errMsg := stateResponse.GetFirstErrorMessage()
-			_, err = dbTrx.CreateEfacturaMessage(ctx, db.CreateEfacturaMessageParams{
-				EID:          efacturaDocument.EID,
-				State:        db.CoreEfacturaMessageStateNok,
-				DownloadID:   util.NullableInt64(&downloadID),
-				ErrorMessage: util.NullableStr(&errMsg),
-			})
-			if err != nil {
-				return
-			}
-
-			err = dbTrx.UpdateEfacturaDocumentStatus(ctx, db.UpdateEfacturaDocumentStatusParams{
-				EID:    efacturaDocument.EID,
-				Status: status,
-			})
-			return
-		})
+		err = updateStatus(db.CoreEfacturaMessageStateNok, status, downloadID, firstErrorMessage)
 
 	case stateResponse.IsInvalidXML():
 		status = db.CoreEfacturaDocumentStatusError
-		err = r.DBPool.BeginFunc(ctx, func(tx pgx.Tx) (err error) {
-			dbTrx := r.DBProvider.WithTx(tx)
-
-			_, err = dbTrx.CreateEfacturaMessage(ctx, db.CreateEfacturaMessageParams{
-				EID:   efacturaDocument.EID,
-				State: db.CoreEfacturaMessageStateXmlErrors,
-			})
-			if err != nil {
-				return
-			}
-
-			err = dbTrx.UpdateEfacturaDocumentStatus(ctx, db.UpdateEfacturaDocumentStatusParams{
-				EID:    efacturaDocument.EID,
-				Status: status,
-			})
-			return
-		})
+		err = updateStatus(db.CoreEfacturaMessageStateXmlErrors, status, downloadID, firstErrorMessage)
 
 	case stateResponse.IsProcessing():
 		status = db.CoreEfacturaDocumentStatusProcessing
-		err = r.DBPool.BeginFunc(ctx, func(tx pgx.Tx) (err error) {
-			dbTrx := r.DBProvider.WithTx(tx)
-
-			_, err = dbTrx.CreateEfacturaMessage(ctx, db.CreateEfacturaMessageParams{
-				EID:   efacturaDocument.EID,
-				State: db.CoreEfacturaMessageStateProcessing,
-			})
-			if err != nil {
-				return
-			}
-
-			err = dbTrx.UpdateEfacturaDocumentStatus(ctx, db.UpdateEfacturaDocumentStatusParams{
-				EID:    efacturaDocument.EID,
-				Status: status,
-			})
-			return
-		})
+		err = updateStatus(db.CoreEfacturaMessageStateProcessing, status, downloadID, firstErrorMessage)
 
 	default:
-		err = fmt.Errorf("failed to process message state `%s`", stateResponse.State)
+		err = fmt.Errorf("e-factura: check: unknown message state: %s", stateResponse.State)
+	}
+
+	if err != nil {
+		err = fmt.Errorf("e-factura: check: update record failed: %w", err)
+		logError(err)
 	}
 	return
 }

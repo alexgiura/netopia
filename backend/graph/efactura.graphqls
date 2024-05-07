@@ -1,5 +1,10 @@
+input GenerateEfacturaDocumentInput{
+    h_id: String!
+    regenerate: Boolean
+}
+
 extend type Mutation {
   generateEfacturaAuthorizationLink: String
-  uploadEfacturaDocument(documentId: String!): String
+  uploadEfacturaDocument(input: GenerateEfacturaDocumentInput!): String
   checkEfacturaUploadState(efacturaDocumentId: String!): String
 }

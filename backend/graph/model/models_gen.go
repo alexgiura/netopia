@@ -134,6 +134,11 @@ type GenerateAvailableItems struct {
 	DocumentItem *DocumentItem `json:"document_item"`
 }
 
+type GenerateEfacturaDocumentInput struct {
+	HID        string `json:"h_id"`
+	Regenerate *bool  `json:"regenerate,omitempty"`
+}
+
 type GeneratedDocument struct {
 	DocumentType         string `json:"document_type"`
 	Number               string `json:"number"`

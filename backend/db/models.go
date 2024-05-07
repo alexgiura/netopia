@@ -246,24 +246,43 @@ type CoreEfacturaAuthorization struct {
 }
 
 type CoreEfacturaDocument struct {
-	EID           uuid.UUID
-	HID           uuid.UUID
-	InvoiceXml    string
-	InvoiceMd5Sum string
-	Status        CoreEfacturaDocumentStatus
-	UploadIndex   sql.NullInt64
-	DownloadID    sql.NullInt64
-	CreatedAt     time.Time
-	UpdatedAt     time.Time
+	EID         uuid.UUID
+	HID         uuid.UUID
+	XID         int64
+	UID         sql.NullInt64
+	Status      CoreEfacturaDocumentStatus
+	UploadIndex sql.NullInt64
+	DownloadID  sql.NullInt64
+	CreatedAt   time.Time
+	UpdatedAt   time.Time
+}
+
+type CoreEfacturaDocumentUpload struct {
+	ID          int64
+	EID         uuid.UUID
+	XID         int64
+	Status      CoreEfacturaDocumentStatus
+	UploadIndex sql.NullInt64
+	DownloadID  sql.NullInt64
+	CreatedAt   time.Time
+	UpdatedAt   time.Time
 }
 
 type CoreEfacturaMessage struct {
-	MID          int32
-	EID          uuid.UUID
+	ID           int64
+	UID          int64
 	State        CoreEfacturaMessageState
 	DownloadID   sql.NullInt64
 	ErrorMessage sql.NullString
 	CreatedAt    time.Time
+}
+
+type CoreEfacturaXmlDocument struct {
+	ID            int64
+	HID           uuid.UUID
+	InvoiceXml    string
+	InvoiceMd5Sum string
+	CreatedAt     time.Time
 }
 
 type CoreInventory struct {

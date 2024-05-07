@@ -14,46 +14,121 @@ import (
 	"github.com/jackc/pgtype"
 )
 
+const cloneAuthorizationWithToken = `-- name: CloneAuthorizationWithToken :one
+WITH auth AS (
+    SELECT company_id, code, status FROM core.efactura_authorizations
+    WHERE efactura_authorizations.a_id=$1
+)
+INSERT INTO core.efactura_authorizations(company_id, code, status, token, token_expires_at)
+    SELECT auth.company_id, auth.code, auth.status, $2, $3 FROM auth
+    RETURNING a_id
+`
+
+type CloneAuthorizationWithTokenParams struct {
+	AID            uuid.UUID
+	Token          pgtype.JSON
+	TokenExpiresAt sql.NullTime
+}
+
+func (q *Queries) CloneAuthorizationWithToken(ctx context.Context, arg CloneAuthorizationWithTokenParams) (uuid.UUID, error) {
+	row := q.db.QueryRow(ctx, cloneAuthorizationWithToken, arg.AID, arg.Token, arg.TokenExpiresAt)
+	var a_id uuid.UUID
+	err := row.Scan(&a_id)
+	return a_id, err
+}
+
 const createEfacturaDocument = `-- name: CreateEfacturaDocument :one
-INSERT INTO core.efactura_documents(h_id, invoice_xml, invoice_md5_sum)
+INSERT INTO core.efactura_documents(h_id, x_id, status)
 VALUES ($1,$2,$3) RETURNING e_id
 `
 
 type CreateEfacturaDocumentParams struct {
-	HID           uuid.UUID
-	InvoiceXml    string
-	InvoiceMd5Sum string
+	HID    uuid.UUID
+	XID    int64
+	Status CoreEfacturaDocumentStatus
 }
 
 func (q *Queries) CreateEfacturaDocument(ctx context.Context, arg CreateEfacturaDocumentParams) (uuid.UUID, error) {
-	row := q.db.QueryRow(ctx, createEfacturaDocument, arg.HID, arg.InvoiceXml, arg.InvoiceMd5Sum)
+	row := q.db.QueryRow(ctx, createEfacturaDocument, arg.HID, arg.XID, arg.Status)
 	var e_id uuid.UUID
 	err := row.Scan(&e_id)
 	return e_id, err
 }
 
+const createEfacturaDocumentUpload = `-- name: CreateEfacturaDocumentUpload :one
+WITH insert_upload AS (
+    INSERT INTO core.efactura_document_uploads(e_id, x_id, status, upload_index)
+    VALUES ($1, $2, $3, $4)
+    RETURNING id
+)
+UPDATE core.efactura_documents AS ed
+SET x_id=$2,
+    status=$3,
+    upload_index=$4,
+    u_id = (SELECT id FROM insert_upload)
+WHERE ed.e_id=$1
+RETURNING u_id::bigint
+`
+
+type CreateEfacturaDocumentUploadParams struct {
+	EID         uuid.UUID
+	XID         int64
+	Status      CoreEfacturaDocumentStatus
+	UploadIndex sql.NullInt64
+}
+
+func (q *Queries) CreateEfacturaDocumentUpload(ctx context.Context, arg CreateEfacturaDocumentUploadParams) (int64, error) {
+	row := q.db.QueryRow(ctx, createEfacturaDocumentUpload,
+		arg.EID,
+		arg.XID,
+		arg.Status,
+		arg.UploadIndex,
+	)
+	var u_id int64
+	err := row.Scan(&u_id)
+	return u_id, err
+}
+
 const createEfacturaMessage = `-- name: CreateEfacturaMessage :one
-INSERT INTO core.efactura_messages(e_id, state, download_id, error_message)
-VALUES ($1,$2,$3,$4) RETURNING m_id
+INSERT INTO core.efactura_messages(u_id, state, download_id, error_message)
+VALUES ($1,$2,$3,$4) RETURNING id
 `
 
 type CreateEfacturaMessageParams struct {
-	EID          uuid.UUID
+	UID          int64
 	State        CoreEfacturaMessageState
 	DownloadID   sql.NullInt64
 	ErrorMessage sql.NullString
 }
 
-func (q *Queries) CreateEfacturaMessage(ctx context.Context, arg CreateEfacturaMessageParams) (int32, error) {
+func (q *Queries) CreateEfacturaMessage(ctx context.Context, arg CreateEfacturaMessageParams) (int64, error) {
 	row := q.db.QueryRow(ctx, createEfacturaMessage,
-		arg.EID,
+		arg.UID,
 		arg.State,
 		arg.DownloadID,
 		arg.ErrorMessage,
 	)
-	var m_id int32
-	err := row.Scan(&m_id)
-	return m_id, err
+	var id int64
+	err := row.Scan(&id)
+	return id, err
+}
+
+const createEfacturaXMLDocument = `-- name: CreateEfacturaXMLDocument :one
+INSERT INTO core.efactura_xml_documents(h_id, invoice_xml, invoice_md5_sum)
+VALUES ($1,$2,$3) RETURNING id
+`
+
+type CreateEfacturaXMLDocumentParams struct {
+	HID           uuid.UUID
+	InvoiceXml    string
+	InvoiceMd5Sum string
+}
+
+func (q *Queries) CreateEfacturaXMLDocument(ctx context.Context, arg CreateEfacturaXMLDocumentParams) (int64, error) {
+	row := q.db.QueryRow(ctx, createEfacturaXMLDocument, arg.HID, arg.InvoiceXml, arg.InvoiceMd5Sum)
+	var id int64
+	err := row.Scan(&id)
+	return id, err
 }
 
 const deleteDocument = `-- name: DeleteDocument :exec
@@ -248,7 +323,7 @@ SELECT p.id, p.code, p.name, p.is_active, p.type, p.tax_id, p.company_number, p.
 FROM core.document_partner_billing_details bd
 INNER JOIN core.partners p
 ON p.id = bd.partner_id
-where bd.id=$1
+WHERE bd.id=$1
 `
 
 type GetDocumentHeaderPartnerBillingDetailsRow struct {
@@ -473,25 +548,31 @@ func (q *Queries) GetDocuments(ctx context.Context, arg GetDocumentsParams) ([]G
 }
 
 const getEfacturaDocument = `-- name: GetEfacturaDocument :one
-SELECT e_id,
-    h_id,
-    invoice_xml,
-    invoice_md5_sum,
-    status,
-    upload_index,
-    download_id
-FROM core.efactura_documents
-WHERE e_id=$1
+SELECT d.e_id,
+    d.h_id,
+    d.x_id,
+    x.invoice_xml,
+    x.invoice_md5_sum,
+    d.status,
+    d.upload_index,
+    d.download_id,
+    d.u_id AS upload_record_id
+FROM core.efactura_documents d
+INNER JOIN core.efactura_xml_documents x
+ON d.x_id = x.id
+WHERE d.e_id=$1
 `
 
 type GetEfacturaDocumentRow struct {
-	EID           uuid.UUID
-	HID           uuid.UUID
-	InvoiceXml    string
-	InvoiceMd5Sum string
-	Status        CoreEfacturaDocumentStatus
-	UploadIndex   sql.NullInt64
-	DownloadID    sql.NullInt64
+	EID            uuid.UUID
+	HID            uuid.UUID
+	XID            int64
+	InvoiceXml     string
+	InvoiceMd5Sum  string
+	Status         CoreEfacturaDocumentStatus
+	UploadIndex    sql.NullInt64
+	DownloadID     sql.NullInt64
+	UploadRecordID sql.NullInt64
 }
 
 func (q *Queries) GetEfacturaDocument(ctx context.Context, eID uuid.UUID) (GetEfacturaDocumentRow, error) {
@@ -500,45 +581,102 @@ func (q *Queries) GetEfacturaDocument(ctx context.Context, eID uuid.UUID) (GetEf
 	err := row.Scan(
 		&i.EID,
 		&i.HID,
+		&i.XID,
 		&i.InvoiceXml,
 		&i.InvoiceMd5Sum,
 		&i.Status,
 		&i.UploadIndex,
 		&i.DownloadID,
+		&i.UploadRecordID,
 	)
 	return i, err
 }
 
-const getEfacturaDocumentForHeaderID = `-- name: GetEfacturaDocumentForHeaderID :one
-SELECT e_id,
-    invoice_xml,
-    invoice_md5_sum,
-    status,
-    upload_index,
-    download_id
-FROM core.efactura_documents
-WHERE h_id=$1
+const getEfacturaDocumentForHeaderIDLockForUpdate = `-- name: GetEfacturaDocumentForHeaderIDLockForUpdate :one
+SELECT d.e_id,
+    d.x_id,
+    x.invoice_xml,
+    x.invoice_md5_sum,
+    d.status,
+    d.upload_index,
+    d.download_id,
+    d.u_id AS upload_record_id
+FROM core.efactura_documents d
+INNER JOIN core.efactura_xml_documents x
+ON d.x_id = x.id
+WHERE d.h_id=$1
+FOR UPDATE OF d
 `
 
-type GetEfacturaDocumentForHeaderIDRow struct {
-	EID           uuid.UUID
-	InvoiceXml    string
-	InvoiceMd5Sum string
-	Status        CoreEfacturaDocumentStatus
-	UploadIndex   sql.NullInt64
-	DownloadID    sql.NullInt64
+type GetEfacturaDocumentForHeaderIDLockForUpdateRow struct {
+	EID            uuid.UUID
+	XID            int64
+	InvoiceXml     string
+	InvoiceMd5Sum  string
+	Status         CoreEfacturaDocumentStatus
+	UploadIndex    sql.NullInt64
+	DownloadID     sql.NullInt64
+	UploadRecordID sql.NullInt64
 }
 
-func (q *Queries) GetEfacturaDocumentForHeaderID(ctx context.Context, hID uuid.UUID) (GetEfacturaDocumentForHeaderIDRow, error) {
-	row := q.db.QueryRow(ctx, getEfacturaDocumentForHeaderID, hID)
-	var i GetEfacturaDocumentForHeaderIDRow
+func (q *Queries) GetEfacturaDocumentForHeaderIDLockForUpdate(ctx context.Context, hID uuid.UUID) (GetEfacturaDocumentForHeaderIDLockForUpdateRow, error) {
+	row := q.db.QueryRow(ctx, getEfacturaDocumentForHeaderIDLockForUpdate, hID)
+	var i GetEfacturaDocumentForHeaderIDLockForUpdateRow
 	err := row.Scan(
 		&i.EID,
+		&i.XID,
 		&i.InvoiceXml,
 		&i.InvoiceMd5Sum,
 		&i.Status,
 		&i.UploadIndex,
 		&i.DownloadID,
+		&i.UploadRecordID,
+	)
+	return i, err
+}
+
+const getEfacturaDocumentLockForUpdate = `-- name: GetEfacturaDocumentLockForUpdate :one
+SELECT d.e_id,
+       d.h_id,
+       d.x_id,
+       x.invoice_xml,
+       x.invoice_md5_sum,
+       d.status,
+       d.upload_index,
+       d.download_id,
+       d.u_id AS upload_record_id
+FROM core.efactura_documents d
+INNER JOIN core.efactura_xml_documents x
+ON d.x_id = x.id
+WHERE d.e_id=$1
+FOR UPDATE OF d
+`
+
+type GetEfacturaDocumentLockForUpdateRow struct {
+	EID            uuid.UUID
+	HID            uuid.UUID
+	XID            int64
+	InvoiceXml     string
+	InvoiceMd5Sum  string
+	Status         CoreEfacturaDocumentStatus
+	UploadIndex    sql.NullInt64
+	DownloadID     sql.NullInt64
+	UploadRecordID sql.NullInt64
+}
+
+func (q *Queries) GetEfacturaDocumentLockForUpdate(ctx context.Context, eID uuid.UUID) (GetEfacturaDocumentLockForUpdateRow, error) {
+	row := q.db.QueryRow(ctx, getEfacturaDocumentLockForUpdate, eID)
+	var i GetEfacturaDocumentLockForUpdateRow
+	err := row.Scan(
+		&i.EID,
+		&i.HID,
+		&i.XID,
+		&i.InvoiceXml,
+		&i.InvoiceMd5Sum,
+		&i.Status,
+		&i.UploadIndex,
+		&i.DownloadID,
+		&i.UploadRecordID,
 	)
 	return i, err
 }
@@ -692,7 +830,8 @@ $3::uuid,
 $4::uuid,
 $5::uuid,
 $6::uuid,
-$7::double precision)
+$7::float
+)
 `
 
 type SaveDocumentConnectionParams struct {
@@ -761,7 +900,8 @@ func (q *Queries) SaveDocumentDetails(ctx context.Context, arg SaveDocumentDetai
 const updateAuthorizationCode = `-- name: UpdateAuthorizationCode :exec
 UPDATE core.efactura_authorizations
 SET status='code_received',
-    code=$2
+    code=$2,
+    updated_at=NOW()
 WHERE a_id=$1
 `
 
@@ -777,7 +917,8 @@ func (q *Queries) UpdateAuthorizationCode(ctx context.Context, arg UpdateAuthori
 
 const updateAuthorizationStatus = `-- name: UpdateAuthorizationStatus :exec
 UPDATE core.efactura_authorizations
-SET status=$2
+SET status=$2,
+    updated_at=NOW()
 WHERE a_id=$1
 `
 
@@ -795,7 +936,8 @@ const updateAuthorizationToken = `-- name: UpdateAuthorizationToken :exec
 UPDATE core.efactura_authorizations
 SET status='success',
     token=$2,
-    token_expires_at=$3
+    token_expires_at=$3,
+    updated_at=NOW()
 WHERE a_id=$1
 `
 
@@ -810,37 +952,72 @@ func (q *Queries) UpdateAuthorizationToken(ctx context.Context, arg UpdateAuthor
 	return err
 }
 
-const updateEfacturaDocumentStatus = `-- name: UpdateEfacturaDocumentStatus :exec
+const updateEfacturaDocumentXMLDocumentID = `-- name: UpdateEfacturaDocumentXMLDocumentID :exec
 UPDATE core.efactura_documents
-SET status=$2,
-    download_id=$3
+SET x_id=$2,
+    updated_at=NOW()
 WHERE e_id=$1
 `
 
-type UpdateEfacturaDocumentStatusParams struct {
-	EID        uuid.UUID
+type UpdateEfacturaDocumentXMLDocumentIDParams struct {
+	EID uuid.UUID
+	XID int64
+}
+
+func (q *Queries) UpdateEfacturaDocumentXMLDocumentID(ctx context.Context, arg UpdateEfacturaDocumentXMLDocumentIDParams) error {
+	_, err := q.db.Exec(ctx, updateEfacturaDocumentXMLDocumentID, arg.EID, arg.XID)
+	return err
+}
+
+const updateEfacturaUploadIndex = `-- name: UpdateEfacturaUploadIndex :exec
+WITH update_upload AS (
+    UPDATE core.efactura_document_uploads
+    SET upload_index=$2,
+        status='processing',
+        updated_at=NOW()
+    WHERE id=$1
+    RETURNING id
+)
+UPDATE core.efactura_documents
+SET upload_index=$2,
+    status='processing',
+    updated_at=NOW()
+WHERE u_id = (SELECT id FROM update_upload)
+`
+
+type UpdateEfacturaUploadIndexParams struct {
+	ID          int64
+	UploadIndex sql.NullInt64
+}
+
+func (q *Queries) UpdateEfacturaUploadIndex(ctx context.Context, arg UpdateEfacturaUploadIndexParams) error {
+	_, err := q.db.Exec(ctx, updateEfacturaUploadIndex, arg.ID, arg.UploadIndex)
+	return err
+}
+
+const updateEfacturaUploadStatus = `-- name: UpdateEfacturaUploadStatus :exec
+WITH update_upload AS (
+    UPDATE core.efactura_document_uploads
+    SET status=$2,
+        download_id=$3,
+        updated_at=NOW()
+    WHERE id=$1
+    RETURNING id
+)
+UPDATE core.efactura_documents
+SET status=$2,
+    download_id=$3,
+    updated_at=NOW()
+WHERE u_id = (SELECT id FROM update_upload)
+`
+
+type UpdateEfacturaUploadStatusParams struct {
+	ID         int64
 	Status     CoreEfacturaDocumentStatus
 	DownloadID sql.NullInt64
 }
 
-func (q *Queries) UpdateEfacturaDocumentStatus(ctx context.Context, arg UpdateEfacturaDocumentStatusParams) error {
-	_, err := q.db.Exec(ctx, updateEfacturaDocumentStatus, arg.EID, arg.Status, arg.DownloadID)
-	return err
-}
-
-const updateEfacturaDocumentUploadIndex = `-- name: UpdateEfacturaDocumentUploadIndex :exec
-UPDATE core.efactura_documents
-SET upload_index=$2,
-    status='processing'
-WHERE e_id=$1
-`
-
-type UpdateEfacturaDocumentUploadIndexParams struct {
-	EID         uuid.UUID
-	UploadIndex sql.NullInt64
-}
-
-func (q *Queries) UpdateEfacturaDocumentUploadIndex(ctx context.Context, arg UpdateEfacturaDocumentUploadIndexParams) error {
-	_, err := q.db.Exec(ctx, updateEfacturaDocumentUploadIndex, arg.EID, arg.UploadIndex)
+func (q *Queries) UpdateEfacturaUploadStatus(ctx context.Context, arg UpdateEfacturaUploadStatusParams) error {
+	_, err := q.db.Exec(ctx, updateEfacturaUploadStatus, arg.ID, arg.Status, arg.DownloadID)
 	return err
 }

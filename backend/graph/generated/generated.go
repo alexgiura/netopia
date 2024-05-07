@@ -178,7 +178,7 @@ type ComplexityRoot struct {
 		SaveRecipe                        func(childComplexity int, input model.SaveRecipeInput) int
 		SaveUser                          func(childComplexity int, input model.SaveUserInput) int
 		UpdateUser                        func(childComplexity int, input model.UpdateUserInput) int
-		UploadEfacturaDocument            func(childComplexity int, documentID string) int
+		UploadEfacturaDocument            func(childComplexity int, input model.GenerateEfacturaDocumentInput) int
 	}
 
 	Partner struct {
@@ -267,7 +267,7 @@ type MutationResolver interface {
 	GeneratePNAllDoc(ctx context.Context, start *bool) (*string, error)
 	RegenerateProductionNotes(ctx context.Context, input model.GetDocumentsInput) (*string, error)
 	GenerateEfacturaAuthorizationLink(ctx context.Context) (*string, error)
-	UploadEfacturaDocument(ctx context.Context, documentID string) (*string, error)
+	UploadEfacturaDocument(ctx context.Context, input model.GenerateEfacturaDocumentInput) (*string, error)
 	CheckEfacturaUploadState(ctx context.Context, efacturaDocumentID string) (*string, error)
 	SaveItem(ctx context.Context, input model.ItemInput) (*string, error)
 	SaveItemCategory(ctx context.Context, input model.ItemCategoryInput) (*string, error)
@@ -1005,7 +1005,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.Mutation.UploadEfacturaDocument(childComplexity, args["documentId"].(string)), true
+		return e.complexity.Mutation.UploadEfacturaDocument(childComplexity, args["input"].(model.GenerateEfacturaDocumentInput)), true
 
 	case "Partner.code":
 		if e.complexity.Partner.Code == nil {
@@ -1453,6 +1453,7 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 		ec.unmarshalInputDeleteDocumentInput,
 		ec.unmarshalInputDocumentInput,
 		ec.unmarshalInputDocumentItemInput,
+		ec.unmarshalInputGenerateEfacturaDocumentInput,
 		ec.unmarshalInputGetDocumentsInput,
 		ec.unmarshalInputGetGenerateAvailableItemsInput,
 		ec.unmarshalInputGetItemsInput,
@@ -1734,9 +1735,14 @@ extend type Mutation {
     regenerateProductionNotes(input: GetDocumentsInput!):String
 }
 `, BuiltIn: false},
-	{Name: "../efactura.graphqls", Input: `extend type Mutation {
+	{Name: "../efactura.graphqls", Input: `input GenerateEfacturaDocumentInput{
+    h_id: String!
+    regenerate: Boolean
+}
+
+extend type Mutation {
   generateEfacturaAuthorizationLink: String
-  uploadEfacturaDocument(documentId: String!): String
+  uploadEfacturaDocument(input: GenerateEfacturaDocumentInput!): String
   checkEfacturaUploadState(efacturaDocumentId: String!): String
 }
 `, BuiltIn: false},
@@ -2125,15 +2131,15 @@ func (ec *executionContext) field_Mutation_updateUser_args(ctx context.Context, 
 func (ec *executionContext) field_Mutation_uploadEfacturaDocument_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
-	var arg0 string
-	if tmp, ok := rawArgs["documentId"]; ok {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("documentId"))
-		arg0, err = ec.unmarshalNString2string(ctx, tmp)
+	var arg0 model.GenerateEfacturaDocumentInput
+	if tmp, ok := rawArgs["input"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
+		arg0, err = ec.unmarshalNGenerateEfacturaDocumentInput2backendᚋgraphᚋmodelᚐGenerateEfacturaDocumentInput(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
 	}
-	args["documentId"] = arg0
+	args["input"] = arg0
 	return args, nil
 }
 
@@ -6048,7 +6054,7 @@ func (ec *executionContext) _Mutation_uploadEfacturaDocument(ctx context.Context
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().UploadEfacturaDocument(rctx, fc.Args["documentId"].(string))
+		return ec.resolvers.Mutation().UploadEfacturaDocument(rctx, fc.Args["input"].(model.GenerateEfacturaDocumentInput))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -11297,6 +11303,40 @@ func (ec *executionContext) unmarshalInputDocumentItemInput(ctx context.Context,
 	return it, nil
 }
 
+func (ec *executionContext) unmarshalInputGenerateEfacturaDocumentInput(ctx context.Context, obj interface{}) (model.GenerateEfacturaDocumentInput, error) {
+	var it model.GenerateEfacturaDocumentInput
+	asMap := map[string]interface{}{}
+	for k, v := range obj.(map[string]interface{}) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"h_id", "regenerate"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "h_id":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("h_id"))
+			data, err := ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.HID = data
+		case "regenerate":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("regenerate"))
+			data, err := ec.unmarshalOBoolean2ᚖbool(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Regenerate = data
+		}
+	}
+
+	return it, nil
+}
+
 func (ec *executionContext) unmarshalInputGetDocumentsInput(ctx context.Context, obj interface{}) (model.GetDocumentsInput, error) {
 	var it model.GetDocumentsInput
 	asMap := map[string]interface{}{}
@@ -14017,6 +14057,11 @@ func (ec *executionContext) marshalNFloat2float64(ctx context.Context, sel ast.S
 		}
 	}
 	return graphql.WrapContextMarshaler(ctx, res)
+}
+
+func (ec *executionContext) unmarshalNGenerateEfacturaDocumentInput2backendᚋgraphᚋmodelᚐGenerateEfacturaDocumentInput(ctx context.Context, v interface{}) (model.GenerateEfacturaDocumentInput, error) {
+	res, err := ec.unmarshalInputGenerateEfacturaDocumentInput(ctx, v)
+	return res, graphql.ErrorOnPath(ctx, err)
 }
 
 func (ec *executionContext) unmarshalNGetDocumentsInput2backendᚋgraphᚋmodelᚐGetDocumentsInput(ctx context.Context, v interface{}) (model.GetDocumentsInput, error) {

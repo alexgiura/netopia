@@ -85,27 +85,52 @@ CREATE TABLE IF NOT EXISTS core.efactura_authorizations(
     updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
     );
 
-CREATE TYPE core.efactura_document_status AS ENUM('new', 'processing', 'error', 'success');
-
--- download_id will be set only for successfuly uplaoded and processed efactura
--- documents.
-CREATE TABLE IF NOT EXISTS core.efactura_documents(
-    e_id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+-- efactura_xml_documents stores the generate XML documents for e-factura
+-- invoices associated with core.document_header.
+CREATE TABLE IF NOT EXISTS core.efactura_xml_documents(
+    id BIGSERIAL PRIMARY KEY UNIQUE,
     h_id UUID NOT NULL REFERENCES core.document_header(h_id),
     invoice_xml TEXT NOT NULL,
     invoice_md5_sum CHAR(32) NOT NULL,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+    );
+
+CREATE TYPE core.efactura_document_status AS ENUM('new', 'processing', 'error', 'success');
+
+-- download_id will be set only for successfuly uploaded and processed efactura
+-- documents (ie. status = 'success')
+CREATE TABLE IF NOT EXISTS core.efactura_documents(
+    e_id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    h_id UUID NOT NULL REFERENCES core.document_header(h_id) UNIQUE,
+    x_id BIGINT NOT NULL REFERENCES core.efactura_xml_documents(id),
+    u_id BIGINT NULL UNIQUE, -- REFERENCES core.efactura_document_uploads(id)
     status core.efactura_document_status NOT NULL DEFAULT 'new',
-    upload_index BIGINT NULL,
-    download_id BIGINT NULL,
+    upload_index BIGINT NULL UNIQUE,
+    download_id BIGINT NULL UNIQUE,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+    );
+
+
+-- for storing all uploads (eg, there was a network error during the upload or
+-- there was a problem with the billing details).
+CREATE TABLE IF NOT EXISTS core.efactura_document_uploads(
+    id BIGSERIAL PRIMARY KEY UNIQUE,
+    e_id UUID NOT NULL REFERENCES core.efactura_documents(e_id),
+    x_id BIGINT NOT NULL REFERENCES core.efactura_xml_documents(id),
+    status core.efactura_document_status NOT NULL DEFAULT 'new',
+    upload_index BIGINT NULL UNIQUE,
+    download_id BIGINT NULL UNIQUE,
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
     );
 
 CREATE TYPE core.efactura_message_state AS ENUM('processing', 'xml_errors', 'ok', 'nok');
 
+-- core.efactura_messages stores all e-factura messages checks with state.
 CREATE TABLE IF NOT EXISTS core.efactura_messages(
-    m_id serial PRIMARY KEY UNIQUE,
-    e_id UUID NOT NULL REFERENCES core.efactura_documents(e_id),
+    id BIGSERIAL PRIMARY KEY UNIQUE,
+    u_id BIGINT NOT NULL REFERENCES core.efactura_document_uploads(id),
     state core.efactura_message_state NOT NULL,
     download_id BIGINT NULL,
     error_message TEXT NULL,
