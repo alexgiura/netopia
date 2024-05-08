@@ -11,7 +11,6 @@ import (
 	"backend/util"
 	"context"
 	"errors"
-	"fmt"
 	"log"
 
 	"github.com/google/uuid"
@@ -78,14 +77,18 @@ func (r *queryResolver) GetPartners(ctx context.Context, input model.GetPartners
 
 	for _, row := range rows {
 		partner := &model.Partner{
-			ID:            row.ID.String(),
-			Code:          util.StringOrNil(row.Code),
-			Name:          row.Name,
-			Type:          row.Type,
-			TaxID:         util.StringOrNil(row.TaxID),
-			CompanyNumber: util.StringOrNil(row.CompanyNumber),
-			IsActive:      row.IsActive,
-			PersonalID:    util.StringOrNil(row.PersonalID),
+			ID:   row.ID.String(),
+			Code: util.StringOrNil(row.Code),
+
+			Type:   row.Type,
+			Active: row.IsActive,
+			Company: &model.Company{
+				Name:               row.Name,
+				VatNumber:          util.StringOrNil(row.TaxID),
+				RegistrationNumber: util.StringOrNil(row.CompanyNumber),
+			},
+
+			//PersonalID:    util.StringOrNil(row.PersonalID),
 		}
 
 		partners = append(partners, partner)
@@ -95,5 +98,15 @@ func (r *queryResolver) GetPartners(ctx context.Context, input model.GetPartners
 
 // GetPartnerByTaxID is the resolver for the getPartnerByTaxId field.
 func (r *queryResolver) GetPartnerByTaxID(ctx context.Context, taxID *string) (*model.Partner, error) {
-	panic(fmt.Errorf("not implemented: GetPartnerByTaxID - getPartnerByTaxId"))
+	partner, err := getPartnerInfo(*taxID)
+	if err != nil || partner == nil {
+		return nil, _err.Error(ctx, "InvalidTaxId", "DatabaseError")
+	}
+	return &model.Partner{
+		ID: "",
+		//Type:          PartnerType.company.name,
+		Name:          partner.Name,
+		TaxID:         &partner.TaxID,
+		CompanyNumber: &partner.CompanyNumber,
+	}, nil
 }

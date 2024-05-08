@@ -51,8 +51,8 @@ Select
     name,
     is_active,
     type,
-    tax_id,
-    company_number,
+    vat_number,
+    registration_number,
     personal_id
 from core.partners
 where id=$1;
@@ -154,8 +154,8 @@ select id, name from core.document_currency;
 -- name: GetDocumentHeaderPartnerBillingDetails :one
 SELECT sqlc.embed(p), sqlc.embed(bd)
 FROM core.document_partner_billing_details bd
-INNER JOIN core.partners p
-ON p.id = bd.partner_id
+         INNER JOIN core.partners p
+                    ON p.id = bd.partner_id
 WHERE bd.id=$1;
 
 -- name: GenerateAuthorization :one

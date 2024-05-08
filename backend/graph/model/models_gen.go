@@ -21,14 +21,9 @@ type ChartData struct {
 }
 
 type Company struct {
-	ID                 string  `json:"id"`
 	Name               string  `json:"name"`
 	VatNumber          string  `json:"vat_number"`
 	RegistrationNumber *string `json:"registration_number,omitempty"`
-	Address            string  `json:"address"`
-	Email              *string `json:"email,omitempty"`
-	BankName           *string `json:"bank_name,omitempty"`
-	BankAccount        *string `json:"bank_account,omitempty"`
 }
 
 type Currency struct {
@@ -211,14 +206,11 @@ type Mutation struct {
 }
 
 type Partner struct {
-	ID            string  `json:"id"`
-	Code          *string `json:"code,omitempty"`
-	Name          string  `json:"name"`
-	Type          string  `json:"type"`
-	TaxID         *string `json:"tax_id,omitempty"`
-	CompanyNumber *string `json:"company_number,omitempty"`
-	PersonalID    *string `json:"personal_id,omitempty"`
-	IsActive      bool    `json:"is_active"`
+	ID      string   `json:"id"`
+	Code    *string  `json:"code,omitempty"`
+	Type    string   `json:"type"`
+	Company *Company `json:"company,omitempty"`
+	Active  bool     `json:"active"`
 }
 
 type PartnerInput struct {

@@ -26,13 +26,9 @@ func (r *queryResolver) GetCompany(ctx context.Context) (*model.Company, error) 
 		return nil, _err.Error(ctx, "InvalidCompany", "DatabaseError")
 	}
 	return &model.Company{
-		ID:                 row.ID.String(),
+
 		Name:               row.Name,
 		VatNumber:          row.VatNumber,
 		RegistrationNumber: util.StringOrNil(row.RegistrationNumber),
-		Address:            row.Address,
-		Email:              util.StringOrNil(row.Email),
-		BankName:           util.StringOrNil(row.BankName),
-		BankAccount:        util.StringOrNil(row.BankAccount),
 	}, nil
 }

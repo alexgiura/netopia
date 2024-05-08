@@ -7,13 +7,12 @@ input GetPartnersInput{
 type Partner{
     id: String!
     code: String
-    name: String!
     type: String!
-    tax_id:String
-    company_number:String
-    personal_id:String
-    is_active:Boolean!
+    company: Company
+    active:Boolean!
 }
+
+
 input PartnerInput{
     id: String
     code: String
@@ -26,10 +25,10 @@ input PartnerInput{
 }
 
 extend type Query {
-    getPartners(input: GetPartnersInput!): [Partner]
+    getPartners(input: GetPartnersInput!): [Partner] @isAuthenticated
     getPartnerByTaxId(taxId: String):Partner
 }
 
 extend type Mutation {
-    savePartner(input: PartnerInput!): String
+    savePartner(input: PartnerInput!): String @isAuthenticated
 }

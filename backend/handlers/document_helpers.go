@@ -261,14 +261,16 @@ func (r *Resolver) _GetDocumentByID(ctx context.Context, transaction *db.Queries
 		Date:   row.Date.Format("2006-01-02"),
 
 		Partner: &model.Partner{
-			ID:            documentPartner.ID.String(),
-			Code:          util.StringOrNil(documentPartner.Code),
-			Name:          documentPartner.Name,
-			Type:          documentPartner.Type,
-			TaxID:         util.StringOrNil(documentPartner.TaxID),
-			CompanyNumber: util.StringOrNil(documentPartner.CompanyNumber),
-			PersonalID:    util.StringOrNil(documentPartner.PersonalID),
-			IsActive:      documentPartner.IsActive,
+			ID:   documentPartner.ID.String(),
+			Code: util.StringOrNil(documentPartner.Code),
+
+			Type:   documentPartner.Type,
+			Active: documentPartner.IsActive,
+			Company: &model.Company{
+				Name:               documentPartner.Name,
+				VatNumber:          util.StringOrNil(documentPartner.TaxID),
+				RegistrationNumber: util.StringOrNil(documentPartner.CompanyNumber),
+			},
 		},
 		PersonID:      util.NullUuidToString(row.PersonID),
 		PersonName:    util.StringOrNil(row.PersonName),
