@@ -20,7 +20,7 @@ select
     type,
     vat_number,
     registration_number,
-    personal_id,
+    personal_number,
     is_active
 from core.partners
 where  (code like ('%' || $1 || '%') OR code IS NULL) and name like '%' || $2 || '%' and type like '%' || $3|| '%' and tax_id like '%' || $4|| '%'
@@ -40,7 +40,7 @@ type GetPartnersRow struct {
 	Type               string
 	VatNumber          sql.NullString
 	RegistrationNumber sql.NullString
-	PersonalID         sql.NullString
+	PersonalNumber     sql.NullString
 	IsActive           bool
 }
 
@@ -65,7 +65,7 @@ func (q *Queries) GetPartners(ctx context.Context, arg GetPartnersParams) ([]Get
 			&i.Type,
 			&i.VatNumber,
 			&i.RegistrationNumber,
-			&i.PersonalID,
+			&i.PersonalNumber,
 			&i.IsActive,
 		); err != nil {
 			return nil, err
@@ -79,7 +79,7 @@ func (q *Queries) GetPartners(ctx context.Context, arg GetPartnersParams) ([]Get
 }
 
 const insertPartner = `-- name: InsertPartner :one
-Insert into core.partners (code,name,type,vat_number,registration_number,personal_id)
+Insert into core.partners (code,name,type,vat_number,registration_number,personal_number)
 VALUES ($1,$2,$3,$4,$5,$6)
 RETURNING id
 `
@@ -90,7 +90,7 @@ type InsertPartnerParams struct {
 	Type               string
 	VatNumber          sql.NullString
 	RegistrationNumber sql.NullString
-	PersonalID         sql.NullString
+	PersonalNumber     sql.NullString
 }
 
 func (q *Queries) InsertPartner(ctx context.Context, arg InsertPartnerParams) (uuid.UUID, error) {
@@ -100,7 +100,7 @@ func (q *Queries) InsertPartner(ctx context.Context, arg InsertPartnerParams) (u
 		arg.Type,
 		arg.VatNumber,
 		arg.RegistrationNumber,
-		arg.PersonalID,
+		arg.PersonalNumber,
 	)
 	var id uuid.UUID
 	err := row.Scan(&id)
@@ -115,7 +115,7 @@ Set code=$2,
     type=$5,
     vat_number=$6,
     registration_number=$7,
-    personal_id=$8
+    personal_number=$8
 where id=$1
 `
 
@@ -127,7 +127,7 @@ type UpdatePartnerParams struct {
 	Type               string
 	VatNumber          sql.NullString
 	RegistrationNumber sql.NullString
-	PersonalID         sql.NullString
+	PersonalNumber     sql.NullString
 }
 
 func (q *Queries) UpdatePartner(ctx context.Context, arg UpdatePartnerParams) error {
@@ -139,7 +139,7 @@ func (q *Queries) UpdatePartner(ctx context.Context, arg UpdatePartnerParams) er
 		arg.Type,
 		arg.VatNumber,
 		arg.RegistrationNumber,
-		arg.PersonalID,
+		arg.PersonalNumber,
 	)
 	return err
 }

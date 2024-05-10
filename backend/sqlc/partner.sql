@@ -6,13 +6,13 @@ select
     type,
     vat_number,
     registration_number,
-    personal_id,
+    personal_number,
     is_active
 from core.partners
 where  (code like ('%' || sqlc.arg(code) || '%') OR code IS NULL) and name like '%' || sqlc.arg(name) || '%' and type like '%' || sqlc.arg(type)|| '%' and tax_id like '%' || sqlc.arg(tax_id)|| '%';
 
 -- name: InsertPartner :one
-Insert into core.partners (code,name,type,vat_number,registration_number,personal_id)
+Insert into core.partners (code,name,type,vat_number,registration_number,personal_number)
 VALUES ($1,$2,$3,$4,$5,$6)
 RETURNING id;
 
@@ -24,5 +24,5 @@ Set code=$2,
     type=$5,
     vat_number=$6,
     registration_number=$7,
-    personal_id=$8
+    personal_number=$8
 where id=$1;

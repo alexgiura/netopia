@@ -53,7 +53,7 @@ Select
     type,
     vat_number,
     registration_number,
-    personal_id
+    personal_number
 from core.partners
 where id=$1;
 

@@ -332,8 +332,13 @@ type CorePartner struct {
 	IsActive           bool
 	Type               string
 	VatNumber          sql.NullString
+	Vat                bool
 	RegistrationNumber sql.NullString
-	PersonalID         sql.NullString
+	PersonalNumber     sql.NullString
+	Address            string
+	Locality           sql.NullString
+	CountyCode         sql.NullString
+	CreatedAt          time.Time
 }
 
 type CorePerson struct {

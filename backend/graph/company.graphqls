@@ -2,9 +2,19 @@
 type Company{
     name: String!
     vat_number: String!
+    vat: Boolean!
     registration_number: String
+    company_address: Address
 
 }
+
+type Address{
+    address: String
+    locality: String
+    county_code:String
+}
+
+
 
 extend type Query {
     getCompany: Company

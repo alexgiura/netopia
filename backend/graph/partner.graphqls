@@ -20,7 +20,7 @@ input PartnerInput{
     type: String!
     tax_id:String
     company_number:String
-    personal_id:String
+    personal_number:String
     is_active:Boolean
 }
 

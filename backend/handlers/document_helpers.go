@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"backend/models"
 	"context"
 	"log"
 	"time"
@@ -260,16 +261,16 @@ func (r *Resolver) _GetDocumentByID(ctx context.Context, transaction *db.Queries
 		Number: row.Number,
 		Date:   row.Date.Format("2006-01-02"),
 
-		Partner: &model.Partner{
+		Partner: &models.Partner{
 			ID:   documentPartner.ID.String(),
-			Code: util.StringOrNil(documentPartner.Code),
+			Code: *util.StringOrNil(documentPartner.Code),
 
 			Type:   documentPartner.Type,
 			Active: documentPartner.IsActive,
-			Company: &model.Company{
+			Company: &models.Company{
 				Name:               documentPartner.Name,
 				VatNumber:          *util.StringOrNil(documentPartner.VatNumber),
-				RegistrationNumber: util.StringOrNil(documentPartner.RegistrationNumber),
+				RegistrationNumber: *util.StringOrNil(documentPartner.RegistrationNumber),
 			},
 		},
 		PersonID:      util.NullUuidToString(row.PersonID),

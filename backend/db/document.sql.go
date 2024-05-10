@@ -297,14 +297,25 @@ Select
     type,
     vat_number,
     registration_number,
-    personal_id
+    personal_number
 from core.partners
 where id=$1
 `
 
-func (q *Queries) GetDocumentHeaderPartner(ctx context.Context, id uuid.UUID) (CorePartner, error) {
+type GetDocumentHeaderPartnerRow struct {
+	ID                 uuid.UUID
+	Code               sql.NullString
+	Name               string
+	IsActive           bool
+	Type               string
+	VatNumber          sql.NullString
+	RegistrationNumber sql.NullString
+	PersonalNumber     sql.NullString
+}
+
+func (q *Queries) GetDocumentHeaderPartner(ctx context.Context, id uuid.UUID) (GetDocumentHeaderPartnerRow, error) {
 	row := q.db.QueryRow(ctx, getDocumentHeaderPartner, id)
-	var i CorePartner
+	var i GetDocumentHeaderPartnerRow
 	err := row.Scan(
 		&i.ID,
 		&i.Code,
@@ -313,13 +324,13 @@ func (q *Queries) GetDocumentHeaderPartner(ctx context.Context, id uuid.UUID) (C
 		&i.Type,
 		&i.VatNumber,
 		&i.RegistrationNumber,
-		&i.PersonalID,
+		&i.PersonalNumber,
 	)
 	return i, err
 }
 
 const getDocumentHeaderPartnerBillingDetails = `-- name: GetDocumentHeaderPartnerBillingDetails :one
-SELECT p.id, p.code, p.name, p.is_active, p.type, p.vat_number, p.registration_number, p.personal_id, bd.id, bd.partner_id, bd.vat, bd.registration_number, bd.address, bd.locality, bd.county_code, bd.created_at
+SELECT p.id, p.code, p.name, p.is_active, p.type, p.vat_number, p.vat, p.registration_number, p.personal_number, p.address, p.locality, p.county_code, p.created_at, bd.id, bd.partner_id, bd.vat, bd.registration_number, bd.address, bd.locality, bd.county_code, bd.created_at
 FROM core.document_partner_billing_details bd
          INNER JOIN core.partners p
                     ON p.id = bd.partner_id
@@ -341,8 +352,13 @@ func (q *Queries) GetDocumentHeaderPartnerBillingDetails(ctx context.Context, id
 		&i.CorePartner.IsActive,
 		&i.CorePartner.Type,
 		&i.CorePartner.VatNumber,
+		&i.CorePartner.Vat,
 		&i.CorePartner.RegistrationNumber,
-		&i.CorePartner.PersonalID,
+		&i.CorePartner.PersonalNumber,
+		&i.CorePartner.Address,
+		&i.CorePartner.Locality,
+		&i.CorePartner.CountyCode,
+		&i.CorePartner.CreatedAt,
 		&i.CoreDocumentPartnerBillingDetail.ID,
 		&i.CoreDocumentPartnerBillingDetail.PartnerID,
 		&i.CoreDocumentPartnerBillingDetail.Vat,
