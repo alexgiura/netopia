@@ -50,6 +50,7 @@ class _ProductionRecipeDetailsPageState
       final recipeService = RecipeService();
 
       final recipe = await recipeService.getRecipeById(recipeId: widget.id!);
+      print(recipe);
 
       setState(() {
         _recipe = recipe;
