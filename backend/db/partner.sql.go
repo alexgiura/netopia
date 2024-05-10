@@ -18,8 +18,8 @@ select
     code,
     name,
     type,
-    tax_id,
-    company_number,
+    vat_number,
+    registration_number,
     personal_id,
     is_active
 from core.partners
@@ -34,14 +34,14 @@ type GetPartnersParams struct {
 }
 
 type GetPartnersRow struct {
-	ID            uuid.UUID
-	Code          sql.NullString
-	Name          string
-	Type          string
-	TaxID         sql.NullString
-	CompanyNumber sql.NullString
-	PersonalID    sql.NullString
-	IsActive      bool
+	ID                 uuid.UUID
+	Code               sql.NullString
+	Name               string
+	Type               string
+	VatNumber          sql.NullString
+	RegistrationNumber sql.NullString
+	PersonalID         sql.NullString
+	IsActive           bool
 }
 
 func (q *Queries) GetPartners(ctx context.Context, arg GetPartnersParams) ([]GetPartnersRow, error) {
@@ -63,8 +63,8 @@ func (q *Queries) GetPartners(ctx context.Context, arg GetPartnersParams) ([]Get
 			&i.Code,
 			&i.Name,
 			&i.Type,
-			&i.TaxID,
-			&i.CompanyNumber,
+			&i.VatNumber,
+			&i.RegistrationNumber,
 			&i.PersonalID,
 			&i.IsActive,
 		); err != nil {
@@ -79,18 +79,18 @@ func (q *Queries) GetPartners(ctx context.Context, arg GetPartnersParams) ([]Get
 }
 
 const insertPartner = `-- name: InsertPartner :one
-Insert into core.partners (code,name,type,tax_id,company_number,personal_id)
+Insert into core.partners (code,name,type,vat_number,registration_number,personal_id)
 VALUES ($1,$2,$3,$4,$5,$6)
 RETURNING id
 `
 
 type InsertPartnerParams struct {
-	Code          sql.NullString
-	Name          string
-	Type          string
-	TaxID         sql.NullString
-	CompanyNumber sql.NullString
-	PersonalID    sql.NullString
+	Code               sql.NullString
+	Name               string
+	Type               string
+	VatNumber          sql.NullString
+	RegistrationNumber sql.NullString
+	PersonalID         sql.NullString
 }
 
 func (q *Queries) InsertPartner(ctx context.Context, arg InsertPartnerParams) (uuid.UUID, error) {
@@ -98,8 +98,8 @@ func (q *Queries) InsertPartner(ctx context.Context, arg InsertPartnerParams) (u
 		arg.Code,
 		arg.Name,
 		arg.Type,
-		arg.TaxID,
-		arg.CompanyNumber,
+		arg.VatNumber,
+		arg.RegistrationNumber,
 		arg.PersonalID,
 	)
 	var id uuid.UUID
@@ -113,21 +113,21 @@ Set code=$2,
     name=$3,
     is_active=$4,
     type=$5,
-    tax_id=$6,
-    company_number=$7,
+    vat_number=$6,
+    registration_number=$7,
     personal_id=$8
 where id=$1
 `
 
 type UpdatePartnerParams struct {
-	ID            uuid.UUID
-	Code          sql.NullString
-	Name          string
-	IsActive      bool
-	Type          string
-	TaxID         sql.NullString
-	CompanyNumber sql.NullString
-	PersonalID    sql.NullString
+	ID                 uuid.UUID
+	Code               sql.NullString
+	Name               string
+	IsActive           bool
+	Type               string
+	VatNumber          sql.NullString
+	RegistrationNumber sql.NullString
+	PersonalID         sql.NullString
 }
 
 func (q *Queries) UpdatePartner(ctx context.Context, arg UpdatePartnerParams) error {
@@ -137,8 +137,8 @@ func (q *Queries) UpdatePartner(ctx context.Context, arg UpdatePartnerParams) er
 		arg.Name,
 		arg.IsActive,
 		arg.Type,
-		arg.TaxID,
-		arg.CompanyNumber,
+		arg.VatNumber,
+		arg.RegistrationNumber,
 		arg.PersonalID,
 	)
 	return err

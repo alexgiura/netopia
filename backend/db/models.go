@@ -326,14 +326,14 @@ type CoreItemVat struct {
 }
 
 type CorePartner struct {
-	ID            uuid.UUID
-	Code          sql.NullString
-	Name          string
-	IsActive      bool
-	Type          string
-	TaxID         sql.NullString
-	CompanyNumber sql.NullString
-	PersonalID    sql.NullString
+	ID                 uuid.UUID
+	Code               sql.NullString
+	Name               string
+	IsActive           bool
+	Type               string
+	VatNumber          sql.NullString
+	RegistrationNumber sql.NullString
+	PersonalID         sql.NullString
 }
 
 type CorePerson struct {

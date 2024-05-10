@@ -295,8 +295,8 @@ Select
     name,
     is_active,
     type,
-    tax_id,
-    company_number,
+    vat_number,
+    registration_number,
     personal_id
 from core.partners
 where id=$1
@@ -311,18 +311,18 @@ func (q *Queries) GetDocumentHeaderPartner(ctx context.Context, id uuid.UUID) (C
 		&i.Name,
 		&i.IsActive,
 		&i.Type,
-		&i.TaxID,
-		&i.CompanyNumber,
+		&i.VatNumber,
+		&i.RegistrationNumber,
 		&i.PersonalID,
 	)
 	return i, err
 }
 
 const getDocumentHeaderPartnerBillingDetails = `-- name: GetDocumentHeaderPartnerBillingDetails :one
-SELECT p.id, p.code, p.name, p.is_active, p.type, p.tax_id, p.company_number, p.personal_id, bd.id, bd.partner_id, bd.vat, bd.registration_number, bd.address, bd.locality, bd.county_code, bd.created_at
+SELECT p.id, p.code, p.name, p.is_active, p.type, p.vat_number, p.registration_number, p.personal_id, bd.id, bd.partner_id, bd.vat, bd.registration_number, bd.address, bd.locality, bd.county_code, bd.created_at
 FROM core.document_partner_billing_details bd
-INNER JOIN core.partners p
-ON p.id = bd.partner_id
+         INNER JOIN core.partners p
+                    ON p.id = bd.partner_id
 WHERE bd.id=$1
 `
 
@@ -340,8 +340,8 @@ func (q *Queries) GetDocumentHeaderPartnerBillingDetails(ctx context.Context, id
 		&i.CorePartner.Name,
 		&i.CorePartner.IsActive,
 		&i.CorePartner.Type,
-		&i.CorePartner.TaxID,
-		&i.CorePartner.CompanyNumber,
+		&i.CorePartner.VatNumber,
+		&i.CorePartner.RegistrationNumber,
 		&i.CorePartner.PersonalID,
 		&i.CoreDocumentPartnerBillingDetail.ID,
 		&i.CoreDocumentPartnerBillingDetail.PartnerID,
@@ -862,10 +862,10 @@ SELECT returned_d_id::UUID from core.insert_document_details(
     $1::uuid,
     $2::uuid,
     $3::float,
-    $4::double precision,
-    $5::double precision,
-    $6::double precision,
-    $7::double precision,
+    $4::float,
+    $5::float,
+    $6::float,
+    $7::float,
     $8::text
 ) AS returned_d_id
 `

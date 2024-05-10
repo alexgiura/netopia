@@ -32,3 +32,12 @@ func (r *queryResolver) GetCompany(ctx context.Context) (*model.Company, error) 
 		RegistrationNumber: util.StringOrNil(row.RegistrationNumber),
 	}, nil
 }
+
+// GetCompanyByTaxID is the resolver for the getCompanyByTaxId field.
+func (r *queryResolver) GetCompanyByTaxID(ctx context.Context, taxID *string) (*model.Company, error) {
+	company, err := r._GetCompanyInfo(ctx, taxID)
+	if err != nil || company == nil {
+		return nil, _err.Error(ctx, "InvalidTaxId", "InternalError")
+	}
+	return company, nil
+}

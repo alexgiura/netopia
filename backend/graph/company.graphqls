@@ -8,6 +8,7 @@ type Company{
 
 extend type Query {
     getCompany: Company
+    getCompanyByTaxId(taxId: String):Company
 }
 
 

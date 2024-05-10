@@ -26,7 +26,7 @@ input PartnerInput{
 
 extend type Query {
     getPartners(input: GetPartnersInput!): [Partner] @isAuthenticated
-    getPartnerByTaxId(taxId: String):Partner
+
 }
 
 extend type Mutation {

@@ -22,12 +22,12 @@ import (
 func (r *mutationResolver) SavePartner(ctx context.Context, input model.PartnerInput) (*string, error) {
 	if input.ID == nil {
 		_, err := r.DBProvider.InsertPartner(ctx, db.InsertPartnerParams{
-			Code:          util.NullableStr(input.Code),
-			Name:          input.Name,
-			Type:          input.Type,
-			TaxID:         util.NullableStr(input.TaxID),
-			CompanyNumber: util.NullableStr(input.CompanyNumber),
-			PersonalID:    util.NullableStr(input.PersonalID),
+			Code:               util.NullableStr(input.Code),
+			Name:               input.Name,
+			Type:               input.Type,
+			VatNumber:          util.NullableStr(input.TaxID),
+			RegistrationNumber: util.NullableStr(input.CompanyNumber),
+			PersonalID:         util.NullableStr(input.PersonalID),
 		})
 		if err != nil {
 			log.Print("\"message\":Failed to insert partner, "+"\"error\": ", err.Error())
@@ -40,14 +40,14 @@ func (r *mutationResolver) SavePartner(ctx context.Context, input model.PartnerI
 			return nil, _err.Error(ctx, "InvalidPartnerId", "InternalError")
 		}
 		err = r.DBProvider.UpdatePartner(ctx, db.UpdatePartnerParams{
-			ID:            IdUuid,
-			Code:          util.NullableStr(input.Code),
-			Name:          input.Name,
-			IsActive:      *input.IsActive,
-			Type:          input.Type,
-			TaxID:         util.NullableStr(input.TaxID),
-			CompanyNumber: util.NullableStr(input.CompanyNumber),
-			PersonalID:    util.NullableStr(input.PersonalID),
+			ID:                 IdUuid,
+			Code:               util.NullableStr(input.Code),
+			Name:               input.Name,
+			IsActive:           *input.IsActive,
+			Type:               input.Type,
+			VatNumber:          util.NullableStr(input.TaxID),
+			RegistrationNumber: util.NullableStr(input.CompanyNumber),
+			PersonalID:         util.NullableStr(input.PersonalID),
 		})
 		if err != nil {
 			log.Print("\"message\":Failed to update partner, "+"\"error\": ", err.Error())
@@ -84,8 +84,8 @@ func (r *queryResolver) GetPartners(ctx context.Context, input model.GetPartners
 			Active: row.IsActive,
 			Company: &model.Company{
 				Name:               row.Name,
-				VatNumber:          util.StringOrNil(row.TaxID),
-				RegistrationNumber: util.StringOrNil(row.CompanyNumber),
+				VatNumber:          *util.StringOrNil(row.VatNumber),
+				RegistrationNumber: util.StringOrNil(row.RegistrationNumber),
 			},
 
 			//PersonalID:    util.StringOrNil(row.PersonalID),
@@ -94,19 +94,4 @@ func (r *queryResolver) GetPartners(ctx context.Context, input model.GetPartners
 		partners = append(partners, partner)
 	}
 	return partners, nil
-}
-
-// GetPartnerByTaxID is the resolver for the getPartnerByTaxId field.
-func (r *queryResolver) GetPartnerByTaxID(ctx context.Context, taxID *string) (*model.Partner, error) {
-	partner, err := getPartnerInfo(*taxID)
-	if err != nil || partner == nil {
-		return nil, _err.Error(ctx, "InvalidTaxId", "DatabaseError")
-	}
-	return &model.Partner{
-		ID: "",
-		//Type:          PartnerType.company.name,
-		Name:          partner.Name,
-		TaxID:         &partner.TaxID,
-		CompanyNumber: &partner.CompanyNumber,
-	}, nil
 }

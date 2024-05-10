@@ -268,8 +268,8 @@ func (r *Resolver) _GetDocumentByID(ctx context.Context, transaction *db.Queries
 			Active: documentPartner.IsActive,
 			Company: &model.Company{
 				Name:               documentPartner.Name,
-				VatNumber:          util.StringOrNil(documentPartner.TaxID),
-				RegistrationNumber: util.StringOrNil(documentPartner.CompanyNumber),
+				VatNumber:          *util.StringOrNil(documentPartner.VatNumber),
+				RegistrationNumber: util.StringOrNil(documentPartner.RegistrationNumber),
 			},
 		},
 		PersonID:      util.NullUuidToString(row.PersonID),

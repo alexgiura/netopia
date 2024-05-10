@@ -24,13 +24,13 @@ services:
 #      - erp-postgres
     env_file: ./.env
 
-  erp-frontend:
-    container_name: "erp-frontend"
-    build:
-      context: ../frontend
-      dockerfile: Dockerfile
-    ports:
-      - "80:80"
+#  erp-frontend:
+#    container_name: "erp-frontend"
+#    build:
+#      context: ../frontend
+#      dockerfile: Dockerfile
+#    ports:
+#      - "80:80"
 
 #   erp-postgres:
 #     platform: linux/amd64
