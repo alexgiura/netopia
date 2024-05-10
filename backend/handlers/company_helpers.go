@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"backend/graph/model"
+	"backend/models"
 	"bytes"
 	"context"
 	"encoding/json"
@@ -9,20 +10,9 @@ import (
 	"io"
 	"log"
 	"net/http"
+	"strconv"
 	"time"
 )
-
-//	type Partner struct {
-//		Name          string `json:"denumire"`
-//		TaxID         string `json:"cui"`
-//		CompanyNumber string `json:"nrRegCom"`
-//		Address       string `json:"adresa"` // Assuming you also want the address
-//	}
-//type ApiResponse struct {
-//	Found []struct {
-//		GeneralInfo model.Company `json:"date_generale"`
-//	} `json:"found"`
-//}
 
 func (r *Resolver) _GetCompanyInfo(ctx context.Context, taxID *string) (*model.Company, error) {
 	// Define the API endpoint URL
@@ -55,10 +45,9 @@ func (r *Resolver) _GetCompanyInfo(ctx context.Context, taxID *string) (*model.C
 		log.Printf("Failed to read response body: %v", err)
 		return nil, err
 	}
-	fmt.Println("Response Body:", string(body))
 
 	// Parse API response
-	var apiResp ApiResponse
+	var apiResp models.ApiResponse
 	err = json.Unmarshal(body, &apiResp)
 	if err != nil {
 		log.Printf("Failed to unmarshal API response: %v", err)
@@ -67,8 +56,25 @@ func (r *Resolver) _GetCompanyInfo(ctx context.Context, taxID *string) (*model.C
 
 	// Check if data is found
 	if len(apiResp.Found) > 0 {
-		return &apiResp.Found[0].GeneralInfo, nil
+
+		return MapToCompany(apiResp), nil
+
 	}
 
 	return nil, nil
+}
+
+func MapToCompany(apiResp models.ApiResponse) *model.Company {
+	if len(apiResp.Found) > 0 {
+		foundObj := apiResp.Found[0]
+		dateGenerale := foundObj.DateGenerale
+
+		return &model.Company{
+			Name:               dateGenerale.Denumire,
+			VatNumber:          strconv.Itoa(dateGenerale.Cui),
+			RegistrationNumber: &dateGenerale.NrRegCom,
+		}
+	}
+
+	return nil
 }
