@@ -81,7 +81,7 @@ class _ProductionRecipesPageState extends State<ProductionRecipesPage> {
                     color: CustomColor.white,
                   ),
                   label: const Text(
-                    'Adauga',
+                    'Adaugă',
                     style: CustomStyle.primaryButtonText,
                   ),
                 ),
