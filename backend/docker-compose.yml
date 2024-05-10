@@ -19,7 +19,7 @@ services:
       - "traefik.http.routers.erp-api.rule=Host(`erp-api.local`)"
       - "traefik.port=80"
       - "traefik.docker.network=traff"
-      - "- traefik.http.routers.neoman-nginx.tls=false"
+      - "traefik.http.routers.neoman-nginx.tls=false"
     networks:
       - default
     environment:
