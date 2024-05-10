@@ -5,7 +5,8 @@ import 'package:google_fonts/google_fonts.dart';
 ThemeData customTheme(BuildContext context) {
   return ThemeData(
     useMaterial3: false,
-    textTheme: GoogleFonts.robotoFlexTextTheme(Theme.of(context).textTheme),
+    textTheme:
+        GoogleFonts.wixMadeforDisplayTextTheme(Theme.of(context).textTheme),
     // canvasColor: CustomColor.white,
     pageTransitionsTheme: PageTransitionsTheme(builders: {
       TargetPlatform.iOS: FadeUpwardsPageTransitionsBuilder(),
