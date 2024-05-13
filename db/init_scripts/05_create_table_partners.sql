@@ -4,7 +4,13 @@ create TABLE IF NOT EXISTS core.partners(
     name VARCHAR(50) NOT NULL,
     is_active BOOLEAN NOT NULL DEFAULT true,
     type VARCHAR(20) NOT NULL,
-    tax_id VARCHAR(20) NULL,
-    company_number VARCHAR(20) NULL,
-    personal_id VARCHAR(20) NULL
+    vat_number VARCHAR(20) NULL,
+    vat BOOL NOT NULL,
+    registration_number VARCHAR(20) NULL,
+    personal_number VARCHAR(20) NULL,
+    address TEXT NOT NULL,
+    locality VARCHAR(50) NULL,
+    county_code CHAR(2) NULL,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
     );
+

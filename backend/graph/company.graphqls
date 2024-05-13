@@ -1,15 +1,24 @@
 
 type Company{
-    id: String!
     name: String!
     vat_number: String!
+    vat: Boolean!
     registration_number: String
-    address: String!
-    email: String
-    bank_name: String
-    bank_account: String
+    company_address: Address
+
 }
+
+type Address{
+    address: String
+    locality: String
+    county_code:String
+}
+
+
 
 extend type Query {
     getCompany: Company
+    getCompanyByTaxId(taxId: String):Company
 }
+
+

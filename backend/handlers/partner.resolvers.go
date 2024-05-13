@@ -8,10 +8,10 @@ import (
 	"backend/db"
 	_err "backend/errors"
 	"backend/graph/model"
+	"backend/models"
 	"backend/util"
 	"context"
 	"errors"
-	"fmt"
 	"log"
 
 	"github.com/google/uuid"
@@ -23,12 +23,12 @@ import (
 func (r *mutationResolver) SavePartner(ctx context.Context, input model.PartnerInput) (*string, error) {
 	if input.ID == nil {
 		_, err := r.DBProvider.InsertPartner(ctx, db.InsertPartnerParams{
-			Code:          util.NullableStr(input.Code),
-			Name:          input.Name,
-			Type:          input.Type,
-			TaxID:         util.NullableStr(input.TaxID),
-			CompanyNumber: util.NullableStr(input.CompanyNumber),
-			PersonalID:    util.NullableStr(input.PersonalID),
+			Code:               util.NullableStr(input.Code),
+			Name:               input.Name,
+			Type:               input.Type,
+			VatNumber:          util.NullableStr(input.TaxID),
+			RegistrationNumber: util.NullableStr(input.CompanyNumber),
+			PersonalNumber:     util.NullableStr(input.PersonalNumber),
 		})
 		if err != nil {
 			log.Print("\"message\":Failed to insert partner, "+"\"error\": ", err.Error())
@@ -41,14 +41,14 @@ func (r *mutationResolver) SavePartner(ctx context.Context, input model.PartnerI
 			return nil, _err.Error(ctx, "InvalidPartnerId", "InternalError")
 		}
 		err = r.DBProvider.UpdatePartner(ctx, db.UpdatePartnerParams{
-			ID:            IdUuid,
-			Code:          util.NullableStr(input.Code),
-			Name:          input.Name,
-			IsActive:      *input.IsActive,
-			Type:          input.Type,
-			TaxID:         util.NullableStr(input.TaxID),
-			CompanyNumber: util.NullableStr(input.CompanyNumber),
-			PersonalID:    util.NullableStr(input.PersonalID),
+			ID:                 IdUuid,
+			Code:               util.NullableStr(input.Code),
+			Name:               input.Name,
+			IsActive:           *input.IsActive,
+			Type:               input.Type,
+			VatNumber:          util.NullableStr(input.TaxID),
+			RegistrationNumber: util.NullableStr(input.CompanyNumber),
+			PersonalNumber:     util.NullableStr(input.PersonalNumber),
 		})
 		if err != nil {
 			log.Print("\"message\":Failed to update partner, "+"\"error\": ", err.Error())
@@ -60,7 +60,7 @@ func (r *mutationResolver) SavePartner(ctx context.Context, input model.PartnerI
 }
 
 // GetPartners is the resolver for the getPartners field.
-func (r *queryResolver) GetPartners(ctx context.Context, input model.GetPartnersInput) ([]*model.Partner, error) {
+func (r *queryResolver) GetPartners(ctx context.Context, input model.GetPartnersInput) ([]*models.Partner, error) {
 	rows, err := r.DBProvider.GetPartners(ctx, db.GetPartnersParams{
 		Code:  util.ParamStr(input.Code),
 		Name:  util.ParamStr(input.Name),
@@ -74,26 +74,25 @@ func (r *queryResolver) GetPartners(ctx context.Context, input model.GetPartners
 		r.Logger.Error("failed to execute DBProvider.GetPartners", zap.Error(err))
 		return nil, _err.Error(ctx, "Failed to get partners", "DatabaseError")
 	}
-	partners := make([]*model.Partner, 0)
+	partners := make([]*models.Partner, 0)
 
 	for _, row := range rows {
-		partner := &model.Partner{
-			ID:            row.ID.String(),
-			Code:          util.StringOrNil(row.Code),
-			Name:          row.Name,
-			Type:          row.Type,
-			TaxID:         util.StringOrNil(row.TaxID),
-			CompanyNumber: util.StringOrNil(row.CompanyNumber),
-			IsActive:      row.IsActive,
-			PersonalID:    util.StringOrNil(row.PersonalID),
+		partner := &models.Partner{
+			ID:   row.ID.String(),
+			Code: *util.StringOrNil(row.Code),
+
+			Type:   row.Type,
+			Active: row.IsActive,
+			Company: &models.Company{
+				Name:               row.Name,
+				VatNumber:          *util.StringOrNil(row.VatNumber),
+				RegistrationNumber: *util.StringOrNil(row.RegistrationNumber),
+			},
+
+			//PersonalID:    util.StringOrNil(row.PersonalID),
 		}
 
 		partners = append(partners, partner)
 	}
 	return partners, nil
-}
-
-// GetPartnerByTaxID is the resolver for the getPartnerByTaxId field.
-func (r *queryResolver) GetPartnerByTaxID(ctx context.Context, taxID *string) (*model.Partner, error) {
-	panic(fmt.Errorf("not implemented: GetPartnerByTaxID - getPartnerByTaxId"))
 }
