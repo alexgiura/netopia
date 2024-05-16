@@ -3,10 +3,17 @@
 package model
 
 import (
+	"backend/models"
 	"fmt"
 	"io"
 	"strconv"
 )
+
+type AddressInput struct {
+	Address    *string `json:"address,omitempty"`
+	Locality   *string `json:"locality,omitempty"`
+	CountyCode *string `json:"county_code,omitempty"`
+}
 
 type Category struct {
 	ID       int    `json:"id"`
@@ -20,15 +27,17 @@ type ChartData struct {
 	SecondY *float64 `json:"second_y,omitempty"`
 }
 
-type Company struct {
-	ID                 string  `json:"id"`
-	Name               string  `json:"name"`
-	VatNumber          string  `json:"vat_number"`
-	RegistrationNumber *string `json:"registration_number,omitempty"`
-	Address            string  `json:"address"`
-	Email              *string `json:"email,omitempty"`
-	BankName           *string `json:"bank_name,omitempty"`
-	BankAccount        *string `json:"bank_account,omitempty"`
+type CompanyInput struct {
+	Name               string        `json:"name"`
+	VatNumber          string        `json:"vat_number"`
+	Vat                bool          `json:"vat"`
+	RegistrationNumber *string       `json:"registration_number,omitempty"`
+	CompanyAddress     *AddressInput `json:"company_address,omitempty"`
+}
+
+type CreateNewAccountInput struct {
+	User    *UserInput    `json:"user"`
+	Company *CompanyInput `json:"company"`
 }
 
 type Currency struct {
@@ -48,7 +57,7 @@ type Document struct {
 	Number        string          `json:"number"`
 	Date          string          `json:"date"`
 	DueDate       *string         `json:"due_date,omitempty"`
-	Partner       *Partner        `json:"partner"`
+	Partner       *models.Partner `json:"partner"`
 	PersonID      *string         `json:"person_id,omitempty"`
 	PersonName    *string         `json:"person_name,omitempty"`
 	Notes         *string         `json:"notes,omitempty"`
@@ -164,13 +173,6 @@ type GetItemsInput struct {
 	CategoryList []int `json:"category_list,omitempty"`
 }
 
-type GetPartnersInput struct {
-	Code  *string `json:"code,omitempty"`
-	Name  *string `json:"name,omitempty"`
-	Type  *string `json:"type,omitempty"`
-	TaxID *string `json:"tax_id,omitempty"`
-}
-
 type Item struct {
 	ID       string        `json:"id"`
 	Code     *string       `json:"code,omitempty"`
@@ -210,26 +212,15 @@ type ItemInput struct {
 type Mutation struct {
 }
 
-type Partner struct {
-	ID            string  `json:"id"`
-	Code          *string `json:"code,omitempty"`
-	Name          string  `json:"name"`
-	Type          string  `json:"type"`
-	TaxID         *string `json:"tax_id,omitempty"`
-	CompanyNumber *string `json:"company_number,omitempty"`
-	PersonalID    *string `json:"personal_id,omitempty"`
-	IsActive      bool    `json:"is_active"`
-}
-
 type PartnerInput struct {
-	ID            *string `json:"id,omitempty"`
-	Code          *string `json:"code,omitempty"`
-	Name          string  `json:"name"`
-	Type          string  `json:"type"`
-	TaxID         *string `json:"tax_id,omitempty"`
-	CompanyNumber *string `json:"company_number,omitempty"`
-	PersonalID    *string `json:"personal_id,omitempty"`
-	IsActive      *bool   `json:"is_active,omitempty"`
+	ID             *string `json:"id,omitempty"`
+	Code           *string `json:"code,omitempty"`
+	Name           string  `json:"name"`
+	Type           string  `json:"type"`
+	TaxID          *string `json:"tax_id,omitempty"`
+	CompanyNumber  *string `json:"company_number,omitempty"`
+	PersonalNumber *string `json:"personal_number,omitempty"`
+	IsActive       *bool   `json:"is_active,omitempty"`
 }
 
 type ProductionNote struct {
@@ -264,11 +255,9 @@ type SaveRecipeInput struct {
 }
 
 type SaveUserInput struct {
-	PhoneNumber string  `json:"phoneNumber"`
-	UserType    string  `json:"userType"`
-	Name        string  `json:"name"`
+	ID          string  `json:"id"`
 	Email       *string `json:"email,omitempty"`
-	DeviceID    *string `json:"deviceID,omitempty"`
+	PhoneNumber string  `json:"phone_number"`
 }
 
 type StockReportInput struct {
@@ -297,17 +286,13 @@ type Um struct {
 }
 
 type UpdateUserInput struct {
-	Name  string  `json:"name"`
-	Email *string `json:"email,omitempty"`
+	User    *UserInput    `json:"user,omitempty"`
+	Company *CompanyInput `json:"company,omitempty"`
 }
 
-type User struct {
-	ID          string  `json:"id"`
-	PhoneNumber string  `json:"phoneNumber"`
-	UserType    string  `json:"userType"`
-	Name        string  `json:"name"`
-	Email       *string `json:"email,omitempty"`
-	DeviceID    *string `json:"deviceID,omitempty"`
+type UserInput struct {
+	Email       string  `json:"email"`
+	PhoneNumber *string `json:"phone_number,omitempty"`
 }
 
 type Vat struct {

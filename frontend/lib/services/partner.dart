@@ -11,14 +11,14 @@ class PartnerService {
   }) async {
     final QueryOptions options = QueryOptions(
       document: gql(queries.getPartners),
-      variables: <String, dynamic>{
-        "input": {
-          "code": '',
-          "name": null,
-          "type": null,
-          "tax_id": null,
-        }
-      },
+//       variables: <String, dynamic>{
+//         "input": {
+//           "code": '',
+//           "name": null,
+//           "type": null,
+//           "tax_id": null,
+//         }
+//       },
       fetchPolicy: FetchPolicy.noCache,
     );
 
@@ -75,9 +75,9 @@ class PartnerService {
           "code": partner.code,
           "name": partner.name,
           "type": partner.type,
-          "tax_id": partner.taxId,
-          "company_number": partner.companyNumber,
-          "personal_id": partner.personalId,
+          "tax_id": partner.vatNumber,
+          "company_number": partner.registrationNumber,
+          "personal_id": partner.individualNumber,
           "is_active": partner.isActive,
         }
       },

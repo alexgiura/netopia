@@ -63,3 +63,59 @@ func (q *Queries) GetCompany(ctx context.Context) (GetCompanyRow, error) {
 	)
 	return i, err
 }
+
+const saveCompany = `-- name: SaveCompany :one
+INSERT INTO core.company(name,vat,vat_number,registration_number,address, locality,county_code)
+values ($1,$2,$3,$4,$5,$6,$7)
+    RETURNING
+    name::text,
+    vat::bool,
+    vat_number::text,
+    registration_number::text,
+    address::text,
+    locality::text,
+    county_code::text
+`
+
+type SaveCompanyParams struct {
+	Name               string
+	Vat                bool
+	VatNumber          string
+	RegistrationNumber sql.NullString
+	Address            string
+	Locality           sql.NullString
+	CountyCode         sql.NullString
+}
+
+type SaveCompanyRow struct {
+	Name               string
+	Vat                bool
+	VatNumber          string
+	RegistrationNumber string
+	Address            string
+	Locality           string
+	CountyCode         string
+}
+
+func (q *Queries) SaveCompany(ctx context.Context, arg SaveCompanyParams) (SaveCompanyRow, error) {
+	row := q.db.QueryRow(ctx, saveCompany,
+		arg.Name,
+		arg.Vat,
+		arg.VatNumber,
+		arg.RegistrationNumber,
+		arg.Address,
+		arg.Locality,
+		arg.CountyCode,
+	)
+	var i SaveCompanyRow
+	err := row.Scan(
+		&i.Name,
+		&i.Vat,
+		&i.VatNumber,
+		&i.RegistrationNumber,
+		&i.Address,
+		&i.Locality,
+		&i.CountyCode,
+	)
+	return i, err
+}

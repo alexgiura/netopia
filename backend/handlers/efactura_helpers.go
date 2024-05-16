@@ -277,14 +277,14 @@ func (r *Resolver) _EfacturaGenerateXMLDocument(ctx context.Context, documentID 
 	invoiceBuilder.WithSupplier(supplierParty)
 
 	// Buyer info
-	buyerVatID := partner.CorePartner.TaxID.String
+	buyerVatID := partner.CorePartner.VatNumber.String
 	if partner.CoreDocumentPartnerBillingDetail.Vat && !strings.HasPrefix(buyerVatID, "RO") {
 		buyerVatID = "RO" + buyerVatID
 	}
 	customerAddrSubentityCode := getAddressCountrySubentity(partner.CoreDocumentPartnerBillingDetail.CountyCode.String)
 	customerParty := efactura.InvoiceCustomerParty{
 		Identifications: []efactura.InvoicePartyIdentification{{
-			ID: efactura.MakeValueWithAttrs(partner.CorePartner.TaxID.String),
+			ID: efactura.MakeValueWithAttrs(partner.CorePartner.VatNumber.String),
 		}},
 		CommercialName: &efactura.InvoicePartyName{
 			Name: efactura_text.Transliterate(partner.CorePartner.Name),

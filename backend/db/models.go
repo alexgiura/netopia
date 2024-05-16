@@ -326,14 +326,19 @@ type CoreItemVat struct {
 }
 
 type CorePartner struct {
-	ID            uuid.UUID
-	Code          sql.NullString
-	Name          string
-	IsActive      bool
-	Type          string
-	TaxID         sql.NullString
-	CompanyNumber sql.NullString
-	PersonalID    sql.NullString
+	ID                 uuid.UUID
+	Code               sql.NullString
+	Name               string
+	IsActive           bool
+	Type               string
+	VatNumber          sql.NullString
+	Vat                bool
+	RegistrationNumber sql.NullString
+	PersonalNumber     sql.NullString
+	Address            string
+	Locality           sql.NullString
+	CountyCode         sql.NullString
+	CreatedAt          time.Time
 }
 
 type CorePerson struct {
@@ -358,9 +363,7 @@ type CoreRecipeItem struct {
 
 type CoreUser struct {
 	ID          string
-	PhoneNumber string
-	UserType    string
-	Name        string
-	DeviceID    sql.NullString
-	Email       sql.NullString
+	PhoneNumber sql.NullString
+	Name        sql.NullString
+	Email       string
 }
