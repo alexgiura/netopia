@@ -62,7 +62,7 @@ dependencies:
   skeletonizer: ^0.8.0
   calendar_date_picker2: ^0.5.3
   tuple: ^2.0.2
-  flutter_localization: ^0.2.0
+  flutter_localization: ^0.1.14
 
 
 dev_dependencies:
