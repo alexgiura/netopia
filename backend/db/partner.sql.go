@@ -23,15 +23,7 @@ select
     personal_number,
     is_active
 from core.partners
-where  (code like ('%' || $1 || '%') OR code IS NULL) and name like '%' || $2 || '%' and type like '%' || $3|| '%' and tax_id like '%' || $4|| '%'
 `
-
-type GetPartnersParams struct {
-	Code  sql.NullString
-	Name  sql.NullString
-	Type  sql.NullString
-	TaxID sql.NullString
-}
 
 type GetPartnersRow struct {
 	ID                 uuid.UUID
@@ -44,13 +36,8 @@ type GetPartnersRow struct {
 	IsActive           bool
 }
 
-func (q *Queries) GetPartners(ctx context.Context, arg GetPartnersParams) ([]GetPartnersRow, error) {
-	rows, err := q.db.Query(ctx, getPartners,
-		arg.Code,
-		arg.Name,
-		arg.Type,
-		arg.TaxID,
-	)
+func (q *Queries) GetPartners(ctx context.Context) ([]GetPartnersRow, error) {
+	rows, err := q.db.Query(ctx, getPartners)
 	if err != nil {
 		return nil, err
 	}
@@ -79,6 +66,7 @@ func (q *Queries) GetPartners(ctx context.Context, arg GetPartnersParams) ([]Get
 }
 
 const insertPartner = `-- name: InsertPartner :one
+
 Insert into core.partners (code,name,type,vat_number,registration_number,personal_number)
 VALUES ($1,$2,$3,$4,$5,$6)
 RETURNING id
@@ -93,6 +81,7 @@ type InsertPartnerParams struct {
 	PersonalNumber     sql.NullString
 }
 
+// where  (code like ('%' || sqlc.arg(code) || '%') OR code IS NULL) and name like '%' || sqlc.arg(name) || '%' and type like '%' || sqlc.arg(type)|| '%' and tax_id like '%' || sqlc.arg(tax_id)|| '%';
 func (q *Queries) InsertPartner(ctx context.Context, arg InsertPartnerParams) (uuid.UUID, error) {
 	row := q.db.QueryRow(ctx, insertPartner,
 		arg.Code,

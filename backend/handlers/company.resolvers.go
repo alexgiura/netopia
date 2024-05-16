@@ -7,30 +7,16 @@ package handlers
 import (
 	_err "backend/errors"
 	"backend/models"
-	"backend/util"
 	"context"
-	"errors"
-	"log"
-
-	pgx "github.com/jackc/pgx/v4"
 )
 
 // GetCompany is the resolver for the getCompany field.
 func (r *queryResolver) GetCompany(ctx context.Context) (*models.Company, error) {
-	row, err := r.DBProvider.GetCompany(ctx)
+	company, err := r._GetMyCompany(ctx)
 	if err != nil {
-		if errors.Is(err, pgx.ErrNoRows) {
-			return nil, nil
-		}
-		log.Print("\"message\":Failed to execute DBProvider.GetCompany, "+"\"error\": ", err.Error())
-		return nil, _err.Error(ctx, "InvalidCompany", "DatabaseError")
+		return nil, err
 	}
-	return &models.Company{
-
-		Name:               row.Name,
-		VatNumber:          row.VatNumber,
-		RegistrationNumber: *util.StringOrNil(row.RegistrationNumber),
-	}, nil
+	return company, nil
 }
 
 // GetCompanyByTaxID is the resolver for the getCompanyByTaxId field.

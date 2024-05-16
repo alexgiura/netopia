@@ -363,9 +363,7 @@ type CoreRecipeItem struct {
 
 type CoreUser struct {
 	ID          string
-	PhoneNumber string
-	UserType    string
-	Name        string
-	DeviceID    sql.NullString
-	Email       sql.NullString
+	PhoneNumber sql.NullString
+	Name        sql.NullString
+	Email       string
 }

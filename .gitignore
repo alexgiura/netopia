@@ -10,7 +10,7 @@
 /frontend/pubspec.lock  # Except for application packages
 # files and directories created by other development environments
 *.iml         # IntelliJ
-*.ipr         # IntelliJ
+*.ipr         # Intelli
 *.iws         # IntelliJ
 .idea/        # IntelliJ
 .vscode/*

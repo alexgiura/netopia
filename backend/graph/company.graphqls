@@ -8,7 +8,28 @@ type Company{
 
 }
 
+type Individual{
+    name: String!
+    individual_number: String!
+    individual_address: Address
+}
+
 type Address{
+    address: String
+    locality: String
+    county_code:String
+}
+
+input CompanyInput{
+    name: String!
+    vat_number: String!
+    vat: Boolean!
+    registration_number: String
+    company_address: AddressInput
+
+}
+
+input AddressInput{
     address: String
     locality: String
     county_code:String

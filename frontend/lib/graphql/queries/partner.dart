@@ -1,14 +1,15 @@
 const String getPartners = r'''
-query ($input: GetPartnersInput!){
-    getPartners(input:$input){
+query getPartners{
+    getPartners{
         id,
         code,
-        name,
         type,
-        tax_id,
-        company_number,
-        personal_id,
-        is_active
+        active,
+        name,
+        vat,
+        vat_number,
+        registration_number,
+        individual_number
     }
 }
 ''';

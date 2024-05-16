@@ -1,15 +1,16 @@
-input GetPartnersInput{
-    code: String
-    name: String
-    type: String
-    tax_id: String
-}
+
 type Partner{
     id: String!
     code: String
     type: String!
-    company: Company
     active:Boolean!
+    name: String!
+    vat_number: String
+    vat: Boolean!
+    registration_number: String
+    individual_number: String
+    address: Address
+
 }
 
 
@@ -25,7 +26,7 @@ input PartnerInput{
 }
 
 extend type Query {
-    getPartners(input: GetPartnersInput!): [Partner] @isAuthenticated
+    getPartners: [Partner]
 
 }
 

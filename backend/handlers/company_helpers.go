@@ -1,15 +1,18 @@
 package handlers
 
 import (
+	_err "backend/errors"
 	"backend/models"
+	"backend/util"
 	"bytes"
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
+	"github.com/jackc/pgx/v4"
 	"io"
 	"log"
 	"net/http"
-	"strconv"
 	"strings"
 	"time"
 )
@@ -64,6 +67,29 @@ func (r *Resolver) _GetCompanyInfo(ctx context.Context, taxID *string) (*models.
 	return nil, nil
 }
 
+func (r *Resolver) _GetMyCompany(ctx context.Context) (*models.Company, error) {
+	row, err := r.DBProvider.GetCompany(ctx)
+	if err != nil {
+		if errors.Is(err, pgx.ErrNoRows) {
+			return nil, nil
+		}
+		log.Print("\"message\":Failed to execute DBProvider.GetCompany, "+"\"error\": ", err.Error())
+		return nil, _err.Error(ctx, "InvalidCompany", "DatabaseError")
+	}
+	return &models.Company{
+
+		Name:               row.Name,
+		VatNumber:          &row.VatNumber,
+		Vat:                row.Vat,
+		RegistrationNumber: util.StringOrNil(row.RegistrationNumber),
+		CompanyAddress: &models.Address{
+			Address:    &row.Address,
+			Locality:   util.StringOrNil(row.Locality),
+			CountyCode: util.StringOrNil(row.CountyCode),
+		},
+	}, nil
+}
+
 func MapToCompany(apiResp models.ApiResponse) *models.Company {
 	if len(apiResp.Found) > 0 {
 		foundObj := apiResp.Found[0]
@@ -76,14 +102,14 @@ func MapToCompany(apiResp models.ApiResponse) *models.Company {
 
 		return &models.Company{
 			Name:               dateGenerale.Denumire,
-			VatNumber:          strconv.Itoa(dateGenerale.Cui),
+			VatNumber:          util.IntToString(int64(dateGenerale.Cui)),
 			Vat:                foundObj.InregistrareScopTva.ScpTVA,
-			RegistrationNumber: dateGenerale.NrRegCom,
+			RegistrationNumber: &dateGenerale.NrRegCom,
 
 			CompanyAddress: &models.Address{
-				Address:    address,
-				Locality:   adresaSediuSocial.SdenumireLocalitate,
-				CountyCode: adresaSediuSocial.ScodJudetAuto,
+				Address:    &address,
+				Locality:   &adresaSediuSocial.SdenumireLocalitate,
+				CountyCode: &adresaSediuSocial.ScodJudetAuto,
 			},
 		}
 	}

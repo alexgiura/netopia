@@ -8,8 +8,8 @@ select
     registration_number,
     personal_number,
     is_active
-from core.partners
-where  (code like ('%' || sqlc.arg(code) || '%') OR code IS NULL) and name like '%' || sqlc.arg(name) || '%' and type like '%' || sqlc.arg(type)|| '%' and tax_id like '%' || sqlc.arg(tax_id)|| '%';
+from core.partners;
+-- where  (code like ('%' || sqlc.arg(code) || '%') OR code IS NULL) and name like '%' || sqlc.arg(name) || '%' and type like '%' || sqlc.arg(type)|| '%' and tax_id like '%' || sqlc.arg(tax_id)|| '%';
 
 -- name: InsertPartner :one
 Insert into core.partners (code,name,type,vat_number,registration_number,personal_number)
