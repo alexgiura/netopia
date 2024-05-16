@@ -25,14 +25,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.11.0"
-  autocomplete_textfield:
-    dependency: "direct main"
-    description:
-      name: autocomplete_textfield
-      sha256: "8170e66d381c21623f1cfbb957ab9c6b5a45d9c50a6daac7fc57dbc3ba94abb4"
-      url: "https://pub.dev"
-    source: hosted
-    version: "2.0.1"
   barcode:
     dependency: transitive
     description:
@@ -193,22 +185,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.3.9"
-  dropdown_search:
-    dependency: "direct main"
-    description:
-      name: dropdown_search
-      sha256: "55106e8290acaa97ed15bea1fdad82c3cf0c248dd410e651f5a8ac6870f783ab"
-      url: "https://pub.dev"
-    source: hosted
-    version: "5.0.6"
-  equatable:
-    dependency: transitive
-    description:
-      name: equatable
-      sha256: c2b87cb7756efdf69892005af546c56c0b5037f54d2a88269b4f347a505e3ca2
-      url: "https://pub.dev"
-    source: hosted
-    version: "2.0.5"
   fake_async:
     dependency: transitive
     description:
@@ -241,14 +217,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.1.0"
-  fl_chart:
-    dependency: "direct main"
-    description:
-      name: fl_chart
-      sha256: "6b9eb2b3017241d05c482c01f668dd05cc909ec9a0114fdd49acd958ff2432fa"
-      url: "https://pub.dev"
-    source: hosted
-    version: "0.64.0"
   flutter:
     dependency: "direct main"
     description: flutter
@@ -283,14 +251,6 @@ packages:
     description: flutter
     source: sdk
     version: "0.0.0"
-  flutter_pdfview:
-    dependency: "direct main"
-    description:
-      name: flutter_pdfview
-      sha256: a9055bf920c7095bf08c2781db431ba23577aa5da5a056a7152dc89a18fbec6f
-      url: "https://pub.dev"
-    source: hosted
-    version: "1.3.2"
   flutter_riverpod:
     dependency: "direct main"
     description:
@@ -337,18 +297,18 @@ packages:
     dependency: transitive
     description:
       name: gql
-      sha256: afe032332ddfa69b79f1dea2ad7d95923d4993c1b269b224fc7bb3d17e32d33c
+      sha256: "5877b9e6537eb69431df7a45959d3f137ba5b7eba73208a631c404f36600e259"
       url: "https://pub.dev"
     source: hosted
-    version: "1.0.1-alpha+1709845491443"
+    version: "1.0.1-alpha+1715521079501"
   gql_dedupe_link:
     dependency: transitive
     description:
       name: gql_dedupe_link
-      sha256: "2971173c68623d5c43f5327ea899bd2ee64ce3461c1263f240b4bb6211f667be"
+      sha256: "10bee0564d67c24e0c8bd08bd56e0682b64a135e58afabbeed30d85d5e9fea96"
       url: "https://pub.dev"
     source: hosted
-    version: "2.0.4-alpha+1709845491527"
+    version: "2.0.4-alpha+1715521079596"
   gql_error_link:
     dependency: transitive
     description:
@@ -377,10 +337,10 @@ packages:
     dependency: transitive
     description:
       name: gql_link
-      sha256: "177500e250b3742d6d2673d57961e8413b6593dc6bd6a512c51865b6cf096f7e"
+      sha256: a0dae65d022285564ad333763a6988a603d6b9a075760ae178d6d22586bd342b
       url: "https://pub.dev"
     source: hosted
-    version: "1.0.1-alpha+1709845491457"
+    version: "1.0.1-alpha+1715521079517"
   gql_transform_link:
     dependency: transitive
     description:
@@ -621,14 +581,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "3.10.8"
-  pdf_render:
-    dependency: "direct main"
-    description:
-      name: pdf_render
-      sha256: f7847075a752205eaf45a0fbffd5ee50e409dbede5ca97bcf71907e2e5b9af44
-      url: "https://pub.dev"
-    source: hosted
-    version: "1.4.6"
   petitparser:
     dependency: transitive
     description:
@@ -918,10 +870,10 @@ packages:
     dependency: transitive
     description:
       name: url_launcher_ios
-      sha256: "9149d493b075ed740901f3ee844a38a00b33116c7c5c10d7fb27df8987fb51d5"
+      sha256: "7068716403343f6ba4969b4173cbf3b84fc768042124bc2c011e5d782b24fe89"
       url: "https://pub.dev"
     source: hosted
-    version: "6.2.5"
+    version: "6.3.0"
   url_launcher_linux:
     dependency: transitive
     description:
@@ -934,10 +886,10 @@ packages:
     dependency: transitive
     description:
       name: url_launcher_macos
-      sha256: b7244901ea3cf489c5335bdacda07264a6e960b1c1b1a9f91e4bc371d9e68234
+      sha256: "9a1a42d5d2d95400c795b2914c36fdcb525870c752569438e4ebb09a2b5d90de"
       url: "https://pub.dev"
     source: hosted
-    version: "3.1.0"
+    version: "3.2.0"
   url_launcher_platform_interface:
     dependency: transitive
     description:
