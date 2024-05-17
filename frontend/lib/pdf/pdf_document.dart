@@ -161,11 +161,11 @@ class PdfDocument {
           ),
           buildText2(
             title: "CUI / CNP: ",
-            value: partner.taxId ?? '',
+            value: partner.vatNumber ?? '',
           ),
           buildText2(
             title: "Nr. Reg. Com: ",
-            value: partner.companyNumber ?? '',
+            value: partner.registrationNumber ?? '',
           ),
         ],
       );
@@ -214,7 +214,7 @@ class PdfDocument {
           ),
           buildText2(
             title: "Adresa: ",
-            value: company != null ? company.address : '',
+            value: company != null ? company.address!.address! : '',
           ),
           buildText2(
             title: "Email: ",

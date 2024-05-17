@@ -51,6 +51,7 @@ Select
     name,
     is_active,
     type,
+    vat,
     vat_number,
     registration_number,
     personal_number

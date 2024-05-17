@@ -60,13 +60,8 @@ func (r *mutationResolver) SavePartner(ctx context.Context, input model.PartnerI
 }
 
 // GetPartners is the resolver for the getPartners field.
-func (r *queryResolver) GetPartners(ctx context.Context, input model.GetPartnersInput) ([]*models.Partner, error) {
-	rows, err := r.DBProvider.GetPartners(ctx, db.GetPartnersParams{
-		Code:  util.ParamStr(input.Code),
-		Name:  util.ParamStr(input.Name),
-		Type:  util.ParamStr(input.Type),
-		TaxID: util.ParamStr(input.TaxID),
-	})
+func (r *queryResolver) GetPartners(ctx context.Context) ([]*models.Partner, error) {
+	rows, err := r.DBProvider.GetPartners(ctx)
 	if err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
 			return nil, nil
@@ -78,18 +73,14 @@ func (r *queryResolver) GetPartners(ctx context.Context, input model.GetPartners
 
 	for _, row := range rows {
 		partner := &models.Partner{
-			ID:   row.ID.String(),
-			Code: *util.StringOrNil(row.Code),
-
-			Type:   row.Type,
-			Active: row.IsActive,
-			Company: &models.Company{
-				Name:               row.Name,
-				VatNumber:          *util.StringOrNil(row.VatNumber),
-				RegistrationNumber: *util.StringOrNil(row.RegistrationNumber),
-			},
-
-			//PersonalID:    util.StringOrNil(row.PersonalID),
+			ID:                 row.ID.String(),
+			Code:               util.StringOrNil(row.Code),
+			Type:               row.Type,
+			Active:             row.IsActive,
+			Name:               row.Name,
+			VatNumber:          util.StringOrNil(row.VatNumber),
+			RegistrationNumber: util.StringOrNil(row.RegistrationNumber),
+			IndividualNumber:   util.StringOrNil(row.PersonalNumber),
 		}
 
 		partners = append(partners, partner)

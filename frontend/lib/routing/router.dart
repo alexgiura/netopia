@@ -27,6 +27,14 @@ final _shellNavigatorKey = GlobalKey<NavigatorState>();
 /// The route configuration.
 final GoRouter router = GoRouter(
   routes: <RouteBase>[
+
+     GoRoute(
+            path: itemsRoute,
+            builder: (BuildContext context, GoRouterState state) {
+              return const ItemsPage();
+            },
+          ),
+
     ShellRoute(
         navigatorKey: _shellNavigatorKey,
         builder: (context, state, child) {

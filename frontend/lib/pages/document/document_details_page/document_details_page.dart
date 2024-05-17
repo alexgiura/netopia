@@ -96,6 +96,7 @@ class _DocumentDetailsPageState extends ConsumerState<DocumentDetailsPage> {
     });
     try {
       final documentService = DocumentService();
+
       final document = await documentService.getDocumentById(documentId: _hId);
 
       setState(() {

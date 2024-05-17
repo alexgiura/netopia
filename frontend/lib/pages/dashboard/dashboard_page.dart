@@ -1,4 +1,5 @@
 import 'package:erp_frontend_v2/helpers/responsiveness.dart';
+import 'package:erp_frontend_v2/models/app_localizations.dart';
 import 'package:erp_frontend_v2/pages/dashboard/widgets/item_stock_chart.dart';
 import 'package:erp_frontend_v2/pages/report/widgets/spline_chart.dart';
 import 'package:flutter/material.dart';
@@ -24,13 +25,13 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
         top: ResponsiveWidget.isSmallScreen(context) ? 56 : 32,
         bottom: ResponsiveWidget.isSmallScreen(context) ? 0 : 24,
       ),
-      child: const SingleChildScrollView(
+      child: SingleChildScrollView(
         child: Column(
           children: [
             Row(
               children: [
                 Text(
-                  'Dashboard',
+                  'dashboard'.tr(context),
                   style: CustomStyle.titleText,
                 ),
                 Spacer()
@@ -46,3 +47,24 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
     );
   }
 }
+
+// class _DashboardPageState extends ConsumerState<DashboardPage> {
+//   Map<String, String> _localizedStrings = {};
+
+//   @override
+//   void initState() {
+//     loadLocalizedStrings();
+//     super.initState();
+//   }
+
+//   Future<void> loadLocalizedStrings() async {
+//     String jsonString = await rootBundle.loadString("assets/lang/ro.json");
+//     Map<String, dynamic> jsonMap = json.decode(jsonString);
+//     _localizedStrings = jsonMap.map((key, value) {
+//       return MapEntry(key, value.toString());
+//     });
+//   }
+
+//   @override
+//   Widget build(BuildContext context) {}
+// }

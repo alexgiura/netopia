@@ -56,10 +56,12 @@ class DocumentService {
     final QueryResult result = await graphQLClient.value.query(options);
 
     if (result.hasException) {
+      print(result.exception.toString());
       throw Exception(result.exception.toString());
     }
 
     final dynamic documentData = result.data!['getDocumentById'];
+
     if (documentData != null) {
       final Document doc = Document.fromJson(documentData);
 

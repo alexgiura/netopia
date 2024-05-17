@@ -4,7 +4,7 @@
 
 list(APPEND FLUTTER_PLUGIN_LIST
   connectivity_plus
-  pdfx
+  flutter_localization
   syncfusion_pdfviewer_windows
   url_launcher_windows
 )

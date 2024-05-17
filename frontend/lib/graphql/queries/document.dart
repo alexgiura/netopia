@@ -24,19 +24,19 @@ query  getDocumentById($documentId: String!) {
     series,
     number,
     date,
+    notes,
     partner{
         id,
-        code,
+        code,        
+        type,        
+        active,
         name,
-        type,
-        tax_id,
-        company_number,
-        personal_id,
-        is_active
+        vat,
+        vat_number,
+        registration_number,
+        individual_number 
     },
     person_name,
-    notes,
-    is_deleted,
     document_items{
       item_id,
       item_code,

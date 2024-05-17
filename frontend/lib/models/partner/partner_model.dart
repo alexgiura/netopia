@@ -3,9 +3,10 @@ class Partner {
   String? code;
   String name;
   String type;
-  String? taxId;
-  String? companyNumber;
-  String? personalId;
+  bool? vat;
+  String? vatNumber;
+  String? registrationNumber;
+  String? individualNumber;
   bool isActive;
 
   Partner(
@@ -13,18 +14,20 @@ class Partner {
       this.code,
       required this.name,
       required this.type,
-      required this.taxId,
-      required this.companyNumber,
-      required this.personalId,
+      required this.vat,
+      required this.vatNumber,
+      required this.registrationNumber,
+      required this.individualNumber,
       required this.isActive});
   Partner.empty()
       : id = null,
         code = null,
         name = '',
         type = '',
-        taxId = null,
-        companyNumber = null,
-        personalId = null,
+        vat = false,
+        vatNumber = null,
+        registrationNumber = null,
+        individualNumber = null,
         isActive = true;
   bool isEmpty() {
     return id == null;
@@ -36,9 +39,10 @@ class Partner {
         code: json['code'],
         name: json['name'],
         type: json['type'],
-        taxId: json['tax_id'],
-        companyNumber: json['company_number'],
-        personalId: json['personal_id'],
-        isActive: json['is_active']);
+        vat: json['vat'],
+        vatNumber: json['vat_number'],
+        registrationNumber: json['registration_number'],
+        individualNumber: json['individual_number'],
+        isActive: json['active']);
   }
 }
