@@ -20,9 +20,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: Container(
-          decoration: BoxDecoration(
-              color: CustomColor.slate_50,
-              border: Border.all(color: Colors.red)),
+          decoration: BoxDecoration(color: CustomColor.slate_50),
           padding: EdgeInsets.all(MediaQuery.of(context).size.width * 0.05),
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.center,
