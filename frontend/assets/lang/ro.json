@@ -9,6 +9,7 @@
     "password": "Parolă",
     "error_password": "Parola este obligatorie",
     "dont_have_account": "Nu ai cont?",
+    "create_account": "Crează-ți cont",
     "forgot_password": "Ți-ai uitat parola?",
     "register_your_company": "Înregistrează-ți compania",
     "login" : "Login",

@@ -1,12 +1,12 @@
 import 'package:erp_frontend_v2/constants/style.dart';
 import 'package:erp_frontend_v2/models/app_localizations.dart';
+import 'package:erp_frontend_v2/utils/extensions.dart';
+import 'package:erp_frontend_v2/widgets/buttons/primary_button.dart';
 import 'package:erp_frontend_v2/widgets/custom_checkbox.dart';
 import 'package:erp_frontend_v2/widgets/custom_text_field.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:gap/gap.dart';
-
-import '../../../widgets/buttons/submit_button.dart';
 
 class AuthForm extends ConsumerStatefulWidget {
   const AuthForm({super.key});
@@ -21,7 +21,7 @@ class _AuthFormState extends ConsumerState<AuthForm> {
   final passwordController = TextEditingController();
   bool rememberMe = false;
 
-  void _submit(GlobalKey<FormState> formKey) {
+  void _submit() {
     if (formKey.currentState!.validate()) {
       print('Form is invalid');
     } else {
@@ -38,32 +38,9 @@ class _AuthFormState extends ConsumerState<AuthForm> {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Column(
-              // mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      children: [
-                        Image.asset('assets/images/logo.png', width: 40),
-                        Text('welcome_back'.tr(context),
-                            style: CustomStyle.regular24(
-                                color: CustomColor.slate_500)),
-                      ],
-                    ),
-                    const Gap(16),
-                    Text(
-                      'login'.tr(context),
-                      style: CustomStyle.regular32(),
-                    ),
-                    Text(
-                      'input_your_account_data'.tr(context),
-                      style:
-                          CustomStyle.regular16(color: CustomColor.slate_500),
-                    )
-                  ],
-                ),
-                Gap(MediaQuery.of(context).size.height * 0.025),
+                _formHeader(context),
+                Gap(context.height02),
                 CustomTextField(
                   keyboardType: TextInputType.emailAddress,
                   labelText: 'email'.tr(context),
@@ -76,7 +53,7 @@ class _AuthFormState extends ConsumerState<AuthForm> {
                   },
                   required: true,
                 ),
-                const Gap(16),
+                Gap(context.height02),
                 CustomTextField(
                   keyboardType: TextInputType.visiblePassword,
                   expand: false,
@@ -91,42 +68,19 @@ class _AuthFormState extends ConsumerState<AuthForm> {
                   },
                   required: true,
                 ),
-                const Gap(1),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Row(
-                      children: [
-                        CustomCheckbox(
-                          value: rememberMe,
-                          onChanged: (val) => setState(() => rememberMe = val),
-                        ),
-                        const Gap(5),
-                        Text(
-                          'remember_me'.tr(context),
-                          style: CustomStyle.labelSemibold14(),
-                        ),
-                      ],
-                    ),
-                    InkWell(
-                      onTap: () {},
-                      child: Text(
-                        'forgot_password'.tr(context),
-                        style: CustomStyle.labelSemibold14(),
-                      ),
-                    ),
-                  ],
-                ),
-                const Gap(40),
+                Gap(context.height01),
+                _formOptions(context),
+                Gap(context.height05),
                 Align(
                   alignment: Alignment.center,
-                  child: SubmitButton(
+                  child: PrimaryButton(
                     text: 'login'.tr(context),
-                    onPressed: () => _submit(formKey),
+                    onPressed: () => _submit(),
                   ),
-                ),
+                )
               ],
             ),
+            Gap(context.height04),
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
@@ -135,12 +89,97 @@ class _AuthFormState extends ConsumerState<AuthForm> {
                 const Gap(4),
                 InkWell(
                   onTap: () {},
-                  child: Text('register_your_company'.tr(context),
+                  child: Text('create_account'.tr(context),
                       style: CustomStyle.labelSemibold16()),
                 ),
               ],
             ),
           ],
         ));
+  }
+
+  Column _formHeader(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.start,
+          children: [
+            Image.asset(
+              'assets/images/logo.png',
+              width: context.deviceWidth > 400 ? null : context.width05,
+            ),
+            Gap(context.width01),
+            Text('welcome_back'.tr(context),
+                style: CustomStyle.regular24(color: CustomColor.slate_500)),
+          ],
+        ),
+        Gap(context.height02),
+        Text(
+          'login'.tr(context),
+          style: CustomStyle.regular32(),
+        ),
+        Text(
+          'input_your_account_data'.tr(context),
+          style: CustomStyle.regular16(color: CustomColor.slate_500),
+        )
+      ],
+    );
+  }
+
+  Widget _formOptions(BuildContext context) {
+    return context.deviceWidth < 400
+        ? FittedBox(
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Row(
+                  children: [
+                    CustomCheckbox(
+                      value: rememberMe,
+                      onChanged: (val) => setState(() => rememberMe = val),
+                    ),
+                    Gap(context.width01),
+                    Text(
+                      'remember_me'.tr(context),
+                      style: CustomStyle.labelSemibold14(),
+                    ),
+                  ],
+                ),
+                InkWell(
+                  onTap: () {},
+                  child: Text(
+                    'forgot_password'.tr(context),
+                    style: CustomStyle.labelSemibold14(),
+                  ),
+                ),
+              ],
+            ),
+          )
+        : Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Row(
+                children: [
+                  CustomCheckbox(
+                    value: rememberMe,
+                    onChanged: (val) => setState(() => rememberMe = val),
+                  ),
+                  Gap(context.width01),
+                  Text(
+                    'remember_me'.tr(context),
+                    style: CustomStyle.labelSemibold14(),
+                  ),
+                ],
+              ),
+              InkWell(
+                onTap: () {},
+                child: Text(
+                  'forgot_password'.tr(context),
+                  style: CustomStyle.labelSemibold14(),
+                ),
+              ),
+            ],
+          );
   }
 }
