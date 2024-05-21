@@ -12,100 +12,83 @@ import (
 
 const getUserById = `-- name: GetUserById :one
 SELECT id,
-       phone_number,
-       user_type,
-       name,
-       device_id,
-       email
+       email,
+       phone_number
+
 from core.users
 WHERE id = $1
 LIMIT 1
 `
 
-func (q *Queries) GetUserById(ctx context.Context, id string) (CoreUser, error) {
+type GetUserByIdRow struct {
+	ID          string
+	Email       string
+	PhoneNumber sql.NullString
+}
+
+func (q *Queries) GetUserById(ctx context.Context, id string) (GetUserByIdRow, error) {
 	row := q.db.QueryRow(ctx, getUserById, id)
-	var i CoreUser
-	err := row.Scan(
-		&i.ID,
-		&i.PhoneNumber,
-		&i.UserType,
-		&i.Name,
-		&i.DeviceID,
-		&i.Email,
-	)
+	var i GetUserByIdRow
+	err := row.Scan(&i.ID, &i.Email, &i.PhoneNumber)
 	return i, err
 }
 
 const saveUser = `-- name: SaveUser :one
-INSERT INTO core.users(id,phone_number,name,user_type,email,device_id)
-values ($1,$2,$3,$4,$5,$6)
-RETURNING id
+INSERT INTO core.users(id,email,phone_number)
+values ($1,$2,$3)
+RETURNING
+ id::text,
+    email::text,
+    phone_number::text
 `
 
 type SaveUserParams struct {
 	ID          string
-	PhoneNumber string
-	Name        string
-	UserType    string
-	Email       sql.NullString
-	DeviceID    sql.NullString
+	Email       string
+	PhoneNumber sql.NullString
 }
 
-func (q *Queries) SaveUser(ctx context.Context, arg SaveUserParams) (string, error) {
-	row := q.db.QueryRow(ctx, saveUser,
-		arg.ID,
-		arg.PhoneNumber,
-		arg.Name,
-		arg.UserType,
-		arg.Email,
-		arg.DeviceID,
-	)
-	var id string
-	err := row.Scan(&id)
-	return id, err
+type SaveUserRow struct {
+	ID          string
+	Email       string
+	PhoneNumber string
+}
+
+func (q *Queries) SaveUser(ctx context.Context, arg SaveUserParams) (SaveUserRow, error) {
+	row := q.db.QueryRow(ctx, saveUser, arg.ID, arg.Email, arg.PhoneNumber)
+	var i SaveUserRow
+	err := row.Scan(&i.ID, &i.Email, &i.PhoneNumber)
+	return i, err
 }
 
 const updateUser = `-- name: UpdateUser :one
 Update core.users
 SET
-    name = $2,
-    email = $3
+    email = $2,
+    phone_number = $3
 where id=$1
 RETURNING
     id::text,
-    phone_number::text,
-    user_type::text,
-    name::text,
     email::text,
-    device_id::text
+    phone_number::text
 `
 
 type UpdateUserParams struct {
-	ID    string
-	Name  string
-	Email sql.NullString
+	ID          string
+	Email       string
+	PhoneNumber sql.NullString
 }
 
 type UpdateUserRow struct {
 	ID          string
-	PhoneNumber string
-	UserType    string
-	Name        string
 	Email       string
-	DeviceID    string
+	PhoneNumber string
 }
 
 func (q *Queries) UpdateUser(ctx context.Context, arg UpdateUserParams) (UpdateUserRow, error) {
-	row := q.db.QueryRow(ctx, updateUser, arg.ID, arg.Name, arg.Email)
+	row := q.db.QueryRow(ctx, updateUser, arg.ID, arg.Email, arg.PhoneNumber)
 	var i UpdateUserRow
-	err := row.Scan(
-		&i.ID,
-		&i.PhoneNumber,
-		&i.UserType,
-		&i.Name,
-		&i.Email,
-		&i.DeviceID,
-	)
+	err := row.Scan(&i.ID, &i.Email, &i.PhoneNumber)
 	return i, err
 }
 

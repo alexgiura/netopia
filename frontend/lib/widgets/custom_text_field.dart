@@ -18,6 +18,10 @@ class CustomTextField extends StatefulWidget {
     this.prefixIcon,
     this.borderVisible,
     this.hideErrortext,
+    this.obscureText,
+    this.keyboardType = TextInputType.text,
+    this.expand = true,
+    this.required = false,
   }) : super(key: key);
 
   final String? labelText;
@@ -32,7 +36,10 @@ class CustomTextField extends StatefulWidget {
   final bool? readOnly;
   final bool? borderVisible;
   final bool? hideErrortext;
-
+  final bool? obscureText;
+  final TextInputType keyboardType;
+  final bool expand;
+  final bool required;
   @override
   State<CustomTextField> createState() => CustomTextFieldState();
 }
@@ -73,10 +80,13 @@ class CustomTextFieldState extends State<CustomTextField> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           widget.labelText != null
-              ? Text(
-                  widget.labelText!,
-                  style: CustomStyle.labelText,
-                )
+              ? RichText(
+                  text: TextSpan(text: widget.labelText, children: [
+                  TextSpan(
+                    text: widget.required ? ' *' : '',
+                    style: CustomStyle.errorText,
+                  )
+                ]))
               : const SizedBox.shrink(),
           widget.labelText != null
               ? const SizedBox(height: 4)
@@ -84,6 +94,7 @@ class CustomTextFieldState extends State<CustomTextField> {
           Container(
             constraints: const BoxConstraints(minWidth: 200),
             child: TextFormField(
+              keyboardType: widget.keyboardType,
               controller: _textController,
               cursorColor: _showError ? Colors.red : CustomColor.active,
               readOnly: widget.enabled
@@ -91,9 +102,10 @@ class CustomTextFieldState extends State<CustomTextField> {
                       ? true
                       : false
                   : true,
-              expands: true,
-              maxLines: null,
+              expands: widget.expand,
+              maxLines: widget.obscureText == true ? 1 : null,
               minLines: null,
+              obscureText: widget.obscureText ?? false,
               decoration: InputDecoration(
                   filled:
                       true, // Use filled property to change interior color when widget.enabled is false
@@ -103,7 +115,8 @@ class CustomTextFieldState extends State<CustomTextField> {
                   constraints: const BoxConstraints.expand(
                       height: CustomSize.textFormFieldHeight),
                   hintText: widget.hintText,
-                  hintStyle: CustomStyle.hintText,
+                  hintStyle:
+                      CustomStyle.regular14(color: CustomColor.slate_500),
                   enabledBorder: OutlineInputBorder(
                     borderSide: BorderSide(
                       color: widget.borderVisible == false

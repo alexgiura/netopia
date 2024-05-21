@@ -1,5 +1,6 @@
 package models
 
+<<<<<<< HEAD
 type Company struct {
 	Name               string   `json:"name"`
 	VatNumber          string   `json:"vat_number"`
@@ -7,3 +8,12 @@ type Company struct {
 	RegistrationNumber string   `json:"registration_number"`
 	CompanyAddress     *Address `json:"address"`
 }
+=======
+//type Company struct {
+//	Name               string   `json:"name"`
+//	VatNumber          string   `json:"vat_number"`
+//	Vat                bool     `json:"vat"`
+//	RegistrationNumber *string  `json:"registration_number"`
+//	CompanyAddress     *Address `json:"address"`
+//}
+>>>>>>> origin/dev

@@ -51,6 +51,10 @@ Select
     name,
     is_active,
     type,
+<<<<<<< HEAD
+=======
+    vat,
+>>>>>>> origin/dev
     vat_number,
     registration_number,
     personal_number
