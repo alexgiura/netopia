@@ -22,6 +22,7 @@ class CustomTextField extends StatefulWidget {
     this.keyboardType = TextInputType.text,
     this.expand = true,
     this.required = false,
+    this.isCIFField,
   }) : super(key: key);
 
   final String? labelText;
@@ -40,6 +41,7 @@ class CustomTextField extends StatefulWidget {
   final TextInputType keyboardType;
   final bool expand;
   final bool required;
+  final bool? isCIFField;
   @override
   State<CustomTextField> createState() => CustomTextFieldState();
 }
@@ -171,6 +173,9 @@ class CustomTextFieldState extends State<CustomTextField> {
                   }
                 }
                 if (widget.onValueChanged != null) {
+                  setState(() {
+                    _showError = !widget.onValueChanged!(value);
+                  });
                   widget.onValueChanged!(value);
                 }
               },

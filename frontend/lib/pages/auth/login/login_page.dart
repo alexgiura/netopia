@@ -1,7 +1,7 @@
 import 'package:erp_frontend_v2/constants/style.dart';
 import 'package:erp_frontend_v2/helpers/responsiveness.dart';
 import 'package:erp_frontend_v2/models/app_localizations.dart';
-import 'package:erp_frontend_v2/pages/auth/widgets/auth_form.dart';
+import 'package:erp_frontend_v2/pages/auth/login/widgets/auth_form.dart';
 import 'package:erp_frontend_v2/utils/extensions.dart';
 import 'package:erp_frontend_v2/widgets/large_screen.dart';
 import 'package:flutter/material.dart';
