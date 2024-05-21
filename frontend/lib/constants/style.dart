@@ -105,7 +105,7 @@ class CustomStyle {
   );
 
   //-----------------New text styles from figma design--------------------------//
-  TextStyle regular64({Color color = CustomColor.textPrimary}) {
+  static TextStyle regular64({Color color = CustomColor.textPrimary}) {
     return TextStyle(
       fontSize: 64,
       color: color,
@@ -113,7 +113,7 @@ class CustomStyle {
     );
   }
 
-  TextStyle bold64({Color color = CustomColor.textPrimary}) {
+  static TextStyle bold64({Color color = CustomColor.textPrimary}) {
     return TextStyle(
       fontSize: 64,
       color: color,
@@ -121,7 +121,7 @@ class CustomStyle {
     );
   }
 
-  TextStyle regular48({Color color = CustomColor.textPrimary}) {
+  static TextStyle regular48({Color color = CustomColor.textPrimary}) {
     return TextStyle(
       fontSize: 48,
       color: color,
@@ -129,7 +129,7 @@ class CustomStyle {
     );
   }
 
-  TextStyle bold48({Color color = CustomColor.textPrimary}) {
+  static TextStyle bold48({Color color = CustomColor.textPrimary}) {
     return TextStyle(
       fontSize: 48,
       color: color,
@@ -137,7 +137,7 @@ class CustomStyle {
     );
   }
 
-  TextStyle regular32({Color color = CustomColor.textPrimary}) {
+  static TextStyle regular32({Color color = CustomColor.textPrimary}) {
     return TextStyle(
       fontSize: 32,
       color: color,
@@ -145,7 +145,7 @@ class CustomStyle {
     );
   }
 
-  TextStyle bold32({Color color = CustomColor.textPrimary}) {
+  static TextStyle bold32({Color color = CustomColor.textPrimary}) {
     return TextStyle(
       fontSize: 32,
       color: color,
@@ -153,7 +153,7 @@ class CustomStyle {
     );
   }
 
-  TextStyle regular24({Color color = CustomColor.textPrimary}) {
+  static TextStyle regular24({Color color = CustomColor.textPrimary}) {
     return TextStyle(
       fontSize: 24,
       color: color,
@@ -161,7 +161,7 @@ class CustomStyle {
     );
   }
 
-  TextStyle bold24({Color color = CustomColor.textPrimary}) {
+  static TextStyle bold24({Color color = CustomColor.textPrimary}) {
     return TextStyle(
       fontSize: 24,
       color: color,
@@ -169,7 +169,7 @@ class CustomStyle {
     );
   }
 
-  TextStyle medium20({Color color = CustomColor.textPrimary}) {
+  static TextStyle medium20({Color color = CustomColor.textPrimary}) {
     return TextStyle(
       fontSize: 20,
       color: color,
@@ -177,7 +177,7 @@ class CustomStyle {
     );
   }
 
-  TextStyle bold20({Color color = CustomColor.textPrimary}) {
+  static TextStyle bold20({Color color = CustomColor.textPrimary}) {
     return TextStyle(
       fontSize: 20,
       color: color,
@@ -187,7 +187,7 @@ class CustomStyle {
 
   //paragraph
 
-  TextStyle regular16({Color color = CustomColor.textPrimary}) {
+  static TextStyle regular16({Color color = CustomColor.textPrimary}) {
     return TextStyle(
       fontSize: 16,
       color: color,
@@ -195,7 +195,7 @@ class CustomStyle {
     );
   }
 
-  TextStyle bold16({Color color = CustomColor.textPrimary}) {
+  static TextStyle bold16({Color color = CustomColor.textPrimary}) {
     return TextStyle(
       fontSize: 16,
       color: color,
@@ -203,7 +203,7 @@ class CustomStyle {
     );
   }
 
-  TextStyle regular14({Color color = CustomColor.textPrimary}) {
+  static TextStyle regular14({Color color = CustomColor.textPrimary}) {
     return TextStyle(
       fontSize: 14,
       color: color,
@@ -211,7 +211,7 @@ class CustomStyle {
     );
   }
 
-  TextStyle bold14({Color color = CustomColor.textPrimary}) {
+  static TextStyle bold14({Color color = CustomColor.textPrimary}) {
     return TextStyle(
       fontSize: 14,
       color: color,
@@ -219,7 +219,7 @@ class CustomStyle {
     );
   }
 
-  TextStyle regular12({Color color = CustomColor.textPrimary}) {
+  static TextStyle regular12({Color color = CustomColor.textPrimary}) {
     return TextStyle(
       fontSize: 12,
       color: color,
@@ -227,7 +227,7 @@ class CustomStyle {
     );
   }
 
-  TextStyle bold12({Color color = CustomColor.textPrimary}) {
+  static TextStyle bold12({Color color = CustomColor.textPrimary}) {
     return TextStyle(
       fontSize: 12,
       color: color,
@@ -235,7 +235,7 @@ class CustomStyle {
     );
   }
 
-  TextStyle regular10({Color color = CustomColor.textPrimary}) {
+  static TextStyle regular10({Color color = CustomColor.textPrimary}) {
     return TextStyle(
       fontSize: 10,
       color: color,
@@ -243,7 +243,7 @@ class CustomStyle {
     );
   }
 
-  TextStyle bold10({Color color = CustomColor.textPrimary}) {
+  static TextStyle bold10({Color color = CustomColor.textPrimary}) {
     return TextStyle(
       fontSize: 10,
       color: color,
@@ -253,7 +253,7 @@ class CustomStyle {
 
   //button text styles
 
-  TextStyle buttonMedium14({Color color = CustomColor.textPrimary}) {
+  static TextStyle buttonMedium14({Color color = CustomColor.textPrimary}) {
     return TextStyle(
       fontSize: 14,
       color: color,
@@ -261,7 +261,7 @@ class CustomStyle {
     );
   }
 
-  TextStyle buttonSemibold14({Color color = CustomColor.textPrimary}) {
+  static TextStyle buttonSemibold14({Color color = CustomColor.textPrimary}) {
     return TextStyle(
       fontSize: 14,
       color: color,
@@ -269,7 +269,7 @@ class CustomStyle {
     );
   }
 
-  TextStyle buttonMedium12({Color color = CustomColor.textPrimary}) {
+  static TextStyle buttonMedium12({Color color = CustomColor.textPrimary}) {
     return TextStyle(
       fontSize: 12,
       color: color,
@@ -277,7 +277,7 @@ class CustomStyle {
     );
   }
 
-  TextStyle buttonSemibold12({Color color = CustomColor.textPrimary}) {
+  static TextStyle buttonSemibold12({Color color = CustomColor.textPrimary}) {
     return TextStyle(
       fontSize: 12,
       color: color,
@@ -285,7 +285,7 @@ class CustomStyle {
     );
   }
 
-  TextStyle buttonMedium10({Color color = CustomColor.textPrimary}) {
+  static TextStyle buttonMedium10({Color color = CustomColor.textPrimary}) {
     return TextStyle(
       fontSize: 10,
       color: color,
@@ -293,7 +293,7 @@ class CustomStyle {
     );
   }
 
-  TextStyle buttonSemibold10({Color color = CustomColor.textPrimary}) {
+  static TextStyle buttonSemibold10({Color color = CustomColor.textPrimary}) {
     return TextStyle(
       fontSize: 10,
       color: color,
@@ -303,7 +303,7 @@ class CustomStyle {
 
   //label
 
-  TextStyle labelSemibold16({Color color = CustomColor.textPrimary}) {
+  static TextStyle labelSemibold16({Color color = CustomColor.textPrimary}) {
     return TextStyle(
       fontSize: 16,
       color: color,
@@ -311,7 +311,7 @@ class CustomStyle {
     );
   }
 
-  TextStyle labelSemibold14({Color color = CustomColor.textPrimary}) {
+  static TextStyle labelSemibold14({Color color = CustomColor.textPrimary}) {
     return TextStyle(
       fontSize: 14,
       color: color,
@@ -319,7 +319,7 @@ class CustomStyle {
     );
   }
 
-  TextStyle labelSemibold12({Color color = CustomColor.textPrimary}) {
+  static TextStyle labelSemibold12({Color color = CustomColor.textPrimary}) {
     return TextStyle(
       fontSize: 12,
       color: color,
@@ -327,7 +327,7 @@ class CustomStyle {
     );
   }
 
-  TextStyle labelSemibold10({Color color = CustomColor.textPrimary}) {
+  static TextStyle labelSemibold10({Color color = CustomColor.textPrimary}) {
     return TextStyle(
       fontSize: 10,
       color: color,
