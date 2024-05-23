@@ -15,7 +15,7 @@ class CustomTextField extends StatefulWidget {
     this.visible,
     this.onTap,
     this.readOnly,
-    this.prefixIcon,
+    this.prefixWidget,
     this.borderVisible,
     this.hideErrortext,
     this.obscureText,
@@ -27,7 +27,7 @@ class CustomTextField extends StatefulWidget {
   final String? labelText;
   final String? hintText;
   final String? errorText;
-  final IconData? prefixIcon;
+  final Widget? prefixWidget;
   final Function(String)? onValueChanged;
   final Function()? onTap;
   final String? initialValue;
@@ -152,10 +152,10 @@ class CustomTextFieldState extends State<CustomTextField> {
                     ),
                     borderRadius: CustomStyle.customBorderRadius,
                   ),
-                  prefixIcon: widget.prefixIcon != null
-                      ? Icon(
-                          widget.prefixIcon,
-                          color: CustomColor.medium,
+                  prefixIcon: widget.prefixWidget != null
+                      ? Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 12.0),
+                          child: widget.prefixWidget,
                         )
                       : null,
                   hoverColor: Colors.transparent),

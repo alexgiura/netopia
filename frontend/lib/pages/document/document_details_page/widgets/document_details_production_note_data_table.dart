@@ -18,7 +18,6 @@ class DocumentItemsProductionNote extends ConsumerStatefulWidget {
     required this.data,
     required this.documentTypeId,
     required this.onUpdate,
-    required this.partner,
     required this.date,
     this.readOnly,
   });
@@ -26,7 +25,7 @@ class DocumentItemsProductionNote extends ConsumerStatefulWidget {
   final bool? readOnly;
   final int documentTypeId;
   final void Function(List<DocumentItem>) onUpdate;
-  final Partner partner;
+
   final String date;
 
   @override
