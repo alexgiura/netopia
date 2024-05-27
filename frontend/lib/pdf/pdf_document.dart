@@ -257,17 +257,17 @@ class PdfDocument {
     // final data = invoice.items.map((item) {
     //   final total = item.unitPrice * item.quantity * (1 + item.vat);
 
-    final data = document.documentItems!.isEmpty
+    final data = document.documentItems.isEmpty
         ? <List<String>>[]
-        : document.documentItems!.map((item) {
+        : document.documentItems.map((documentItem) {
             return [
-              item.name,
-              '${item.quantity.toStringAsFixed(2)}',
-              item.um.name,
-              '${item.price!.toStringAsFixed(2)}',
-              item.vat!.name,
-              '${item.amountNet!.toStringAsFixed(2)}',
-              '${item.amountVat!.toStringAsFixed(2)}',
+              documentItem.item.name,
+              '${documentItem.quantity.toStringAsFixed(2)}',
+              documentItem.item.um.name,
+              '${documentItem.price!.toStringAsFixed(2)}',
+              documentItem.item.vat.name,
+              '${documentItem.amountNet!.toStringAsFixed(2)}',
+              '${documentItem.amountVat!.toStringAsFixed(2)}',
               // '${item.amountGross!.toStringAsFixed(2)}',
             ];
           }).toList();
