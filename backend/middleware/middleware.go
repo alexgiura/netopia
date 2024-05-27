@@ -1,6 +1,8 @@
 package middleware
 
 import (
+	"backend/db"
+	loaders "backend/loaders"
 	"context"
 	"encoding/json"
 	firebase "firebase.google.com/go"
@@ -88,6 +90,16 @@ func CorsMiddleware(next http.Handler) http.Handler {
 		handler.ServeHTTP(w, r)
 	})
 }
+func LoadersMiddleware(dbProvider *db.Queries) func(http.Handler) http.Handler {
+	return func(next http.Handler) http.Handler {
+		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			loaders := loaders.NewLoaders(dbProvider)
+			ctx := context.WithValue(r.Context(), "loaders", loaders)
+			next.ServeHTTP(w, r.WithContext(ctx))
+		})
+	}
+}
+
 func WriteError(w http.ResponseWriter, code string, message string) {
 	gqlErr := &gqlerror.Error{
 		Message: message,

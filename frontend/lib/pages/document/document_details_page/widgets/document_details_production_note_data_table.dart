@@ -264,7 +264,7 @@ class _DocumentItemsNoPriceDataTableState
 
       List<DataCell> cells = [
         // DataCell(Text(row.value.code ?? '')),
-        DataCell(Text(row.value.name)),
+        DataCell(Text(row.value.item.name)),
         DataCell(
           CustomTextFieldFloat(
             initialValue: row.value.quantity,
@@ -275,7 +275,7 @@ class _DocumentItemsNoPriceDataTableState
             readonly: widget.readOnly,
           ),
         ),
-        DataCell(Text(row.value.um.name)),
+        DataCell(Text(row.value.item.um.name)),
       ];
 
       return DataRow2(

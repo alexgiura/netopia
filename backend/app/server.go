@@ -47,6 +47,8 @@ func (app *App) Run() error {
 		handler := next
 		// Add the cors function to the router
 		handler = middleware.CorsMiddleware(handler)
+		// Add DataLoader middleware
+		handler = middleware.LoadersMiddleware(app.services.DBProvider)(handler)
 		// Add the middleware function to the router
 		//handler = middleware.AuthMiddleware(handler)
 		return handler

@@ -67,7 +67,7 @@ final deleteDocumentProvider =
 //   }
 // }
 
-class DocumentProvider extends StateNotifier<AsyncValue<List<DocumentLight>>> {
+class DocumentProvider extends StateNotifier<AsyncValue<List<Document>>> {
   DocumentProvider() : super(const AsyncValue.loading()) {
     fetchDocuments(); // Optionally start fetching documents on initialization
   }
@@ -96,7 +96,6 @@ class DocumentProvider extends StateNotifier<AsyncValue<List<DocumentLight>>> {
 }
 
 final documentProvider =
-    StateNotifierProvider<DocumentProvider, AsyncValue<List<DocumentLight>>>(
-        (ref) {
+    StateNotifierProvider<DocumentProvider, AsyncValue<List<Document>>>((ref) {
   return DocumentProvider();
 });

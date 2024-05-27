@@ -38,7 +38,7 @@ class _DocumentItemsDataTableState
           widget.data![index].quantity * widget.data![index].price!;
 
       widget.data![index].amountVat = widget.data![index].amountNet! *
-          widget.data![index].vat!.percent /
+          widget.data![index].item.vat.percent /
           100;
 
       widget.data![index].amountGross =
@@ -49,7 +49,7 @@ class _DocumentItemsDataTableState
   void updateDocumentItemPrice(int index) {
     setState(() {
       widget.data![index].amountNet = (widget.data![index].amountGross! * 100) /
-          (100 + widget.data![index].vat!.percent);
+          (100 + widget.data![index].item.vat.percent);
 
       widget.data![index].amountVat =
           widget.data![index].amountGross! - widget.data![index].amountNet!;
@@ -129,7 +129,7 @@ class _DocumentItemsDataTableState
 
       List<DataCell> cells = [
         // DataCell(Text(row.value.code ?? '')),
-        DataCell(Text(row.value.name)),
+        DataCell(Text(row.value.item.name)),
         DataCell(
           CustomTextFieldFloat(
             initialValue: row.value.quantity,
@@ -141,7 +141,7 @@ class _DocumentItemsDataTableState
             readonly: widget.readOnly,
           ),
         ),
-        DataCell(Text(row.value.um.name)),
+        DataCell(Text(row.value.item.um.name)),
 
         if (widget.noPrice != true) ...[
           DataCell(
@@ -155,7 +155,7 @@ class _DocumentItemsDataTableState
               readonly: widget.readOnly,
             ),
           ),
-          DataCell(Text(row.value.vat!.name)),
+          DataCell(Text(row.value.item.vat.name)),
           DataCell(
             CustomTextFieldFloat(
               initialValue:

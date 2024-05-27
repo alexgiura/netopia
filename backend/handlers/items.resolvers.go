@@ -8,6 +8,7 @@ import (
 	"backend/db"
 	_err "backend/errors"
 	"backend/graph/model"
+	"backend/models"
 	"backend/util"
 	"context"
 	"errors"
@@ -89,7 +90,7 @@ func (r *mutationResolver) SaveItemCategory(ctx context.Context, input model.Ite
 }
 
 // GetItems is the resolver for the getItems field.
-func (r *queryResolver) GetItems(ctx context.Context, input model.GetItemsInput) ([]*model.Item, error) {
+func (r *queryResolver) GetItems(ctx context.Context, input model.GetItemsInput) ([]*models.Item, error) {
 	rows, err := r.DBProvider.GetItems(ctx, util.IntArrayToInt32Array(input.CategoryList))
 
 	if err != nil {
@@ -100,14 +101,14 @@ func (r *queryResolver) GetItems(ctx context.Context, input model.GetItemsInput)
 		return nil, _err.Error(ctx, "Failed to get items", "DatabaseError")
 	}
 
-	items := make([]*model.Item, 0)
+	items := make([]*models.Item, 0)
 
 	for _, row := range rows {
 
-		var category *model.ItemCategory
+		var category *models.ItemCategory
 
 		if row.CategoryID.Valid {
-			category = &model.ItemCategory{
+			category = &models.ItemCategory{
 				ID:         *util.IntOrNil(row.CategoryID),
 				Name:       *util.StringOrNil(row.CategoryName),
 				IsActive:   *util.BoolOrNil(row.CategoryIsActive),
@@ -115,18 +116,18 @@ func (r *queryResolver) GetItems(ctx context.Context, input model.GetItemsInput)
 			}
 		}
 
-		item := &model.Item{
+		item := &models.Item{
 
 			ID:       row.ID.String(),
 			Code:     util.StringOrNil(row.Code),
 			Name:     row.Name,
 			IsActive: row.IsActive,
 			IsStock:  row.IsStock,
-			Um: &model.Um{
+			Um: models.Um{
 				ID:   int(row.UmID),
 				Name: row.UmName,
 			},
-			Vat: &model.Vat{
+			Vat: models.Vat{
 				ID:      int(row.VatID),
 				Name:    row.VatName,
 				Percent: row.VatPercent,
@@ -142,15 +143,15 @@ func (r *queryResolver) GetItems(ctx context.Context, input model.GetItemsInput)
 }
 
 // GetUmList is the resolver for the getUmList field.
-func (r *queryResolver) GetUmList(ctx context.Context) ([]*model.Um, error) {
+func (r *queryResolver) GetUmList(ctx context.Context) ([]*models.Um, error) {
 	rows, err := r.DBProvider.GetUmList(ctx)
 	if err != nil {
 		log.Print("\"message\":Failed to get UMs, "+"\"error\": ", err.Error())
 		return nil, _err.Error(ctx, "Failed to get UMs", "DatabaseError")
 	}
-	umList := make([]*model.Um, 0)
+	umList := make([]*models.Um, 0)
 	for _, row := range rows {
-		um := &model.Um{
+		um := &models.Um{
 			ID:   int(row.ID),
 			Name: row.Name,
 		}
@@ -161,15 +162,15 @@ func (r *queryResolver) GetUmList(ctx context.Context) ([]*model.Um, error) {
 }
 
 // GetVatList is the resolver for the getVatList field.
-func (r *queryResolver) GetVatList(ctx context.Context) ([]*model.Vat, error) {
+func (r *queryResolver) GetVatList(ctx context.Context) ([]*models.Vat, error) {
 	rows, err := r.DBProvider.GetVatList(ctx)
 	if err != nil {
 		log.Print("\"message\":Failed to get VATs, "+"\"error\": ", err.Error())
 		return nil, _err.Error(ctx, "Failed to get VATs", "DatabaseError")
 	}
-	vatList := make([]*model.Vat, 0)
+	vatList := make([]*models.Vat, 0)
 	for _, row := range rows {
-		um := &model.Vat{
+		um := &models.Vat{
 			ID:       int(row.ID),
 			Name:     row.Name,
 			Percent:  row.Percent,
@@ -182,15 +183,15 @@ func (r *queryResolver) GetVatList(ctx context.Context) ([]*model.Vat, error) {
 }
 
 // GetItemCategoryList is the resolver for the getItemCategoryList field.
-func (r *queryResolver) GetItemCategoryList(ctx context.Context) ([]*model.ItemCategory, error) {
+func (r *queryResolver) GetItemCategoryList(ctx context.Context) ([]*models.ItemCategory, error) {
 	rows, err := r.DBProvider.GetItemCategoryList(ctx)
 	if err != nil {
 		log.Print("\"message\":Failed to get Item Category List, "+"\"error\": ", err.Error())
 		return nil, _err.Error(ctx, "Failed to get Item Category List", "DatabaseError")
 	}
-	itemCategoryList := make([]*model.ItemCategory, 0)
+	itemCategoryList := make([]*models.ItemCategory, 0)
 	for _, row := range rows {
-		itemCategory := &model.ItemCategory{
+		itemCategory := &models.ItemCategory{
 			ID:         int(row.ID),
 			Name:       row.Name,
 			IsActive:   row.IsActive,

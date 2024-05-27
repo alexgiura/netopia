@@ -15,12 +15,6 @@ type AddressInput struct {
 	CountyCode *string `json:"county_code,omitempty"`
 }
 
-type Category struct {
-	ID       int    `json:"id"`
-	Name     string `json:"name"`
-	IsActive bool   `json:"is_active"`
-}
-
 type ChartData struct {
 	X       string   `json:"x"`
 	Y       float64  `json:"y"`
@@ -50,21 +44,6 @@ type DeleteDocumentInput struct {
 	DeleteGenerated bool   `json:"delete_generated"`
 }
 
-type Document struct {
-	HID           string          `json:"h_id"`
-	Type          *DocumentType   `json:"type"`
-	Series        *string         `json:"series,omitempty"`
-	Number        string          `json:"number"`
-	Date          string          `json:"date"`
-	DueDate       *string         `json:"due_date,omitempty"`
-	Partner       *models.Partner `json:"partner"`
-	PersonID      *string         `json:"person_id,omitempty"`
-	PersonName    *string         `json:"person_name,omitempty"`
-	Notes         *string         `json:"notes,omitempty"`
-	IsDeleted     bool            `json:"is_deleted"`
-	DocumentItems []*DocumentItem `json:"document_items,omitempty"`
-}
-
 type DocumentInput struct {
 	DocumentType  int                  `json:"document_type"`
 	Series        *string              `json:"series,omitempty"`
@@ -79,21 +58,6 @@ type DocumentInput struct {
 	DocumentItems []*DocumentItemInput `json:"document_items"`
 }
 
-type DocumentItem struct {
-	DID         *string  `json:"d_id,omitempty"`
-	ItemID      string   `json:"item_id"`
-	ItemCode    *string  `json:"item_code,omitempty"`
-	ItemName    string   `json:"item_name"`
-	Quantity    float64  `json:"quantity"`
-	Um          *Um      `json:"um"`
-	Price       *float64 `json:"price,omitempty"`
-	Vat         *Vat     `json:"vat,omitempty"`
-	AmountNet   *float64 `json:"amount_net,omitempty"`
-	AmountVat   *float64 `json:"amount_vat,omitempty"`
-	AmountGross *float64 `json:"amount_gross,omitempty"`
-	ItemTypePn  *string  `json:"item_type_pn,omitempty"`
-}
-
 type DocumentItemInput struct {
 	ItemID       string   `json:"item_id"`
 	Quantity     float64  `json:"quantity"`
@@ -106,21 +70,6 @@ type DocumentItemInput struct {
 	ItemTypePn   *string  `json:"item_type_pn,omitempty"`
 }
 
-type DocumentLight struct {
-	HID       string  `json:"h_id"`
-	Series    *string `json:"series,omitempty"`
-	Number    string  `json:"number"`
-	Date      string  `json:"date"`
-	Partner   string  `json:"partner"`
-	IsDeleted bool    `json:"is_deleted"`
-	Status    *string `json:"status,omitempty"`
-}
-
-type DocumentPartner struct {
-	ID   string `json:"id"`
-	Name string `json:"name"`
-}
-
 type DocumentTransaction struct {
 	ID                        int    `json:"id"`
 	Name                      string `json:"name"`
@@ -128,19 +77,13 @@ type DocumentTransaction struct {
 	DocumentTypeDestinationID int    `json:"document_type_destination_id"`
 }
 
-type DocumentType struct {
-	ID     int    `json:"id"`
-	NameRo string `json:"name_ro"`
-	NameEn string `json:"name_en"`
-}
-
 type GenerateAvailableItems struct {
-	HID          string        `json:"h_id"`
-	Series       *string       `json:"series,omitempty"`
-	Number       string        `json:"number"`
-	Date         string        `json:"date"`
-	PartnerID    *string       `json:"partnerId,omitempty"`
-	DocumentItem *DocumentItem `json:"document_item"`
+	HID          string               `json:"h_id"`
+	Series       *string              `json:"series,omitempty"`
+	Number       string               `json:"number"`
+	Date         string               `json:"date"`
+	PartnerID    *string              `json:"partnerId,omitempty"`
+	DocumentItem *models.DocumentItem `json:"document_item"`
 }
 
 type GenerateEfacturaDocumentInput struct {
@@ -171,24 +114,6 @@ type GetGenerateAvailableItemsInput struct {
 
 type GetItemsInput struct {
 	CategoryList []int `json:"category_list,omitempty"`
-}
-
-type Item struct {
-	ID       string        `json:"id"`
-	Code     *string       `json:"code,omitempty"`
-	Name     string        `json:"name"`
-	IsActive bool          `json:"is_active"`
-	IsStock  bool          `json:"is_stock"`
-	Um       *Um           `json:"um"`
-	Vat      *Vat          `json:"vat"`
-	Category *ItemCategory `json:"category,omitempty"`
-}
-
-type ItemCategory struct {
-	ID         int    `json:"id"`
-	Name       string `json:"name"`
-	IsActive   bool   `json:"is_active"`
-	GeneratePn bool   `json:"generate_pn"`
 }
 
 type ItemCategoryInput struct {
@@ -235,10 +160,10 @@ type Query struct {
 }
 
 type Recipe struct {
-	ID            int             `json:"id"`
-	Name          string          `json:"name"`
-	IsActive      bool            `json:"is_active"`
-	DocumentItems []*DocumentItem `json:"document_items,omitempty"`
+	ID            int                    `json:"id"`
+	Name          string                 `json:"name"`
+	IsActive      bool                   `json:"is_active"`
+	DocumentItems []*models.DocumentItem `json:"document_items,omitempty"`
 }
 
 type ReportInput struct {
@@ -279,12 +204,6 @@ type TransactionAvailableItemsInput struct {
 	TransactionID int      `json:"transaction_id"`
 }
 
-type Um struct {
-	ID   int    `json:"id"`
-	Name string `json:"name"`
-	Code string `json:"code"`
-}
-
 type UpdateUserInput struct {
 	User    *UserInput    `json:"user,omitempty"`
 	Company *CompanyInput `json:"company,omitempty"`
@@ -293,15 +212,6 @@ type UpdateUserInput struct {
 type UserInput struct {
 	Email       string  `json:"email"`
 	PhoneNumber *string `json:"phone_number,omitempty"`
-}
-
-type Vat struct {
-	ID                  int     `json:"id"`
-	Name                string  `json:"name"`
-	Percent             float64 `json:"percent"`
-	ExemptionReason     *string `json:"exemption_reason,omitempty"`
-	ExemptionReasonCode *string `json:"exemption_reason_code,omitempty"`
-	IsActive            bool    `json:"is_active"`
 }
 
 type ProductionItemType string

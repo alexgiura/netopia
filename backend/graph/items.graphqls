@@ -18,11 +18,11 @@ type Um{
     name: String!
     code: String!
 }
-type Category{
-    id: Int!
-    name: String!
-    is_active: Boolean!
-}
+#type Category{
+#    id: Int!
+#    name: String!
+#    is_active: Boolean!
+#}
 
 type Vat{
     id: Int!

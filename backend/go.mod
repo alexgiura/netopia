@@ -12,6 +12,7 @@ require (
 	github.com/caarlos0/env/v6 v6.10.1
 	github.com/google/uuid v1.6.0
 	github.com/gorilla/mux v1.8.0
+	github.com/graph-gophers/dataloader v5.0.0+incompatible
 	github.com/jackc/pgconn v1.14.0
 	github.com/jackc/pgtype v1.14.0
 	github.com/jackc/pgx/v4 v4.18.1
@@ -54,6 +55,7 @@ require (
 	github.com/kr/text v0.2.0 // indirect
 	github.com/lib/pq v1.10.7 // indirect
 	github.com/mitchellh/mapstructure v1.5.0 // indirect
+	github.com/opentracing/opentracing-go v1.2.0 // indirect
 	github.com/printesoi/xml-go v1.0.1 // indirect
 	github.com/russross/blackfriday/v2 v2.1.0 // indirect
 	github.com/sosodev/duration v1.2.0 // indirect

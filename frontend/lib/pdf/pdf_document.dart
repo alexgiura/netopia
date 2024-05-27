@@ -310,11 +310,11 @@ class PdfDocument {
       'Cantitate',
     ];
 
-    final data = document.documentItems!.map((item) {
+    final data = document.documentItems.map((documentItem) {
       return [
-        item.name,
-        item.um.name,
-        '${item.quantity.toStringAsFixed(2)}',
+        documentItem.item.name,
+        documentItem.item.um.name,
+        '${documentItem.quantity.toStringAsFixed(2)}',
       ];
     }).toList();
 
@@ -348,11 +348,11 @@ class PdfDocument {
       'Cantitate',
     ];
 
-    final data = document.documentItems!.map((item) {
+    final data = document.documentItems.map((documentItem) {
       return [
-        item.name,
-        item.um.name,
-        '${item.quantity.toStringAsFixed(2)}',
+        documentItem.item.name,
+        documentItem.item.um.name,
+        '${documentItem.quantity.toStringAsFixed(2)}',
       ];
     }).toList();
 

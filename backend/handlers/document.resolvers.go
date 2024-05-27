@@ -9,6 +9,7 @@ import (
 	_err "backend/errors"
 	"backend/graph/generated"
 	"backend/graph/model"
+	"backend/models"
 	"backend/util"
 	"context"
 	"errors"
@@ -16,8 +17,56 @@ import (
 	"log"
 	"time"
 
+	"github.com/graph-gophers/dataloader"
 	pgx "github.com/jackc/pgx/v4"
 )
+
+// Partner is the resolver for the partner field.
+func (r *documentResolver) Partner(ctx context.Context, obj *models.Document) (*models.Partner, error) {
+	loaders, ok := ctx.Value("loaders").(*models.Loaders)
+	if !ok {
+		log.Print("\"message\": Unable to fetch loaders from context, \"error\": context value is not of type *models.Loaders")
+		return nil, _err.Error(ctx, "ContextError", "InternalError")
+	}
+
+	result, err := loaders.PartnerLoader.Load(ctx, dataloader.StringKey(obj.HId))()
+	if err != nil {
+		log.Print("\"message\": Failed to load partner using PartnerLoader, \"error\": ", err.Error())
+		return nil, _err.Error(ctx, "FailedToLoadPartner", "DatabaseError")
+	}
+
+	partner, ok := result.(*models.Partner)
+	if !ok {
+		log.Print("\"message\": Unexpected type for Partner, \"error\": unexpected type ", fmt.Sprintf("%T", result))
+		return nil, _err.Error(ctx, "UnexpectedType", "InternalError")
+	}
+
+	return partner, nil
+}
+
+// DocumentItems is the resolver for the document_items field.
+func (r *documentResolver) DocumentItems(ctx context.Context, obj *models.Document) ([]*models.DocumentItem, error) {
+	loaders, ok := ctx.Value("loaders").(*models.Loaders)
+	if !ok {
+		log.Print("\"message\": Unable to fetch loaders from context, \"error\": context value is not of type *models.Loaders")
+		return nil, _err.Error(ctx, "ContextError", "InternalError")
+	}
+
+	resultFuture := loaders.DocumentItemLoader.Load(ctx, dataloader.StringKey(obj.HId))
+	result, err := resultFuture()
+	if err != nil {
+		log.Print("\"message\": Failed to load document items using DocumentItemLoader, \"error\": ", err.Error())
+		return nil, _err.Error(ctx, "FailedToLoadDocumentItems", "DatabaseError")
+	}
+
+	documentItems, ok := result.([]*models.DocumentItem)
+	if !ok {
+		log.Print("\"message\": Unexpected type for DocumentItems, \"error\": unexpected type ", fmt.Sprintf("%T", result))
+		return nil, _err.Error(ctx, "UnexpectedType", "InternalError")
+	}
+
+	return documentItems, nil
+}
 
 // SaveDocument is the resolver for the saveDocument field.
 func (r *mutationResolver) SaveDocument(ctx context.Context, input model.DocumentInput) (*string, error) {
@@ -31,7 +80,7 @@ func (r *mutationResolver) SaveDocument(ctx context.Context, input model.Documen
 			return err
 		}
 
-		returnStr = document.HID
+		returnStr = document.HId
 		return nil
 	}); err != nil {
 		return nil, err
@@ -109,49 +158,50 @@ func (r *mutationResolver) GeneratePNAllDoc(ctx context.Context, start *bool) (*
 
 // RegenerateProductionNotes is the resolver for the regenerateProductionNotes field.
 func (r *mutationResolver) RegenerateProductionNotes(ctx context.Context, input model.GetDocumentsInput) (*string, error) {
-	startDate, _ := time.Parse("2006-01-02", input.StartDate)
-	endDate, _ := time.Parse("2006-01-02", input.EndDate)
-
-	if err := r.DBPool.BeginFunc(ctx, func(tx pgx.Tx) error {
-		transaction := r.DBProvider.WithTx(tx)
-
-		rows, err := transaction.GetDocuments(ctx, db.GetDocumentsParams{
-			DocumentType: int32(input.DocumentType),
-			StartDate:    startDate,
-			EndDate:      endDate,
-			Partner:      util.StrArrayToUuidArray(input.Partner),
-		})
-
-		if err != nil {
-			if errors.Is(err, pgx.ErrNoRows) {
-				return nil
-			}
-			log.Print("\"message\":Failed to execute DBProvider.GetDocuments, "+"\"error\": ", err.Error())
-			return _err.Error(ctx, "Failed to get documents", "DatabaseError")
-		}
-		for _, document := range rows {
-			// Cancel generated docs
-			err := r._CancelGeneratedDocumentsNoInvoices(ctx, transaction, document.HID)
-			if err != nil {
-				return err
-			}
-
-			err2 := r._RegeneratePN(ctx, transaction, document.HID)
-			if err2 != nil {
-				return err2
-			}
-		}
-
-		return nil
-	}); err != nil {
-		return nil, err
-	}
-	var returnStr = "success"
-	return &returnStr, nil
+	//startDate, _ := time.Parse("2006-01-02", input.StartDate)
+	//endDate, _ := time.Parse("2006-01-02", input.EndDate)
+	//
+	//if err := r.DBPool.BeginFunc(ctx, func(tx pgx.Tx) error {
+	//	transaction := r.DBProvider.WithTx(tx)
+	//
+	//	rows, err := transaction.GetDocuments(ctx, db.GetDocumentsParams{
+	//		DocumentType: int32(input.DocumentType),
+	//		StartDate:    startDate,
+	//		EndDate:      endDate,
+	//		Partner:      util.StrArrayToUuidArray(input.Partner),
+	//	})
+	//
+	//	if err != nil {
+	//		if errors.Is(err, pgx.ErrNoRows) {
+	//			return nil
+	//		}
+	//		log.Print("\"message\":Failed to execute DBProvider.GetDocuments, "+"\"error\": ", err.Error())
+	//		return _err.Error(ctx, "Failed to get documents", "DatabaseError")
+	//	}
+	//	for _, document := range rows {
+	//		// Cancel generated docs
+	//		err := r._CancelGeneratedDocumentsNoInvoices(ctx, transaction, document.HID)
+	//		if err != nil {
+	//			return err
+	//		}
+	//
+	//		err2 := r._RegeneratePN(ctx, transaction, document.HID,input.Partner)
+	//		if err2 != nil {
+	//			return err2
+	//		}
+	//	}
+	//
+	//	return nil
+	//}); err != nil {
+	//	return nil, err
+	//}
+	//var returnStr = "success"
+	//return &returnStr, nil
+	return nil, nil
 }
 
 // GetDocuments is the resolver for the getDocuments field.
-func (r *queryResolver) GetDocuments(ctx context.Context, input model.GetDocumentsInput) ([]*model.DocumentLight, error) {
+func (r *queryResolver) GetDocuments(ctx context.Context, input model.GetDocumentsInput) ([]*models.Document, error) {
 	startDate, _ := time.Parse("2006-01-02", input.StartDate)
 	endDate, _ := time.Parse("2006-01-02", input.EndDate)
 
@@ -170,17 +220,23 @@ func (r *queryResolver) GetDocuments(ctx context.Context, input model.GetDocumen
 		return nil, _err.Error(ctx, "Failed to get documents", "DatabaseError")
 	}
 
-	documents := make([]*model.DocumentLight, 0)
+	documents := make([]*models.Document, 0)
 
 	for _, row := range rows {
-		document := &model.DocumentLight{
-			HID:       row.HID.String(),
-			Series:    util.StringOrNil(row.Series),
-			Number:    row.Number,
-			Date:      row.Date.Format("2006-01-02"),
-			Partner:   *util.StringOrNil(row.Partner),
-			IsDeleted: row.IsDeleted,
-			Status:    util.StringOrNil(row.Status),
+		efacturaStatus := string(row.EfacturaStatus.CoreEfacturaDocumentStatus)
+		document := &models.Document{
+			HId: row.HID.String(),
+			Type: models.DocumentType{
+				ID:     *util.IntOrNil(row.DocumentTypeID),
+				NameRo: *util.StringOrNil(row.DocumentTypeNameRo),
+				NameEn: *util.StringOrNil(row.DocumentTypeNameEn),
+			},
+			Series:         util.StringOrNil(row.Series),
+			Number:         row.Number,
+			Date:           row.Date.Format("2006-01-02"),
+			Notes:          util.StringOrNil(row.Notes),
+			Deleted:        row.IsDeleted,
+			EFacturaStatus: &efacturaStatus,
 		}
 
 		documents = append(documents, document)
@@ -189,8 +245,8 @@ func (r *queryResolver) GetDocuments(ctx context.Context, input model.GetDocumen
 }
 
 // GetDocumentByID is the resolver for the getDocumentById field.
-func (r *queryResolver) GetDocumentByID(ctx context.Context, documentID *string) (*model.Document, error) {
-	var returnDoc *model.Document
+func (r *queryResolver) GetDocumentByID(ctx context.Context, documentID *string) (*models.Document, error) {
+	var returnDoc *models.Document
 	if err := r.DBPool.BeginFunc(ctx, func(tx pgx.Tx) error {
 		transaction := r.DBProvider.WithTx(tx)
 		document, err := r._GetDocumentByID(ctx, transaction, documentID)
@@ -256,21 +312,23 @@ func (r *queryResolver) GetGenerateAvailableItems(ctx context.Context, input mod
 			HID:    row.HID.String(),
 			Number: row.Number,
 			Date:   row.Date.Format("2006-01-02"),
-			DocumentItem: &model.DocumentItem{
-				DID:      &dId,
-				ItemID:   row.ItemID.String(),
-				ItemCode: &row.ItemCode,
-				ItemName: row.ItemName,
+			DocumentItem: &models.DocumentItem{
+				DId: dId,
+				Item: models.Item{
+					ID:   row.ItemID.String(),
+					Code: &row.ItemCode,
+					Name: row.ItemName,
+					Um: models.Um{
+						ID:   int(row.UmID),
+						Name: row.UmName,
+					},
+					Vat: models.Vat{
+						ID:      int(row.VatID),
+						Name:    row.VatName,
+						Percent: row.VatPercent,
+					},
+				},
 				Quantity: row.Quantity,
-				Um: &model.Um{
-					ID:   int(row.UmID),
-					Name: row.UmName,
-				},
-				Vat: &model.Vat{
-					ID:      int(row.VatID),
-					Name:    row.VatName,
-					Percent: row.VatPercent,
-				},
 			},
 		}
 
@@ -298,7 +356,11 @@ func (r *queryResolver) GetCurrencyList(ctx context.Context) ([]*model.Currency,
 	return currencyList, nil
 }
 
+// Document returns generated.DocumentResolver implementation.
+func (r *Resolver) Document() generated.DocumentResolver { return &documentResolver{r} }
+
 // Mutation returns generated.MutationResolver implementation.
 func (r *Resolver) Mutation() generated.MutationResolver { return &mutationResolver{r} }
 
+type documentResolver struct{ *Resolver }
 type mutationResolver struct{ *Resolver }

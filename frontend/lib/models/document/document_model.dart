@@ -1,3 +1,4 @@
+import 'package:erp_frontend_v2/models/item/item_model.dart';
 import 'package:erp_frontend_v2/models/partner/partner_model.dart';
 
 import '../item/um_model.dart';
@@ -9,11 +10,12 @@ class Document {
   String? series;
   String number;
   String date;
+  String? dueDate;
   Partner? partner;
-  String? personId;
   int? recipeId;
   String? notes;
   bool? isDeleted;
+  String? efacturaStatus;
   List<DocumentItem> documentItems;
 
   Document(
@@ -24,10 +26,10 @@ class Document {
       required this.date,
       this.partner,
       required this.documentItems,
-      this.personId,
       this.recipeId,
       this.notes,
-      this.isDeleted});
+      this.isDeleted,
+      this.efacturaStatus});
 
   Document.empty()
       : hId = '',
@@ -36,7 +38,6 @@ class Document {
         number = '',
         date = '',
         partner = null,
-        personId = null,
         recipeId = null,
         notes = null,
         documentItems = [];
@@ -58,10 +59,10 @@ class Document {
       number: json['number'],
       date: json['date'],
       partner: Partner.fromJson(json['partner'] as Map<String, dynamic>),
-      personId: json.containsKey('person_name') ? json['person_name'] : null,
       recipeId: json.containsKey('recipe_id') ? json['recipe_id'] : null,
       notes: json.containsKey('notes') ? json['notes'] : null,
       isDeleted: json['is_deleted'],
+      efacturaStatus: json['efactura_status'],
       documentItems: items,
     );
   }
@@ -69,13 +70,11 @@ class Document {
 
 class DocumentItem {
   String? dId;
-  String id;
-  String? code;
-  String name;
+  Item item;
   double quantity;
-  Um um;
+
   double? price;
-  Vat? vat;
+
   double? amountNet;
   double? amountVat;
   double? amountGross;
@@ -83,14 +82,10 @@ class DocumentItem {
   String? itemTypePn;
 
   DocumentItem({
-    required this.id,
-    this.code,
-    required this.name,
+    required this.item,
     required this.quantity,
-    required this.um,
     this.dId,
     this.price,
-    this.vat,
     this.amountNet,
     this.amountVat,
     this.amountGross,
@@ -99,13 +94,9 @@ class DocumentItem {
   });
   DocumentItem.empty()
       : dId = '',
-        id = '',
-        code = '',
-        name = '',
+        item = Item.empty(),
         quantity = 0.00,
-        um = Um.empty(),
         price = null,
-        vat = Vat.empty(),
         amountNet = null,
         amountVat = null,
         amountGross = null;
@@ -113,13 +104,9 @@ class DocumentItem {
   factory DocumentItem.fromJson(Map<String, dynamic> json) {
     return DocumentItem(
       dId: json['d_id'],
-      id: json['item_id'],
-      code: json['item_code'],
-      name: json['item_name'],
+      item: Item.fromJson(json['item']),
       quantity: json['quantity'],
-      um: Um.fromJson(json['um']),
       price: json.containsKey('price') ? json['price'] : null,
-      vat: json.containsKey('vat') ? Vat.fromJson(json['vat']) : null,
       amountNet: json.containsKey('amount_net') ? json['amount_net'] : null,
       amountVat: json.containsKey('amount_vat') ? json['amount_vat'] : null,
       amountGross:

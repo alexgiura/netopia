@@ -62,11 +62,7 @@ class DocumentAddItemDataTableState extends State<DocumentAddItemDataTable> {
       return DataRow2(
         onTap: () {
           _item = DocumentItem(
-            id: item.id!,
-            code: item.code,
-            name: item.name,
-            um: item.um,
-            vat: item.vat,
+            item: item,
             quantity: 0.00,
             price: null,
             amountNet: null,

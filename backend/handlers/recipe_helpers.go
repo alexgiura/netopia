@@ -4,6 +4,7 @@ import (
 	"backend/db"
 	_err "backend/errors"
 	"backend/graph/model"
+	"backend/models"
 	"backend/util"
 	"context"
 	"errors"
@@ -13,7 +14,7 @@ import (
 	"go.uber.org/zap"
 )
 
-func (r *Resolver) _getRecipeItems(ctx context.Context, transaction *db.Queries, recipeId int32) ([]*model.DocumentItem, error) {
+func (r *Resolver) _getRecipeItems(ctx context.Context, transaction *db.Queries, recipeId int32) ([]*models.DocumentItem, error) {
 	// Get all item subgroups for the given group ID
 	rows, err := transaction.GetRecipeItemsById(ctx, recipeId)
 	if err != nil {
@@ -26,20 +27,24 @@ func (r *Resolver) _getRecipeItems(ctx context.Context, transaction *db.Queries,
 	}
 
 	// Create an array to hold all subgroup items
-	var recipeItems []*model.DocumentItem
+	var recipeItems []*models.DocumentItem
 
 	// Loop through each subgroup item and add it to the array
 	for _, row := range rows {
 		itemTypePn := row.ItemTypePn
-		recipeItem := &model.DocumentItem{
-			ItemID:   row.ItemID.String(),
-			ItemCode: util.StringOrNil(row.ItemCode),
-			ItemName: row.ItemName,
-			Quantity: row.Quantity,
-			Um: &model.Um{
-				ID:   int(row.UmID),
-				Name: row.UmName,
+		recipeItem := &models.DocumentItem{
+			Item: models.Item{
+				ID:   row.ItemID.String(),
+				Code: util.StringOrNil(row.ItemCode),
+				Name: row.ItemName,
+				Um: models.Um{
+					ID:   int(row.UmID),
+					Name: row.UmName,
+				},
 			},
+
+			Quantity: row.Quantity,
+
 			ItemTypePn: &itemTypePn,
 		}
 
