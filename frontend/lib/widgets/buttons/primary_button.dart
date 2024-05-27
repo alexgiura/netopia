@@ -15,7 +15,7 @@ class PrimaryButton extends StatelessWidget {
           borderRadius: BorderRadius.circular(12),
           color: CustomColor.textPrimary),
       width: double.infinity,
-      height: MediaQuery.of(context).size.height * 0.048,
+      height: MediaQuery.of(context).size.height * 0.050,
       child: InkWell(
           onTap: onPressed,
           child: Center(

@@ -73,7 +73,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
               Gap(context.height05),
               _styledContainer(
                 child: Image.asset(
-                  'images/dashboard_image.png',
+                  'assets/images/dashboard_image.png',
                   fit: BoxFit.fitWidth,
                 ),
               ),

@@ -1,8 +1,9 @@
 import 'package:erp_frontend_v2/constants/style.dart';
 import 'package:erp_frontend_v2/models/app_localizations.dart';
+import 'package:erp_frontend_v2/pages/auth/register/widgets/step_indicator.dart';
 import 'package:erp_frontend_v2/utils/extensions.dart';
 import 'package:erp_frontend_v2/widgets/buttons/primary_button.dart';
-import 'package:erp_frontend_v2/widgets/custom_checkbox.dart';
+import 'package:erp_frontend_v2/widgets/buttons/secondary_button.dart';
 import 'package:erp_frontend_v2/widgets/custom_text_field.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -19,9 +20,16 @@ class _RegisterFormState extends ConsumerState<RegisterForm> {
   final formKey = GlobalKey<FormState>();
   final companyCifController = TextEditingController();
   final passwordController = TextEditingController();
+  final companyNameController = TextEditingController();
+  final addressController = TextEditingController();
+  final countyController = TextEditingController();
+  final cityController = TextEditingController();
+  final vatPayerController = TextEditingController();
+  final regNumberController = TextEditingController();
+
   bool rememberMe = false;
   String errorText = 'error_company_cif';
-  int currentStep = 0;
+  int currentStep = 1;
   final _formsPageViewController = PageController();
   List _forms = [];
 
@@ -35,28 +43,40 @@ class _RegisterFormState extends ConsumerState<RegisterForm> {
 
   @override
   Widget build(BuildContext context) {
+    _forms = [
+      WillPopScope(
+        onWillPop: () => Future.sync(onWillPop),
+        child: _firstStep(),
+      ),
+      WillPopScope(
+        onWillPop: () => Future.sync(onWillPop),
+        child: _secondStep(),
+      ),
+      WillPopScope(
+        onWillPop: () => Future.sync(onWillPop),
+        child: _thirdStep(),
+      ),
+    ];
     return Form(
         key: formKey,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Column(
-              children: [
-                _formHeader(context),
-                Gap(context.height02),
-                _formBody(),
-                Gap(context.height03),
-                Align(
-                  alignment: Alignment.center,
-                  child: PrimaryButton(
-                    text: 'continue'.tr(context),
-                    onPressed: () => _nextFormStep(),
+            Flexible(
+              child: Column(
+                children: [
+                  _formHeader(context),
+                  Gap(context.height02),
+                  _formBody(),
+                  Align(
+                    alignment: Alignment.center,
+                    child: _formNavigation(),
                   ),
-                ),
-                Gap(context.height03),
-                _formOptions(context),
-              ],
+                  Gap(context.height03),
+                  _formOptions(context),
+                ],
+              ),
             ),
             _bottomForm(context)
           ],
@@ -64,20 +84,7 @@ class _RegisterFormState extends ConsumerState<RegisterForm> {
   }
 
   Widget _formBody() {
-    _forms = [
-      WillPopScope(
-        onWillPop: () => Future.sync(this.onWillPop),
-        child: _firstStep(),
-      ),
-      WillPopScope(
-        onWillPop: () => Future.sync(this.onWillPop),
-        child: _secondStep(),
-      ),
-    ];
-
-    return Container(
-      width: double.maxFinite,
-      height: context.height10,
+    return Flexible(
       child: PageView.builder(
         controller: _formsPageViewController,
         physics: const NeverScrollableScrollPhysics(),
@@ -90,6 +97,13 @@ class _RegisterFormState extends ConsumerState<RegisterForm> {
 
   void _nextFormStep() {
     _formsPageViewController.nextPage(
+      duration: Duration(milliseconds: 300),
+      curve: Curves.ease,
+    );
+  }
+
+  void _backFormStep() {
+    _formsPageViewController.previousPage(
       duration: Duration(milliseconds: 300),
       curve: Curves.ease,
     );
@@ -112,6 +126,7 @@ class _RegisterFormState extends ConsumerState<RegisterForm> {
       keyboardType: TextInputType.emailAddress,
       labelText: 'company_cif'.tr(context),
       hintText: '12345678',
+      initialValue: companyCifController.text,
       errorText: errorText,
       onValueChanged: (value) {
         setState(() {
@@ -125,9 +140,44 @@ class _RegisterFormState extends ConsumerState<RegisterForm> {
   }
 
   Widget _secondStep() {
+    return IntrinsicHeight(
+      child: Column(
+        children: [
+          CustomTextField(
+            keyboardType: TextInputType.name,
+            labelText: 'company_name',
+            hintText: 'company_name'.tr(context),
+            errorText: 'error_company_name',
+            onValueChanged: (value) {
+              setState(() {
+                companyNameController.text = value;
+              });
+              return null;
+            },
+            required: true,
+          ),
+          CustomTextField(
+            keyboardType: TextInputType.name,
+            labelText: 'company_name',
+            hintText: 'company_name'.tr(context),
+            errorText: 'error_company_name',
+            onValueChanged: (value) {
+              setState(() {
+                companyNameController.text = value;
+              });
+              return null;
+            },
+            required: true,
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _thirdStep() {
     return CustomTextField(
       keyboardType: TextInputType.emailAddress,
-      labelText: 'company_ciasdasdasd',
+      labelText: 'third',
       hintText: '12345678',
       errorText: errorText,
       onValueChanged: (value) {
@@ -158,7 +208,10 @@ class _RegisterFormState extends ConsumerState<RegisterForm> {
           ],
         ),
         Gap(context.height02),
-        _stepIndicator(context),
+        StepIndicator(
+          totalSteps: _forms.length,
+          currentStep: currentStep,
+        ),
         Gap(context.height02),
         Text(
           'data_of_your_company'.tr(context),
@@ -223,38 +276,39 @@ class _RegisterFormState extends ConsumerState<RegisterForm> {
     );
   }
 
-  Widget _stepIndicator(BuildContext context) {
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        return Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              '1 din ${_forms.length} etape',
-              style: CustomStyle.labelSemibold12(color: CustomColor.slate_500),
+  Widget _formNavigation() {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        if (currentStep != 1)
+          Expanded(
+            child: SecondaryButton(
+              text: 'Înapoi',
+              onPressed: () {
+                if (currentStep > 1) {
+                  setState(() {
+                    currentStep--;
+                  });
+                  _backFormStep();
+                }
+              },
             ),
-            Container(
-              width: double.maxFinite,
-              height: context.height01 * 0.6,
-              decoration: BoxDecoration(
-                color: CustomColor.textPrimary.withOpacity(0.15),
-                borderRadius: BorderRadius.circular(20),
-              ),
-              child: Align(
-                alignment: Alignment.centerLeft,
-                child: Container(
-                  width: 50,
-                  height: double.infinity,
-                  decoration: BoxDecoration(
-                    color: CustomColor.textPrimary,
-                    borderRadius: BorderRadius.circular(20),
-                  ),
-                ),
-              ),
-            )
-          ],
-        );
-      },
+          ),
+        if (currentStep != 1) Gap(context.width01),
+        Expanded(
+          child: PrimaryButton(
+            text: 'continue'.tr(context),
+            onPressed: () {
+              if (currentStep < _forms.length) {
+                setState(() {
+                  currentStep++;
+                });
+                _nextFormStep();
+              }
+            },
+          ),
+        ),
+      ],
     );
   }
 

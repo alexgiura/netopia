@@ -38,13 +38,11 @@ services:
     #      - erp-postgres
     env_file: ./.env
 
-
   erp-frontend:
     container_name: "erp-frontend"
     build:
       context: ../frontend
       dockerfile: Dockerfile
-<<<<<<< HEAD
     # ports:
     #   - "80:80"
     # networks:
@@ -54,18 +52,6 @@ services:
     #   - "traefik.http.routers.erp-frontend.rule=Host(`erp.local`)"
     #   - "traefik.port=80"
     #   - "traefik.http.routers.erp-frontend.entrypoints=web"
-=======
-    ports:
-       - "80:80"
-    networks:
-       - default
-    labels:
-       - "traefik.enable=true"
-       - "traefik.http.routers.erp-frontend.rule=Host(`erp.local`)"
-       - "traefik.port=80"
-       - "traefik.http.routers.erp-frontend.entrypoints=web"
->>>>>>> origin/dev
-
 #   erp-postgres:
 #     platform: linux/amd64
 #     build:
