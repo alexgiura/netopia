@@ -138,14 +138,16 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
           ),
         ),
         Gap(context.width05),
-        Expanded(
-          flex: context.deviceWidth < 1100 ? 4 : 3,
-          child: _styledContainer(
-              padding: const EdgeInsets.all(40),
-              color: CustomColor.bgSecondary,
-              borderRadius: BorderRadius.circular(28),
-              child: const RegisterForm()),
-        ),
+        // Expanded(
+        // flex: context.deviceWidth < 1100 ? 4 : 3,
+        _styledContainer(
+            width:
+                context.deviceWidth < 1100 ? context.width40 : context.width25,
+            padding: const EdgeInsets.all(30),
+            color: CustomColor.bgSecondary,
+            borderRadius: BorderRadius.circular(28),
+            child: const RegisterForm()),
+        // ),
       ],
     );
   }

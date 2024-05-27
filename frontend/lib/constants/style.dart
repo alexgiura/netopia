@@ -414,6 +414,39 @@ class CustomStyle {
         borderRadius: CustomStyle.customBorderRadius,
       )));
 
+  static ButtonStyle submitBlackButton = ButtonStyle(
+    padding: MaterialStateProperty.all(
+        EdgeInsets.symmetric(horizontal: 14, vertical: 20)),
+    backgroundColor: MaterialStateProperty.all(CustomColor.textPrimary),
+    shape: MaterialStateProperty.all(RoundedRectangleBorder(
+      borderRadius: BorderRadius.circular(15),
+    )),
+    textStyle: MaterialStateProperty.all(
+      CustomStyle.buttonSemibold14(
+        color: CustomColor.textPrimary,
+      ),
+    ),
+    iconSize: MaterialStateProperty.all(18),
+    iconColor: MaterialStateProperty.all(CustomColor.white),
+  );
+
+  static ButtonStyle secondaryElevatedButtonStyle = ButtonStyle(
+    padding: MaterialStateProperty.all(
+        const EdgeInsets.symmetric(horizontal: 14, vertical: 20)),
+    backgroundColor: MaterialStateProperty.all(CustomColor.white),
+    shape: MaterialStateProperty.all(
+      RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(15),
+      ),
+    ),
+    textStyle: MaterialStateProperty.all(
+      buttonSemibold14(color: CustomColor.textPrimary),
+    ),
+    side: MaterialStateProperty.all(
+      const BorderSide(color: CustomColor.textPrimary),
+    ),
+  );
+
   // Container decoration
   static BoxDecoration customContainerDecoration = BoxDecoration(
     color: CustomColor.white,

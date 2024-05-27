@@ -87,12 +87,15 @@ class CustomTextFieldState extends State<CustomTextField> {
         children: [
           widget.labelText != null
               ? RichText(
-                  text: TextSpan(text: widget.labelText, children: [
-                  TextSpan(
-                    text: widget.required ? ' *' : '',
-                    style: CustomStyle.errorText,
-                  )
-                ]))
+                  text: TextSpan(
+                      text: widget.labelText,
+                      style: CustomStyle.regular16(),
+                      children: [
+                      TextSpan(
+                        text: widget.required ? ' *' : '',
+                        style: CustomStyle.errorText,
+                      )
+                    ]))
               : const SizedBox.shrink(),
           widget.labelText != null
               ? const SizedBox(height: 4)
@@ -227,6 +230,8 @@ class CustomTextFieldState extends State<CustomTextField> {
             });
             return false;
           }
+        } else if (widget.isCIFField == true) {
+          isValidCUI(_textController.text);
         }
         if (widget.customValidator != null) {
           if (!widget.customValidator!(_textController.text)) {
@@ -249,6 +254,61 @@ class CustomTextFieldState extends State<CustomTextField> {
       r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$',
     );
     return emailRegex.hasMatch(email);
+  }
+
+  void isValidCUI(String v) {
+    String cif = v.toUpperCase();
+    cif = cif.startsWith('RO') ? cif.substring(2) : cif;
+    cif = cif.replaceAll(RegExp(r'\s'), '');
+
+    if (cif.length < 2 || cif.length > 10) {
+      setState(() {
+        _showError = true;
+        _errorText = 'Lungimea corectă fără RO, este între 2 și 10 caractere!';
+      });
+      return; // Stop further execution
+    }
+
+    if (int.tryParse(cif) == null) {
+      setState(() {
+        _showError = true;
+        _errorText = 'Nu este număr!';
+      });
+      return; // Stop further execution
+    }
+
+    const testKey = '753217532';
+    final controlNumber = int.parse(cif.substring(cif.length - 1));
+    cif = cif.substring(0, cif.length - 1);
+
+    while (cif.length != testKey.length) {
+      cif = '0' + cif;
+    }
+
+    int sum = 0;
+    for (int i = 0; i < cif.length; i++) {
+      sum += int.parse(cif[i]) * int.parse(testKey[i]);
+    }
+
+    int calculatedControlNumber = (sum * 10) % 11;
+
+    if (calculatedControlNumber == 10) {
+      calculatedControlNumber = 0;
+    }
+
+    if (controlNumber != calculatedControlNumber) {
+      setState(() {
+        _showError = true;
+        _errorText = 'CIF invalid!';
+      });
+      return; // Stop further execution
+    }
+
+    // If no errors, reset the error state
+    setState(() {
+      _showError = false;
+      _errorText = '';
+    });
   }
 
   String? validatePassword(BuildContext context, String password) {
