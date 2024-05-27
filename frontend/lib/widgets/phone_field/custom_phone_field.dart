@@ -84,7 +84,6 @@ class CustomPhoneFieldState<T> extends ConsumerState<CustomPhoneField<T>> {
 
   @override
   Widget build(BuildContext context) {
-    
     return Container(
       color: CustomColor.white,
       child: Column(
@@ -213,16 +212,12 @@ class CustomPhoneFieldState<T> extends ConsumerState<CustomPhoneField<T>> {
                                   }).toList();
                                   filteredListKey.currentState
                                       ?.updateList(newFilteredDataList);
-
-                                 
                                 },
-                                //visibleBorder: false,
                               ))
                             ],
                           ),
                         )
                       : const SizedBox.shrink(),
-                  
                   Flexible(
                     child: CountryFilteredListWidget<T>(
                       key: filteredListKey,
@@ -232,7 +227,6 @@ class CustomPhoneFieldState<T> extends ConsumerState<CustomPhoneField<T>> {
                         setState(() {
                           selectedCountry = country;
                           hideOverlay();
-
                           _showError = false;
                         });
                       },
