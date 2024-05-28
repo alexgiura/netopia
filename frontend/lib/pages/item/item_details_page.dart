@@ -193,7 +193,7 @@ class _ItemDetailsPopupState extends ConsumerState<ItemDetailsPopup>
                 Row(
                   children: [
                     CustomCheckbox(
-                        value: _item.isActive,
+                        value: _item.isActive ?? false,
                         labelText: "Activ",
                         onChanged: (value) {
                           setState(() {
@@ -204,7 +204,7 @@ class _ItemDetailsPopupState extends ConsumerState<ItemDetailsPopup>
                       width: 16,
                     ),
                     CustomCheckbox(
-                        value: _item.isStock,
+                        value: _item.isStock ?? false,
                         labelText: "Stocabil",
                         onChanged: (value) {
                           setState(() {

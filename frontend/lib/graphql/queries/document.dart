@@ -103,20 +103,22 @@ query  getGenerateAvailableItems($input: GetGenerateAvailableItemsInput!) {
     date,
     document_item{
         d_id,
-      item_id,
-      item_code,
-      item_name,
-      quantity,
-      um{
+        item{
           id,
-          name
-      }
-      vat{
-          id,
+          code,
           name,
-          percent
-      }
+          um{
+            id,
+            name
+          }
+          vat{
+            id,
+            name,
+            percent
+          }
+        }     
+        quantity,      
     }  
-   }
+  }
 }
 ''';

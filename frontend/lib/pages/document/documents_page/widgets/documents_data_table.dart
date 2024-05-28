@@ -1,4 +1,3 @@
-import 'package:erp_frontend_v2/models/document/document_light_model.dart';
 import 'package:erp_frontend_v2/models/document/document_model.dart';
 import 'package:erp_frontend_v2/models/document/documents_filter_model.dart';
 import 'package:erp_frontend_v2/providers/document_providers.dart';
