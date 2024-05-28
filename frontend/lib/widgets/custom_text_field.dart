@@ -91,10 +91,11 @@ class CustomTextFieldState extends State<CustomTextField> {
                       text: widget.labelText,
                       style: CustomStyle.regular16(),
                       children: [
-                      TextSpan(
-                        text: widget.required ? ' *' : '',
-                        style: CustomStyle.errorText,
-                      )
+                      if (widget.required)
+                        const TextSpan(
+                          text: ' *',
+                          style: CustomStyle.errorText,
+                        )
                     ]))
               : const SizedBox.shrink(),
           widget.labelText != null

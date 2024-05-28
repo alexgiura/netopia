@@ -3,13 +3,14 @@ import 'package:erp_frontend_v2/models/app_localizations.dart';
 import 'package:erp_frontend_v2/pages/auth/register/widgets/step_indicator.dart';
 import 'package:erp_frontend_v2/utils/extensions.dart';
 import 'package:erp_frontend_v2/widgets/buttons/primary_button.dart';
-import 'package:erp_frontend_v2/widgets/buttons/secondary_button.dart';
-import 'package:erp_frontend_v2/widgets/custom_checkbox.dart';
 import 'package:erp_frontend_v2/widgets/custom_radio_button.dart';
 import 'package:erp_frontend_v2/widgets/custom_text_field.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:gap/gap.dart';
+import 'package:go_router/go_router.dart';
+
+import '../../../../routing/routes.dart';
 
 class RegisterForm extends ConsumerStatefulWidget {
   const RegisterForm({super.key});
@@ -21,6 +22,7 @@ class RegisterForm extends ConsumerStatefulWidget {
 class _RegisterFormState extends ConsumerState<RegisterForm> {
   final formKey = GlobalKey<FormState>();
   final companyCifController = TextEditingController();
+  final emailController = TextEditingController();
   final passwordController = TextEditingController();
   final companyNameController = TextEditingController();
   final addressController = TextEditingController();
@@ -28,6 +30,7 @@ class _RegisterFormState extends ConsumerState<RegisterForm> {
   final cityController = TextEditingController();
   final vatPayerController = TextEditingController();
   final regNumberController = TextEditingController();
+  final phoneController = TextEditingController();
 
   bool rememberMe = false;
   String errorText = 'error';
@@ -52,54 +55,47 @@ class _RegisterFormState extends ConsumerState<RegisterForm> {
   @override
   Widget build(BuildContext context) {
     _forms = [
-      WillPopScope(
-        onWillPop: () => Future.sync(onWillPop),
+      PopScope(
         child: _firstStep(),
+        onPopInvoked: (didPop) => Future.sync(onWillPop),
       ),
-      WillPopScope(
-        onWillPop: () => Future.sync(onWillPop),
+      PopScope(
         child: _secondStep(),
+        onPopInvoked: (didPop) => Future.sync(onWillPop),
       ),
-      WillPopScope(
-        onWillPop: () => Future.sync(onWillPop),
+      PopScope(
         child: _thirdStep(),
-      ),
+        onPopInvoked: (didPop) => Future.sync(onWillPop),
+      )
     ];
     return Form(
         key: formKey,
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          mainAxisSize: MainAxisSize.max,
           children: [
-            Flexible(
-              child: Column(
-                children: [
-                  _formHeader(context),
-                  Gap(context.height02),
-                  _formBody(),
-                  Align(
-                    alignment: Alignment.center,
-                    child: _formNavigation(),
-                  ),
-                  Gap(context.height03),
-                  _formOptions(context),
-                ],
-              ),
-            ),
-            _bottomForm(context)
+            _formHeader(context),
+            Gap(context.height02),
+            Flexible(child: _formBody()),
+            Gap(context.height02),
+            // Spacer(),
+            _formNavigation(),
+            if (currentStep == 1) Gap(context.height02),
+            if (currentStep == 1) _formOptions(context),
+            if (currentStep == 1) Gap(context.height05),
+            if (currentStep == 1) FittedBox(child: _bottomForm(context)),
           ],
         ));
   }
 
   Widget _formBody() {
-    return Flexible(
-      child: PageView.builder(
-        controller: _formsPageViewController,
-        physics: const NeverScrollableScrollPhysics(),
-        itemBuilder: (BuildContext context, int index) {
-          return _forms[index];
-        },
-      ),
+    return IndexedStack(
+      index: currentStep -
+          1, // presupunând că aveți o variabilă currentStep care ține pasul curent
+      children: [
+        _firstStep(),
+        _secondStep(),
+        _thirdStep(),
+      ],
     );
   }
 
@@ -170,7 +166,7 @@ class _RegisterFormState extends ConsumerState<RegisterForm> {
                   child: CustomTextField(
                     keyboardType: TextInputType.name,
                     labelText: 'cui'.tr(context),
-                    hintText: 'RO123456789'.tr(context),
+                    hintText: 'RO12345678',
                     errorText: 'error_company_cui'.tr(context),
                     onValueChanged: (value) {
                       setState(() {
@@ -250,9 +246,13 @@ class _RegisterFormState extends ConsumerState<RegisterForm> {
             CustomRadioButton(
               text: "pay_TVA".tr(context),
               direction: Axis.horizontal,
-              options: ['da', 'nu'],
+              textStyle: CustomStyle.regular16(),
+              groupValue: vatPayerController.text,
+              options: ['yes', 'no'],
               onChanged: (value) {
-                print(value);
+                setState(() {
+                  vatPayerController.text = value!;
+                });
               },
             )
           ],
@@ -262,18 +262,61 @@ class _RegisterFormState extends ConsumerState<RegisterForm> {
   }
 
   Widget _thirdStep() {
-    return CustomTextField(
-      keyboardType: TextInputType.emailAddress,
-      labelText: 'third',
-      hintText: '12345678',
-      errorText: errorText,
-      onValueChanged: (value) {
-        setState(() {
-          companyCifController.text = value;
-        });
-      },
-      isCIFField: true,
-      required: true,
+    return SingleChildScrollView(
+      child: Flexible(
+        child: Column(
+          children: [
+            CustomTextField(
+              keyboardType: TextInputType.emailAddress,
+              labelText: 'email'.tr(context),
+              hintText: 'input_email'.tr(context),
+              errorText: errorText,
+              onValueChanged: (value) {
+                setState(() {
+                  emailController.text = value;
+                });
+              },
+              required: true,
+            ),
+            CustomTextField(
+              keyboardType: TextInputType.phone,
+              labelText: 'phone'.tr(context),
+              hintText: 'phone_placeholder'.tr(context),
+              errorText: errorText,
+              onValueChanged: (value) {
+                setState(() {
+                  phoneController.text = value;
+                });
+              },
+              required: false,
+            ),
+            CustomTextField(
+              keyboardType: TextInputType.phone,
+              labelText: 'password'.tr(context),
+              hintText: 'password_placeholder'.tr(context),
+              errorText: errorText,
+              onValueChanged: (value) {
+                setState(() {
+                  passwordController.text = value;
+                });
+              },
+              required: true,
+            ),
+            CustomTextField(
+              keyboardType: TextInputType.phone,
+              labelText: 'password_confirmation'.tr(context),
+              hintText: 'password_confirmation_placeholder'.tr(context),
+              errorText: errorText,
+              onValueChanged: (value) {
+                setState(() {
+                  passwordController.text = value;
+                });
+              },
+              required: true,
+            ),
+          ],
+        ),
+      ),
     );
   }
 
@@ -299,15 +342,14 @@ class _RegisterFormState extends ConsumerState<RegisterForm> {
           currentStep: currentStep,
         ),
         Gap(context.height02),
-        Text(
-          'data_of_your_company'.tr(context),
-          style: context.deviceWidth > 1150
-              ? CustomStyle.regular32()
-              : CustomStyle.regular24(),
+        FittedBox(
+          child: Text('data_of_your_company'.tr(context),
+              style: CustomStyle.regular32()),
         ),
         if (currentStep == 1)
           Text(
-            'input_cif_code_and_we_automaticaly_fill_the_rest'.tr(context),
+            // 'input_cif_code_and_we_automaticaly_fill_the_rest'.tr(context),
+            'input_cif_code_and_we_automaticaly_fill_the_rest',
             style: CustomStyle.regular16(color: CustomColor.slate_500),
           )
         else if (currentStep == 2)
@@ -339,10 +381,12 @@ class _RegisterFormState extends ConsumerState<RegisterForm> {
           ),
           Gap(context.height01 * 0.2),
           InkWell(
-            onTap: () {},
+            onTap: () => setState(() {
+              currentStep = 2;
+            }),
             child: Text(
               'input_data_manually'.tr(context),
-              style: CustomStyle.labelSemibold14(),
+              style: CustomStyle.labelSemibold14(isUnderline: true),
             ),
           ),
         ],
@@ -369,8 +413,12 @@ class _RegisterFormState extends ConsumerState<RegisterForm> {
         Text('already_have_an_account'.tr(context),
             style: CustomStyle.regular16(color: CustomColor.slate_900)),
         Gap(context.width01 * 0.2),
-        Text('back_to_login'.tr(context),
-            style: CustomStyle.labelSemibold16(color: CustomColor.textPrimary)),
+        InkWell(
+          onTap: () => context.goNamed(authenticationPageName),
+          child: Text('back_to_login'.tr(context),
+              style: CustomStyle.labelSemibold16(
+                  color: CustomColor.textPrimary, isUnderline: true)),
+        ),
       ],
     );
   }

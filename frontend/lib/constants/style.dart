@@ -303,18 +303,22 @@ class CustomStyle {
 
   //label
 
-  static TextStyle labelSemibold16({Color color = CustomColor.textPrimary}) {
+  static TextStyle labelSemibold16(
+      {Color color = CustomColor.textPrimary, bool? isUnderline}) {
     return TextStyle(
       fontSize: 16,
       color: color,
+      decoration: isUnderline == true ? TextDecoration.underline : null,
       fontWeight: FontWeight.w600,
     );
   }
 
-  static TextStyle labelSemibold14({Color color = CustomColor.textPrimary}) {
+  static TextStyle labelSemibold14(
+      {Color color = CustomColor.textPrimary, bool? isUnderline}) {
     return TextStyle(
       fontSize: 14,
       color: color,
+      decoration: isUnderline == true ? TextDecoration.underline : null,
       fontWeight: FontWeight.w600,
     );
   }

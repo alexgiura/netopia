@@ -45,7 +45,18 @@
     "locality": "Localitate",
     "ex_locality": "exemplu: Oradea",
     "error_locality": "Localitatea este obligatorie",
-    "pay_TVA": "Eți plătitor de TVA?",
-    "ex_Bihor": "exemplu: Bihor"
+    "pay_TVA": "Ești plătitor de TVA?",
+    "ex_Bihor": "exemplu: Bihor",
+    "yes": "Da",
+    "no": "Nu",
+    "error_pay_TVA": "Plătitor de TVA este obligatoriu",
+    "password_confirmation": "Confirmare parolă",
+    "error_password_confirmation": "Confirmarea parolei este obligatorie",
+    "password_placeholder": "Introdu parola",
+    "error_password_confirmation_match": "Parolele nu se potrivesc",
+    "password_confirmation_placeholder": "Reintrodu parola",
+    "phone": "Telefon",
+    "error_phone": "Telefonul este obligatoriu",
+    "phone_placeholder": "Introdu telefonul"
 
 }

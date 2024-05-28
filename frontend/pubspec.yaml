@@ -65,6 +65,7 @@ dependencies:
   flutter_localization: ^0.2.0
   intl_phone_field: ^3.2.0
   gap: ^3.0.1
+  flutter_screenutil: ^5.9.1
 
 
 
