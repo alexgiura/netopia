@@ -6,7 +6,7 @@ import 'package:erp_frontend_v2/utils/extensions.dart';
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
 
-class CustomRadioButton extends StatelessWidget {
+class CustomRadioButton extends StatefulWidget {
   const CustomRadioButton({
     Key? key,
     required this.text,
@@ -16,6 +16,7 @@ class CustomRadioButton extends StatelessWidget {
     required this.groupValue,
     this.errorText,
     this.direction,
+    this.validator,
   }) : super(key: key);
   final String text;
   final List<String> options;
@@ -24,29 +25,64 @@ class CustomRadioButton extends StatelessWidget {
   final String? errorText;
   final Axis? direction;
   final TextStyle? textStyle;
+  final String? Function(String?)? validator;
+
+  @override
+  State<CustomRadioButton> createState() => _CustomRadioButtonState();
+}
+
+class _CustomRadioButtonState extends State<CustomRadioButton> {
+  String? _errorText;
+
+  void _validate(String? value) {
+    setState(() {
+      if (widget.validator != null) {
+        _errorText = widget.validator!(value);
+      } else if (value == null || value.isEmpty) {
+        _errorText = widget.errorText ?? 'this_field_is_required'.tr(context);
+      } else {
+        _errorText = null;
+      }
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
-    return Row(
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Flexible(
-            child: Row(children: [
-          direction == Axis.horizontal
-              ? _buildHorizontal(
-                  context: context,
-                  text: text,
-                  options: options,
-                  onChanged: (val) => onChanged(val),
-                  groupValue: groupValue,
-                )
-              : _buildVertical(
-                  context: context,
-                  text: text,
-                  options: options,
-                  onChanged: (val) => onChanged,
-                  groupValue: groupValue,
-                ),
-        ]))
+        Row(
+          children: [
+            Expanded(
+              child: widget.direction == Axis.horizontal
+                  ? _buildHorizontal(
+                      context: context,
+                      text: widget.text,
+                      options: widget.options,
+                      onChanged: (val) {
+                        widget.onChanged(val);
+                        _validate(val);
+                      },
+                      groupValue: widget.groupValue,
+                    )
+                  : _buildVertical(
+                      context: context,
+                      text: widget.text,
+                      options: widget.options,
+                      onChanged: (val) {
+                        widget.onChanged(val);
+                        _validate(val);
+                      },
+                      groupValue: widget.groupValue,
+                    ),
+            ),
+          ],
+        ),
+        if (_errorText != null)
+          Text(
+            _errorText!,
+            style: CustomStyle.errorText,
+          ),
       ],
     );
   }
@@ -58,32 +94,37 @@ class CustomRadioButton extends StatelessWidget {
     required void Function(String? value) onChanged,
     required String groupValue,
   }) {
-    return Row(
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        RichText(
-          text: TextSpan(
-            text: text,
-            style: textStyle,
-            children: [
-              TextSpan(
-                text: ' *',
-                style: CustomStyle.errorText,
-              )
-            ],
-          ),
+        Row(
+          children: [
+            RichText(
+              text: TextSpan(
+                text: text,
+                style: widget.textStyle,
+                children: const [
+                  TextSpan(
+                    text: ' *',
+                    style: CustomStyle.errorText,
+                  ),
+                ],
+              ),
+            ),
+            Gap(context.width01),
+            for (var option in options)
+              Row(
+                children: [
+                  Radio(
+                      activeColor: CustomColor.textPrimary,
+                      value: option.toString(),
+                      groupValue: groupValue,
+                      onChanged: (value) => onChanged(value)),
+                  Text(option.tr(context)),
+                ],
+              ),
+          ],
         ),
-        Gap(context.width01),
-        for (var option in options)
-          Row(
-            children: [
-              Radio(
-                  activeColor: CustomColor.textPrimary,
-                  value: option.toString(),
-                  groupValue: groupValue,
-                  onChanged: (value) => onChanged(value)),
-              Text(option),
-            ],
-          ),
       ],
     );
   }
@@ -98,7 +139,18 @@ class CustomRadioButton extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(text),
+        RichText(
+          text: TextSpan(
+            text: text,
+            style: widget.textStyle,
+            children: const [
+              TextSpan(
+                text: ' *',
+                style: CustomStyle.errorText,
+              ),
+            ],
+          ),
+        ),
         Gap(context.height01),
         for (var option in options)
           Row(
@@ -106,10 +158,10 @@ class CustomRadioButton extends StatelessWidget {
               Text(option),
               Radio(
                 activeColor: CustomColor.textPrimary,
-                value: groupValue,
+                value: option,
                 groupValue: groupValue,
-                onChanged: (value) => print(value),
-              )
+                onChanged: (value) => onChanged(value),
+              ),
             ],
           ),
       ],

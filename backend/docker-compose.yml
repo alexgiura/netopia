@@ -38,11 +38,11 @@ services:
     #      - erp-postgres
     env_file: ./.env
 
-  erp-frontend:
-    container_name: "erp-frontend"
-    build:
-      context: ../frontend
-      dockerfile: Dockerfile
+  # erp-frontend:
+  #   container_name: "erp-frontend"
+  #   build:
+  #     context: ../frontend
+  #     dockerfile: Dockerfile
     # ports:
     #   - "80:80"
     # networks:

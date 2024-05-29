@@ -7,31 +7,15 @@ package handlers
 import (
 	_err "backend/errors"
 	"backend/models"
-<<<<<<< HEAD
-	"backend/util"
-=======
->>>>>>> origin/dev
 	"context"
 )
 
 // GetCompany is the resolver for the getCompany field.
 func (r *queryResolver) GetCompany(ctx context.Context) (*models.Company, error) {
-<<<<<<< HEAD
-	row, err := r.DBProvider.GetCompany(ctx)
-=======
 	company, err := r._GetMyCompany(ctx)
->>>>>>> origin/dev
 	if err != nil {
 		return nil, err
 	}
-<<<<<<< HEAD
-	return &models.Company{
-
-		Name:               row.Name,
-		VatNumber:          row.VatNumber,
-		RegistrationNumber: *util.StringOrNil(row.RegistrationNumber),
-	}, nil
-=======
 	return company, nil
 }
 
@@ -42,7 +26,6 @@ func (r *queryResolver) GetCompanyByTaxID(ctx context.Context, taxID *string) (*
 		return nil, _err.Error(ctx, "InvalidTaxId", "InternalError")
 	}
 	return company, nil
->>>>>>> origin/dev
 }
 
 // GetCompanyByTaxID is the resolver for the getCompanyByTaxId field.

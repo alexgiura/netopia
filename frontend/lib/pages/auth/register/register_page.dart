@@ -20,10 +20,12 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
     return Scaffold(
       backgroundColor: CustomColor.bgSecondary,
       body: Container(
-        decoration: BoxDecoration(
-          color: CustomColor.slate_50,
-          borderRadius: BorderRadius.circular(40),
-        ),
+        decoration: context.deviceWidth > 817
+            ? BoxDecoration(
+                color: CustomColor.slate_50,
+                borderRadius: BorderRadius.circular(40),
+              )
+            : null,
         margin: EdgeInsets.all(context.width03),
         child: ResponsiveWidget(
           largeScreen: _largeScreen(),
@@ -36,32 +38,39 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
   Widget _smallScreen() {
     return Expanded(
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Container(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  children: [
-                    Image.asset(
-                      'assets/images/logo.png',
-                      width: 40,
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Image.asset(
+                    'assets/images/logo.png',
+                    width: 30,
+                    color: CustomColor.textPrimary,
+                  ),
+                  const Text(
+                    'iBill',
+                    style: TextStyle(
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold,
                       color: CustomColor.textPrimary,
                     ),
-                    Text(
-                      'iBill',
-                      style: TextStyle(
-                        fontSize: 24,
-                        fontWeight: FontWeight.bold,
-                        color: CustomColor.textPrimary,
-                      ),
-                    ),
-                  ],
+                  ),
+                ],
+              ),
+              Gap(context.height02),
+              FittedBox(
+                child: Text(
+                  'start_to_grow_your_business'.tr(context),
+                  style: CustomStyle.regular24(),
                 ),
-                Gap(context.height05),
-              ],
-            ),
+              ),
+              Gap(context.height05),
+            ],
           ),
           // register form
           Flexible(
@@ -69,11 +78,11 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
             // flex: 4,
             child: _styledContainer(
                 margin: EdgeInsets.only(
-                  top: context.height05,
-                  // bottom: context.height15,
-                  // left: context.width02,
-                  // right: context.width10),
-                ),
+                    // top: context.height05,
+                    // bottom: context.height15,
+                    // left: context.width02,
+                    // right: context.width10),
+                    ),
                 padding: const EdgeInsets.all(30),
                 color: CustomColor.bgSecondary,
                 borderRadius: BorderRadius.circular(28),

@@ -20,8 +20,9 @@ class RegisterForm extends ConsumerStatefulWidget {
 }
 
 class _RegisterFormState extends ConsumerState<RegisterForm> {
-  final formKey = GlobalKey<FormState>();
-  final companyCifController = TextEditingController();
+  final GlobalKey<CustomTextFieldState> formKey1 =
+      GlobalKey<CustomTextFieldState>();
+  final companyCuiController = TextEditingController();
   final emailController = TextEditingController();
   final passwordController = TextEditingController();
   final companyNameController = TextEditingController();
@@ -44,14 +45,6 @@ class _RegisterFormState extends ConsumerState<RegisterForm> {
     super.initState();
   }
 
-  void _submit() {
-    if (!_validateCompanyCif(companyCifController.text)) {
-      print('Form is invalid');
-    } else {
-      print('Form is valid');
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     _forms = [
@@ -68,29 +61,25 @@ class _RegisterFormState extends ConsumerState<RegisterForm> {
         onPopInvoked: (didPop) => Future.sync(onWillPop),
       )
     ];
-    return Form(
-        key: formKey,
-        child: Column(
-          mainAxisSize: MainAxisSize.max,
-          children: [
-            _formHeader(context),
-            Gap(context.height02),
-            Flexible(child: _formBody()),
-            Gap(context.height02),
-            // Spacer(),
-            _formNavigation(),
-            if (currentStep == 1) Gap(context.height02),
-            if (currentStep == 1) _formOptions(context),
-            if (currentStep == 1) Gap(context.height05),
-            if (currentStep == 1) FittedBox(child: _bottomForm(context)),
-          ],
-        ));
+    return Column(
+      mainAxisSize: MainAxisSize.max,
+      children: [
+        _formHeader(context),
+        Gap(context.height02),
+        Flexible(child: _formBody()),
+        Gap(context.height02),
+        _formNavigation(),
+        if (currentStep == 1) Gap(context.height02),
+        if (currentStep == 1) _formOptions(context),
+        if (currentStep == 1) Gap(context.height05),
+        if (currentStep == 1) FittedBox(child: _bottomForm(context)),
+      ],
+    );
   }
 
   Widget _formBody() {
     return IndexedStack(
-      index: currentStep -
-          1, // presupunând că aveți o variabilă currentStep care ține pasul curent
+      index: currentStep - 1,
       children: [
         _firstStep(),
         _secondStep(),
@@ -100,15 +89,23 @@ class _RegisterFormState extends ConsumerState<RegisterForm> {
   }
 
   void _nextFormStep() {
-    _formsPageViewController.nextPage(
-      duration: Duration(milliseconds: 300),
-      curve: Curves.ease,
-    );
+    if (currentStep == 1 && formKey1.currentState!.valid()) {
+      _fetchCompanyData();
+      setState(() {
+        currentStep++;
+      });
+    } else if (currentStep == 2) {
+      setState(() {
+        currentStep++;
+      });
+    } else if (currentStep == 3) {
+      print('done');
+    }
   }
 
   void _backFormStep() {
     _formsPageViewController.previousPage(
-      duration: Duration(milliseconds: 300),
+      duration: const Duration(milliseconds: 300),
       curve: Curves.ease,
     );
   }
@@ -118,7 +115,7 @@ class _RegisterFormState extends ConsumerState<RegisterForm> {
         _formsPageViewController.initialPage) return true;
 
     _formsPageViewController.previousPage(
-      duration: Duration(milliseconds: 300),
+      duration: const Duration(milliseconds: 300),
       curve: Curves.ease,
     );
 
@@ -127,17 +124,22 @@ class _RegisterFormState extends ConsumerState<RegisterForm> {
 
   Widget _firstStep() {
     return CustomTextField(
+      key: formKey1,
       labelText: 'company_cui'.tr(context),
       hintText: 'RO12345678',
-      initialValue: companyCifController.text,
+      initialValue: companyCuiController.text,
       errorText: errorText,
       onValueChanged: (value) {
         setState(() {
-          companyCifController.text = value;
+          companyCuiController.text = value;
         });
+      },
+      customValidator: (p0) {
+        if (_validateCompanyCif(p0) != null) {
+          return true;
+        }
         return false;
       },
-      isCIFField: true,
       required: true,
     );
   }
@@ -145,117 +147,126 @@ class _RegisterFormState extends ConsumerState<RegisterForm> {
   Widget _secondStep() {
     return SingleChildScrollView(
       child: Flexible(
-        child: Column(
-          children: [
-            CustomTextField(
-              keyboardType: TextInputType.name,
-              labelText: 'company_name'.tr(context),
-              hintText: 'company_name'.tr(context),
-              errorText: 'error_company_name'.tr(context),
-              onValueChanged: (value) {
-                setState(() {
-                  companyNameController.text = value;
-                });
-                return null;
-              },
-              required: true,
-            ),
-            Row(
-              children: [
-                Flexible(
-                  child: CustomTextField(
-                    keyboardType: TextInputType.name,
-                    labelText: 'cui'.tr(context),
-                    hintText: 'RO12345678',
-                    errorText: 'error_company_cui'.tr(context),
-                    onValueChanged: (value) {
-                      setState(() {
-                        companyNameController.text = value;
-                      });
-                      return null;
-                    },
-                    required: true,
+        child: Form(
+          child: Column(
+            children: [
+              CustomTextField(
+                keyboardType: TextInputType.name,
+                labelText: 'company_name'.tr(context),
+                hintText: 'company_name'.tr(context),
+                errorText: 'error_company_name'.tr(context),
+                onValueChanged: (value) {
+                  setState(() {
+                    companyNameController.text = value;
+                  });
+                  return null;
+                },
+                required: true,
+              ),
+              Row(
+                children: [
+                  Flexible(
+                    child: CustomTextField(
+                      keyboardType: TextInputType.name,
+                      labelText: 'cui'.tr(context),
+                      hintText: 'RO12345678',
+                      errorText: 'error_company_cui'.tr(context),
+                      onValueChanged: (value) {
+                        setState(() {
+                          companyCuiController.text = value;
+                        });
+                        return null;
+                      },
+                      required: true,
+                    ),
                   ),
-                ),
-                Gap(context.width01),
-                Flexible(
-                  child: CustomTextField(
-                    keyboardType: TextInputType.name,
-                    labelText: 'registry_nr'.tr(context),
-                    hintText: 'registry_nr'.tr(context),
-                    errorText: 'error_registry_nr'.tr(context),
-                    onValueChanged: (value) {
-                      setState(() {
-                        companyNameController.text = value;
-                      });
-                      return null;
-                    },
-                    required: true,
+                  Gap(context.width01),
+                  Flexible(
+                    child: CustomTextField(
+                      keyboardType: TextInputType.name,
+                      labelText: 'registry_nr'.tr(context),
+                      hintText: 'registry_nr'.tr(context),
+                      errorText: 'error_registry_nr'.tr(context),
+                      onValueChanged: (value) {
+                        setState(() {
+                          regNumberController.text = value;
+                        });
+                        return null;
+                      },
+                      required: true,
+                    ),
                   ),
-                ),
-              ],
-            ),
-            CustomTextField(
-              keyboardType: TextInputType.name,
-              labelText: 'address'.tr(context),
-              hintText: 'address'.tr(context),
-              errorText: 'error_address'.tr(context),
-              onValueChanged: (value) {
-                setState(() {
-                  companyNameController.text = value;
-                });
-                return null;
-              },
-              required: true,
-            ),
-            Row(
-              children: [
-                Flexible(
-                  child: CustomTextField(
-                    keyboardType: TextInputType.name,
-                    labelText: 'state'.tr(context),
-                    hintText: 'ex_Bihor'.tr(context),
-                    errorText: 'error_state'.tr(context),
-                    onValueChanged: (value) {
-                      setState(() {
-                        companyNameController.text = value;
-                      });
-                      return null;
-                    },
-                    required: true,
+                ],
+              ),
+              CustomTextField(
+                keyboardType: TextInputType.name,
+                labelText: 'address'.tr(context),
+                hintText: 'address'.tr(context),
+                errorText: 'error_address'.tr(context),
+                onValueChanged: (value) {
+                  setState(() {
+                    addressController.text = value;
+                  });
+                  return null;
+                },
+                required: true,
+              ),
+              Row(
+                children: [
+                  Flexible(
+                    child: CustomTextField(
+                      keyboardType: TextInputType.name,
+                      labelText: 'state'.tr(context),
+                      hintText: 'ex_Bihor'.tr(context),
+                      errorText: 'error_state'.tr(context),
+                      onValueChanged: (value) {
+                        setState(() {
+                          countyController.text = value;
+                        });
+                        return null;
+                      },
+                      required: true,
+                    ),
                   ),
-                ),
-                Gap(context.width01),
-                Flexible(
-                  child: CustomTextField(
-                    keyboardType: TextInputType.name,
-                    labelText: 'locality'.tr(context),
-                    hintText: 'ex_locality'.tr(context),
-                    errorText: 'error_locality'.tr(context),
-                    onValueChanged: (value) {
-                      setState(() {
-                        companyNameController.text = value;
-                      });
-                      return null;
-                    },
-                    required: true,
+                  Gap(context.width01),
+                  Flexible(
+                    child: CustomTextField(
+                      keyboardType: TextInputType.name,
+                      labelText: 'locality'.tr(context),
+                      hintText: 'ex_locality'.tr(context),
+                      errorText: 'error_locality'.tr(context),
+                      onValueChanged: (value) {
+                        setState(() {
+                          cityController.text = value;
+                        });
+                        return null;
+                      },
+                      required: true,
+                    ),
                   ),
-                ),
-              ],
-            ),
-            CustomRadioButton(
-              text: "pay_TVA".tr(context),
-              direction: Axis.horizontal,
-              textStyle: CustomStyle.regular16(),
-              groupValue: vatPayerController.text,
-              options: ['yes', 'no'],
-              onChanged: (value) {
-                setState(() {
-                  vatPayerController.text = value!;
-                });
-              },
-            )
-          ],
+                ],
+              ),
+              CustomRadioButton(
+                errorText: 'error_vat_payer'.tr(context),
+                text: "pay_TVA".tr(context),
+                direction: Axis.horizontal,
+                textStyle: CustomStyle.regular16(),
+                groupValue: vatPayerController.text,
+                options: const ['yes', 'no'],
+                validator: (p0) {
+                  if (p0 == null || vatPayerController.text.isEmpty) {
+                    return 'error_vat_payer'.tr(context);
+                  }
+                  return null;
+                },
+                onChanged: (value) {
+                  setState(() {
+                    vatPayerController.text = value!;
+                  });
+                },
+              )
+            ],
+          ),
         ),
       ),
     );
@@ -264,57 +275,59 @@ class _RegisterFormState extends ConsumerState<RegisterForm> {
   Widget _thirdStep() {
     return SingleChildScrollView(
       child: Flexible(
-        child: Column(
-          children: [
-            CustomTextField(
-              keyboardType: TextInputType.emailAddress,
-              labelText: 'email'.tr(context),
-              hintText: 'input_email'.tr(context),
-              errorText: errorText,
-              onValueChanged: (value) {
-                setState(() {
-                  emailController.text = value;
-                });
-              },
-              required: true,
-            ),
-            CustomTextField(
-              keyboardType: TextInputType.phone,
-              labelText: 'phone'.tr(context),
-              hintText: 'phone_placeholder'.tr(context),
-              errorText: errorText,
-              onValueChanged: (value) {
-                setState(() {
-                  phoneController.text = value;
-                });
-              },
-              required: false,
-            ),
-            CustomTextField(
-              keyboardType: TextInputType.phone,
-              labelText: 'password'.tr(context),
-              hintText: 'password_placeholder'.tr(context),
-              errorText: errorText,
-              onValueChanged: (value) {
-                setState(() {
-                  passwordController.text = value;
-                });
-              },
-              required: true,
-            ),
-            CustomTextField(
-              keyboardType: TextInputType.phone,
-              labelText: 'password_confirmation'.tr(context),
-              hintText: 'password_confirmation_placeholder'.tr(context),
-              errorText: errorText,
-              onValueChanged: (value) {
-                setState(() {
-                  passwordController.text = value;
-                });
-              },
-              required: true,
-            ),
-          ],
+        child: Form(
+          child: Column(
+            children: [
+              CustomTextField(
+                keyboardType: TextInputType.emailAddress,
+                labelText: 'email'.tr(context),
+                hintText: 'input_email'.tr(context),
+                errorText: errorText,
+                onValueChanged: (value) {
+                  setState(() {
+                    emailController.text = value;
+                  });
+                },
+                required: true,
+              ),
+              CustomTextField(
+                keyboardType: TextInputType.phone,
+                labelText: 'phone'.tr(context),
+                hintText: 'phone_placeholder'.tr(context),
+                errorText: errorText,
+                onValueChanged: (value) {
+                  setState(() {
+                    phoneController.text = value;
+                  });
+                },
+                required: false,
+              ),
+              CustomTextField(
+                keyboardType: TextInputType.phone,
+                labelText: 'password'.tr(context),
+                hintText: 'password_placeholder'.tr(context),
+                errorText: errorText,
+                onValueChanged: (value) {
+                  setState(() {
+                    passwordController.text = value;
+                  });
+                },
+                required: true,
+              ),
+              CustomTextField(
+                keyboardType: TextInputType.phone,
+                labelText: 'password_confirmation'.tr(context),
+                hintText: 'password_confirmation_placeholder'.tr(context),
+                errorText: errorText,
+                onValueChanged: (value) {
+                  setState(() {
+                    passwordController.text = value;
+                  });
+                },
+                required: true,
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -324,17 +337,19 @@ class _RegisterFormState extends ConsumerState<RegisterForm> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.start,
-          children: [
-            Image.asset(
-              'assets/images/logo.png',
-              width: context.deviceWidth > 400 ? null : context.width05,
-            ),
-            Gap(context.width01 * 0.2),
-            Text('welcome_back'.tr(context),
-                style: CustomStyle.regular24(color: CustomColor.slate_500)),
-          ],
+        FittedBox(
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.start,
+            children: [
+              Image.asset(
+                'assets/images/logo.png',
+                width: context.deviceWidth > 400 ? null : context.width05,
+              ),
+              Gap(context.width01),
+              Text('welcome_back'.tr(context),
+                  style: CustomStyle.regular24(color: CustomColor.slate_500)),
+            ],
+          ),
         ),
         Gap(context.height02),
         StepIndicator(
@@ -348,8 +363,7 @@ class _RegisterFormState extends ConsumerState<RegisterForm> {
         ),
         if (currentStep == 1)
           Text(
-            // 'input_cif_code_and_we_automaticaly_fill_the_rest'.tr(context),
-            'input_cif_code_and_we_automaticaly_fill_the_rest',
+            'input_cui_code_and_we_automaticaly_fill_the_rest'.tr(context),
             style: CustomStyle.regular16(color: CustomColor.slate_500),
           )
         else if (currentStep == 2)
@@ -398,7 +412,7 @@ class _RegisterFormState extends ConsumerState<RegisterForm> {
     return Container(
       margin: EdgeInsets.symmetric(horizontal: context.height01),
       width: context.width03,
-      decoration: BoxDecoration(
+      decoration: const BoxDecoration(
           border: Border(
               bottom: BorderSide(
         color: CustomColor.slate_300,
@@ -412,7 +426,7 @@ class _RegisterFormState extends ConsumerState<RegisterForm> {
       children: [
         Text('already_have_an_account'.tr(context),
             style: CustomStyle.regular16(color: CustomColor.slate_900)),
-        Gap(context.width01 * 0.2),
+        Gap(context.width01),
         InkWell(
           onTap: () => context.goNamed(authenticationPageName),
           child: Text('back_to_login'.tr(context),
@@ -431,9 +445,10 @@ class _RegisterFormState extends ConsumerState<RegisterForm> {
           Expanded(
             child: PrimaryButton(
               style: CustomStyle.secondaryElevatedButtonStyle,
-              textStyle:
-                  CustomStyle.labelSemibold14(color: CustomColor.textPrimary),
-              text: 'Înapoi',
+              textStyle: CustomStyle.labelSemibold14(
+                color: CustomColor.textPrimary,
+              ),
+              text: 'back'.tr(context),
               onPressed: () {
                 if (currentStep > 1) {
                   setState(() {
@@ -450,12 +465,7 @@ class _RegisterFormState extends ConsumerState<RegisterForm> {
             style: CustomStyle.submitBlackButton,
             text: 'continue'.tr(context),
             onPressed: () {
-              if (currentStep < _forms.length) {
-                setState(() {
-                  currentStep++;
-                });
-                _nextFormStep();
-              }
+              _nextFormStep();
             },
           ),
         ),
@@ -463,23 +473,17 @@ class _RegisterFormState extends ConsumerState<RegisterForm> {
     );
   }
 
-  bool _validateCompanyCif(String v) {
+  String? _validateCompanyCif(String v) {
     String cif = v.toUpperCase();
     cif = cif.indexOf('RO') > -1 ? cif.substring(2) : cif;
     cif = cif.replaceAll(RegExp(r'\s'), '');
 
     if (cif.length < 2 || cif.length > 10) {
-      setState(() {
-        errorText = 'Lungimea corectă fără RO, este între 2 și 10 caractere!';
-      });
-      return true;
+      return 'Lungimea corectă fără RO, este între 2 și 10 caractere!';
     }
 
     if (int.tryParse(cif) == null) {
-      setState(() {
-        errorText = 'Nu este număr!';
-      });
-      return true;
+      return 'Nu este număr!';
     }
 
     const testKey = '753217532';
@@ -504,11 +508,12 @@ class _RegisterFormState extends ConsumerState<RegisterForm> {
     }
 
     if (controlNumber != calculatedControlNumber) {
-      setState(() {
-        errorText = 'CIF invalid!';
-      });
-      return true;
+      return 'CIF invalid!';
     }
-    return false;
+    return null;
+  }
+
+  void _fetchCompanyData() {
+    // fetch data
   }
 }
