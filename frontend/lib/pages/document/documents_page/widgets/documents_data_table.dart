@@ -1,4 +1,4 @@
-import 'package:erp_frontend_v2/models/document/document_light_model.dart';
+import 'package:erp_frontend_v2/models/document/document_model.dart';
 import 'package:erp_frontend_v2/models/document/documents_filter_model.dart';
 import 'package:erp_frontend_v2/providers/document_providers.dart';
 import 'package:erp_frontend_v2/providers/partner_provider.dart';
@@ -141,10 +141,11 @@ class _DocumentsDataTableState extends ConsumerState<DocumentsDataTable> {
     );
   }
 
-  List<DataRow2> getRows(List<DocumentLight> data) {
+  List<DataRow2> getRows(List<Document> data) {
     // Filter data based on widget.status and widget.searchText
-    List<DocumentLight> filteredData = data.where((row) {
-      bool statusMatch = widget.status == null || row.status == widget.status;
+    List<Document> filteredData = data.where((row) {
+      bool statusMatch = widget.status == null;
+      // || row.status == widget.status;
       bool searchTextMatch = widget.searchText == null ||
           widget.searchText!.isEmpty ||
           (row.series?.toLowerCase() ?? '')
@@ -159,7 +160,7 @@ class _DocumentsDataTableState extends ConsumerState<DocumentsDataTable> {
           DataCell(Text(row.value.series ?? '')),
           DataCell(Text(row.value.number)),
           DataCell(Text(row.value.date)),
-          DataCell(Text(row.value.partner)),
+          DataCell(Text(row.value.partner!.name)),
           DataCell(
             Container(
               decoration: BoxDecoration(

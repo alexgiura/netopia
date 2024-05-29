@@ -65,6 +65,67 @@ func (q *Queries) GetPartners(ctx context.Context) ([]GetPartnersRow, error) {
 	return items, nil
 }
 
+const getPartnersByDocumentIds = `-- name: GetPartnersByDocumentIds :many
+SELECT
+    d.h_id,
+    id,
+    code,
+    name,
+    type,
+    vat_number,
+    registration_number,
+    personal_number,
+    is_active
+FROM
+    core.partners p
+        JOIN
+    core.document_header d ON p.id = d.partner_id
+WHERE
+        d.h_id = ANY($1::uuid[])
+`
+
+type GetPartnersByDocumentIdsRow struct {
+	HID                uuid.UUID
+	ID                 uuid.UUID
+	Code               sql.NullString
+	Name               string
+	Type               string
+	VatNumber          sql.NullString
+	RegistrationNumber sql.NullString
+	PersonalNumber     sql.NullString
+	IsActive           bool
+}
+
+func (q *Queries) GetPartnersByDocumentIds(ctx context.Context, dollar_1 []uuid.UUID) ([]GetPartnersByDocumentIdsRow, error) {
+	rows, err := q.db.Query(ctx, getPartnersByDocumentIds, dollar_1)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []GetPartnersByDocumentIdsRow
+	for rows.Next() {
+		var i GetPartnersByDocumentIdsRow
+		if err := rows.Scan(
+			&i.HID,
+			&i.ID,
+			&i.Code,
+			&i.Name,
+			&i.Type,
+			&i.VatNumber,
+			&i.RegistrationNumber,
+			&i.PersonalNumber,
+			&i.IsActive,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const insertPartner = `-- name: InsertPartner :one
 <<<<<<< HEAD
 =======

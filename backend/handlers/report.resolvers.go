@@ -9,6 +9,7 @@ import (
 	_err "backend/errors"
 	"backend/graph/generated"
 	"backend/graph/model"
+	"backend/models"
 	"backend/util"
 	"context"
 	"errors"
@@ -118,21 +119,23 @@ func (r *queryResolver) GetTransactionAvailableItems(ctx context.Context, input 
 			HID:    row.HID.String(),
 			Number: row.Number,
 			Date:   row.Date.Format("2006-01-02"),
-			DocumentItem: &model.DocumentItem{
-				DID:      &dId,
-				ItemID:   row.ItemID.String(),
-				ItemCode: &row.ItemCode,
-				ItemName: row.ItemName,
+			DocumentItem: &models.DocumentItem{
+				DId: dId,
+				Item: models.Item{
+					ID:   row.ItemID.String(),
+					Code: &row.ItemCode,
+					Name: row.ItemName,
+					Um: models.Um{
+						ID:   int(row.UmID),
+						Name: row.UmName,
+					},
+					Vat: models.Vat{
+						ID:      int(row.VatID),
+						Name:    row.VatName,
+						Percent: row.VatPercent,
+					},
+				},
 				Quantity: row.Quantity,
-				Um: &model.Um{
-					ID:   int(row.UmID),
-					Name: row.UmName,
-				},
-				Vat: &model.Vat{
-					ID:      int(row.VatID),
-					Name:    row.VatName,
-					Percent: row.VatPercent,
-				},
 			},
 		}
 

@@ -3,15 +3,12 @@ package util
 import (
 	"database/sql"
 	"encoding/json"
-	"log"
-	"math/big"
 	"net/url"
 	"strconv"
 	"time"
 
 	"github.com/google/uuid"
 	"github.com/jackc/pgtype"
-	"github.com/shopspring/decimal"
 )
 
 func NullableStr(str *string) sql.NullString {
@@ -168,122 +165,6 @@ func NullUuidToString(uuidVal uuid.NullUUID) *string {
 		return &strVal
 	}
 	return nil
-}
-
-//func Float64ToPgtypeNumeric(value float64) pgtype.Numeric {
-//	var numeric pgtype.Numeric
-//	err := numeric.Set(value)
-//	if err != nil {
-//		return pgtype.Numeric{}
-//	}
-//	return numeric
-//}
-
-func Float64ToPgtypeNumeric(value *float64) pgtype.Numeric {
-	var numeric pgtype.Numeric
-	if value == nil {
-		numeric.Status = pgtype.Null
-	} else {
-		err := numeric.Set(*value)
-		if err != nil {
-
-			numeric.Status = pgtype.Null
-			return numeric
-		}
-	}
-	return numeric
-}
-
-func PgtypeNumericToFloat64(numeric pgtype.Numeric) *float64 {
-	if numeric.Status == pgtype.Null {
-		return nil
-	}
-
-	var floatVal float64
-	err := numeric.AssignTo(&floatVal)
-	if err != nil {
-		return nil
-	}
-
-	return &floatVal
-}
-
-func DecimalToPgtypeNumeric(value *decimal.Decimal) pgtype.Numeric {
-	var numeric pgtype.Numeric
-	if value == nil {
-		numeric.Status = pgtype.Null
-	} else {
-		err := numeric.Set(*value)
-		if err != nil {
-
-			numeric.Status = pgtype.Null
-			return numeric
-		}
-	}
-	return numeric
-}
-
-//func PgtypeNumericToDecimal(numeric pgtype.Numeric) *decimal.Decimal {
-//	if numeric.Status == pgtype.Null {
-//		return nil
-//	}
-//
-//	var decimalVal decimal.Decimal
-//	err := numeric.AssignTo(&decimalVal)
-//	if err != nil {
-//		return nil
-//	}
-//
-//	return &decimalVal
-//}
-
-func PgtypeNumericToDecimal(numeric pgtype.Numeric) *decimal.Decimal {
-	if numeric.Status == pgtype.Null {
-		return nil
-	}
-	var rat big.Rat
-	err := numeric.AssignTo(&rat)
-	// Convert pgtype.Numeric to string first
-	numericStr := rat.String()
-
-	// Then, convert string to decimal.Decimal
-	decimalVal, err := decimal.NewFromString(numericStr)
-	if err != nil {
-		log.Printf("Error converting string to decimal.Decimal: %v", err)
-		return nil
-	}
-
-	return &decimalVal
-}
-
-//func PgtypeNumericToFloat64(numeric pgtype.Numeric) float64 {
-//	var floatValue float64
-//	err := numeric.AssignTo(&floatValue)
-//	if err != nil {
-//		return 0
-//	}
-//	return floatValue
-//}
-
-func ConvertNullInt32ToString(i sql.NullInt32) *string {
-	if i.Valid {
-		s := strconv.FormatInt(int64(i.Int32), 10)
-		return &s
-	}
-	return nil
-}
-
-func ConvertJSONSliceToString(jsonSlice []pgtype.JSON) (*string, error) {
-	// Assuming only the first element contains the desired JSON data
-	if len(jsonSlice) > 0 && jsonSlice[0].Status == pgtype.Present {
-		result := string(jsonSlice[0].Bytes)
-		return &result, nil
-	}
-
-	// Return an empty JSON array or an appropriate error if the slice is empty
-	// or the first element doesn't contain valid JSON data
-	emptyResult := "[]"
-	return &emptyResult, nil
 }
 
 func NullableTime(t *time.Time) sql.NullTime {

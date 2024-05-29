@@ -473,6 +473,102 @@ func (q *Queries) GetDocumentItems(ctx context.Context, hID uuid.UUID) ([]GetDoc
 	return items, nil
 }
 
+const getDocumentItemsByDocumentIds = `-- name: GetDocumentItemsByDocumentIds :many
+SELECT
+    h_id,
+    d_id,
+    item_id,
+    i.code as item_code,
+    i.name as item_name,
+    quantity,
+    um.id as um_id,
+    um.name as um_name,
+    um.code AS um_code,
+    price,
+    vat.id as vat_id,
+    vat.name as vat_name,
+    vat.percent as vat_percent,
+    vat.exemption_reason AS vat_exemption_reason,
+    vat.exemption_reason_code AS vat_exemption_reason_code,
+    net_value,
+    vat_value,
+    gros_value,
+    item_type_pn
+FROM
+    core.document_details d
+        inner join core.items i
+                   on i.id=d.item_id
+        inner join core.item_vat vat
+                   on vat.id=i.id_vat
+        inner join core.item_um um
+                   on um.id=i.id_um
+
+WHERE
+        h_id = ANY($1::uuid[])
+`
+
+type GetDocumentItemsByDocumentIdsRow struct {
+	HID                    uuid.UUID
+	DID                    uuid.UUID
+	ItemID                 uuid.UUID
+	ItemCode               sql.NullString
+	ItemName               string
+	Quantity               float64
+	UmID                   int32
+	UmName                 string
+	UmCode                 string
+	Price                  sql.NullFloat64
+	VatID                  int32
+	VatName                string
+	VatPercent             float64
+	VatExemptionReason     sql.NullString
+	VatExemptionReasonCode sql.NullString
+	NetValue               sql.NullFloat64
+	VatValue               sql.NullFloat64
+	GrosValue              sql.NullFloat64
+	ItemTypePn             sql.NullString
+}
+
+func (q *Queries) GetDocumentItemsByDocumentIds(ctx context.Context, dollar_1 []uuid.UUID) ([]GetDocumentItemsByDocumentIdsRow, error) {
+	rows, err := q.db.Query(ctx, getDocumentItemsByDocumentIds, dollar_1)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []GetDocumentItemsByDocumentIdsRow
+	for rows.Next() {
+		var i GetDocumentItemsByDocumentIdsRow
+		if err := rows.Scan(
+			&i.HID,
+			&i.DID,
+			&i.ItemID,
+			&i.ItemCode,
+			&i.ItemName,
+			&i.Quantity,
+			&i.UmID,
+			&i.UmName,
+			&i.UmCode,
+			&i.Price,
+			&i.VatID,
+			&i.VatName,
+			&i.VatPercent,
+			&i.VatExemptionReason,
+			&i.VatExemptionReasonCode,
+			&i.NetValue,
+			&i.VatValue,
+			&i.GrosValue,
+			&i.ItemTypePn,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const getDocumentTransactions = `-- name: GetDocumentTransactions :many
 SELECT id,
        name,
@@ -508,17 +604,25 @@ func (q *Queries) GetDocumentTransactions(ctx context.Context) ([]CoreDocumentTr
 
 const getDocuments = `-- name: GetDocuments :many
 Select
-    h_id,
+    d.h_id,
+    dt.id as document_type_id,
+    dt.name_ro as document_type_name_ro,
+    dt.name_en as document_type_name_en,
     series,
     number,
     date,
     due_date,
     pa.name as partner,
     is_deleted,
-    status
+    ed.status as efactura_status,
+    notes
 from core.document_header as d
 left join core.partners as pa
 on pa.id=d.partner_id
+left join core.document_types as dt
+on dt.id=d.document_type
+left join core.efactura_documents ed
+on ed.h_id=d.h_id
 where document_type=$1 and date>=$2 and date<=$3  and (($4::uuid[]) IS NULL OR cardinality($4::uuid[]) = 0 OR  pa.id = ANY($4::uuid[]))
 ORDER BY date DESC
 `
@@ -531,14 +635,18 @@ type GetDocumentsParams struct {
 }
 
 type GetDocumentsRow struct {
-	HID       uuid.UUID
-	Series    sql.NullString
-	Number    string
-	Date      time.Time
-	DueDate   sql.NullTime
-	Partner   sql.NullString
-	IsDeleted bool
-	Status    sql.NullString
+	HID                uuid.UUID
+	DocumentTypeID     sql.NullInt32
+	DocumentTypeNameRo sql.NullString
+	DocumentTypeNameEn sql.NullString
+	Series             sql.NullString
+	Number             string
+	Date               time.Time
+	DueDate            sql.NullTime
+	Partner            sql.NullString
+	IsDeleted          bool
+	EfacturaStatus     NullCoreEfacturaDocumentStatus
+	Notes              sql.NullString
 }
 
 func (q *Queries) GetDocuments(ctx context.Context, arg GetDocumentsParams) ([]GetDocumentsRow, error) {
@@ -557,13 +665,17 @@ func (q *Queries) GetDocuments(ctx context.Context, arg GetDocumentsParams) ([]G
 		var i GetDocumentsRow
 		if err := rows.Scan(
 			&i.HID,
+			&i.DocumentTypeID,
+			&i.DocumentTypeNameRo,
+			&i.DocumentTypeNameEn,
 			&i.Series,
 			&i.Number,
 			&i.Date,
 			&i.DueDate,
 			&i.Partner,
 			&i.IsDeleted,
-			&i.Status,
+			&i.EfacturaStatus,
+			&i.Notes,
 		); err != nil {
 			return nil, err
 		}
