@@ -77,7 +77,7 @@ func (r *Resolver) _GetMyCompany(ctx context.Context) (*models.Company, error) {
 		return nil, _err.Error(ctx, "InvalidCompany", "DatabaseError")
 	}
 	return &models.Company{
-
+		Id:                 row.ID.String(),
 		Name:               row.Name,
 		VatNumber:          &row.VatNumber,
 		Vat:                row.Vat,

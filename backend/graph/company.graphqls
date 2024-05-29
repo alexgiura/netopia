@@ -1,5 +1,6 @@
 
 type Company{
+    id: String!
     name: String!
     vat_number: String!
     vat: Boolean!
