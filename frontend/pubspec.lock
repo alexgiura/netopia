@@ -693,6 +693,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.12.0"
+  mime:
+    dependency: transitive
+    description:
+      name: mime
+      sha256: "2e123074287cc9fd6c09de8336dae606d1ddb88d9ac47358826db698c176a1f2"
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.0.5"
   nm:
     dependency: transitive
     description:
@@ -1114,6 +1122,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "0.7.0"
+  timing:
+    dependency: transitive
+    description:
+      name: timing
+      sha256: "70a3b636575d4163c477e6de42f247a23b315ae20e86442bebe32d3cabf61c32"
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.0.1"
   tuple:
     dependency: "direct main"
     description:
@@ -1218,6 +1234,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "14.2.1"
+  watcher:
+    dependency: transitive
+    description:
+      name: watcher
+      sha256: "3d2ad6751b3c16cf07c7fca317a1413b3f26530319181b37e3b9039b84fc01d8"
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.1.0"
   web:
     dependency: transitive
     description:
