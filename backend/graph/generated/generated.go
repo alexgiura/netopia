@@ -42,6 +42,7 @@ type ResolverRoot interface {
 	Document() DocumentResolver
 	Mutation() MutationResolver
 	Query() QueryResolver
+	Recipe() RecipeResolver
 	User() UserResolver
 }
 
@@ -64,6 +65,7 @@ type ComplexityRoot struct {
 
 	Company struct {
 		CompanyAddress     func(childComplexity int) int
+		Id                 func(childComplexity int) int
 		Name               func(childComplexity int) int
 		RegistrationNumber func(childComplexity int) int
 		Vat                func(childComplexity int) int
@@ -212,7 +214,7 @@ type ComplexityRoot struct {
 
 	Recipe struct {
 		DocumentItems func(childComplexity int) int
-		ID            func(childComplexity int) int
+		Id            func(childComplexity int) int
 		IsActive      func(childComplexity int) int
 		Name          func(childComplexity int) int
 	}
@@ -283,9 +285,12 @@ type QueryResolver interface {
 	GetVatList(ctx context.Context) ([]*models.Vat, error)
 	GetItemCategoryList(ctx context.Context) ([]*models.ItemCategory, error)
 	GetPartners(ctx context.Context) ([]*models.Partner, error)
-	GetRecipes(ctx context.Context) ([]*model.Recipe, error)
-	GetRecipeByID(ctx context.Context, recipeID int) (*model.Recipe, error)
+	GetRecipes(ctx context.Context) ([]*models.Recipe, error)
+	GetRecipeByID(ctx context.Context, recipeID int) (*models.Recipe, error)
 	GetUser(ctx context.Context) (*models.User, error)
+}
+type RecipeResolver interface {
+	DocumentItems(ctx context.Context, obj *models.Recipe) ([]*models.DocumentItem, error)
 }
 type UserResolver interface {
 	Company(ctx context.Context, obj *models.User) (*models.Company, error)
@@ -358,6 +363,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Company.CompanyAddress(childComplexity), true
+
+	case "Company.id":
+		if e.complexity.Company.Id == nil {
+			break
+		}
+
+		return e.complexity.Company.Id(childComplexity), true
 
 	case "Company.name":
 		if e.complexity.Company.Name == nil {
@@ -1181,11 +1193,11 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		return e.complexity.Recipe.DocumentItems(childComplexity), true
 
 	case "Recipe.id":
-		if e.complexity.Recipe.ID == nil {
+		if e.complexity.Recipe.Id == nil {
 			break
 		}
 
-		return e.complexity.Recipe.ID(childComplexity), true
+		return e.complexity.Recipe.Id(childComplexity), true
 
 	case "Recipe.is_active":
 		if e.complexity.Recipe.IsActive == nil {
@@ -1458,6 +1470,7 @@ extend type Query {
 `, BuiltIn: false},
 	{Name: "../company.graphqls", Input: `
 type Company{
+    id: String!
     name: String!
     vat_number: String!
     vat: Boolean!
@@ -1746,9 +1759,9 @@ extend type Mutation {
 }
 `, BuiltIn: false},
 	{Name: "../recipe.graphqls", Input: `type Recipe{
-    id: Int!
-    name: String!
-    is_active:Boolean!
+    id: String
+    name: String
+    is_active:Boolean
     document_items: [DocumentItem]
 }
 
@@ -2471,6 +2484,47 @@ func (ec *executionContext) fieldContext_ChartData_second_y(ctx context.Context,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return nil, errors.New("field of type Float does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Company_id(ctx context.Context, field graphql.CollectedField, obj *models.Company) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Company_id(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp := ec._fieldMiddleware(ctx, obj, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Id, nil
+	})
+
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Company_id(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Company",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
 		},
 	}
 	return fc, nil
@@ -4245,7 +4299,7 @@ func (ec *executionContext) fieldContext_GeneratedDocument_document_source_numbe
 	return fc, nil
 }
 
-func (ec *executionContext) _Individual_name(ctx context.Context, field graphql.CollectedField, obj *models.Individual) (ret graphql.Marshaler) {
+func (ec *executionContext) _Individual_name(ctx context.Context, field graphql.CollectedField, obj *model.Individual) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Individual_name(ctx, field)
 	if err != nil {
 		return graphql.Null
@@ -4286,7 +4340,7 @@ func (ec *executionContext) fieldContext_Individual_name(ctx context.Context, fi
 	return fc, nil
 }
 
-func (ec *executionContext) _Individual_individual_number(ctx context.Context, field graphql.CollectedField, obj *models.Individual) (ret graphql.Marshaler) {
+func (ec *executionContext) _Individual_individual_number(ctx context.Context, field graphql.CollectedField, obj *model.Individual) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Individual_individual_number(ctx, field)
 	if err != nil {
 		return graphql.Null
@@ -4309,9 +4363,9 @@ func (ec *executionContext) _Individual_individual_number(ctx context.Context, f
 		}
 		return graphql.Null
 	}
-	res := resTmp.(*string)
+	res := resTmp.(string)
 	fc.Result = res
-	return ec.marshalNString2ᚖstring(ctx, field.Selections, res)
+	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Individual_individual_number(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -4327,7 +4381,7 @@ func (ec *executionContext) fieldContext_Individual_individual_number(ctx contex
 	return fc, nil
 }
 
-func (ec *executionContext) _Individual_individual_address(ctx context.Context, field graphql.CollectedField, obj *models.Individual) (ret graphql.Marshaler) {
+func (ec *executionContext) _Individual_individual_address(ctx context.Context, field graphql.CollectedField, obj *model.Individual) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Individual_individual_address(ctx, field)
 	if err != nil {
 		return graphql.Null
@@ -6365,6 +6419,8 @@ func (ec *executionContext) fieldContext_Query_getCompany(ctx context.Context, f
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			switch field.Name {
+			case "id":
+				return ec.fieldContext_Company_id(ctx, field)
 			case "name":
 				return ec.fieldContext_Company_name(ctx, field)
 			case "vat_number":
@@ -6415,6 +6471,8 @@ func (ec *executionContext) fieldContext_Query_getCompanyByTaxId(ctx context.Con
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			switch field.Name {
+			case "id":
+				return ec.fieldContext_Company_id(ctx, field)
 			case "name":
 				return ec.fieldContext_Company_name(ctx, field)
 			case "vat_number":
@@ -7037,9 +7095,9 @@ func (ec *executionContext) _Query_getRecipes(ctx context.Context, field graphql
 	if resTmp == nil {
 		return graphql.Null
 	}
-	res := resTmp.([]*model.Recipe)
+	res := resTmp.([]*models.Recipe)
 	fc.Result = res
-	return ec.marshalORecipe2ᚕᚖbackendᚋgraphᚋmodelᚐRecipe(ctx, field.Selections, res)
+	return ec.marshalORecipe2ᚕᚖbackendᚋmodelsᚐRecipe(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Query_getRecipes(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -7085,9 +7143,9 @@ func (ec *executionContext) _Query_getRecipeById(ctx context.Context, field grap
 	if resTmp == nil {
 		return graphql.Null
 	}
-	res := resTmp.(*model.Recipe)
+	res := resTmp.(*models.Recipe)
 	fc.Result = res
-	return ec.marshalORecipe2ᚖbackendᚋgraphᚋmodelᚐRecipe(ctx, field.Selections, res)
+	return ec.marshalORecipe2ᚖbackendᚋmodelsᚐRecipe(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Query_getRecipeById(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -7295,7 +7353,7 @@ func (ec *executionContext) fieldContext_Query___schema(ctx context.Context, fie
 	return fc, nil
 }
 
-func (ec *executionContext) _Recipe_id(ctx context.Context, field graphql.CollectedField, obj *model.Recipe) (ret graphql.Marshaler) {
+func (ec *executionContext) _Recipe_id(ctx context.Context, field graphql.CollectedField, obj *models.Recipe) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Recipe_id(ctx, field)
 	if err != nil {
 		return graphql.Null
@@ -7309,18 +7367,15 @@ func (ec *executionContext) _Recipe_id(ctx context.Context, field graphql.Collec
 	}()
 	resTmp := ec._fieldMiddleware(ctx, obj, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.ID, nil
+		return obj.Id, nil
 	})
 
 	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
 		return graphql.Null
 	}
-	res := resTmp.(int)
+	res := resTmp.(string)
 	fc.Result = res
-	return ec.marshalNInt2int(ctx, field.Selections, res)
+	return ec.marshalOString2string(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Recipe_id(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -7330,13 +7385,13 @@ func (ec *executionContext) fieldContext_Recipe_id(ctx context.Context, field gr
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type Int does not have child fields")
+			return nil, errors.New("field of type String does not have child fields")
 		},
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _Recipe_name(ctx context.Context, field graphql.CollectedField, obj *model.Recipe) (ret graphql.Marshaler) {
+func (ec *executionContext) _Recipe_name(ctx context.Context, field graphql.CollectedField, obj *models.Recipe) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Recipe_name(ctx, field)
 	if err != nil {
 		return graphql.Null
@@ -7354,14 +7409,11 @@ func (ec *executionContext) _Recipe_name(ctx context.Context, field graphql.Coll
 	})
 
 	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
 		return graphql.Null
 	}
 	res := resTmp.(string)
 	fc.Result = res
-	return ec.marshalNString2string(ctx, field.Selections, res)
+	return ec.marshalOString2string(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Recipe_name(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -7377,7 +7429,7 @@ func (ec *executionContext) fieldContext_Recipe_name(ctx context.Context, field 
 	return fc, nil
 }
 
-func (ec *executionContext) _Recipe_is_active(ctx context.Context, field graphql.CollectedField, obj *model.Recipe) (ret graphql.Marshaler) {
+func (ec *executionContext) _Recipe_is_active(ctx context.Context, field graphql.CollectedField, obj *models.Recipe) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Recipe_is_active(ctx, field)
 	if err != nil {
 		return graphql.Null
@@ -7395,14 +7447,11 @@ func (ec *executionContext) _Recipe_is_active(ctx context.Context, field graphql
 	})
 
 	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
 		return graphql.Null
 	}
 	res := resTmp.(bool)
 	fc.Result = res
-	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
+	return ec.marshalOBoolean2bool(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Recipe_is_active(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -7418,7 +7467,7 @@ func (ec *executionContext) fieldContext_Recipe_is_active(ctx context.Context, f
 	return fc, nil
 }
 
-func (ec *executionContext) _Recipe_document_items(ctx context.Context, field graphql.CollectedField, obj *model.Recipe) (ret graphql.Marshaler) {
+func (ec *executionContext) _Recipe_document_items(ctx context.Context, field graphql.CollectedField, obj *models.Recipe) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Recipe_document_items(ctx, field)
 	if err != nil {
 		return graphql.Null
@@ -7432,7 +7481,7 @@ func (ec *executionContext) _Recipe_document_items(ctx context.Context, field gr
 	}()
 	resTmp := ec._fieldMiddleware(ctx, obj, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.DocumentItems, nil
+		return ec.resolvers.Recipe().DocumentItems(rctx, obj)
 	})
 
 	if resTmp == nil {
@@ -7447,8 +7496,8 @@ func (ec *executionContext) fieldContext_Recipe_document_items(ctx context.Conte
 	fc = &graphql.FieldContext{
 		Object:     "Recipe",
 		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
+		IsMethod:   true,
+		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			switch field.Name {
 			case "d_id":
@@ -7908,6 +7957,8 @@ func (ec *executionContext) fieldContext_User_company(ctx context.Context, field
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			switch field.Name {
+			case "id":
+				return ec.fieldContext_Company_id(ctx, field)
 			case "name":
 				return ec.fieldContext_Company_name(ctx, field)
 			case "vat_number":
@@ -10926,6 +10977,11 @@ func (ec *executionContext) _Company(ctx context.Context, sel ast.SelectionSet, 
 		switch field.Name {
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("Company")
+		case "id":
+			out.Values[i] = ec._Company_id(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
 		case "name":
 			out.Values[i] = ec._Company_name(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
@@ -11416,7 +11472,7 @@ func (ec *executionContext) _GeneratedDocument(ctx context.Context, sel ast.Sele
 
 var individualImplementors = []string{"Individual"}
 
-func (ec *executionContext) _Individual(ctx context.Context, sel ast.SelectionSet, obj *models.Individual) graphql.Marshaler {
+func (ec *executionContext) _Individual(ctx context.Context, sel ast.SelectionSet, obj *model.Individual) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, individualImplementors)
 
 	out := graphql.NewFieldSet(fields)
@@ -12210,7 +12266,7 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 
 var recipeImplementors = []string{"Recipe"}
 
-func (ec *executionContext) _Recipe(ctx context.Context, sel ast.SelectionSet, obj *model.Recipe) graphql.Marshaler {
+func (ec *executionContext) _Recipe(ctx context.Context, sel ast.SelectionSet, obj *models.Recipe) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, recipeImplementors)
 
 	out := graphql.NewFieldSet(fields)
@@ -12221,21 +12277,43 @@ func (ec *executionContext) _Recipe(ctx context.Context, sel ast.SelectionSet, o
 			out.Values[i] = graphql.MarshalString("Recipe")
 		case "id":
 			out.Values[i] = ec._Recipe_id(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
 		case "name":
 			out.Values[i] = ec._Recipe_name(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
 		case "is_active":
 			out.Values[i] = ec._Recipe_is_active(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
 		case "document_items":
-			out.Values[i] = ec._Recipe_document_items(ctx, field, obj)
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Recipe_document_items(ctx, field, obj)
+				return res
+			}
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -13947,7 +14025,7 @@ func (ec *executionContext) marshalOProductionNote2ᚖbackendᚋgraphᚋmodelᚐ
 	return ec._ProductionNote(ctx, sel, v)
 }
 
-func (ec *executionContext) marshalORecipe2ᚕᚖbackendᚋgraphᚋmodelᚐRecipe(ctx context.Context, sel ast.SelectionSet, v []*model.Recipe) graphql.Marshaler {
+func (ec *executionContext) marshalORecipe2ᚕᚖbackendᚋmodelsᚐRecipe(ctx context.Context, sel ast.SelectionSet, v []*models.Recipe) graphql.Marshaler {
 	if v == nil {
 		return graphql.Null
 	}
@@ -13974,7 +14052,7 @@ func (ec *executionContext) marshalORecipe2ᚕᚖbackendᚋgraphᚋmodelᚐRecip
 			if !isLen1 {
 				defer wg.Done()
 			}
-			ret[i] = ec.marshalORecipe2ᚖbackendᚋgraphᚋmodelᚐRecipe(ctx, sel, v[i])
+			ret[i] = ec.marshalORecipe2ᚖbackendᚋmodelsᚐRecipe(ctx, sel, v[i])
 		}
 		if isLen1 {
 			f(i)
@@ -13988,7 +14066,7 @@ func (ec *executionContext) marshalORecipe2ᚕᚖbackendᚋgraphᚋmodelᚐRecip
 	return ret
 }
 
-func (ec *executionContext) marshalORecipe2ᚖbackendᚋgraphᚋmodelᚐRecipe(ctx context.Context, sel ast.SelectionSet, v *model.Recipe) graphql.Marshaler {
+func (ec *executionContext) marshalORecipe2ᚖbackendᚋmodelsᚐRecipe(ctx context.Context, sel ast.SelectionSet, v *models.Recipe) graphql.Marshaler {
 	if v == nil {
 		return graphql.Null
 	}

@@ -3,6 +3,7 @@ package util
 import (
 	"database/sql"
 	"encoding/json"
+	"fmt"
 	"net/url"
 	"strconv"
 	"time"
@@ -68,6 +69,19 @@ func IntArrayToInt32Array(intSlice []int) []int32 {
 		int32Slice = append(int32Slice, int32(num))
 	}
 	return int32Slice
+}
+
+func StringArrayToInt32Array(strSlice []string) ([]int32, error) {
+	var int32Slice []int32
+	for _, str := range strSlice {
+		num, err := strconv.Atoi(str) // Convert string to int
+		if err != nil {
+			fmt.Println("error aici")
+			return nil, err // Return error if conversion fails
+		}
+		int32Slice = append(int32Slice, int32(num)) // Convert int to int32 and append
+	}
+	return int32Slice, nil
 }
 
 func NullableUuid(uid uuid.UUID) uuid.NullUUID {

@@ -6,11 +6,15 @@ package handlers
 
 import (
 	_err "backend/errors"
+	"backend/graph/generated"
 	"backend/graph/model"
+	"backend/models"
 	"context"
 	"errors"
+	"fmt"
 	"log"
 
+	"github.com/graph-gophers/dataloader"
 	pgx "github.com/jackc/pgx/v4"
 )
 
@@ -37,49 +41,33 @@ func (r *mutationResolver) SaveRecipe(ctx context.Context, input model.SaveRecip
 }
 
 // GetRecipes is the resolver for the getRecipes field.
-func (r *queryResolver) GetRecipes(ctx context.Context) ([]*model.Recipe, error) {
-	returnRecipes := make([]*model.Recipe, 0)
-	if err := r.DBPool.BeginFunc(ctx, func(tx pgx.Tx) error {
-		transaction := r.DBProvider.WithTx(tx)
-
-		rows, err := transaction.GetRecipes(ctx)
-		if err != nil {
-			if errors.Is(err, pgx.ErrNoRows) {
-				return nil
-			}
-			return err
+func (r *queryResolver) GetRecipes(ctx context.Context) ([]*models.Recipe, error) {
+	rows, err := r.DBProvider.GetRecipes(ctx)
+	if err != nil {
+		if errors.Is(err, pgx.ErrNoRows) {
+			return nil, nil
 		}
-		recipes := make([]*model.Recipe, 0)
+		log.Print("\"message\":Failed to execute DBProvider.GetRecipes, "+"\"error\": ", err.Error())
+		return nil, _err.Error(ctx, "Failed to get recipes", "DatabaseError")
+	}
+	recipes := make([]*models.Recipe, 0)
 
-		for _, row := range rows {
-			documentItems, err := r._getRecipeItems(ctx, transaction, row.ID)
-			if err != nil {
-				return err
-			}
-			recipe := &model.Recipe{
-				ID:            int(row.ID),
-				Name:          row.Name,
-				IsActive:      row.IsActive,
-				DocumentItems: documentItems,
-			}
-
-			recipes = append(recipes, recipe)
+	for _, row := range rows {
+		recipe := &models.Recipe{
+			Id:       row.ID,
+			Name:     row.Name,
+			IsActive: row.IsActive,
 		}
 
-		returnRecipes = recipes
-		return nil
-	}); err != nil {
-
-		log.Print("\"message\":Failed to save document, "+"\"error\": ", err.Error())
-		return nil, _err.Error(ctx, "Failed to save document", "DatabaseError")
+		recipes = append(recipes, recipe)
 	}
 
-	return returnRecipes, nil
+	return recipes, nil
 }
 
 // GetRecipeByID is the resolver for the getRecipeById field.
-func (r *queryResolver) GetRecipeByID(ctx context.Context, recipeID int) (*model.Recipe, error) {
-	returnRecipes := new(model.Recipe)
+func (r *queryResolver) GetRecipeByID(ctx context.Context, recipeID int) (*models.Recipe, error) {
+	returnRecipes := new(models.Recipe)
 	if err := r.DBPool.BeginFunc(ctx, func(tx pgx.Tx) error {
 		transaction := r.DBProvider.WithTx(tx)
 		recipe, err := r._getRecipeById(ctx, transaction, int32(recipeID))
@@ -97,3 +85,32 @@ func (r *queryResolver) GetRecipeByID(ctx context.Context, recipeID int) (*model
 
 	return returnRecipes, nil
 }
+
+// DocumentItems is the resolver for the document_items field.
+func (r *recipeResolver) DocumentItems(ctx context.Context, obj *models.Recipe) ([]*models.DocumentItem, error) {
+	loaders, ok := ctx.Value("loaders").(*models.Loaders)
+	if !ok {
+		log.Print("\"message\": Unable to fetch loaders from context, \"error\": context value is not of type *models.Loaders")
+		return nil, _err.Error(ctx, "ContextError", "InternalError")
+	}
+
+	resultFuture := loaders.RecipeItemLoader.Load(ctx, dataloader.StringKey(obj.Id))
+	result, err := resultFuture()
+	if err != nil {
+		log.Print("\"message\": Failed to load recipe items using DocumentItemLoader, \"error\": ", err.Error())
+		return nil, _err.Error(ctx, "FailedToLoadDocumentItems", "DatabaseError")
+	}
+
+	documentItems, ok := result.([]*models.DocumentItem)
+	if !ok {
+		log.Print("\"message\": Unexpected type for DocumentItems, \"error\": unexpected type ", fmt.Sprintf("%T", result))
+		return nil, _err.Error(ctx, "UnexpectedType", "InternalError")
+	}
+
+	return documentItems, nil
+}
+
+// Recipe returns generated.RecipeResolver implementation.
+func (r *Resolver) Recipe() generated.RecipeResolver { return &recipeResolver{r} }
+
+type recipeResolver struct{ *Resolver }

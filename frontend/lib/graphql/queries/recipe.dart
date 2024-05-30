@@ -5,17 +5,26 @@ query getRecipes{
         name,
         is_active,
         document_items{
-            item_id,
-            item_code,
-            item_name,
+            d_id
+            item{           
+                id,
+                code,
+                name,
+                is_active,
+                is_stock,
+                um{
+                    id,
+                    name
+                },
+                vat{
+                    id,
+                    name,
+                    percent
+                },
+            }     
             quantity,
-            um{
-                 id,
-                 name
-            },
             item_type_pn
-            
-        }
+        } 
     }
 }
 ''';

@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "539687966075",
+    "project_id": "erp-app-7974a",
+    "storage_bucket": "erp-app-7974a.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:539687966075:android:de6004f9dd6b256f2919de",
+        "android_client_info": {
+          "package_name": "com.example.erp_frontend_v2"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD0G8CEVsHZ_tMW0EM5o-9v6XXiAMAtKmI"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

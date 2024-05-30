@@ -119,6 +119,12 @@ type GetItemsInput struct {
 	CategoryList []int `json:"category_list,omitempty"`
 }
 
+type Individual struct {
+	Name              string          `json:"name"`
+	IndividualNumber  string          `json:"individual_number"`
+	IndividualAddress *models.Address `json:"individual_address,omitempty"`
+}
+
 type ItemCategoryInput struct {
 	ID         *int   `json:"id,omitempty"`
 	Name       string `json:"name"`
@@ -160,13 +166,6 @@ type ProductionNote struct {
 }
 
 type Query struct {
-}
-
-type Recipe struct {
-	ID            int                    `json:"id"`
-	Name          string                 `json:"name"`
-	IsActive      bool                   `json:"is_active"`
-	DocumentItems []*models.DocumentItem `json:"document_items,omitempty"`
 }
 
 type ReportInput struct {
