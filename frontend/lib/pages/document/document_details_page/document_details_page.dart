@@ -419,7 +419,7 @@ class _DocumentDetailsPageState extends ConsumerState<DocumentDetailsPage> {
         const SizedBox(
           height: 16,
         ),
-        _hId == '0'
+        _hId == '0' && _document.documentType.id != 8
             ? Row(
                 children: [
                   TertiaryButton(

@@ -165,13 +165,6 @@ type ProductionNote struct {
 type Query struct {
 }
 
-type Recipe struct {
-	ID            int                    `json:"id"`
-	Name          string                 `json:"name"`
-	IsActive      bool                   `json:"is_active"`
-	DocumentItems []*models.DocumentItem `json:"document_items,omitempty"`
-}
-
 type ReportInput struct {
 	StartDate string   `json:"start_date"`
 	EndDate   string   `json:"end_date"`

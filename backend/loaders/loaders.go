@@ -36,5 +36,18 @@ func NewLoaders(dbProvider *db.Queries) *models.Loaders {
 			}
 			return results
 		}),
+		RecipeItemLoader: dataloader.NewBatchedLoader(func(ctx context.Context, keys dataloader.Keys) []*dataloader.Result {
+			results, err := fetchRecipeItems(ctx, dbProvider, keys)
+			if err != nil {
+				log.Printf("\"message\": \"Failed to fetch recipe items\", \"error\": \"%v\"", err)
+				// Return an error result for each key
+				errorResults := make([]*dataloader.Result, len(keys))
+				for i := range keys {
+					errorResults[i] = &dataloader.Result{Error: err}
+				}
+				return errorResults
+			}
+			return results
+		}),
 	}
 }
