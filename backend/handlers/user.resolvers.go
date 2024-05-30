@@ -12,7 +12,6 @@ import (
 	"backend/models"
 	"backend/util"
 	"context"
-	"errors"
 	"log"
 
 	"github.com/jackc/pgconn"
@@ -110,27 +109,11 @@ func (r *queryResolver) GetUser(ctx context.Context) (*models.User, error) {
 
 // Company is the resolver for the company field.
 func (r *userResolver) Company(ctx context.Context, obj *models.User) (*models.Company, error) {
-	row, err := r.DBProvider.GetCompany(ctx)
+	company, err := r._GetMyCompany(ctx)
 	if err != nil {
-		if errors.Is(err, pgx.ErrNoRows) {
-			log.Print("\"message\":My error message, "+"\"error\": ", err.Error())
-			return nil, nil
-		}
-		log.Print("\"message\":Failed to execute DBProvider.GetCompany, "+"\"error\": ", err.Error())
-		return nil, _err.Error(ctx, "InvalidCompany", "DatabaseError")
+		return nil, err
 	}
-	return &models.Company{
-
-		Name:               row.Name,
-		VatNumber:          &row.VatNumber,
-		Vat:                row.Vat,
-		RegistrationNumber: util.StringOrNil(row.RegistrationNumber),
-		CompanyAddress: &models.Address{
-			Address:    &row.Address,
-			Locality:   util.StringOrNil(row.Locality),
-			CountyCode: util.StringOrNil(row.CountyCode),
-		},
-	}, nil
+	return company, nil
 }
 
 // User returns generated.UserResolver implementation.
