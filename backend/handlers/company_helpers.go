@@ -1,17 +1,6 @@
 package handlers
 
 import (
-<<<<<<< HEAD
-	"backend/models"
-	"bytes"
-	"context"
-	"encoding/json"
-	"fmt"
-	"io"
-	"log"
-	"net/http"
-	"strconv"
-=======
 	_err "backend/errors"
 	"backend/models"
 	"backend/util"
@@ -24,7 +13,6 @@ import (
 	"io"
 	"log"
 	"net/http"
->>>>>>> origin/dev
 	"strings"
 	"time"
 )

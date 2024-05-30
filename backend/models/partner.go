@@ -1,14 +1,6 @@
 package models
 
 type Partner struct {
-<<<<<<< HEAD
-	ID      string   `json:"id"`
-	Code    string   `json:"code"`
-	Type    string   `json:"type"`
-	Active  bool     `json:"active"`
-	Company *Company `json:"company"`
-}
-=======
 	ID                 string   `json:"id"`
 	Code               *string  `json:"code"`
 	Type               string   `json:"type"`
@@ -33,4 +25,3 @@ const (
 	CompanyType    = "Persoana Juridica"
 	IndividualType = "Persoana Fizica"
 )
->>>>>>> origin/dev
