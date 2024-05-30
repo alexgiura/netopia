@@ -1,16 +1,18 @@
 package middleware
 
 import (
+	"backend/db"
+	loaders "backend/loaders"
 	"context"
 	"encoding/json"
-	"log"
-	"net/http"
-
 	firebase "firebase.google.com/go"
 	"github.com/rs/cors"
 	"github.com/vektah/gqlparser/v2/ast"
 	"github.com/vektah/gqlparser/v2/gqlerror"
 	"google.golang.org/api/option"
+	"log"
+	"net/http"
+	"strings"
 )
 
 func AuthMiddleware(next http.Handler) http.Handler {
@@ -18,45 +20,57 @@ func AuthMiddleware(next http.Handler) http.Handler {
 		// Get the authorization header from the request
 		authHeader := r.Header.Get("Authorization")
 
-		if authHeader == "" {
-			WriteError(w, "TokenNotFound", "Authorization header not found")
+		if authHeader == "" || !strings.HasPrefix(authHeader, "Bearer ") {
+			// No token found or invalid format, proceed to the next handler
+			next.ServeHTTP(w, r)
+			return
 		}
 
-		// Check if the authorization header is in the format "Bearer <token>"
-		if len(authHeader) < 7 || authHeader[:7] != "Bearer " {
-			WriteError(w, "invalid-jwt", "Invalid JWT-Token")
-		}
-
-		tokenString := authHeader[7:]
+		tokenString := strings.TrimPrefix(authHeader, "Bearer ")
 
 		// Verify the token using the Firebase Admin SDK
 		opt := option.WithCredentialsFile("middleware/bildauth-firebase-adminsdk.json")
 		app, err := firebase.NewApp(context.Background(), nil, opt)
 		if err != nil {
-			WriteError(w, "invalid-jwt", "Invalid JWT-Token")
+
+			log.Printf("Error creating Firebase app: %v", err)
+			http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+			return
 		}
 
 		client, err := app.Auth(context.Background())
 		if err != nil {
-			WriteError(w, "invalid-jwt", "Invalid JWT-Token")
-
+			log.Printf("Error creating Firebase Auth client: %v", err)
+			http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+			return
 		}
 
 		// Verify the token and get the token claims
 		token, err := client.VerifyIDToken(context.Background(), tokenString)
 		if err != nil {
-			WriteError(w, "invalid-jwt", "Invalid JWT-Token")
+			log.Printf("Error verifying ID token: %v", err)
+			http.Error(w, "Unauthorized", http.StatusUnauthorized)
 			return
 		}
 
 		// Extract the user ID from the token
 		uid := token.UID
 
+		// Get the subdomain from the request
+		subdomain := strings.Split(r.Header.Get("ClientUrl"), ".")[0]
+
+		// Get the basic URI from the request
+		uri := strings.Split(r.Header.Get("ClientUrl"), "#")[0]
+
 		// Add the user ID to the request context
 		ctx := context.WithValue(r.Context(), "userId", uid)
+		ctx = context.WithValue(ctx, "tenant", subdomain)
+		ctx = context.WithValue(ctx, "uri", uri)
 		r = r.WithContext(ctx)
 
+		// Call the next handler in the chain
 		next.ServeHTTP(w, r)
+
 	})
 }
 func CorsMiddleware(next http.Handler) http.Handler {
@@ -76,6 +90,16 @@ func CorsMiddleware(next http.Handler) http.Handler {
 		handler.ServeHTTP(w, r)
 	})
 }
+func LoadersMiddleware(dbProvider *db.Queries) func(http.Handler) http.Handler {
+	return func(next http.Handler) http.Handler {
+		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			loaders := loaders.NewLoaders(dbProvider)
+			ctx := context.WithValue(r.Context(), "loaders", loaders)
+			next.ServeHTTP(w, r.WithContext(ctx))
+		})
+	}
+}
+
 func WriteError(w http.ResponseWriter, code string, message string) {
 	gqlErr := &gqlerror.Error{
 		Message: message,

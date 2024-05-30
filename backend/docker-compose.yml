@@ -1,4 +1,10 @@
 version: "3.7"
+
+networks:
+  default:
+    name: traff
+    external: true
+
 services:
   erp-app:
     container_name: "erp-api"
@@ -6,13 +12,21 @@ services:
       context: .
       dockerfile: Dockerfile
     image: erp-api:latest
-    ports:
-      - "8080:8080"
+    # ports:
+    #   - "8080:8080"
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.erp-api.rule=Host(`erp-api.local`)"
+      - "traefik.port=80"
+      - "traefik.docker.network=traff"
+
+    networks:
+      - default
     environment:
       - POSTGRES_SSL_CERT=../certificate.pem
       - POSTGRES_DB_HOST=$POSTGRES_DB_HOST
       - POSTGRES_DB_PORT=$POSTGRES_DB_PORT
-      - POSTGRES_DB_USER=$POSTGRES_DB_USER
+      - POSTGRES_DB_USER=$POSTGRES_DB_USERcd
       - POSTGRES_DB_PASSWORD=$POSTGRES_DB_PASSWORD
       - POSTGRES_DB_NAME=$POSTGRES_DB_NAME
       - EFACTURA_CLIENT_ID=$EFACTURA_CLIENT_ID
@@ -20,9 +34,10 @@ services:
       - EFACTURA_CALLBACK_URL=$EFACTURA_CALLBACK_URL
       - EFACTURA_CALLBACK_PATH=$EFACTURA_CALLBACK_PATH
       - EFACTURA_AUTHORIZATION_REDIRECT_URL=$EFACTURA_AUTHORIZATION_REDIRECT_URL
-#    depends_on:
-#      - erp-postgres
+    #    depends_on:
+    #      - erp-postgres
     env_file: ./.env
+
 
   erp-frontend:
     container_name: "erp-frontend"
@@ -30,7 +45,14 @@ services:
       context: ../frontend
       dockerfile: Dockerfile
     ports:
-      - "80:80"
+       - "80:80"
+    networks:
+       - default
+    labels:
+       - "traefik.enable=true"
+       - "traefik.http.routers.erp-frontend.rule=Host(`erp.local`)"
+       - "traefik.port=80"
+       - "traefik.http.routers.erp-frontend.entrypoints=web"
 
 #   erp-postgres:
 #     platform: linux/amd64

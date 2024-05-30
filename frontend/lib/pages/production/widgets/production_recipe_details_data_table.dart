@@ -91,7 +91,7 @@ class _RecipeDetailsDataTableState extends State<RecipeDetailsDataTable> {
       int originalIndex = data.indexOf(row.value);
 
       List<DataCell> cells = [
-        DataCell(Text(row.value.name)),
+        DataCell(Text(row.value.item.name)),
         DataCell(
           CustomTextFieldFloat(
             maxDecimalNumber: 3,
@@ -103,7 +103,7 @@ class _RecipeDetailsDataTableState extends State<RecipeDetailsDataTable> {
             // readonly: widget.readOnly,
           ),
         ),
-        DataCell(Text(row.value.um.name)),
+        DataCell(Text(row.value.item.um.name)),
         DataCell(
           IconButton(
             hoverColor: CustomColor.lightest,

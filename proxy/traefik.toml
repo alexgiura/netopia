@@ -1,0 +1,30 @@
+## Static configuration
+[entryPoints]
+  [entryPoints.web]
+    address = ":80"
+	[entryPoints.web.http.redirections.entryPoint]
+     to = "websecure"
+      scheme = "https"
+	  
+  [entryPoints.websecure]
+    address = ":443"
+
+#[certificatesResolvers.lets-encrypt.acme]
+#  email = "lilian.pletosu@neobytesolutions.com"
+#  storage = "acme.json"
+#  [certificatesResolvers.lets-encrypt.acme.tlsChallenge]
+
+[providers.docker]
+  watch = true
+  network = "traff"
+  exposedByDefault=false
+
+[api]
+  dashboard=true
+  insecure=true
+  
+#[providers.file]
+#  filename = "traefik_dynamic.toml"
+
+[pilot]
+  token = "823d8328-6079-4871-9aa8-bb155db992d6"

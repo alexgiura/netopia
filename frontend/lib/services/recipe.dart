@@ -30,11 +30,11 @@ class RecipeService {
 
   Future<String> saveRecipe({required Recipe recipe}) async {
     final List<Map<String, dynamic>> itemsList =
-        recipe.documentItems!.map((item) {
+        recipe.documentItems!.map((documentItem) {
       return {
-        "item_id": item.id,
-        "quantity": item.quantity,
-        "item_type_pn": item.itemTypePn
+        "item_id": documentItem.item.id,
+        "quantity": documentItem.quantity,
+        "item_type_pn": documentItem.itemTypePn
       };
     }).toList();
     final QueryOptions options = QueryOptions(

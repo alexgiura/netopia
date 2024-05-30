@@ -9,6 +9,7 @@ import (
 	"backend/util"
 	"context"
 	"fmt"
+	"github.com/99designs/gqlgen/graphql"
 	"log"
 	"net/http"
 	"net/url"
@@ -46,12 +47,27 @@ func (app *App) Run() error {
 		handler := next
 		// Add the cors function to the router
 		handler = middleware.CorsMiddleware(handler)
+		// Add DataLoader middleware
+		handler = middleware.LoadersMiddleware(app.services.DBProvider)(handler)
 		// Add the middleware function to the router
 		//handler = middleware.AuthMiddleware(handler)
 		return handler
 	}
 
+	// Initialize GraphQL server
 	graphQlConfig := generated.Config{Resolvers: app.services}
+
+	// Add the isAuthenticated directive logic to the GraphQL configuration
+	graphQlConfig.Directives.IsAuthenticated = func(ctx context.Context, obj interface{}, next graphql.Resolver) (res interface{}, err error) {
+		// Assuming you have a middleware that sets a "userId" in the context if authenticated
+		if ctxUserIdVal := ctx.Value("userId"); ctxUserIdVal != nil {
+			if _, ok := ctxUserIdVal.(string); ok {
+				return next(ctx)
+			}
+		}
+		return nil, fmt.Errorf("Access denied")
+	}
+
 	srv := handler.NewDefaultServer(generated.NewExecutableSchema(graphQlConfig))
 	app.router.Handle("/", graphMiddleware(
 		playground.Handler("GraphQL playground", app.cfg.AppSettings.GraphQLPath)))

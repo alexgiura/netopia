@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"backend/models"
 	"context"
 	"log"
 	"time"
@@ -17,55 +18,10 @@ import (
 	"backend/util"
 )
 
-func (r *Resolver) GetDocumentItems(ctx context.Context, transaction *db.Queries, orderID uuid.UUID) ([]*model.DocumentItem, error) {
-	rows, err := transaction.GetDocumentItems(ctx, orderID)
-	if err != nil {
-		if errors.Is(err, pgx.ErrNoRows) {
-			return nil, nil
-		}
-		r.Logger.Error("failed to execute DBProvider.GetDocumentItems", zap.Error(err))
-		return nil, _err.Error(ctx, "Failed to get document items", "DatabaseError")
-	}
+func (r *Resolver) _SaveDocument(ctx context.Context, transaction *db.Queries, input model.DocumentInput) (*models.Document, error) {
 
-	items := make([]*model.DocumentItem, 0)
-
-	// Iterate through GetOrderDetails results
-	for _, row := range rows {
-		dId := row.DID.String()
-
-		item := &model.DocumentItem{
-			DID:      &dId,
-			ItemID:   row.ItemID.String(),
-			ItemCode: util.StringOrNil(row.ItemCode),
-			ItemName: row.ItemName,
-			Quantity: row.Quantity,
-			Um: &model.Um{
-				ID:   int(row.UmID),
-				Name: row.UmName,
-				Code: row.UmCode,
-			},
-			Price: util.FloatOrNil(row.Price),
-			Vat: &model.Vat{
-				ID:                  int(row.VatID),
-				Name:                row.VatName,
-				Percent:             row.VatPercent,
-				ExemptionReason:     util.StringOrNil(row.VatExemptionReason),
-				ExemptionReasonCode: util.StringOrNil(row.VatExemptionReasonCode),
-			},
-			AmountNet:   util.FloatOrNil(row.NetValue),
-			AmountVat:   util.FloatOrNil(row.VatValue),
-			AmountGross: util.FloatOrNil(row.GrosValue),
-			ItemTypePn:  util.StringOrNil(row.ItemTypePn),
-		}
-
-		items = append(items, item)
-	}
-	return items, nil
-}
-
-func (r *Resolver) _SaveDocument(ctx context.Context, transaction *db.Queries, input model.DocumentInput) (*model.Document, error) {
-
-	newDocument := &model.Document{}
+	newDocument := &models.Document{}
+	var newDocumentItems []*models.DocumentItem
 
 	// Save document header
 	date, err := time.Parse("2006-01-02", input.Date)
@@ -167,20 +123,25 @@ func (r *Resolver) _SaveDocument(ctx context.Context, transaction *db.Queries, i
 	hIdStr := hId.String()
 	document, err2 := r._GetDocumentByID(ctx, transaction, &hIdStr)
 	if err2 != nil {
-		return nil, err
+		return nil, err2
+	}
+	documentItems, err3 := r._GetDocumentItemsById(ctx, transaction, &hIdStr)
+	if err3 != nil {
+		return nil, err3
 	}
 	newDocument = document
+	newDocumentItems = documentItems
 
 	// If is PN then create CN and RN
 	if input.DocumentType == 8 {
 		var cnErr, rnErr error
 
-		cnErr = r._CreateCN(ctx, transaction, *newDocument)
+		cnErr = r._CreateCN(ctx, transaction, *newDocument, newDocumentItems, input.PartnerID)
 		if cnErr != nil {
 			return nil, cnErr
 		}
 
-		rnErr = r._CreateRN(ctx, transaction, *newDocument)
+		rnErr = r._CreateRN(ctx, transaction, *newDocument, newDocumentItems, input.PartnerID)
 		if rnErr != nil {
 			return nil, rnErr
 		}
@@ -190,10 +151,10 @@ func (r *Resolver) _SaveDocument(ctx context.Context, transaction *db.Queries, i
 	// Check for auto generate Production Note
 	if newDocument.Type.ID == 4 {
 
-		for _, item := range newDocument.DocumentItems {
+		for _, documentItem := range newDocumentItems {
 
 			// get item type
-			itemCategory, err := transaction.GetItemCategoryByID(ctx, util.StrToUUID(&item.ItemID))
+			itemCategory, err := transaction.GetItemCategoryByID(ctx, util.StrToUUID(&documentItem.Item.ID))
 
 			if errors.Is(err, pgx.ErrNoRows) {
 
@@ -205,7 +166,7 @@ func (r *Resolver) _SaveDocument(ctx context.Context, transaction *db.Queries, i
 
 				if itemCategory.GeneratePn == true {
 
-					err := r._CreatePN(ctx, transaction, *newDocument, *item)
+					err := r._CreatePN(ctx, transaction, *newDocument, *documentItem, input.PartnerID)
 					if err != nil {
 						return nil, err
 					}
@@ -220,7 +181,7 @@ func (r *Resolver) _SaveDocument(ctx context.Context, transaction *db.Queries, i
 
 }
 
-func (r *Resolver) _GetDocumentByID(ctx context.Context, transaction *db.Queries, documentID *string) (*model.Document, error) {
+func (r *Resolver) _GetDocumentByID(ctx context.Context, transaction *db.Queries, documentID *string) (*models.Document, error) {
 	docId := util.StrToUUID(documentID)
 
 	// get Document Header
@@ -234,51 +195,73 @@ func (r *Resolver) _GetDocumentByID(ctx context.Context, transaction *db.Queries
 
 	}
 
-	// get Document Partner
-	documentPartner, err := transaction.GetDocumentHeaderPartner(ctx, row.PartnerID)
-	if err != nil {
-		log.Print("\"message\":Failed to execute DBProvider.GetDocumentHeaderPartner "+"\"error\": ", err.Error())
-		return nil, _err.Error(ctx, "Failed to get document partner", "DatabaseError")
-
-	}
-
-	// get Document Items
-	docItems, err := r.GetDocumentItems(ctx, transaction, docId)
-	if err != nil {
-
-		return nil, err
-	}
-
-	return &model.Document{
-		HID: row.HID.String(),
-		Type: &model.DocumentType{
+	return &models.Document{
+		HId: row.HID.String(),
+		Type: models.DocumentType{
 			ID:     *util.IntOrNil(row.DocumentTypeID),
 			NameRo: *util.StringOrNil(row.DocumentTypeNameRo),
 			NameEn: *util.StringOrNil(row.DocumentTypeNameEn),
 		},
-		Series: util.StringOrNil(row.Series),
-		Number: row.Number,
-		Date:   row.Date.Format("2006-01-02"),
-
-		Partner: &model.Partner{
-			ID:            documentPartner.ID.String(),
-			Code:          util.StringOrNil(documentPartner.Code),
-			Name:          documentPartner.Name,
-			Type:          documentPartner.Type,
-			TaxID:         util.StringOrNil(documentPartner.TaxID),
-			CompanyNumber: util.StringOrNil(documentPartner.CompanyNumber),
-			PersonalID:    util.StringOrNil(documentPartner.PersonalID),
-			IsActive:      documentPartner.IsActive,
-		},
-		PersonID:      util.NullUuidToString(row.PersonID),
-		PersonName:    util.StringOrNil(row.PersonName),
-		Notes:         util.StringOrNil(row.Notes),
-		IsDeleted:     row.IsDeleted,
-		DocumentItems: docItems,
+		Series:  util.StringOrNil(row.Series),
+		Number:  row.Number,
+		Date:    row.Date.Format("2006-01-02"),
+		Notes:   util.StringOrNil(row.Notes),
+		Deleted: row.IsDeleted,
 	}, nil
 }
+func (r *Resolver) _GetDocumentItemsById(ctx context.Context, transaction *db.Queries, documentID *string) ([]*models.DocumentItem, error) {
+	docId := util.StrToUUID(documentID)
+	rows, err := transaction.GetDocumentItems(ctx, docId)
+	if err != nil {
+		if errors.Is(err, pgx.ErrNoRows) {
+			return nil, nil
+		}
+		r.Logger.Error("failed to execute DBProvider.GetDocumentItems", zap.Error(err))
+		return nil, _err.Error(ctx, "Failed to get document items", "DatabaseError")
+	}
 
-func (r *Resolver) _CreateCN(ctx context.Context, transaction *db.Queries, input model.Document) error {
+	items := make([]*models.DocumentItem, 0)
+
+	// Iterate through GetOrderDetails results
+	for _, row := range rows {
+		dId := row.DID.String()
+
+		item := &models.DocumentItem{
+			DId: dId,
+			Item: models.Item{
+				ID:   row.ItemID.String(),
+				Code: util.StringOrNil(row.ItemCode),
+				Name: row.ItemName,
+				Um: models.Um{
+					ID:   int(row.UmID),
+					Name: row.UmName,
+					Code: row.UmCode,
+				},
+				Vat: models.Vat{
+					ID:                  int(row.VatID),
+					Name:                row.VatName,
+					Percent:             row.VatPercent,
+					ExemptionReason:     util.StringOrNil(row.VatExemptionReason),
+					ExemptionReasonCode: util.StringOrNil(row.VatExemptionReasonCode),
+				},
+			},
+
+			Quantity: row.Quantity,
+
+			Price: util.FloatOrNil(row.Price),
+
+			AmountNet:   util.FloatOrNil(row.NetValue),
+			AmountVat:   util.FloatOrNil(row.VatValue),
+			AmountGross: util.FloatOrNil(row.GrosValue),
+			ItemTypePn:  util.StringOrNil(row.ItemTypePn),
+		}
+
+		items = append(items, item)
+	}
+	return items, nil
+}
+
+func (r *Resolver) _CreateCN(ctx context.Context, transaction *db.Queries, input models.Document, documentItems []*models.DocumentItem, partnerId string) error {
 
 	//Create a new input
 	newInputCN := model.DocumentInput{}
@@ -286,17 +269,17 @@ func (r *Resolver) _CreateCN(ctx context.Context, transaction *db.Queries, input
 	// Filter the DocumentItemInput list based on a condition
 	var filteredItems []*model.DocumentItemInput
 
-	for index, item := range input.DocumentItems {
+	for index, documentItem := range documentItems {
 		generatedDId := make([]string, 0)
-		if item.ItemTypePn != nil && *item.ItemTypePn == model.ProductionItemTypeRawMaterial.String() {
-			generatedDId = append(generatedDId, *input.DocumentItems[index].DID)
+		if documentItem.ItemTypePn != nil && *documentItem.ItemTypePn == model.ProductionItemTypeRawMaterial.String() {
+			generatedDId = append(generatedDId, documentItems[index].DId)
 			filteredItems = append(filteredItems, &model.DocumentItemInput{
-				ItemID:       item.ItemID,
-				Quantity:     item.Quantity,
-				Price:        item.Price,
-				AmountNet:    item.AmountNet,
-				AmountVat:    item.AmountVat,
-				AmountGross:  item.AmountGross,
+				ItemID:       documentItem.Item.ID,
+				Quantity:     documentItem.Quantity,
+				Price:        documentItem.Price,
+				AmountNet:    documentItem.AmountNet,
+				AmountVat:    documentItem.AmountVat,
+				AmountGross:  documentItem.AmountGross,
 				GeneratedDID: generatedDId,
 			})
 
@@ -306,7 +289,7 @@ func (r *Resolver) _CreateCN(ctx context.Context, transaction *db.Queries, input
 
 	// Assign the new values to newInput
 	newInputCN.Date = input.Date
-	newInputCN.PartnerID = input.Partner.ID
+	newInputCN.PartnerID = partnerId
 	newInputCN.DocumentItems = filteredItems
 	newInputCN.DocumentType = 6
 	newInputCN.Number = "BC-" + input.Number
@@ -327,24 +310,24 @@ func (r *Resolver) _CreateCN(ctx context.Context, transaction *db.Queries, input
 
 }
 
-func (r *Resolver) _CreateRN(ctx context.Context, transaction *db.Queries, input model.Document) error {
+func (r *Resolver) _CreateRN(ctx context.Context, transaction *db.Queries, input models.Document, documentItems []*models.DocumentItem, partnerId string) error {
 	//Create a new input
 	newInputRN := model.DocumentInput{}
 
 	// Filter the DocumentItemInput list based on a condition
 	var filteredItems []*model.DocumentItemInput
 
-	for index, item := range input.DocumentItems {
+	for index, documentItem := range documentItems {
 		generatedDId := make([]string, 0)
-		if item.ItemTypePn != nil && *item.ItemTypePn == model.ProductionItemTypeFinalProduct.String() {
-			generatedDId = append(generatedDId, *input.DocumentItems[index].DID)
+		if documentItem.ItemTypePn != nil && *documentItem.ItemTypePn == model.ProductionItemTypeFinalProduct.String() {
+			generatedDId = append(generatedDId, documentItems[index].DId)
 			filteredItems = append(filteredItems, &model.DocumentItemInput{
-				ItemID:       item.ItemID,
-				Quantity:     item.Quantity,
-				Price:        item.Price,
-				AmountNet:    item.AmountNet,
-				AmountVat:    item.AmountVat,
-				AmountGross:  item.AmountGross,
+				ItemID:       documentItem.Item.ID,
+				Quantity:     documentItem.Quantity,
+				Price:        documentItem.Price,
+				AmountNet:    documentItem.AmountNet,
+				AmountVat:    documentItem.AmountVat,
+				AmountGross:  documentItem.AmountGross,
 				GeneratedDID: generatedDId,
 			})
 
@@ -354,7 +337,7 @@ func (r *Resolver) _CreateRN(ctx context.Context, transaction *db.Queries, input
 
 	// Assign the new values to newInput
 	newInputRN.Date = input.Date
-	newInputRN.PartnerID = input.Partner.ID
+	newInputRN.PartnerID = partnerId
 	newInputRN.DocumentItems = filteredItems
 	newInputRN.DocumentType = 7
 	newInputRN.Number = "NP-" + input.Number
@@ -370,11 +353,11 @@ func (r *Resolver) _CreateRN(ctx context.Context, transaction *db.Queries, input
 	}
 	return nil
 }
-func (r *Resolver) _CreatePN(ctx context.Context, transaction *db.Queries, input model.Document, item model.DocumentItem) error {
+func (r *Resolver) _CreatePN(ctx context.Context, transaction *db.Queries, input models.Document, documentItem models.DocumentItem, partnerId string) error {
 	//Create a new input
 	newInputPN := model.DocumentInput{}
 
-	rows, err := transaction.GetRecipeByItemId(ctx, util.StrToUUID(&item.ItemID))
+	rows, err := transaction.GetRecipeByItemId(ctx, util.StrToUUID(&documentItem.Item.ID))
 	if err != nil {
 		log.Print("\"message\":Failed to execute transaction.GetRecipeByItemId "+"\"error\": ", err.Error())
 		return _err.Error(ctx, "Failed to get item recipe", "DatabaseError")
@@ -395,15 +378,15 @@ func (r *Resolver) _CreatePN(ctx context.Context, transaction *db.Queries, input
 			for _, recipeItem := range recipeItems {
 
 				generatedDId := make([]string, 0)
-				if recipeItem.ItemID == item.ItemID {
-					generatedDId = append(generatedDId, *item.DID)
+				if recipeItem.Item.ID == documentItem.Item.ID {
+					generatedDId = append(generatedDId, documentItem.DId)
 				}
 
 				// Convert into decimal for  decimal accuracy
-				totalQuantity := decimal.NewFromFloat(recipeItem.Quantity).Mul(decimal.NewFromFloat(item.Quantity))
+				totalQuantity := decimal.NewFromFloat(recipeItem.Quantity).Mul(decimal.NewFromFloat(documentItem.Quantity))
 
 				documentItemInput := &model.DocumentItemInput{
-					ItemID:       recipeItem.ItemID,
+					ItemID:       recipeItem.Item.ID,
 					Quantity:     totalQuantity.InexactFloat64(),
 					ItemTypePn:   recipeItem.ItemTypePn,
 					GeneratedDID: generatedDId,
@@ -414,7 +397,7 @@ func (r *Resolver) _CreatePN(ctx context.Context, transaction *db.Queries, input
 			}
 
 			newInputPN.Date = input.Date
-			newInputPN.PartnerID = input.Partner.ID
+			newInputPN.PartnerID = partnerId
 			newInputPN.DocumentItems = documentItemsInput
 			newInputPN.DocumentType = 8
 			newInputPN.Number = "RP-" + input.Number
@@ -541,42 +524,42 @@ func (r *Resolver) _DeleteDocument(ctx context.Context, transaction *db.Queries,
 
 }
 
-func (r *Resolver) _RegeneratePN(ctx context.Context, transaction *db.Queries, docId uuid.UUID) error {
-	// Get new created document
-	hIdStr := docId.String()
-	document, err := r._GetDocumentByID(ctx, transaction, &hIdStr)
-	if err != nil {
-		return err
-	}
-	newDocument := document
-
-	if newDocument.Type.ID == 4 {
-
-		for _, item := range newDocument.DocumentItems {
-
-			// get item type
-			itemCategory, err := transaction.GetItemCategoryByID(ctx, util.StrToUUID(&item.ItemID))
-
-			if errors.Is(err, pgx.ErrNoRows) {
-
-			} else if err != nil {
-
-				log.Print("\"message\":Failed to execute transaction.GetItemCategoryByID "+"\"error\": ", err.Error())
-				return _err.Error(ctx, "Failed to get item category", "DatabaseError")
-			} else {
-
-				if itemCategory.GeneratePn == true {
-
-					err := r._CreatePN(ctx, transaction, *newDocument, *item)
-					if err != nil {
-						return err
-					}
-
-				}
-			}
-
-		}
-	}
-	return nil
-
-}
+//func (r *Resolver) _RegeneratePN(ctx context.Context, transaction *db.Queries, docId uuid.UUID) error {
+//	// Get new created document
+//	hIdStr := docId.String()
+//	document, err := r._GetDocumentByID(ctx, transaction, &hIdStr)
+//	if err != nil {
+//		return err
+//	}
+//	newDocument := document
+//
+//	if newDocument.Type.ID == 4 {
+//
+//		for _, documentItem := range newDocument.DocumentItems {
+//
+//			// get item type
+//			itemCategory, err := transaction.GetItemCategoryByID(ctx, util.StrToUUID(&documentItem.Item.ID))
+//
+//			if errors.Is(err, pgx.ErrNoRows) {
+//
+//			} else if err != nil {
+//
+//				log.Print("\"message\":Failed to execute transaction.GetItemCategoryByID "+"\"error\": ", err.Error())
+//				return _err.Error(ctx, "Failed to get item category", "DatabaseError")
+//			} else {
+//
+//				if itemCategory.GeneratePn == true {
+//
+//					err := r._CreatePN(ctx, transaction, *newDocument, *documentItem)
+//					if err != nil {
+//						return err
+//					}
+//
+//				}
+//			}
+//
+//		}
+//	}
+//	return nil
+//
+//}

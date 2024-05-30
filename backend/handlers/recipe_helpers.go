@@ -4,6 +4,7 @@ import (
 	"backend/db"
 	_err "backend/errors"
 	"backend/graph/model"
+	"backend/models"
 	"backend/util"
 	"context"
 	"errors"
@@ -13,7 +14,7 @@ import (
 	"go.uber.org/zap"
 )
 
-func (r *Resolver) _getRecipeItems(ctx context.Context, transaction *db.Queries, recipeId int32) ([]*model.DocumentItem, error) {
+func (r *Resolver) _getRecipeItems(ctx context.Context, transaction *db.Queries, recipeId int32) ([]*models.DocumentItem, error) {
 	// Get all item subgroups for the given group ID
 	rows, err := transaction.GetRecipeItemsById(ctx, recipeId)
 	if err != nil {
@@ -26,20 +27,24 @@ func (r *Resolver) _getRecipeItems(ctx context.Context, transaction *db.Queries,
 	}
 
 	// Create an array to hold all subgroup items
-	var recipeItems []*model.DocumentItem
+	var recipeItems []*models.DocumentItem
 
 	// Loop through each subgroup item and add it to the array
 	for _, row := range rows {
 		itemTypePn := row.ItemTypePn
-		recipeItem := &model.DocumentItem{
-			ItemID:   row.ItemID.String(),
-			ItemCode: util.StringOrNil(row.ItemCode),
-			ItemName: row.ItemName,
-			Quantity: row.Quantity,
-			Um: &model.Um{
-				ID:   int(row.UmID),
-				Name: row.UmName,
+		recipeItem := &models.DocumentItem{
+			Item: models.Item{
+				ID:   row.ItemID.String(),
+				Code: util.StringOrNil(row.ItemCode),
+				Name: row.ItemName,
+				Um: models.Um{
+					ID:   int(row.UmID),
+					Name: row.UmName,
+				},
 			},
+
+			Quantity: row.Quantity,
+
 			ItemTypePn: &itemTypePn,
 		}
 
@@ -49,7 +54,7 @@ func (r *Resolver) _getRecipeItems(ctx context.Context, transaction *db.Queries,
 	return recipeItems, nil
 }
 
-func (r *Resolver) _getRecipeById(ctx context.Context, transaction *db.Queries, recipeId int32) (*model.Recipe, error) {
+func (r *Resolver) _getRecipeById(ctx context.Context, transaction *db.Queries, recipeId int32) (*models.Recipe, error) {
 
 	row, err := transaction.GetRecipeById(ctx, recipeId)
 	if err != nil {
@@ -61,20 +66,19 @@ func (r *Resolver) _getRecipeById(ctx context.Context, transaction *db.Queries, 
 
 	}
 
-	recipeItems, err2 := r._getRecipeItems(ctx, transaction, recipeId)
-	if err2 != nil {
-		return nil, err2
-	}
-	return &model.Recipe{
-		ID:            int(row.ID),
-		Name:          row.Name,
-		IsActive:      row.IsActive,
-		DocumentItems: recipeItems,
+	//recipeItems, err2 := r._getRecipeItems(ctx, transaction, recipeId)
+	//if err2 != nil {
+	//	return nil, err2
+	//}
+	return &models.Recipe{
+		Id:       row.ID,
+		Name:     row.Name,
+		IsActive: row.IsActive,
 	}, nil
 }
 
-func (r *Resolver) _insertRecipe(ctx context.Context, input model.SaveRecipeInput) (*model.Recipe, error) {
-	returnRecipe := &model.Recipe{}
+func (r *Resolver) _insertRecipe(ctx context.Context, input model.SaveRecipeInput) (*models.Recipe, error) {
+	returnRecipe := &models.Recipe{}
 	if err := r.DBPool.BeginFunc(ctx, func(tx pgx.Tx) error {
 		transaction := r.DBProvider.WithTx(tx)
 
@@ -117,8 +121,8 @@ func (r *Resolver) _insertRecipe(ctx context.Context, input model.SaveRecipeInpu
 	return returnRecipe, nil
 }
 
-func (r *Resolver) _updateRecipe(ctx context.Context, input model.SaveRecipeInput) (*model.Recipe, error) {
-	returnRecipe := &model.Recipe{}
+func (r *Resolver) _updateRecipe(ctx context.Context, input model.SaveRecipeInput) (*models.Recipe, error) {
+	returnRecipe := &models.Recipe{}
 	if err := r.DBPool.BeginFunc(ctx, func(tx pgx.Tx) error {
 		transaction := r.DBProvider.WithTx(tx)
 

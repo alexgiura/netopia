@@ -18,39 +18,26 @@ select
     code,
     name,
     type,
-    tax_id,
-    company_number,
-    personal_id,
+    vat_number,
+    registration_number,
+    personal_number,
     is_active
 from core.partners
-where  (code like ('%' || $1 || '%') OR code IS NULL) and name like '%' || $2 || '%' and type like '%' || $3|| '%' and tax_id like '%' || $4|| '%'
 `
 
-type GetPartnersParams struct {
-	Code  sql.NullString
-	Name  sql.NullString
-	Type  sql.NullString
-	TaxID sql.NullString
-}
-
 type GetPartnersRow struct {
-	ID            uuid.UUID
-	Code          sql.NullString
-	Name          string
-	Type          string
-	TaxID         sql.NullString
-	CompanyNumber sql.NullString
-	PersonalID    sql.NullString
-	IsActive      bool
+	ID                 uuid.UUID
+	Code               sql.NullString
+	Name               string
+	Type               string
+	VatNumber          sql.NullString
+	RegistrationNumber sql.NullString
+	PersonalNumber     sql.NullString
+	IsActive           bool
 }
 
-func (q *Queries) GetPartners(ctx context.Context, arg GetPartnersParams) ([]GetPartnersRow, error) {
-	rows, err := q.db.Query(ctx, getPartners,
-		arg.Code,
-		arg.Name,
-		arg.Type,
-		arg.TaxID,
-	)
+func (q *Queries) GetPartners(ctx context.Context) ([]GetPartnersRow, error) {
+	rows, err := q.db.Query(ctx, getPartners)
 	if err != nil {
 		return nil, err
 	}
@@ -63,9 +50,70 @@ func (q *Queries) GetPartners(ctx context.Context, arg GetPartnersParams) ([]Get
 			&i.Code,
 			&i.Name,
 			&i.Type,
-			&i.TaxID,
-			&i.CompanyNumber,
-			&i.PersonalID,
+			&i.VatNumber,
+			&i.RegistrationNumber,
+			&i.PersonalNumber,
+			&i.IsActive,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const getPartnersByDocumentIds = `-- name: GetPartnersByDocumentIds :many
+SELECT
+    d.h_id,
+    id,
+    code,
+    name,
+    type,
+    vat_number,
+    registration_number,
+    personal_number,
+    is_active
+FROM
+    core.partners p
+        JOIN
+    core.document_header d ON p.id = d.partner_id
+WHERE
+        d.h_id = ANY($1::uuid[])
+`
+
+type GetPartnersByDocumentIdsRow struct {
+	HID                uuid.UUID
+	ID                 uuid.UUID
+	Code               sql.NullString
+	Name               string
+	Type               string
+	VatNumber          sql.NullString
+	RegistrationNumber sql.NullString
+	PersonalNumber     sql.NullString
+	IsActive           bool
+}
+
+func (q *Queries) GetPartnersByDocumentIds(ctx context.Context, dollar_1 []uuid.UUID) ([]GetPartnersByDocumentIdsRow, error) {
+	rows, err := q.db.Query(ctx, getPartnersByDocumentIds, dollar_1)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []GetPartnersByDocumentIdsRow
+	for rows.Next() {
+		var i GetPartnersByDocumentIdsRow
+		if err := rows.Scan(
+			&i.HID,
+			&i.ID,
+			&i.Code,
+			&i.Name,
+			&i.Type,
+			&i.VatNumber,
+			&i.RegistrationNumber,
+			&i.PersonalNumber,
 			&i.IsActive,
 		); err != nil {
 			return nil, err
@@ -79,28 +127,30 @@ func (q *Queries) GetPartners(ctx context.Context, arg GetPartnersParams) ([]Get
 }
 
 const insertPartner = `-- name: InsertPartner :one
-Insert into core.partners (code,name,type,tax_id,company_number,personal_id)
+
+Insert into core.partners (code,name,type,vat_number,registration_number,personal_number)
 VALUES ($1,$2,$3,$4,$5,$6)
 RETURNING id
 `
 
 type InsertPartnerParams struct {
-	Code          sql.NullString
-	Name          string
-	Type          string
-	TaxID         sql.NullString
-	CompanyNumber sql.NullString
-	PersonalID    sql.NullString
+	Code               sql.NullString
+	Name               string
+	Type               string
+	VatNumber          sql.NullString
+	RegistrationNumber sql.NullString
+	PersonalNumber     sql.NullString
 }
 
+// where  (code like ('%' || sqlc.arg(code) || '%') OR code IS NULL) and name like '%' || sqlc.arg(name) || '%' and type like '%' || sqlc.arg(type)|| '%' and tax_id like '%' || sqlc.arg(tax_id)|| '%';
 func (q *Queries) InsertPartner(ctx context.Context, arg InsertPartnerParams) (uuid.UUID, error) {
 	row := q.db.QueryRow(ctx, insertPartner,
 		arg.Code,
 		arg.Name,
 		arg.Type,
-		arg.TaxID,
-		arg.CompanyNumber,
-		arg.PersonalID,
+		arg.VatNumber,
+		arg.RegistrationNumber,
+		arg.PersonalNumber,
 	)
 	var id uuid.UUID
 	err := row.Scan(&id)
@@ -113,21 +163,21 @@ Set code=$2,
     name=$3,
     is_active=$4,
     type=$5,
-    tax_id=$6,
-    company_number=$7,
-    personal_id=$8
+    vat_number=$6,
+    registration_number=$7,
+    personal_number=$8
 where id=$1
 `
 
 type UpdatePartnerParams struct {
-	ID            uuid.UUID
-	Code          sql.NullString
-	Name          string
-	IsActive      bool
-	Type          string
-	TaxID         sql.NullString
-	CompanyNumber sql.NullString
-	PersonalID    sql.NullString
+	ID                 uuid.UUID
+	Code               sql.NullString
+	Name               string
+	IsActive           bool
+	Type               string
+	VatNumber          sql.NullString
+	RegistrationNumber sql.NullString
+	PersonalNumber     sql.NullString
 }
 
 func (q *Queries) UpdatePartner(ctx context.Context, arg UpdatePartnerParams) error {
@@ -137,9 +187,9 @@ func (q *Queries) UpdatePartner(ctx context.Context, arg UpdatePartnerParams) er
 		arg.Name,
 		arg.IsActive,
 		arg.Type,
-		arg.TaxID,
-		arg.CompanyNumber,
-		arg.PersonalID,
+		arg.VatNumber,
+		arg.RegistrationNumber,
+		arg.PersonalNumber,
 	)
 	return err
 }

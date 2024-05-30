@@ -1,13 +1,30 @@
 const String getDocuments = r'''
 query getDocuments($input: GetDocumentsInput!){
     getDocuments(input:$input){
-        h_id,          
+        h_id, 
+        type{
+            id,
+            name_en,
+            name_ro
+        }         
         series,
         number,
         date,
-        partner,
-        is_deleted,
-        status
+        due_date,
+        notes,
+        deleted,
+        efactura_status,
+        partner{
+            id,
+            code,        
+            type,        
+            active,
+            name,
+            vat,
+            vat_number,
+            registration_number,
+            individual_number 
+        }      
     }
 }
 ''';
@@ -24,37 +41,43 @@ query  getDocumentById($documentId: String!) {
     series,
     number,
     date,
+    notes,
     partner{
         id,
-        code,
+        code,        
+        type,        
+        active,
         name,
-        type,
-        tax_id,
-        company_number,
-        personal_id,
-        is_active
+        vat,
+        vat_number,
+        registration_number,
+        individual_number 
     },
-    person_name,
-    notes,
-    is_deleted,
     document_items{
-      item_id,
-      item_code,
-      item_name,
+        d_id,
+        item{           
+            id,
+            code,
+            name,
+            is_active,
+            is_stock,
+            um{
+                id,
+                name
+             },
+            vat{
+                id,
+                name,
+                percent
+            },
+        }
+      
       quantity,
-      um{
-          id,
-          name
-      },
-      price,
-      vat{
-          id,
-          name,
-          percent
-      },
+      price,     
       amount_net,
       amount_vat,
-      amount_gross
+      amount_gross,
+      item_type_pn
     }  
    }
 }
@@ -80,20 +103,22 @@ query  getGenerateAvailableItems($input: GetGenerateAvailableItemsInput!) {
     date,
     document_item{
         d_id,
-      item_id,
-      item_code,
-      item_name,
-      quantity,
-      um{
+        item{
           id,
-          name
-      }
-      vat{
-          id,
+          code,
           name,
-          percent
-      }
+          um{
+            id,
+            name
+          }
+          vat{
+            id,
+            name,
+            percent
+          }
+        }     
+        quantity,      
     }  
-   }
+  }
 }
 ''';

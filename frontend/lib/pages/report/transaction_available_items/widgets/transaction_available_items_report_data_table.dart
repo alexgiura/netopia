@@ -42,9 +42,9 @@ class _TransactionAvailableItemsDataTableState
       List<DataCell> cells = [
         DataCell(Text(row.value.number)),
         DataCell(Text(row.value.date)),
-        DataCell(Text(row.value.documentItem.name)),
+        DataCell(Text(row.value.documentItem.item.name)),
         DataCell(Text(row.value.documentItem.quantity.toString())),
-        DataCell(Text(row.value.documentItem.um.name)),
+        DataCell(Text(row.value.documentItem.item.um.name)),
       ];
 
       return DataRow2(

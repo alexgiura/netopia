@@ -140,10 +140,10 @@ class _PartnerDetailsPopupState extends ConsumerState<PartnerDetailsPopup>
                 key: taxIdFormKey,
                 labelText: "CIF / CNP *",
                 hintText: null,
-                initialValue: _partner.taxId,
+                initialValue: _partner.vatNumber,
                 onValueChanged: (String value) {
                   setState(() {
-                    _partner.taxId = value;
+                    _partner.vatNumber = value;
                   });
                 },
                 errorText: "Camp obligatoriu",
@@ -157,11 +157,11 @@ class _PartnerDetailsPopupState extends ConsumerState<PartnerDetailsPopup>
               CustomTextField(
                 labelText: "Nr.Reg.Com. (optional)",
                 hintText: null,
-                initialValue: _partner.companyNumber,
+                initialValue: _partner.registrationNumber,
                 enabled: _partner.type == PartnerType.company.name,
                 onValueChanged: (String value) {
                   setState(() {
-                    _partner.companyNumber = value;
+                    _partner.registrationNumber = value;
                   });
                 },
               ),

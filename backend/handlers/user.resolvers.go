@@ -7,72 +7,88 @@ package handlers
 import (
 	"backend/db"
 	_err "backend/errors"
+	"backend/graph/generated"
 	"backend/graph/model"
-	"backend/middleware"
+	"backend/models"
 	"backend/util"
 	"context"
+	"log"
 
 	"github.com/jackc/pgconn"
+	pgx "github.com/jackc/pgx/v4"
 	"go.uber.org/zap"
 )
 
-// SaveUser is the resolver for the saveUser field.
-func (r *mutationResolver) SaveUser(ctx context.Context, input model.SaveUserInput) (*string, error) {
-	// Get the user ID from the context
-	userId, ok := middleware.GetUserUUIDFromContext(ctx)
-	if !ok {
-		return nil, _err.Error(ctx, "User not found in context", "UserNotFound")
-	}
-	saveModel := db.SaveUserParams{
-		ID:          *userId,
-		PhoneNumber: input.PhoneNumber,
-		UserType:    input.UserType,
-		Name:        input.Name,
-		Email:       util.NullableStr(input.Email),
-		DeviceID:    util.NullableStr(input.DeviceID),
-	}
-	id, err := r.DBProvider.SaveUser(ctx, saveModel)
-	if err != nil {
-		err, ok := err.(*pgconn.PgError)
-		if ok && err.Code == _err.Codes_Duplicate_Key {
-			return nil, _err.Error(ctx, "User already exists", "UserAlreadyExists")
+// CreateNewAccount is the resolver for the createNewAccount field.
+func (r *mutationResolver) CreateNewAccount(ctx context.Context, input model.CreateNewAccountInput) (*models.User, error) {
+	//userId, ok := middleware.GetUserUUIDFromContext(ctx)
+	//if !ok {
+	//	return nil, _err.Error(ctx, "User not found in context", "UserNotFound")
+	//}
+	userId := "123"
+
+	var returnUser *models.User
+	//
+	if err := r.DBPool.BeginFunc(ctx, func(tx pgx.Tx) error {
+		transaction := r.DBProvider.WithTx(tx)
+
+		// Check if company exists
+		company, err := r._GetMyCompany(ctx)
+		if err != nil {
+			return err
 		}
-		r.Logger.Error("failed to execute DBProvider.SaveUser", zap.Error(err))
-		return nil, _err.Error(ctx, "Failed to save user in DB", "InternalError")
-	}
-	return &id, nil
-}
+		if company != nil {
+			return _err.Error(ctx, "Account already exists", "AccountAlreadyExists")
+		}
 
-// UpdateUser is the resolver for the updateUser field.
-func (r *mutationResolver) UpdateUser(ctx context.Context, input model.UpdateUserInput) (*model.User, error) {
-	// Get the user ID from the context
-	userId, ok := middleware.GetUserUUIDFromContext(ctx)
-	if !ok {
-		return nil, _err.Error(ctx, "User not found in context", "UserNotFound")
-	}
+		// Save User
+		userRow, err := transaction.SaveUser(ctx, db.SaveUserParams{
+			ID:          userId,
+			Email:       input.User.Email,
+			PhoneNumber: util.NullableStr(input.User.PhoneNumber),
+		})
+		if err != nil {
+			err, ok := err.(*pgconn.PgError)
+			if ok && err.Code == _err.Codes_Duplicate_Key {
+				return _err.Error(ctx, "Email address already exists", "UserAlreadyExists")
+			}
+			log.Printf("Failed to save user in DB: %v", err)
+			return _err.Error(ctx, "Failed to save user in DB", "DatabaseError")
+		}
 
-	updateModel := db.UpdateUserParams{
-		ID:    *userId,
-		Name:  input.Name,
-		Email: util.NullableStr(input.Email),
+		// Save Company
+		_, err = transaction.SaveCompany(ctx, db.SaveCompanyParams{
+			Name:               input.Company.Name,
+			Vat:                input.Company.Vat,
+			VatNumber:          input.Company.VatNumber,
+			RegistrationNumber: util.NullableStr(input.Company.RegistrationNumber),
+			Address:            *input.Company.CompanyAddress.Address,
+			Locality:           util.NullableStr(input.Company.CompanyAddress.Locality),
+			CountyCode:         util.NullableStr(input.Company.CompanyAddress.CountyCode),
+		})
+		if err != nil {
+			err, ok := err.(*pgconn.PgError)
+			if ok && err.Code == _err.Codes_Duplicate_Key {
+				return _err.Error(ctx, "Company already exists", "CompanyAlreadyExists")
+			}
+			log.Printf("Failed to save company in DB: %v", err)
+			return _err.Error(ctx, "Failed to save company in DB", "DatabaseError")
+		}
+		returnUser = &models.User{
+			Id:          userRow.ID,
+			Email:       userRow.Email,
+			PhoneNumber: &userRow.PhoneNumber,
+		}
+
+		return nil
+	}); err != nil {
+		return nil, err
 	}
-	user, err := r.DBProvider.UpdateUser(ctx, updateModel)
-	if err != nil {
-		r.Logger.Error("failed to execute DBProvider.UpdateUser", zap.Error(err))
-		return nil, _err.Error(ctx, "Failed to update user", "DatabaseError")
-	}
-	return &model.User{
-		ID:          user.ID,
-		PhoneNumber: user.PhoneNumber,
-		UserType:    user.UserType,
-		Name:        user.Name,
-		Email:       &user.Email,
-		DeviceID:    &user.DeviceID,
-	}, nil
+	return returnUser, nil
 }
 
 // GetUser is the resolver for the getUser field.
-func (r *queryResolver) GetUser(ctx context.Context) (*model.User, error) {
+func (r *queryResolver) GetUser(ctx context.Context) (*models.User, error) {
 	//// Get the user ID from the context
 	//userId, ok := middleware.GetUserUUIDFromContext(ctx)
 	//if !ok {
@@ -84,12 +100,23 @@ func (r *queryResolver) GetUser(ctx context.Context) (*model.User, error) {
 		r.Logger.Error("failed to execute DBProvider.GetUserById", zap.Error(err))
 		return nil, _err.Error(ctx, "User not found in DB", "InternalError")
 	}
-	return &model.User{
-		ID:          user.ID,
-		PhoneNumber: user.PhoneNumber,
-		UserType:    user.UserType,
-		Name:        user.Name,
-		Email:       &user.Email.String,
-		DeviceID:    &user.DeviceID.String,
+	return &models.User{
+		Id:          user.ID,
+		Email:       user.Email,
+		PhoneNumber: util.StringOrNil(user.PhoneNumber),
 	}, nil
 }
+
+// Company is the resolver for the company field.
+func (r *userResolver) Company(ctx context.Context, obj *models.User) (*models.Company, error) {
+	company, err := r._GetMyCompany(ctx)
+	if err != nil {
+		return nil, err
+	}
+	return company, nil
+}
+
+// User returns generated.UserResolver implementation.
+func (r *Resolver) User() generated.UserResolver { return &userResolver{r} }
+
+type userResolver struct{ *Resolver }

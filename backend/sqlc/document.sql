@@ -1,16 +1,24 @@
 -- name: GetDocuments :many
 Select
-    h_id,
+    d.h_id,
+    dt.id as document_type_id,
+    dt.name_ro as document_type_name_ro,
+    dt.name_en as document_type_name_en,
     series,
     number,
     date,
     due_date,
     pa.name as partner,
     is_deleted,
-    status
+    ed.status as efactura_status,
+    notes
 from core.document_header as d
 left join core.partners as pa
 on pa.id=d.partner_id
+left join core.document_types as dt
+on dt.id=d.document_type
+left join core.efactura_documents ed
+on ed.h_id=d.h_id
 where document_type=$1 and date>=sqlc.arg(start_date) and date<=sqlc.arg(end_date)  and ((sqlc.arg(partner)::uuid[]) IS NULL OR cardinality(sqlc.arg(partner)::uuid[]) = 0 OR  pa.id = ANY(sqlc.arg(partner)::uuid[]))
 ORDER BY date DESC;
 
@@ -51,9 +59,10 @@ Select
     name,
     is_active,
     type,
-    tax_id,
-    company_number,
-    personal_id
+    vat,
+    vat_number,
+    registration_number,
+    personal_number
 from core.partners
 where id=$1;
 
@@ -85,6 +94,40 @@ from core.document_details d
          inner join core.item_um um
                     on um.id=i.id_um
 where h_id=$1;
+
+-- name: GetDocumentItemsByDocumentIds :many
+SELECT
+    h_id,
+    d_id,
+    item_id,
+    i.code as item_code,
+    i.name as item_name,
+    quantity,
+    um.id as um_id,
+    um.name as um_name,
+    um.code AS um_code,
+    price,
+    vat.id as vat_id,
+    vat.name as vat_name,
+    vat.percent as vat_percent,
+    vat.exemption_reason AS vat_exemption_reason,
+    vat.exemption_reason_code AS vat_exemption_reason_code,
+    net_value,
+    vat_value,
+    gros_value,
+    item_type_pn
+FROM
+    core.document_details d
+        inner join core.items i
+                   on i.id=d.item_id
+        inner join core.item_vat vat
+                   on vat.id=i.id_vat
+        inner join core.item_um um
+                   on um.id=i.id_um
+
+WHERE
+        h_id = ANY($1::uuid[]);
+
 
 -- name: SaveDocument :one
 insert into core.document_header(document_type, series, number,partner_id,date,representative_id,recipe_id,notes) VALUES ($1,$2,$3,$4,$5,$6,$7,$8)
@@ -154,8 +197,8 @@ select id, name from core.document_currency;
 -- name: GetDocumentHeaderPartnerBillingDetails :one
 SELECT sqlc.embed(p), sqlc.embed(bd)
 FROM core.document_partner_billing_details bd
-INNER JOIN core.partners p
-ON p.id = bd.partner_id
+         INNER JOIN core.partners p
+                    ON p.id = bd.partner_id
 WHERE bd.id=$1;
 
 -- name: GenerateAuthorization :one

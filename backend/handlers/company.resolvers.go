@@ -6,33 +6,24 @@ package handlers
 
 import (
 	_err "backend/errors"
-	"backend/graph/model"
-	"backend/util"
+	"backend/models"
 	"context"
-	"errors"
-	"log"
-
-	pgx "github.com/jackc/pgx/v4"
 )
 
 // GetCompany is the resolver for the getCompany field.
-func (r *queryResolver) GetCompany(ctx context.Context) (*model.Company, error) {
-	row, err := r.DBProvider.GetCompany(ctx)
+func (r *queryResolver) GetCompany(ctx context.Context) (*models.Company, error) {
+	company, err := r._GetMyCompany(ctx)
 	if err != nil {
-		if errors.Is(err, pgx.ErrNoRows) {
-			return nil, nil
-		}
-		log.Print("\"message\":Failed to execute DBProvider.GetCompany, "+"\"error\": ", err.Error())
-		return nil, _err.Error(ctx, "InvalidCompany", "DatabaseError")
+		return nil, err
 	}
-	return &model.Company{
-		ID:                 row.ID.String(),
-		Name:               row.Name,
-		VatNumber:          row.VatNumber,
-		RegistrationNumber: util.StringOrNil(row.RegistrationNumber),
-		Address:            row.Address,
-		Email:              util.StringOrNil(row.Email),
-		BankName:           util.StringOrNil(row.BankName),
-		BankAccount:        util.StringOrNil(row.BankAccount),
-	}, nil
+	return company, nil
+}
+
+// GetCompanyByTaxID is the resolver for the getCompanyByTaxId field.
+func (r *queryResolver) GetCompanyByTaxID(ctx context.Context, taxID *string) (*models.Company, error) {
+	company, err := r._GetCompanyInfo(ctx, taxID)
+	if err != nil || company == nil {
+		return nil, _err.Error(ctx, "InvalidTaxId", "InternalError")
+	}
+	return company, nil
 }

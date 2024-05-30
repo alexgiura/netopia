@@ -3,15 +3,16 @@
 package model
 
 import (
+	"backend/models"
 	"fmt"
 	"io"
 	"strconv"
 )
 
-type Category struct {
-	ID       int    `json:"id"`
-	Name     string `json:"name"`
-	IsActive bool   `json:"is_active"`
+type AddressInput struct {
+	Address    *string `json:"address,omitempty"`
+	Locality   *string `json:"locality,omitempty"`
+	CountyCode *string `json:"county_code,omitempty"`
 }
 
 type ChartData struct {
@@ -20,15 +21,17 @@ type ChartData struct {
 	SecondY *float64 `json:"second_y,omitempty"`
 }
 
-type Company struct {
-	ID                 string  `json:"id"`
-	Name               string  `json:"name"`
-	VatNumber          string  `json:"vat_number"`
-	RegistrationNumber *string `json:"registration_number,omitempty"`
-	Address            string  `json:"address"`
-	Email              *string `json:"email,omitempty"`
-	BankName           *string `json:"bank_name,omitempty"`
-	BankAccount        *string `json:"bank_account,omitempty"`
+type CompanyInput struct {
+	Name               string        `json:"name"`
+	VatNumber          string        `json:"vat_number"`
+	Vat                bool          `json:"vat"`
+	RegistrationNumber *string       `json:"registration_number,omitempty"`
+	CompanyAddress     *AddressInput `json:"company_address,omitempty"`
+}
+
+type CreateNewAccountInput struct {
+	User    *UserInput    `json:"user"`
+	Company *CompanyInput `json:"company"`
 }
 
 type Currency struct {
@@ -39,21 +42,6 @@ type Currency struct {
 type DeleteDocumentInput struct {
 	HID             string `json:"h_id"`
 	DeleteGenerated bool   `json:"delete_generated"`
-}
-
-type Document struct {
-	HID           string          `json:"h_id"`
-	Type          *DocumentType   `json:"type"`
-	Series        *string         `json:"series,omitempty"`
-	Number        string          `json:"number"`
-	Date          string          `json:"date"`
-	DueDate       *string         `json:"due_date,omitempty"`
-	Partner       *Partner        `json:"partner"`
-	PersonID      *string         `json:"person_id,omitempty"`
-	PersonName    *string         `json:"person_name,omitempty"`
-	Notes         *string         `json:"notes,omitempty"`
-	IsDeleted     bool            `json:"is_deleted"`
-	DocumentItems []*DocumentItem `json:"document_items,omitempty"`
 }
 
 type DocumentInput struct {
@@ -70,21 +58,6 @@ type DocumentInput struct {
 	DocumentItems []*DocumentItemInput `json:"document_items"`
 }
 
-type DocumentItem struct {
-	DID         *string  `json:"d_id,omitempty"`
-	ItemID      string   `json:"item_id"`
-	ItemCode    *string  `json:"item_code,omitempty"`
-	ItemName    string   `json:"item_name"`
-	Quantity    float64  `json:"quantity"`
-	Um          *Um      `json:"um"`
-	Price       *float64 `json:"price,omitempty"`
-	Vat         *Vat     `json:"vat,omitempty"`
-	AmountNet   *float64 `json:"amount_net,omitempty"`
-	AmountVat   *float64 `json:"amount_vat,omitempty"`
-	AmountGross *float64 `json:"amount_gross,omitempty"`
-	ItemTypePn  *string  `json:"item_type_pn,omitempty"`
-}
-
 type DocumentItemInput struct {
 	ItemID       string   `json:"item_id"`
 	Quantity     float64  `json:"quantity"`
@@ -97,21 +70,6 @@ type DocumentItemInput struct {
 	ItemTypePn   *string  `json:"item_type_pn,omitempty"`
 }
 
-type DocumentLight struct {
-	HID       string  `json:"h_id"`
-	Series    *string `json:"series,omitempty"`
-	Number    string  `json:"number"`
-	Date      string  `json:"date"`
-	Partner   string  `json:"partner"`
-	IsDeleted bool    `json:"is_deleted"`
-	Status    *string `json:"status,omitempty"`
-}
-
-type DocumentPartner struct {
-	ID   string `json:"id"`
-	Name string `json:"name"`
-}
-
 type DocumentTransaction struct {
 	ID                        int    `json:"id"`
 	Name                      string `json:"name"`
@@ -119,19 +77,13 @@ type DocumentTransaction struct {
 	DocumentTypeDestinationID int    `json:"document_type_destination_id"`
 }
 
-type DocumentType struct {
-	ID     int    `json:"id"`
-	NameRo string `json:"name_ro"`
-	NameEn string `json:"name_en"`
-}
-
 type GenerateAvailableItems struct {
-	HID          string        `json:"h_id"`
-	Series       *string       `json:"series,omitempty"`
-	Number       string        `json:"number"`
-	Date         string        `json:"date"`
-	PartnerID    *string       `json:"partnerId,omitempty"`
-	DocumentItem *DocumentItem `json:"document_item"`
+	HID          string               `json:"h_id"`
+	Series       *string              `json:"series,omitempty"`
+	Number       string               `json:"number"`
+	Date         string               `json:"date"`
+	PartnerID    *string              `json:"partnerId,omitempty"`
+	DocumentItem *models.DocumentItem `json:"document_item"`
 }
 
 type GenerateEfacturaDocumentInput struct {
@@ -164,29 +116,10 @@ type GetItemsInput struct {
 	CategoryList []int `json:"category_list,omitempty"`
 }
 
-type GetPartnersInput struct {
-	Code  *string `json:"code,omitempty"`
-	Name  *string `json:"name,omitempty"`
-	Type  *string `json:"type,omitempty"`
-	TaxID *string `json:"tax_id,omitempty"`
-}
-
-type Item struct {
-	ID       string        `json:"id"`
-	Code     *string       `json:"code,omitempty"`
-	Name     string        `json:"name"`
-	IsActive bool          `json:"is_active"`
-	IsStock  bool          `json:"is_stock"`
-	Um       *Um           `json:"um"`
-	Vat      *Vat          `json:"vat"`
-	Category *ItemCategory `json:"category,omitempty"`
-}
-
-type ItemCategory struct {
-	ID         int    `json:"id"`
-	Name       string `json:"name"`
-	IsActive   bool   `json:"is_active"`
-	GeneratePn bool   `json:"generate_pn"`
+type Individual struct {
+	Name              string          `json:"name"`
+	IndividualNumber  string          `json:"individual_number"`
+	IndividualAddress *models.Address `json:"individual_address,omitempty"`
 }
 
 type ItemCategoryInput struct {
@@ -210,26 +143,15 @@ type ItemInput struct {
 type Mutation struct {
 }
 
-type Partner struct {
-	ID            string  `json:"id"`
-	Code          *string `json:"code,omitempty"`
-	Name          string  `json:"name"`
-	Type          string  `json:"type"`
-	TaxID         *string `json:"tax_id,omitempty"`
-	CompanyNumber *string `json:"company_number,omitempty"`
-	PersonalID    *string `json:"personal_id,omitempty"`
-	IsActive      bool    `json:"is_active"`
-}
-
 type PartnerInput struct {
-	ID            *string `json:"id,omitempty"`
-	Code          *string `json:"code,omitempty"`
-	Name          string  `json:"name"`
-	Type          string  `json:"type"`
-	TaxID         *string `json:"tax_id,omitempty"`
-	CompanyNumber *string `json:"company_number,omitempty"`
-	PersonalID    *string `json:"personal_id,omitempty"`
-	IsActive      *bool   `json:"is_active,omitempty"`
+	ID             *string `json:"id,omitempty"`
+	Code           *string `json:"code,omitempty"`
+	Name           string  `json:"name"`
+	Type           string  `json:"type"`
+	TaxID          *string `json:"tax_id,omitempty"`
+	CompanyNumber  *string `json:"company_number,omitempty"`
+	PersonalNumber *string `json:"personal_number,omitempty"`
+	IsActive       *bool   `json:"is_active,omitempty"`
 }
 
 type ProductionNote struct {
@@ -241,13 +163,6 @@ type ProductionNote struct {
 }
 
 type Query struct {
-}
-
-type Recipe struct {
-	ID            int             `json:"id"`
-	Name          string          `json:"name"`
-	IsActive      bool            `json:"is_active"`
-	DocumentItems []*DocumentItem `json:"document_items,omitempty"`
 }
 
 type ReportInput struct {
@@ -264,11 +179,9 @@ type SaveRecipeInput struct {
 }
 
 type SaveUserInput struct {
-	PhoneNumber string  `json:"phoneNumber"`
-	UserType    string  `json:"userType"`
-	Name        string  `json:"name"`
+	ID          string  `json:"id"`
 	Email       *string `json:"email,omitempty"`
-	DeviceID    *string `json:"deviceID,omitempty"`
+	PhoneNumber string  `json:"phone_number"`
 }
 
 type StockReportInput struct {
@@ -290,33 +203,14 @@ type TransactionAvailableItemsInput struct {
 	TransactionID int      `json:"transaction_id"`
 }
 
-type Um struct {
-	ID   int    `json:"id"`
-	Name string `json:"name"`
-	Code string `json:"code"`
-}
-
 type UpdateUserInput struct {
-	Name  string  `json:"name"`
-	Email *string `json:"email,omitempty"`
+	User    *UserInput    `json:"user,omitempty"`
+	Company *CompanyInput `json:"company,omitempty"`
 }
 
-type User struct {
-	ID          string  `json:"id"`
-	PhoneNumber string  `json:"phoneNumber"`
-	UserType    string  `json:"userType"`
-	Name        string  `json:"name"`
-	Email       *string `json:"email,omitempty"`
-	DeviceID    *string `json:"deviceID,omitempty"`
-}
-
-type Vat struct {
-	ID                  int     `json:"id"`
-	Name                string  `json:"name"`
-	Percent             float64 `json:"percent"`
-	ExemptionReason     *string `json:"exemption_reason,omitempty"`
-	ExemptionReasonCode *string `json:"exemption_reason_code,omitempty"`
-	IsActive            bool    `json:"is_active"`
+type UserInput struct {
+	Email       string  `json:"email"`
+	PhoneNumber *string `json:"phone_number,omitempty"`
 }
 
 type ProductionItemType string

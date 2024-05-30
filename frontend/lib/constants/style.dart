@@ -12,6 +12,26 @@ class CustomColor {
   static const Color dark = Color(0xFF505673);
   static const Color darkest = Color(0xFF191C32);
   static const Color active = Color(0xFF4958EC);
+
+  // New colors&gradients from figma design
+  static const LinearGradient bgPrimary = LinearGradient(colors: [
+    Color(0xffEFF5E9),
+    Color(0xffF2F8F7),
+  ]);
+  static const bgSecondary = Color(0xffFDFFFF);
+  static const accentColor = Color(0xffCEFF7B);
+  static const textPrimary = Color(0xff010101);
+  static const textSecondary = Color(0xffF1F5EA);
+  static const slate_50 = Color(0xffF8FAFC);
+  static const slate_100 = Color(0xffF1F5F9);
+  static const slate_200 = Color(0xffE2E8F0);
+  static const slate_300 = Color(0xffCBD5E1);
+  static const slate_400 = Color(0xff94A3B8);
+  static const slate_500 = Color(0xff64748B);
+  static const slate_600 = Color(0xff475569);
+  static const slate_700 = Color(0xff334155);
+  static const slate_800 = Color(0xff1E293B);
+  static const slate_900 = Color(0xff0F172A);
 }
 //from other project
 // const light = Color(0xFFF7F8FC);
@@ -83,6 +103,240 @@ class CustomStyle {
     fontWeight: FontWeight.normal,
     // decoration: TextDecoration.underline,
   );
+
+  //-----------------New text styles from figma design--------------------------//
+  static TextStyle regular64({Color color = CustomColor.textPrimary}) {
+    return TextStyle(
+      fontSize: 64,
+      color: color,
+      fontWeight: FontWeight.w400,
+    );
+  }
+
+  static TextStyle bold64({Color color = CustomColor.textPrimary}) {
+    return TextStyle(
+      fontSize: 64,
+      color: color,
+      fontWeight: FontWeight.w700,
+    );
+  }
+
+  static TextStyle regular48({Color color = CustomColor.textPrimary}) {
+    return TextStyle(
+      fontSize: 48,
+      color: color,
+      fontWeight: FontWeight.w400,
+    );
+  }
+
+  static TextStyle bold48({Color color = CustomColor.textPrimary}) {
+    return TextStyle(
+      fontSize: 48,
+      color: color,
+      fontWeight: FontWeight.w700,
+    );
+  }
+
+  static TextStyle regular32({Color color = CustomColor.textPrimary}) {
+    return TextStyle(
+      fontSize: 32,
+      color: color,
+      fontWeight: FontWeight.w400,
+    );
+  }
+
+  static TextStyle bold32({Color color = CustomColor.textPrimary}) {
+    return TextStyle(
+      fontSize: 32,
+      color: color,
+      fontWeight: FontWeight.w700,
+    );
+  }
+
+  static TextStyle regular24({Color color = CustomColor.textPrimary}) {
+    return TextStyle(
+      fontSize: 24,
+      color: color,
+      fontWeight: FontWeight.w400,
+    );
+  }
+
+  static TextStyle bold24({Color color = CustomColor.textPrimary}) {
+    return TextStyle(
+      fontSize: 24,
+      color: color,
+      fontWeight: FontWeight.w700,
+    );
+  }
+
+  static TextStyle medium20({Color color = CustomColor.textPrimary}) {
+    return TextStyle(
+      fontSize: 20,
+      color: color,
+      fontWeight: FontWeight.w500,
+    );
+  }
+
+  static TextStyle bold20({Color color = CustomColor.textPrimary}) {
+    return TextStyle(
+      fontSize: 20,
+      color: color,
+      fontWeight: FontWeight.w700,
+    );
+  }
+
+  //paragraph
+
+  static TextStyle regular16({Color color = CustomColor.textPrimary}) {
+    return TextStyle(
+      fontSize: 16,
+      color: color,
+      fontWeight: FontWeight.w400,
+    );
+  }
+
+  static TextStyle bold16({Color color = CustomColor.textPrimary}) {
+    return TextStyle(
+      fontSize: 16,
+      color: color,
+      fontWeight: FontWeight.w700,
+    );
+  }
+
+  static TextStyle regular14({Color color = CustomColor.textPrimary}) {
+    return TextStyle(
+      fontSize: 14,
+      color: color,
+      fontWeight: FontWeight.w400,
+    );
+  }
+
+  static TextStyle bold14({Color color = CustomColor.textPrimary}) {
+    return TextStyle(
+      fontSize: 14,
+      color: color,
+      fontWeight: FontWeight.w700,
+    );
+  }
+
+  static TextStyle regular12({Color color = CustomColor.textPrimary}) {
+    return TextStyle(
+      fontSize: 12,
+      color: color,
+      fontWeight: FontWeight.w400,
+    );
+  }
+
+  static TextStyle bold12({Color color = CustomColor.textPrimary}) {
+    return TextStyle(
+      fontSize: 12,
+      color: color,
+      fontWeight: FontWeight.w700,
+    );
+  }
+
+  static TextStyle regular10({Color color = CustomColor.textPrimary}) {
+    return TextStyle(
+      fontSize: 10,
+      color: color,
+      fontWeight: FontWeight.w400,
+    );
+  }
+
+  static TextStyle bold10({Color color = CustomColor.textPrimary}) {
+    return TextStyle(
+      fontSize: 10,
+      color: color,
+      fontWeight: FontWeight.w700,
+    );
+  }
+
+  //button text styles
+
+  static TextStyle buttonMedium14({Color color = CustomColor.textPrimary}) {
+    return TextStyle(
+      fontSize: 14,
+      color: color,
+      fontWeight: FontWeight.w500,
+    );
+  }
+
+  static TextStyle buttonSemibold14({Color color = CustomColor.textPrimary}) {
+    return TextStyle(
+      fontSize: 14,
+      color: color,
+      fontWeight: FontWeight.w600,
+    );
+  }
+
+  static TextStyle buttonMedium12({Color color = CustomColor.textPrimary}) {
+    return TextStyle(
+      fontSize: 12,
+      color: color,
+      fontWeight: FontWeight.w500,
+    );
+  }
+
+  static TextStyle buttonSemibold12({Color color = CustomColor.textPrimary}) {
+    return TextStyle(
+      fontSize: 12,
+      color: color,
+      fontWeight: FontWeight.w600,
+    );
+  }
+
+  static TextStyle buttonMedium10({Color color = CustomColor.textPrimary}) {
+    return TextStyle(
+      fontSize: 10,
+      color: color,
+      fontWeight: FontWeight.w500,
+    );
+  }
+
+  static TextStyle buttonSemibold10({Color color = CustomColor.textPrimary}) {
+    return TextStyle(
+      fontSize: 10,
+      color: color,
+      fontWeight: FontWeight.w600,
+    );
+  }
+
+  //label
+
+  static TextStyle labelSemibold16({Color color = CustomColor.textPrimary}) {
+    return TextStyle(
+      fontSize: 16,
+      color: color,
+      fontWeight: FontWeight.w600,
+    );
+  }
+
+  static TextStyle labelSemibold14({Color color = CustomColor.textPrimary}) {
+    return TextStyle(
+      fontSize: 14,
+      color: color,
+      fontWeight: FontWeight.w600,
+    );
+  }
+
+  static TextStyle labelSemibold12({Color color = CustomColor.textPrimary}) {
+    return TextStyle(
+      fontSize: 12,
+      color: color,
+      fontWeight: FontWeight.w600,
+    );
+  }
+
+  static TextStyle labelSemibold10({Color color = CustomColor.textPrimary}) {
+    return TextStyle(
+      fontSize: 10,
+      color: color,
+      fontWeight: FontWeight.w600,
+    );
+  }
+
+  // -----------------End of new text styles from figma design-----------------//
+
   // Button Style
   static ButtonStyle activeButton = ButtonStyle(
     padding: const MaterialStatePropertyAll(

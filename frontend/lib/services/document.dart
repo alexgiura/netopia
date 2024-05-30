@@ -1,5 +1,4 @@
 import 'package:erp_frontend_v2/models/document/document_generate_model.dart';
-import 'package:erp_frontend_v2/models/document/document_light_model.dart';
 import 'package:erp_frontend_v2/models/document/document_transaction_model.dart';
 import 'package:erp_frontend_v2/models/document/documents_filter_model.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
@@ -10,7 +9,7 @@ import '../graphql/mutations/document.dart' as mutations;
 import '../models/document/document_model.dart';
 
 class DocumentService {
-  Future<List<DocumentLight>> getDocuments({
+  Future<List<Document>> getDocuments({
     required DocumentFilter documentFilter,
   }) async {
     final QueryOptions options = QueryOptions(
@@ -36,8 +35,8 @@ class DocumentService {
     final dynamic documentData = result.data!['getDocuments'];
 
     if (documentData != null && documentData is List<dynamic>) {
-      final List<DocumentLight> docs =
-          documentData.map((json) => DocumentLight.fromJson(json)).toList();
+      final List<Document> docs =
+          documentData.map((json) => Document.fromJson(json)).toList();
       return docs;
     } else {
       throw Exception('Invalid documents data.');
@@ -60,6 +59,7 @@ class DocumentService {
     }
 
     final dynamic documentData = result.data!['getDocumentById'];
+
     if (documentData != null) {
       final Document doc = Document.fromJson(documentData);
 
@@ -74,16 +74,16 @@ class DocumentService {
     int? transactionId,
   }) async {
     final List<Map<String, dynamic>> documentItemsList =
-        document.documentItems.map((item) {
+        document.documentItems.map((documentItem) {
       return {
-        "item_id": item.id,
-        "quantity": item.quantity,
-        "price": item.price,
-        "amount_net": item.amountNet,
-        "amount_vat": item.amountVat,
-        "amount_gross": item.amountGross,
-        "generated_d_id": item.generatedDId,
-        "item_type_pn": item.itemTypePn
+        "item_id": documentItem.item.id,
+        "quantity": documentItem.quantity,
+        "price": documentItem.price,
+        "amount_net": documentItem.amountNet,
+        "amount_vat": documentItem.amountVat,
+        "amount_gross": documentItem.amountGross,
+        "generated_d_id": documentItem.generatedDId,
+        "item_type_pn": documentItem.itemTypePn
       };
     }).toList();
     final QueryOptions options = QueryOptions(
@@ -95,7 +95,6 @@ class DocumentService {
           "number": document.number,
           "date": document.date,
           "partner_id": document.partner!.id,
-          "person_id": document.personId,
           "recipe_id": document.recipeId,
           "notes": document.notes,
           "transaction_id": transactionId,

@@ -3,6 +3,7 @@ import 'package:erp_frontend_v2/pages/document/document_add_item/document_add_it
 import 'package:erp_frontend_v2/pages/document/document_details_page/widgets/document_details_data_table.dart';
 import 'package:erp_frontend_v2/pages/document/document_details_page/widgets/document_details_production_note_data_table.dart';
 import 'package:erp_frontend_v2/pages/document/document_generate_popup/document_generate_popup.dart';
+import 'package:erp_frontend_v2/providers/country_provider.dart';
 import 'package:erp_frontend_v2/providers/document_providers.dart';
 import 'package:erp_frontend_v2/providers/document_transaction_provider.dart';
 import 'package:erp_frontend_v2/routing/router.dart';
@@ -16,6 +17,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
+import 'package:intl_phone_field/countries.dart';
 import '../../../pdf/pdf_document.dart';
 import '../../../constants/style.dart';
 import '../../../helpers/responsiveness.dart';
@@ -67,11 +69,11 @@ class _DocumentDetailsPageState extends ConsumerState<DocumentDetailsPage> {
 
     _hId = widget.hId;
     if (_hId != '0') {
+      _fetchDocument();
     } else {
       _document.documentType.id = widget.documentTypeId;
       _document.date = DateFormat('yyyy-MM-dd').format(DateTime.now());
     }
-    _fetchDocument();
   }
 
   @override
@@ -96,6 +98,7 @@ class _DocumentDetailsPageState extends ConsumerState<DocumentDetailsPage> {
     });
     try {
       final documentService = DocumentService();
+
       final document = await documentService.getDocumentById(documentId: _hId);
 
       setState(() {
@@ -416,7 +419,7 @@ class _DocumentDetailsPageState extends ConsumerState<DocumentDetailsPage> {
         const SizedBox(
           height: 16,
         ),
-        _hId == '0'
+        _hId == '0' && _document.documentType.id != 8
             ? Row(
                 children: [
                   TertiaryButton(
@@ -493,7 +496,7 @@ class _DocumentDetailsPageState extends ConsumerState<DocumentDetailsPage> {
                         onUpdate: (updatedItems) {
                           _document.documentItems = updatedItems;
                         },
-                        partner: _document.partner!,
+                        // partner: _document.partner!,
                         date: _document.date,
                       )
                     : DocumentItemsDataTable(

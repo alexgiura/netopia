@@ -295,34 +295,48 @@ Select
     name,
     is_active,
     type,
-    tax_id,
-    company_number,
-    personal_id
+    vat,
+    vat_number,
+    registration_number,
+    personal_number
 from core.partners
 where id=$1
 `
 
-func (q *Queries) GetDocumentHeaderPartner(ctx context.Context, id uuid.UUID) (CorePartner, error) {
+type GetDocumentHeaderPartnerRow struct {
+	ID                 uuid.UUID
+	Code               sql.NullString
+	Name               string
+	IsActive           bool
+	Type               string
+	Vat                bool
+	VatNumber          sql.NullString
+	RegistrationNumber sql.NullString
+	PersonalNumber     sql.NullString
+}
+
+func (q *Queries) GetDocumentHeaderPartner(ctx context.Context, id uuid.UUID) (GetDocumentHeaderPartnerRow, error) {
 	row := q.db.QueryRow(ctx, getDocumentHeaderPartner, id)
-	var i CorePartner
+	var i GetDocumentHeaderPartnerRow
 	err := row.Scan(
 		&i.ID,
 		&i.Code,
 		&i.Name,
 		&i.IsActive,
 		&i.Type,
-		&i.TaxID,
-		&i.CompanyNumber,
-		&i.PersonalID,
+		&i.Vat,
+		&i.VatNumber,
+		&i.RegistrationNumber,
+		&i.PersonalNumber,
 	)
 	return i, err
 }
 
 const getDocumentHeaderPartnerBillingDetails = `-- name: GetDocumentHeaderPartnerBillingDetails :one
-SELECT p.id, p.code, p.name, p.is_active, p.type, p.tax_id, p.company_number, p.personal_id, bd.id, bd.partner_id, bd.vat, bd.registration_number, bd.address, bd.locality, bd.county_code, bd.created_at
+SELECT p.id, p.code, p.name, p.is_active, p.type, p.vat_number, p.vat, p.registration_number, p.personal_number, p.address, p.locality, p.county_code, p.created_at, bd.id, bd.partner_id, bd.vat, bd.registration_number, bd.address, bd.locality, bd.county_code, bd.created_at
 FROM core.document_partner_billing_details bd
-INNER JOIN core.partners p
-ON p.id = bd.partner_id
+         INNER JOIN core.partners p
+                    ON p.id = bd.partner_id
 WHERE bd.id=$1
 `
 
@@ -340,9 +354,14 @@ func (q *Queries) GetDocumentHeaderPartnerBillingDetails(ctx context.Context, id
 		&i.CorePartner.Name,
 		&i.CorePartner.IsActive,
 		&i.CorePartner.Type,
-		&i.CorePartner.TaxID,
-		&i.CorePartner.CompanyNumber,
-		&i.CorePartner.PersonalID,
+		&i.CorePartner.VatNumber,
+		&i.CorePartner.Vat,
+		&i.CorePartner.RegistrationNumber,
+		&i.CorePartner.PersonalNumber,
+		&i.CorePartner.Address,
+		&i.CorePartner.Locality,
+		&i.CorePartner.CountyCode,
+		&i.CorePartner.CreatedAt,
 		&i.CoreDocumentPartnerBillingDetail.ID,
 		&i.CoreDocumentPartnerBillingDetail.PartnerID,
 		&i.CoreDocumentPartnerBillingDetail.Vat,
@@ -445,6 +464,102 @@ func (q *Queries) GetDocumentItems(ctx context.Context, hID uuid.UUID) ([]GetDoc
 	return items, nil
 }
 
+const getDocumentItemsByDocumentIds = `-- name: GetDocumentItemsByDocumentIds :many
+SELECT
+    h_id,
+    d_id,
+    item_id,
+    i.code as item_code,
+    i.name as item_name,
+    quantity,
+    um.id as um_id,
+    um.name as um_name,
+    um.code AS um_code,
+    price,
+    vat.id as vat_id,
+    vat.name as vat_name,
+    vat.percent as vat_percent,
+    vat.exemption_reason AS vat_exemption_reason,
+    vat.exemption_reason_code AS vat_exemption_reason_code,
+    net_value,
+    vat_value,
+    gros_value,
+    item_type_pn
+FROM
+    core.document_details d
+        inner join core.items i
+                   on i.id=d.item_id
+        inner join core.item_vat vat
+                   on vat.id=i.id_vat
+        inner join core.item_um um
+                   on um.id=i.id_um
+
+WHERE
+        h_id = ANY($1::uuid[])
+`
+
+type GetDocumentItemsByDocumentIdsRow struct {
+	HID                    uuid.UUID
+	DID                    uuid.UUID
+	ItemID                 uuid.UUID
+	ItemCode               sql.NullString
+	ItemName               string
+	Quantity               float64
+	UmID                   int32
+	UmName                 string
+	UmCode                 string
+	Price                  sql.NullFloat64
+	VatID                  int32
+	VatName                string
+	VatPercent             float64
+	VatExemptionReason     sql.NullString
+	VatExemptionReasonCode sql.NullString
+	NetValue               sql.NullFloat64
+	VatValue               sql.NullFloat64
+	GrosValue              sql.NullFloat64
+	ItemTypePn             sql.NullString
+}
+
+func (q *Queries) GetDocumentItemsByDocumentIds(ctx context.Context, dollar_1 []uuid.UUID) ([]GetDocumentItemsByDocumentIdsRow, error) {
+	rows, err := q.db.Query(ctx, getDocumentItemsByDocumentIds, dollar_1)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []GetDocumentItemsByDocumentIdsRow
+	for rows.Next() {
+		var i GetDocumentItemsByDocumentIdsRow
+		if err := rows.Scan(
+			&i.HID,
+			&i.DID,
+			&i.ItemID,
+			&i.ItemCode,
+			&i.ItemName,
+			&i.Quantity,
+			&i.UmID,
+			&i.UmName,
+			&i.UmCode,
+			&i.Price,
+			&i.VatID,
+			&i.VatName,
+			&i.VatPercent,
+			&i.VatExemptionReason,
+			&i.VatExemptionReasonCode,
+			&i.NetValue,
+			&i.VatValue,
+			&i.GrosValue,
+			&i.ItemTypePn,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const getDocumentTransactions = `-- name: GetDocumentTransactions :many
 SELECT id,
        name,
@@ -480,17 +595,25 @@ func (q *Queries) GetDocumentTransactions(ctx context.Context) ([]CoreDocumentTr
 
 const getDocuments = `-- name: GetDocuments :many
 Select
-    h_id,
+    d.h_id,
+    dt.id as document_type_id,
+    dt.name_ro as document_type_name_ro,
+    dt.name_en as document_type_name_en,
     series,
     number,
     date,
     due_date,
     pa.name as partner,
     is_deleted,
-    status
+    ed.status as efactura_status,
+    notes
 from core.document_header as d
 left join core.partners as pa
 on pa.id=d.partner_id
+left join core.document_types as dt
+on dt.id=d.document_type
+left join core.efactura_documents ed
+on ed.h_id=d.h_id
 where document_type=$1 and date>=$2 and date<=$3  and (($4::uuid[]) IS NULL OR cardinality($4::uuid[]) = 0 OR  pa.id = ANY($4::uuid[]))
 ORDER BY date DESC
 `
@@ -503,14 +626,18 @@ type GetDocumentsParams struct {
 }
 
 type GetDocumentsRow struct {
-	HID       uuid.UUID
-	Series    sql.NullString
-	Number    string
-	Date      time.Time
-	DueDate   sql.NullTime
-	Partner   sql.NullString
-	IsDeleted bool
-	Status    sql.NullString
+	HID                uuid.UUID
+	DocumentTypeID     sql.NullInt32
+	DocumentTypeNameRo sql.NullString
+	DocumentTypeNameEn sql.NullString
+	Series             sql.NullString
+	Number             string
+	Date               time.Time
+	DueDate            sql.NullTime
+	Partner            sql.NullString
+	IsDeleted          bool
+	EfacturaStatus     NullCoreEfacturaDocumentStatus
+	Notes              sql.NullString
 }
 
 func (q *Queries) GetDocuments(ctx context.Context, arg GetDocumentsParams) ([]GetDocumentsRow, error) {
@@ -529,13 +656,17 @@ func (q *Queries) GetDocuments(ctx context.Context, arg GetDocumentsParams) ([]G
 		var i GetDocumentsRow
 		if err := rows.Scan(
 			&i.HID,
+			&i.DocumentTypeID,
+			&i.DocumentTypeNameRo,
+			&i.DocumentTypeNameEn,
 			&i.Series,
 			&i.Number,
 			&i.Date,
 			&i.DueDate,
 			&i.Partner,
 			&i.IsDeleted,
-			&i.Status,
+			&i.EfacturaStatus,
+			&i.Notes,
 		); err != nil {
 			return nil, err
 		}
@@ -862,10 +993,10 @@ SELECT returned_d_id::UUID from core.insert_document_details(
     $1::uuid,
     $2::uuid,
     $3::float,
-    $4::double precision,
-    $5::double precision,
-    $6::double precision,
-    $7::double precision,
+    $4::float,
+    $5::float,
+    $6::float,
+    $7::float,
     $8::text
 ) AS returned_d_id
 `

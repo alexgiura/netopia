@@ -3,6 +3,7 @@ import 'package:erp_frontend_v2/pages/document/document_generate_popup/document_
 import 'package:erp_frontend_v2/providers/document_transaction_provider.dart';
 import 'package:erp_frontend_v2/providers/partner_provider.dart';
 import 'package:erp_frontend_v2/providers/recipe_provider.dart';
+import 'package:erp_frontend_v2/widgets/custom_data_table.dart';
 import 'package:erp_frontend_v2/widgets/custom_dropdown.dart';
 import 'package:erp_frontend_v2/widgets/custom_tab_bar.dart';
 import 'package:flutter/material.dart';
@@ -18,7 +19,6 @@ class DocumentItemsProductionNote extends ConsumerStatefulWidget {
     required this.data,
     required this.documentTypeId,
     required this.onUpdate,
-    required this.partner,
     required this.date,
     this.readOnly,
   });
@@ -26,7 +26,7 @@ class DocumentItemsProductionNote extends ConsumerStatefulWidget {
   final bool? readOnly;
   final int documentTypeId;
   final void Function(List<DocumentItem>) onUpdate;
-  final Partner partner;
+
   final String date;
 
   @override
@@ -128,32 +128,12 @@ class _DocumentItemsNoPriceDataTableState
                 // Customize the color of the separator
               ),
               child: SelectionArea(
-                child: DataTable2(
-                  // hover row color
-                  dataRowColor: MaterialStateProperty.resolveWith<Color?>(
-                      (Set<MaterialState> states) {
-                    if (states.contains(MaterialState.hovered)) {
-                      return CustomColor.active.withOpacity(0.1);
-                    }
-
-                    return null; // Use the default value.
-                  }),
-                  dataTextStyle: CustomStyle.bodyText,
-                  headingTextStyle: CustomStyle.tableHeaderText,
-                  headingRowColor:
-                      const MaterialStatePropertyAll(CustomColor.lightest),
-                  showCheckboxColumn: false,
-                  dividerThickness: 1.0,
-                  dataRowHeight: 54,
-                  headingRowHeight: 54,
-                  horizontalMargin: 16,
-                  columnSpacing: 12,
-                  columns: _columns,
-                  rows: getRows(widget.data!
-                      .where((item) => item.itemTypePn == 'finalProduct')
-                      .toList()),
-                ),
-              ),
+                  child: CustomDataTable(
+                columns: _columns,
+                rows: getRows(widget.data!
+                    .where((item) => item.itemTypePn == 'finalProduct')
+                    .toList()),
+              )),
             ),
           ),
           const SizedBox(height: 16),
@@ -176,32 +156,12 @@ class _DocumentItemsNoPriceDataTableState
                       // Customize the color of the separator
                     ),
                     child: SelectionArea(
-                      child: DataTable2(
-                        // hover row color
-                        dataRowColor: MaterialStateProperty.resolveWith<Color?>(
-                            (Set<MaterialState> states) {
-                          if (states.contains(MaterialState.hovered)) {
-                            return CustomColor.active.withOpacity(0.1);
-                          }
-
-                          return null; // Use the default value.
-                        }),
-                        dataTextStyle: CustomStyle.bodyText,
-                        headingTextStyle: CustomStyle.tableHeaderText,
-                        headingRowColor: const MaterialStatePropertyAll(
-                            CustomColor.lightest),
-                        showCheckboxColumn: false,
-                        dividerThickness: 1.0,
-                        dataRowHeight: 54,
-                        headingRowHeight: 54,
-                        horizontalMargin: 16,
-                        columnSpacing: 12,
-                        columns: _columns,
-                        rows: getRows(widget.data!
-                            .where((item) => item.itemTypePn == 'rawMaterial')
-                            .toList()),
-                      ),
-                    ),
+                        child: CustomDataTable(
+                      columns: _columns,
+                      rows: getRows(widget.data!
+                          .where((item) => item.itemTypePn == 'rawMaterial')
+                          .toList()),
+                    )),
                   ),
                 ),
                 // DataTable for "Manopera"
@@ -265,7 +225,7 @@ class _DocumentItemsNoPriceDataTableState
 
       List<DataCell> cells = [
         // DataCell(Text(row.value.code ?? '')),
-        DataCell(Text(row.value.name)),
+        DataCell(Text(row.value.item.name)),
         DataCell(
           CustomTextFieldFloat(
             initialValue: row.value.quantity,
@@ -276,7 +236,7 @@ class _DocumentItemsNoPriceDataTableState
             readonly: widget.readOnly,
           ),
         ),
-        DataCell(Text(row.value.um.name)),
+        DataCell(Text(row.value.item.um.name)),
       ];
 
       return DataRow2(

@@ -197,7 +197,8 @@ class _PartnerPageDataTableState extends ConsumerState<PartnerPageDataTable>
       bool searchTextMatch = _searchText == null ||
           _searchText!.isEmpty ||
           row.name.toLowerCase().contains(_searchText!.toLowerCase()) ||
-          (row.taxId?.toLowerCase() ?? '').contains(_searchText!.toLowerCase());
+          (row.vatNumber?.toLowerCase() ?? '')
+              .contains(_searchText!.toLowerCase());
 
       return statusMatch && typeMatch && searchTextMatch;
     }).toList();
@@ -211,8 +212,8 @@ class _PartnerPageDataTableState extends ConsumerState<PartnerPageDataTable>
           //DataCell(Text(row.value.code ?? '')),
           DataCell(Text(row.value.name)),
           DataCell(Text(row.value.type)),
-          DataCell(Text(row.value.taxId ?? '')),
-          DataCell(Text(row.value.companyNumber ?? '')),
+          DataCell(Text(row.value.vatNumber ?? '')),
+          DataCell(Text(row.value.registrationNumber ?? '')),
           DataCell(
             Chip(
               label: Text(row.value.isActive ? 'Activ' : 'Inactiv'),
