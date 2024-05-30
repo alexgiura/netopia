@@ -257,18 +257,20 @@ class PdfDocument {
     // final data = invoice.items.map((item) {
     //   final total = item.unitPrice * item.quantity * (1 + item.vat);
 
-    final data = document.documentItems!.map((item) {
-      return [
-        item.name,
-        '${item.quantity.toStringAsFixed(2)}',
-        item.um.name,
-        '${item.price!.toStringAsFixed(2)}',
-        item.vat!.name,
-        '${item.amountNet!.toStringAsFixed(2)}',
-        '${item.amountVat!.toStringAsFixed(2)}',
-        // '${item.amountGross!.toStringAsFixed(2)}',
-      ];
-    }).toList();
+    final data = document.documentItems.isEmpty
+        ? <List<String>>[]
+        : document.documentItems.map((documentItem) {
+            return [
+              documentItem.item.name,
+              '${documentItem.quantity.toStringAsFixed(2)}',
+              documentItem.item.um.name,
+              '${documentItem.price!.toStringAsFixed(2)}',
+              documentItem.item.vat.name,
+              '${documentItem.amountNet!.toStringAsFixed(2)}',
+              '${documentItem.amountVat!.toStringAsFixed(2)}',
+              // '${item.amountGross!.toStringAsFixed(2)}',
+            ];
+          }).toList();
 
     return TableHelper.fromTextArray(
       headers: headers,
@@ -308,11 +310,11 @@ class PdfDocument {
       'Cantitate',
     ];
 
-    final data = document.documentItems!.map((item) {
+    final data = document.documentItems.map((documentItem) {
       return [
-        item.name,
-        item.um.name,
-        '${item.quantity.toStringAsFixed(2)}',
+        documentItem.item.name,
+        documentItem.item.um.name,
+        '${documentItem.quantity.toStringAsFixed(2)}',
       ];
     }).toList();
 
@@ -346,11 +348,11 @@ class PdfDocument {
       'Cantitate',
     ];
 
-    final data = document.documentItems!.map((item) {
+    final data = document.documentItems.map((documentItem) {
       return [
-        item.name,
-        item.um.name,
-        '${item.quantity.toStringAsFixed(2)}',
+        documentItem.item.name,
+        documentItem.item.um.name,
+        '${documentItem.quantity.toStringAsFixed(2)}',
       ];
     }).toList();
 
@@ -378,17 +380,23 @@ class PdfDocument {
   }
 
   static Widget buildTotal(doc.Document document) {
-    final netTotal = document.documentItems!
-        .map((item) => item.amountNet)
-        .reduce((item1, item2) => item1! + item2!);
+    final netTotal = document.documentItems!.isEmpty
+        ? 0.00
+        : document.documentItems!
+            .map((item) => item.amountNet)
+            .reduce((item1, item2) => item1! + item2!);
 
-    final vatTotal = document.documentItems!
-        .map((item) => item.amountVat)
-        .reduce((item1, item2) => item1! + item2!);
+    final vatTotal = document.documentItems!.isEmpty
+        ? 0.00
+        : document.documentItems!
+            .map((item) => item.amountVat)
+            .reduce((item1, item2) => item1! + item2!);
 
-    final total = document.documentItems!
-        .map((item) => item.amountGross)
-        .reduce((item1, item2) => item1! + item2!);
+    final total = document.documentItems!.isEmpty
+        ? 0.00
+        : document.documentItems!
+            .map((item) => item.amountGross)
+            .reduce((item1, item2) => item1! + item2!);
 
     return Container(
       alignment: Alignment.centerRight,

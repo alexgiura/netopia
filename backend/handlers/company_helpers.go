@@ -67,6 +67,8 @@ func (r *Resolver) _GetCompanyInfo(ctx context.Context, taxID *string) (*models.
 	return nil, nil
 }
 
+<<<<<<< HEAD
+=======
 func (r *Resolver) _GetMyCompany(ctx context.Context) (*models.Company, error) {
 	row, err := r.DBProvider.GetCompany(ctx)
 	if err != nil {
@@ -77,7 +79,7 @@ func (r *Resolver) _GetMyCompany(ctx context.Context) (*models.Company, error) {
 		return nil, _err.Error(ctx, "InvalidCompany", "DatabaseError")
 	}
 	return &models.Company{
-
+		Id:                 row.ID.String(),
 		Name:               row.Name,
 		VatNumber:          &row.VatNumber,
 		Vat:                row.Vat,
@@ -90,6 +92,7 @@ func (r *Resolver) _GetMyCompany(ctx context.Context) (*models.Company, error) {
 	}, nil
 }
 
+>>>>>>> origin/dev
 func MapToCompany(apiResp models.ApiResponse) *models.Company {
 	if len(apiResp.Found) > 0 {
 		foundObj := apiResp.Found[0]
@@ -102,6 +105,16 @@ func MapToCompany(apiResp models.ApiResponse) *models.Company {
 
 		return &models.Company{
 			Name:               dateGenerale.Denumire,
+<<<<<<< HEAD
+			VatNumber:          strconv.Itoa(dateGenerale.Cui),
+			Vat:                foundObj.InregistrareScopTva.ScpTVA,
+			RegistrationNumber: dateGenerale.NrRegCom,
+
+			CompanyAddress: &models.Address{
+				Address:    address,
+				Locality:   adresaSediuSocial.SdenumireLocalitate,
+				CountyCode: adresaSediuSocial.ScodJudetAuto,
+=======
 			VatNumber:          util.IntToString(int64(dateGenerale.Cui)),
 			Vat:                foundObj.InregistrareScopTva.ScpTVA,
 			RegistrationNumber: &dateGenerale.NrRegCom,
@@ -110,6 +123,7 @@ func MapToCompany(apiResp models.ApiResponse) *models.Company {
 				Address:    &address,
 				Locality:   &adresaSediuSocial.SdenumireLocalitate,
 				CountyCode: &adresaSediuSocial.ScodJudetAuto,
+>>>>>>> origin/dev
 			},
 		}
 	}

@@ -69,7 +69,7 @@ class _DocumentGeneratePopupState extends ConsumerState<DocumentGeneratePopup>
 
     for (var document in documents) {
       var index = groupedList.indexWhere(
-        (documentItem) => documentItem.id == document.documentItem.id,
+        (documentItem) => documentItem.item.id == document.documentItem.item.id,
       );
 
       if (index != -1) {
@@ -81,12 +81,8 @@ class _DocumentGeneratePopupState extends ConsumerState<DocumentGeneratePopup>
         }
       } else {
         final newDocumentItem = DocumentItem(
-            id: document.documentItem.id,
-            code: document.documentItem.code,
-            name: document.documentItem.name,
+            item: document.documentItem.item,
             quantity: document.documentItem.quantity,
-            um: document.documentItem.um,
-            vat: document.documentItem.vat,
             price: 0.00,
             amountNet: 0.00,
             amountVat: 0.00,

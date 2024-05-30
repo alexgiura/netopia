@@ -26,3 +26,22 @@ Set code=$2,
     registration_number=$7,
     personal_number=$8
 where id=$1;
+
+-- name: GetPartnersByDocumentIds :many
+SELECT
+    d.h_id,
+    id,
+    code,
+    name,
+    type,
+    vat_number,
+    registration_number,
+    personal_number,
+    is_active
+FROM
+    core.partners p
+        JOIN
+    core.document_header d ON p.id = d.partner_id
+WHERE
+        d.h_id = ANY($1::uuid[]);
+

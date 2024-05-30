@@ -1,7 +1,7 @@
 type Recipe{
-    id: Int!
-    name: String!
-    is_active:Boolean!
+    id: String
+    name: String
+    is_active:Boolean
     document_items: [DocumentItem]
 }
 

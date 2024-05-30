@@ -115,7 +115,7 @@ class _DocumentGenerateDataTableState
         ),
         DataCell(Text(row.value.number)),
         DataCell(Text(row.value.date)),
-        DataCell(Text(row.value.documentItem.name)),
+        DataCell(Text(row.value.documentItem.item.name)),
         DataCell(
           CustomTextFieldFloat(
             initialValue: row.value.documentItem.quantity,

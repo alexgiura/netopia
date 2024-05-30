@@ -30,6 +30,8 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+  hive: 
+  hive_flutter:
   google_fonts: ^6.2.1
   flutter_localizations:
     sdk: flutter
@@ -63,13 +65,16 @@ dependencies:
   calendar_date_picker2: ^0.5.3
   tuple: ^2.0.2
   flutter_localization: ^0.2.0
+  intl_phone_field: ^3.2.0
   gap: ^3.0.1
+  firebase_core: ^2.32.0
 
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
-
+  hive_generator: 
+  build_runner: 
   # The "flutter_lints" package below contains a set of recommended lints to
   # encourage good coding practices. The lint set provided by the package is
   # activated in the `analysis_options.yaml` file located at the root of your

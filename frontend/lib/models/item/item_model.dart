@@ -8,8 +8,8 @@ class Item {
   String? id;
   String? code;
   String name;
-  bool isActive;
-  bool isStock;
+  bool? isActive;
+  bool? isStock;
   Um um;
   Vat vat;
   ItemCategory? category;
@@ -41,10 +41,10 @@ class Item {
   factory Item.fromJson(Map<String, dynamic> json) {
     return Item(
         id: json['id'],
-        code: json['code'],
+        code: json.containsKey('code') ? json['code'] : null,
         name: json['name'],
-        isActive: json['is_active'],
-        isStock: json['is_stock'],
+        isActive: json.containsKey('is_active') ? json['is_active'] : null,
+        isStock: json.containsKey('is_stock') ? json['is_stock'] : null,
         um: Um.fromJson(json['um']),
         vat: Vat.fromJson(json['vat']),
         category: json['category'] == null

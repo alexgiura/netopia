@@ -24,16 +24,22 @@ func (q *Queries) DeleteRecipeItems(ctx context.Context, recipeID int32) error {
 
 const getRecipeById = `-- name: GetRecipeById :one
 SELECT
-    id,
+    id::text,
     name,
     is_active
 from core.recipes
 where id=$1
 `
 
-func (q *Queries) GetRecipeById(ctx context.Context, id int32) (CoreRecipe, error) {
+type GetRecipeByIdRow struct {
+	ID       string
+	Name     string
+	IsActive bool
+}
+
+func (q *Queries) GetRecipeById(ctx context.Context, id int32) (GetRecipeByIdRow, error) {
 	row := q.db.QueryRow(ctx, getRecipeById, id)
-	var i CoreRecipe
+	var i GetRecipeByIdRow
 	err := row.Scan(&i.ID, &i.Name, &i.IsActive)
 	return i, err
 }
@@ -58,6 +64,89 @@ func (q *Queries) GetRecipeByItemId(ctx context.Context, id uuid.UUID) ([]CoreRe
 	for rows.Next() {
 		var i CoreRecipe
 		if err := rows.Scan(&i.ID, &i.Name, &i.IsActive); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const getRecipeItemsByDocumentIds = `-- name: GetRecipeItemsByDocumentIds :many
+SELECT
+    ri.id::text as id,
+    recipe_id::text as recipe_id,
+    ri.item_id as item_id,
+    i.code as item_code,
+    i.name as item_name,
+    quantity,
+    um.id as um_id,
+    um.name as um_name,
+    um.code AS um_code,
+    vat.id as vat_id,
+    vat.name as vat_name,
+    vat.percent as vat_percent,
+    vat.exemption_reason AS vat_exemption_reason,
+    vat.exemption_reason_code AS vat_exemption_reason_code,
+    ri.production_item_type as item_type_pn
+from core.recipe_items ri
+         inner join core.items i
+                    on i.id=ri.item_id
+         inner join core.item_um um
+                    on um.id=i.id_um
+         inner join core.item_vat vat
+                    on vat.id=i.id_vat
+
+WHERE
+        recipe_id = ANY($1::int[])
+`
+
+type GetRecipeItemsByDocumentIdsRow struct {
+	ID                     string
+	RecipeID               string
+	ItemID                 uuid.UUID
+	ItemCode               sql.NullString
+	ItemName               string
+	Quantity               float64
+	UmID                   int32
+	UmName                 string
+	UmCode                 string
+	VatID                  int32
+	VatName                string
+	VatPercent             float64
+	VatExemptionReason     sql.NullString
+	VatExemptionReasonCode sql.NullString
+	ItemTypePn             string
+}
+
+func (q *Queries) GetRecipeItemsByDocumentIds(ctx context.Context, dollar_1 []int32) ([]GetRecipeItemsByDocumentIdsRow, error) {
+	rows, err := q.db.Query(ctx, getRecipeItemsByDocumentIds, dollar_1)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []GetRecipeItemsByDocumentIdsRow
+	for rows.Next() {
+		var i GetRecipeItemsByDocumentIdsRow
+		if err := rows.Scan(
+			&i.ID,
+			&i.RecipeID,
+			&i.ItemID,
+			&i.ItemCode,
+			&i.ItemName,
+			&i.Quantity,
+			&i.UmID,
+			&i.UmName,
+			&i.UmCode,
+			&i.VatID,
+			&i.VatName,
+			&i.VatPercent,
+			&i.VatExemptionReason,
+			&i.VatExemptionReasonCode,
+			&i.ItemTypePn,
+		); err != nil {
 			return nil, err
 		}
 		items = append(items, i)
@@ -129,21 +218,27 @@ func (q *Queries) GetRecipeItemsById(ctx context.Context, recipeID int32) ([]Get
 
 const getRecipes = `-- name: GetRecipes :many
 SELECT
-    id,
+    id::text,
     name,
     is_active
 from core.recipes
 `
 
-func (q *Queries) GetRecipes(ctx context.Context) ([]CoreRecipe, error) {
+type GetRecipesRow struct {
+	ID       string
+	Name     string
+	IsActive bool
+}
+
+func (q *Queries) GetRecipes(ctx context.Context) ([]GetRecipesRow, error) {
 	rows, err := q.db.Query(ctx, getRecipes)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	var items []CoreRecipe
+	var items []GetRecipesRow
 	for rows.Next() {
-		var i CoreRecipe
+		var i GetRecipesRow
 		if err := rows.Scan(&i.ID, &i.Name, &i.IsActive); err != nil {
 			return nil, err
 		}

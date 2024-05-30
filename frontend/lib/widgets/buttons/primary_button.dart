@@ -2,30 +2,35 @@ import 'package:erp_frontend_v2/constants/style.dart';
 import 'package:flutter/material.dart';
 
 class PrimaryButton extends StatelessWidget {
+  const PrimaryButton({
+    Key? key,
+    required this.text,
+    this.icon,
+    required this.onPressed,
+    this.textStyle,
+    this.style,
+  }) : super(key: key);
   final String text;
   final IconData? icon;
+  final ButtonStyle? style;
+  final TextStyle? textStyle;
   final VoidCallback? onPressed;
-  const PrimaryButton(
-      {super.key, required this.text, this.icon, required this.onPressed});
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(12),
-          color: CustomColor.textPrimary),
-      width: double.infinity,
-      height: MediaQuery.of(context).size.height * 0.048,
-      child: InkWell(
-          onTap: onPressed,
-          child: Center(
-            child: Text(
-              text,
-              style: CustomStyle.buttonSemibold14(
-                color: CustomColor.textSecondary,
-              ),
-            ),
-          )),
-    );
+    if (icon != null) {
+      return ElevatedButton.icon(
+        style: style ?? CustomStyle.activeButton,
+        label: Text(text, style: textStyle ?? CustomStyle.primaryButtonText),
+        icon: Icon(icon),
+        onPressed: onPressed,
+      );
+    } else {
+      return ElevatedButton(
+        style: style ?? CustomStyle.activeButton,
+        onPressed: onPressed,
+        child: Text(text, style: textStyle ?? CustomStyle.primaryButtonText),
+      );
+    }
   }
 }

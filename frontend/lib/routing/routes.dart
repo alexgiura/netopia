@@ -3,6 +3,9 @@ const rootRoute = "/";
 const authenticationPageName = "Log in";
 const authenticationPageRoute = "/login";
 
+const registrationPageName = "Register";
+const registrationPageRoute = "/register";
+
 const overviewPageName = "Overview";
 const overviewPageRoute = "/";
 

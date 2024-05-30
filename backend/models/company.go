@@ -7,3 +7,4 @@ package models
 //	RegistrationNumber *string  `json:"registration_number"`
 //	CompanyAddress     *Address `json:"address"`
 //}
+

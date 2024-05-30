@@ -11,19 +11,25 @@ class SecondaryButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if (icon != null) {
-      return OutlinedButton.icon(
-        style: CustomStyle.secondaryButton,
-        label: Text(text, style: CustomStyle.secondaryButtonText),
-        icon: Icon(icon),
-        onPressed: onPressed,
-      );
-    } else {
-      return OutlinedButton(
-        style: CustomStyle.secondaryButton,
-        onPressed: onPressed,
-        child: Text(text, style: CustomStyle.secondaryButtonText),
-      );
-    }
+    return Container(
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(15),
+        border: Border.all(
+          color: CustomColor.textPrimary,
+        ),
+      ),
+      width: double.infinity,
+      height: MediaQuery.of(context).size.height * 0.050,
+      child: InkWell(
+          onTap: onPressed,
+          child: Center(
+            child: Text(
+              text,
+              style: CustomStyle.buttonSemibold14(
+                color: CustomColor.textPrimary,
+              ),
+            ),
+          )),
+    );
   }
 }
