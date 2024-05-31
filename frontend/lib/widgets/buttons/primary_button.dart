@@ -7,13 +7,11 @@ class PrimaryButton extends StatelessWidget {
     required this.text,
     this.icon,
     required this.onPressed,
-    this.textStyle,
     this.style,
   }) : super(key: key);
   final String text;
   final IconData? icon;
   final ButtonStyle? style;
-  final TextStyle? textStyle;
   final VoidCallback? onPressed;
 
   @override
@@ -21,7 +19,7 @@ class PrimaryButton extends StatelessWidget {
     if (icon != null) {
       return ElevatedButton.icon(
         style: style ?? CustomStyle.activeButton,
-        label: Text(text, style: textStyle ?? CustomStyle.primaryButtonText),
+        label: Text(text, style: CustomStyle.primaryButtonText),
         icon: Icon(icon),
         onPressed: onPressed,
       );
@@ -29,7 +27,7 @@ class PrimaryButton extends StatelessWidget {
       return ElevatedButton(
         style: style ?? CustomStyle.activeButton,
         onPressed: onPressed,
-        child: Text(text, style: textStyle ?? CustomStyle.primaryButtonText),
+        child: Text(text, style: CustomStyle.primaryButtonText),
       );
     }
   }

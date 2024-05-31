@@ -24,7 +24,7 @@ class CustomCheckbox extends StatelessWidget {
                     .medium // Set the color for the unchecked border here
                 ),
             child: Checkbox(
-                overlayColor: MaterialStatePropertyAll(Colors.transparent),
+                overlayColor: const WidgetStatePropertyAll(Colors.transparent),
                 // checkColor: Colors.red,
                 activeColor: CustomColor.active,
                 value: value,
@@ -40,10 +40,10 @@ class CustomCheckbox extends StatelessWidget {
         ),
         labelText != null
             ? Padding(
-                padding: EdgeInsets.only(left: 4),
+                padding: const EdgeInsets.only(left: 4),
                 child: Text(
                   labelText!,
-                  style: CustomStyle.labelText,
+                  style: CustomStyle.tertiaryButtonText,
                 ),
               )
             : const SizedBox.shrink(),

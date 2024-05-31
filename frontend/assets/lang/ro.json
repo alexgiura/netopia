@@ -1,11 +1,13 @@
 {
+    "app_name": "OptiManage",
     "dashboard": "Dashboard",
     "start_to_grow_your_business": "Începe călătoria spre eficiență și creștere în afaceri.",
     "input_email": "Introdu e-mailul tău",
     "input_password": "Introdu parola ta",
     "remember_me": "Ține-mă minte",
     "email": "E-mail",
-    "error_email": "E-mailul invalid",
+    "error_email": "E-mailul este obligatoriu",
+    "error_email_format": "E-mailul nu este valid",
     "error_required_field": "Câmp obligatoriu",
     "error_password_length": "Trebuie să conțină cel puțin 6 caractere",
     "error_password_uppercase": "Trebuie să conțină cel puțin 1 literă mare",
@@ -48,7 +50,7 @@
     "pay_TVA": "Ești plătitor de TVA?",
     "ex_Bihor": "exemplu: Bihor",
     "yes": "Da",
-    "no": "Nu",
+    "no": "Nu", 
     "error_pay_TVA": "Plătitor de TVA este obligatoriu",
     "password_confirmation": "Confirmare parolă",
     "error_password_confirmation": "Confirmarea parolei este obligatorie",
@@ -57,6 +59,7 @@
     "password_confirmation_placeholder": "Reintrodu parola",
     "phone": "Telefon",
     "error_phone": "Telefonul este obligatoriu",
-    "phone_placeholder": "Introdu telefonul"
+    "phone_placeholder": "Introdu telefonul",
+    "back": "Înapoi"
 
 }

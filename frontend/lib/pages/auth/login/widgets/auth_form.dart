@@ -1,12 +1,18 @@
 import 'package:erp_frontend_v2/constants/style.dart';
+import 'package:erp_frontend_v2/helpers/responsiveness.dart';
 import 'package:erp_frontend_v2/models/app_localizations.dart';
+import 'package:erp_frontend_v2/routing/routes.dart';
 import 'package:erp_frontend_v2/utils/extensions.dart';
 import 'package:erp_frontend_v2/widgets/buttons/primary_button.dart';
+import 'package:erp_frontend_v2/widgets/buttons/tertiary_button.dart';
 import 'package:erp_frontend_v2/widgets/custom_checkbox.dart';
-import 'package:erp_frontend_v2/widgets/custom_text_field.dart';
+import 'package:erp_frontend_v2/widgets/custom_text_field_1.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:gap/gap.dart';
+import 'package:go_router/go_router.dart';
+
+import '../../../../utils/util_functions.dart';
 
 class AuthForm extends ConsumerStatefulWidget {
   const AuthForm({super.key});
@@ -23,79 +29,99 @@ class _AuthFormState extends ConsumerState<AuthForm> {
 
   void _submit() {
     if (formKey.currentState!.validate()) {
-      print('Form is invalid');
+      context.go(overviewPageRoute);
     } else {
-      print('Form is valid');
+      debugPrint('Form is invalid');
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    return Form(
-        key: formKey,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Column(
-              children: [
-                _formHeader(context),
-                Gap(context.height02),
-                CustomTextField(
-                  keyboardType: TextInputType.emailAddress,
-                  labelText: 'email'.tr(context),
-                  hintText: 'input_email'.tr(context),
-                  errorText: 'error_email'.tr(context),
-                  onValueChanged: (value) {
-                    setState(() {
-                      emailController.text = value;
-                    });
-                  },
-                  required: true,
-                ),
-                Gap(context.height02),
-                CustomTextField(
-                  keyboardType: TextInputType.visiblePassword,
-                  expand: false,
-                  labelText: 'password'.tr(context),
-                  hintText: 'input_password'.tr(context),
-                  errorText: 'error_password'.tr(context),
-                  obscureText: true,
-                  onValueChanged: (value) {
-                    setState(() {
-                      passwordController.text = value;
-                    });
-                  },
-                  required: true,
-                ),
-                Gap(context.height01),
-                _formOptions(context),
-                Gap(context.height05),
-                Align(
-                  alignment: Alignment.center,
-                  child: PrimaryButton(
-                    text: 'login'.tr(context),
-                    onPressed: () => _submit(),
-                  ),
-                )
-              ],
-            ),
-            Gap(context.height04),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Text('dont_have_account'.tr(context),
-                    style: CustomStyle.regular16()),
-                const Gap(4),
-                InkWell(
-                  onTap: () {},
-                  child: Text('create_account'.tr(context),
-                      style: CustomStyle.labelSemibold16()),
-                ),
-              ],
-            ),
-          ],
-        ));
+    return SizedBox(
+      height: double.infinity,
+      child: Column(
+        mainAxisSize: MainAxisSize.max,
+        children: [
+          _formHeader(context),
+          Gap(context.height02),
+          _formBody(context),
+          Gap(context.height03),
+          _formOptions(context),
+          Gap(context.height05),
+          _formButton(context),
+          const Spacer(),
+          Gap(context.height03),
+          FittedBox(child: _formBottom(context)),
+        ],
+      ),
+    );
+  }
+
+  Widget _formBody(BuildContext context) {
+    return SingleChildScrollView(
+      child: Flexible(
+        child: Form(
+          key: formKey,
+          child: Column(
+            children: [
+              CustomTextField1(
+                validator: (value) {
+                  if (value!.isEmpty) {
+                    return 'error_email'.tr(context);
+                  } else {
+                    return isValidEmail(value)
+                        ? null
+                        : 'error_email_format'.tr(context);
+                  }
+                },
+                borderVisible: true,
+                keyboardType: TextInputType.emailAddress,
+                labelText: 'email'.tr(context),
+                hintText: 'input_email'.tr(context),
+                onValueChanged: (value) {
+                  setState(() {
+                    emailController.text = value;
+                  });
+                },
+                required: true,
+              ),
+              Gap(context.height02),
+              CustomTextField1(
+                keyboardType: TextInputType.visiblePassword,
+                autovalidateMode: AutovalidateMode.onUserInteraction,
+                labelText: 'password'.tr(context),
+                hintText: 'input_password'.tr(context),
+                validator: (value) {
+                  if (value!.isEmpty) {
+                    return 'error_password'.tr(context);
+                  } else {
+                    return validatePassword(context, value);
+                  }
+                },
+                obscureText: true,
+                onValueChanged: (value) {
+                  setState(() {
+                    passwordController.text = value;
+                  });
+                },
+                required: true,
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  SizedBox _formButton(BuildContext context) {
+    return SizedBox(
+      width: double.infinity,
+      child: PrimaryButton(
+        style: CustomStyle.submitBlackButton,
+        text: 'login'.tr(context),
+        onPressed: () => _submit(),
+      ),
+    );
   }
 
   Column _formHeader(BuildContext context) {
@@ -107,9 +133,8 @@ class _AuthFormState extends ConsumerState<AuthForm> {
           children: [
             Image.asset(
               'assets/images/logo.png',
-              width: context.deviceWidth > 400 ? null : context.width05,
+              width: 30,
             ),
-            Gap(context.width01),
             Text('welcome_back'.tr(context),
                 style: CustomStyle.regular24(color: CustomColor.slate_500)),
           ],
@@ -139,20 +164,17 @@ class _AuthFormState extends ConsumerState<AuthForm> {
                       value: rememberMe,
                       onChanged: (val) => setState(() => rememberMe = val),
                     ),
-                    Gap(context.width01),
+                    Gap(context.width01 * 0.5),
                     Text(
                       'remember_me'.tr(context),
-                      style: CustomStyle.labelSemibold14(),
+                      style: CustomStyle.tertiaryButtonText,
                     ),
                   ],
                 ),
-                InkWell(
-                  onTap: () {},
-                  child: Text(
-                    'forgot_password'.tr(context),
-                    style: CustomStyle.labelSemibold14(),
-                  ),
-                ),
+                TertiaryButton(
+                    isUnderline: true,
+                    text: 'forgot_password'.tr(context),
+                    onPressed: () {})
               ],
             ),
           )
@@ -162,24 +184,32 @@ class _AuthFormState extends ConsumerState<AuthForm> {
               Row(
                 children: [
                   CustomCheckbox(
+                    labelText: 'remember_me'.tr(context),
                     value: rememberMe,
                     onChanged: (val) => setState(() => rememberMe = val),
                   ),
-                  Gap(context.width01),
-                  Text(
-                    'remember_me'.tr(context),
-                    style: CustomStyle.labelSemibold14(),
-                  ),
                 ],
               ),
-              InkWell(
-                onTap: () {},
-                child: Text(
-                  'forgot_password'.tr(context),
-                  style: CustomStyle.labelSemibold14(),
-                ),
-              ),
+              const Spacer(),
+              FittedBox(
+                fit: BoxFit.contain,
+                child: TertiaryButton(
+                    text: 'forgot_password'.tr(context), onPressed: () {}),
+              )
             ],
           );
+  }
+
+  Widget _formBottom(BuildContext context) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        Text('dont_have_account'.tr(context), style: CustomStyle.regular16()),
+        const Gap(4),
+        TertiaryButton(
+            text: 'register_your_company'.tr(context),
+            onPressed: () => context.goNamed(registrationPageName)),
+      ],
+    );
   }
 }

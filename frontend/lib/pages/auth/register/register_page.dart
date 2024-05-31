@@ -3,6 +3,7 @@ import 'package:erp_frontend_v2/helpers/responsiveness.dart';
 import 'package:erp_frontend_v2/models/app_localizations.dart';
 import 'package:erp_frontend_v2/pages/auth/register/widgets/register_form.dart';
 import 'package:erp_frontend_v2/utils/extensions.dart';
+import 'package:erp_frontend_v2/widgets/custom_container.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:gap/gap.dart';
@@ -20,7 +21,7 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
     return Scaffold(
       backgroundColor: CustomColor.bgSecondary,
       body: Container(
-        decoration: context.deviceWidth > 817
+        decoration: context.deviceWidth > mediumScreenSize
             ? BoxDecoration(
                 color: CustomColor.slate_50,
                 borderRadius: BorderRadius.circular(40),
@@ -53,7 +54,7 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
                     color: CustomColor.textPrimary,
                   ),
                   const Text(
-                    'iBill',
+                    'OptiManage',
                     style: TextStyle(
                       fontSize: 24,
                       fontWeight: FontWeight.bold,
@@ -74,9 +75,9 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
           ),
           // register form
           Flexible(
-            flex: context.deviceWidth < 1100 ? 3 : 4,
+            flex: context.deviceWidth < customScreenSize ? 3 : 4,
             // flex: 4,
-            child: _styledContainer(
+            child: CustomContainer(
                 margin: EdgeInsets.only(
                     // top: context.height05,
                     // bottom: context.height15,
@@ -84,8 +85,6 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
                     // right: context.width10),
                     ),
                 padding: const EdgeInsets.all(30),
-                color: CustomColor.bgSecondary,
-                borderRadius: BorderRadius.circular(28),
                 child: RegisterForm(
                   key: GlobalKey(),
                 )),
@@ -119,14 +118,13 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
                     children: [
                       Row(
                         children: [
-                          if (context.deviceWidth < 768)
-                            Image.asset(
-                              'assets/images/logo.png',
-                              width: 40,
-                              color: CustomColor.textPrimary,
-                            ),
+                          Image.asset(
+                            'assets/images/logo.png',
+                            width: 30,
+                            color: CustomColor.textPrimary,
+                          ),
                           Text(
-                            'iBill',
+                            'app_name'.tr(context),
                             style: CustomStyle.titleText,
                           ),
                         ],
@@ -139,7 +137,7 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
                   ),
                 ),
                 Gap(context.height05),
-                _styledContainer(
+                CustomContainer(
                   child: AspectRatio(
                     aspectRatio: 1.9,
                     child: ClipRRect(
@@ -157,17 +155,14 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
         ),
         // Gap(context.width05),
         Flexible(
-          flex: context.deviceWidth < 1100 ? 3 : 4,
-          // flex: 4,
-          child: _styledContainer(
+          flex: context.deviceWidth < customScreenSize ? 3 : 4,
+          child: CustomContainer(
               margin: EdgeInsets.only(
                   top: context.height05,
                   bottom: context.height15,
                   left: context.width02,
                   right: context.width10),
               padding: const EdgeInsets.all(30),
-              color: CustomColor.bgSecondary,
-              borderRadius: BorderRadius.circular(28),
               child: RegisterForm(
                 key: GlobalKey(),
               )),
@@ -176,41 +171,10 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
     );
   }
 
-  Widget _styledContainer({
-    required Widget child,
-    double? width,
-    double? height,
-    Color? color,
-    EdgeInsetsGeometry? padding,
-    EdgeInsetsGeometry? margin,
-    BorderRadius? borderRadius,
-    Border? border,
-  }) {
-    return Container(
-        padding: padding,
-        margin: margin,
-        width: width,
-        height: height,
-        decoration: BoxDecoration(
-          color: color,
-          border: border,
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.1),
-              spreadRadius: 20,
-              blurRadius: 40,
-              offset: const Offset(0, 35), // changes position of shadow
-            ),
-          ],
-          borderRadius: borderRadius,
-        ),
-        child: child);
-  }
-
   int _flexResponsive(BuildContext context) {
-    if (context.deviceWidth < 768) {
+    if (context.deviceWidth < mediumScreenSize) {
       return 1;
-    } else if (context.deviceWidth < 1150) {
+    } else if (context.deviceWidth < largeScreenSize) {
       return 3;
     } else {
       return 7;

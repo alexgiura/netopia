@@ -103,7 +103,7 @@ class _CustomRadioButtonState extends State<CustomRadioButton> {
               text: TextSpan(
                 text: text,
                 style: widget.textStyle,
-                children: const [
+                children: [
                   TextSpan(
                     text: ' *',
                     style: CustomStyle.errorText,
@@ -143,7 +143,7 @@ class _CustomRadioButtonState extends State<CustomRadioButton> {
           text: TextSpan(
             text: text,
             style: widget.textStyle,
-            children: const [
+            children: [
               TextSpan(
                 text: ' *',
                 style: CustomStyle.errorText,

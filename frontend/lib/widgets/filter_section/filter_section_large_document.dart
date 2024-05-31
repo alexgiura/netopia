@@ -178,8 +178,7 @@ class _FilterSectionLargeState extends ConsumerState<FilterSectionLarge> {
                   widget.onPressed();
                 },
                 style: CustomStyle.tertiaryButton,
-                child:
-                    const Text('Clear', style: CustomStyle.tertiaryButtonText),
+                child: Text('Clear', style: CustomStyle.tertiaryButtonText),
               )
             ],
           )

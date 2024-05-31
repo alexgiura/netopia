@@ -445,9 +445,6 @@ class _RegisterFormState extends ConsumerState<RegisterForm> {
           Expanded(
             child: PrimaryButton(
               style: CustomStyle.secondaryElevatedButtonStyle,
-              textStyle: CustomStyle.labelSemibold14(
-                color: CustomColor.textPrimary,
-              ),
               text: 'back'.tr(context),
               onPressed: () {
                 if (currentStep > 1) {
