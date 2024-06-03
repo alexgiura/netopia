@@ -5,14 +5,19 @@ class SecondaryButton extends StatelessWidget {
   final String text;
   final IconData? icon;
   final VoidCallback? onPressed;
+  final ButtonStyle? buttonStyle;
   const SecondaryButton(
-      {super.key, required this.text, this.icon, required this.onPressed});
+      {super.key,
+      required this.text,
+      this.icon,
+      required this.onPressed,
+      this.buttonStyle});
 
   @override
   Widget build(BuildContext context) {
     if (icon != null) {
       return OutlinedButton.icon(
-          style: CustomStyle.secondaryButton,
+          style: buttonStyle ?? CustomStyle.secondaryButton,
           icon: Icon(icon),
           onPressed: onPressed,
           label: Text(
@@ -22,7 +27,7 @@ class SecondaryButton extends StatelessWidget {
     } else {
       return OutlinedButton(
           onPressed: onPressed,
-          style: CustomStyle.secondaryButton,
+          style: buttonStyle ?? CustomStyle.secondaryButton,
           child: Text(
             text,
             style: CustomStyle.secondaryButtonText,

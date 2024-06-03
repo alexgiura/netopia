@@ -1,5 +1,4 @@
 import 'package:erp_frontend_v2/constants/style.dart';
-import 'package:erp_frontend_v2/helpers/responsiveness.dart';
 import 'package:erp_frontend_v2/models/app_localizations.dart';
 import 'package:erp_frontend_v2/routing/routes.dart';
 import 'package:erp_frontend_v2/utils/extensions.dart';
@@ -13,15 +12,20 @@ import 'package:gap/gap.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../../utils/util_functions.dart';
+import '../../../helpers/responsiveness.dart';
 
-class AuthForm extends ConsumerStatefulWidget {
-  const AuthForm({super.key});
+class LoginForm extends ConsumerStatefulWidget {
+  final void Function() changeForm;
+  const LoginForm({
+    required this.changeForm,
+    super.key,
+  });
 
   @override
-  ConsumerState<ConsumerStatefulWidget> createState() => _AuthFormState();
+  ConsumerState<ConsumerStatefulWidget> createState() => _LoginFormState();
 }
 
-class _AuthFormState extends ConsumerState<AuthForm> {
+class _LoginFormState extends ConsumerState<LoginForm> {
   final formKey = GlobalKey<FormState>();
   final emailController = TextEditingController();
   final passwordController = TextEditingController();
@@ -37,23 +41,19 @@ class _AuthFormState extends ConsumerState<AuthForm> {
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
-      height: double.infinity,
-      child: Column(
-        mainAxisSize: MainAxisSize.max,
-        children: [
-          _formHeader(context),
-          Gap(context.height02),
-          _formBody(context),
-          Gap(context.height03),
-          _formOptions(context),
-          Gap(context.height05),
-          _formButton(context),
-          const Spacer(),
-          Gap(context.height03),
-          FittedBox(child: _formBottom(context)),
-        ],
-      ),
+    return Column(
+      mainAxisSize: MainAxisSize.max,
+      children: [
+        _formHeader(context),
+        Gap(context.height02),
+        _formBody(context),
+        Gap(context.height02),
+        _formOptions(context),
+        Gap(context.height02),
+        _formButton(context),
+        if (context.deviceWidth > largeScreenSize) Spacer(),
+        FittedBox(child: _formBottom(context)),
+      ],
     );
   }
 
@@ -85,7 +85,7 @@ class _AuthFormState extends ConsumerState<AuthForm> {
                 },
                 required: true,
               ),
-              Gap(context.height02),
+              Gap(context.height01),
               CustomTextField1(
                 keyboardType: TextInputType.visiblePassword,
                 autovalidateMode: AutovalidateMode.onUserInteraction,
@@ -124,92 +124,91 @@ class _AuthFormState extends ConsumerState<AuthForm> {
     );
   }
 
-  Column _formHeader(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.start,
-          children: [
-            Image.asset(
-              'assets/images/logo.png',
-              width: 30,
-            ),
-            Text('welcome_back'.tr(context),
-                style: CustomStyle.regular24(color: CustomColor.slate_500)),
-          ],
-        ),
-        Gap(context.height02),
-        Text(
-          'login'.tr(context),
-          style: CustomStyle.regular32(),
-        ),
-        Text(
-          'input_your_account_data'.tr(context),
-          style: CustomStyle.regular16(color: CustomColor.slate_500),
-        )
-      ],
+  Widget _formHeader(BuildContext context) {
+    return SizedBox(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.start,
+            children: [
+              Image.asset(
+                'assets/images/logo.png',
+                width: 30,
+              ),
+              Text('welcome_back'.tr(context),
+                  style: CustomStyle.regular24(color: CustomColor.slate_500)),
+            ],
+          ),
+          Gap(context.height02),
+          Text(
+            'login'.tr(context),
+            style: CustomStyle.regular32(),
+          ),
+          Text(
+            'input_your_account_data'.tr(context),
+            style: CustomStyle.regular16(color: CustomColor.slate_500),
+          )
+        ],
+      ),
     );
   }
 
   Widget _formOptions(BuildContext context) {
-    return context.deviceWidth < 400
-        ? FittedBox(
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Row(
-                  children: [
-                    CustomCheckbox(
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        return constraints.maxWidth > 240
+            ? // valoare arbitrară; ajustează în funcție de nevoi
+            Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Flexible(
+                    child: CustomCheckbox(
+                      labelText: 'remember_me'.tr(context),
                       value: rememberMe,
                       onChanged: (val) => setState(() => rememberMe = val),
                     ),
-                    Gap(context.width01 * 0.5),
-                    Text(
-                      'remember_me'.tr(context),
-                      style: CustomStyle.tertiaryButtonText,
+                  ),
+                  Flexible(
+                    child: TertiaryButton(
+                      text: 'forgot_password'.tr(context),
+                      onPressed: () {},
                     ),
-                  ],
-                ),
-                TertiaryButton(
-                    isUnderline: true,
-                    text: 'forgot_password'.tr(context),
-                    onPressed: () {})
-              ],
-            ),
-          )
-        : Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Row(
+                  ),
+                ],
+              )
+            : Wrap(
+                crossAxisAlignment: WrapCrossAlignment.center,
+                alignment: WrapAlignment.spaceBetween,
                 children: [
                   CustomCheckbox(
                     labelText: 'remember_me'.tr(context),
                     value: rememberMe,
                     onChanged: (val) => setState(() => rememberMe = val),
                   ),
+                  TertiaryButton(
+                    text: 'forgot_password'.tr(context),
+                    onPressed: () {},
+                  ),
                 ],
-              ),
-              const Spacer(),
-              FittedBox(
-                fit: BoxFit.contain,
-                child: TertiaryButton(
-                    text: 'forgot_password'.tr(context), onPressed: () {}),
-              )
-            ],
-          );
+              );
+      },
+    );
   }
 
   Widget _formBottom(BuildContext context) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        Text('dont_have_account'.tr(context), style: CustomStyle.regular16()),
-        const Gap(4),
-        TertiaryButton(
-            text: 'register_your_company'.tr(context),
-            onPressed: () => context.goNamed(registrationPageName)),
-      ],
+    return SizedBox(
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.end,
+        children: [
+          Text('dont_have_account'.tr(context), style: CustomStyle.regular16()),
+          const Gap(4),
+          TertiaryButton(
+              text: 'register_your_company'.tr(context),
+              onPressed: widget.changeForm),
+        ],
+      ),
     );
   }
 }

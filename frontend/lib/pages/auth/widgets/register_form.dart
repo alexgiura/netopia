@@ -1,8 +1,9 @@
 import 'package:erp_frontend_v2/constants/style.dart';
 import 'package:erp_frontend_v2/models/app_localizations.dart';
-import 'package:erp_frontend_v2/pages/auth/register/widgets/step_indicator.dart';
+import 'package:erp_frontend_v2/pages/auth/widgets/step_indicator.dart';
 import 'package:erp_frontend_v2/utils/extensions.dart';
 import 'package:erp_frontend_v2/widgets/buttons/primary_button.dart';
+import 'package:erp_frontend_v2/widgets/buttons/secondary_button.dart';
 import 'package:erp_frontend_v2/widgets/custom_radio_button.dart';
 import 'package:erp_frontend_v2/widgets/custom_text_field.dart';
 import 'package:flutter/material.dart';
@@ -10,10 +11,11 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:gap/gap.dart';
 import 'package:go_router/go_router.dart';
 
-import '../../../../routing/routes.dart';
+import '../../../routing/routes.dart';
 
 class RegisterForm extends ConsumerStatefulWidget {
-  const RegisterForm({super.key});
+  final void Function() changeForm;
+  const RegisterForm({required this.changeForm, super.key});
 
   @override
   ConsumerState<ConsumerStatefulWidget> createState() => _RegisterFormState();
@@ -343,9 +345,8 @@ class _RegisterFormState extends ConsumerState<RegisterForm> {
             children: [
               Image.asset(
                 'assets/images/logo.png',
-                width: context.deviceWidth > 400 ? null : context.width05,
+                width: 30,
               ),
-              Gap(context.width01),
               Text('welcome_back'.tr(context),
                   style: CustomStyle.regular24(color: CustomColor.slate_500)),
             ],
@@ -428,7 +429,7 @@ class _RegisterFormState extends ConsumerState<RegisterForm> {
             style: CustomStyle.regular16(color: CustomColor.slate_900)),
         Gap(context.width01),
         InkWell(
-          onTap: () => context.goNamed(authenticationPageName),
+          onTap: widget.changeForm,
           child: Text('back_to_login'.tr(context),
               style: CustomStyle.labelSemibold16(
                   color: CustomColor.textPrimary, isUnderline: true)),
@@ -443,8 +444,8 @@ class _RegisterFormState extends ConsumerState<RegisterForm> {
       children: [
         if (currentStep != 1)
           Expanded(
-            child: PrimaryButton(
-              style: CustomStyle.secondaryElevatedButtonStyle,
+            child: SecondaryButton(
+              buttonStyle: CustomStyle.secondaryElevatedButtonStyle,
               text: 'back'.tr(context),
               onPressed: () {
                 if (currentStep > 1) {

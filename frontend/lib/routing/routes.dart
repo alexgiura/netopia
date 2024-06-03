@@ -1,10 +1,7 @@
 const rootRoute = "/";
 
-const authenticationPageName = "Log in";
-const authenticationPageRoute = "/login";
-
-const registrationPageName = "Register";
-const registrationPageRoute = "/register";
+const authenticationPageName = "Authtentication";
+const authenticationPageRoute = "/authentication";
 
 const overviewPageName = "Overview";
 const overviewPageRoute = "/";

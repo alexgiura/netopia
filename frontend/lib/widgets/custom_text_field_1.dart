@@ -145,6 +145,9 @@ class CustomTextFieldState extends State<CustomTextField1> {
                 prefixIcon: widget.prefixWidget,
                 prefixIconConstraints: BoxConstraints.tight(const Size(10, 60)),
                 errorStyle: CustomStyle.errorText,
+                isDense: true,
+                helperText:
+                    ' ', // it's hack to avoid the error message to be shown
                 errorMaxLines:
                     1, // ajustați numărul maxim de linii pentru mesajele de eroare
               ),

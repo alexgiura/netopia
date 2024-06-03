@@ -92,9 +92,9 @@ class CustomStyle {
     fontWeight: FontWeight.normal,
   );
 
-  static const TextStyle secondaryButtonText = TextStyle(
+  static const TextStyle secondaryButtonText = TextStyle( 
     fontSize: 16,
-    color: CustomColor.medium,
+    color: CustomColor.textPrimary,
     fontWeight: FontWeight.normal,
   );
 
@@ -445,14 +445,14 @@ class CustomStyle {
   static ButtonStyle secondaryElevatedButtonStyle = ButtonStyle(
     padding: MaterialStateProperty.all(
         const EdgeInsets.symmetric(horizontal: 14, vertical: 20)),
+    textStyle: MaterialStateProperty.all(
+      buttonSemibold14(color: CustomColor.textPrimary),
+    ),
     backgroundColor: MaterialStateProperty.all(CustomColor.white),
     shape: MaterialStateProperty.all(
       RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(15),
       ),
-    ),
-    textStyle: MaterialStateProperty.all(
-      buttonSemibold14(color: CustomColor.textPrimary),
     ),
     side: MaterialStateProperty.all(
       const BorderSide(color: CustomColor.textPrimary),

@@ -2,8 +2,7 @@ import 'dart:typed_data';
 
 import 'package:erp_frontend_v2/constants/theme.dart';
 import 'package:erp_frontend_v2/layout.dart';
-import 'package:erp_frontend_v2/pages/auth/login/login_page.dart';
-import 'package:erp_frontend_v2/pages/auth/register/register_page.dart';
+import 'package:erp_frontend_v2/pages/auth/auth_page.dart';
 import 'package:erp_frontend_v2/pages/dashboard/dashboard_page.dart';
 import 'package:erp_frontend_v2/pages/document/document_details_page/document_details_page.dart';
 import 'package:erp_frontend_v2/pages/item/item_category_page.dart';
@@ -33,14 +32,7 @@ final GoRouter router = GoRouter(
       name: authenticationPageName,
       path: authenticationPageRoute,
       builder: (BuildContext context, GoRouterState state) {
-        return const LoginPage();
-      },
-    ),
-    GoRoute(
-      name: registrationPageName,
-      path: registrationPageRoute,
-      builder: (BuildContext context, GoRouterState state) {
-        return const RegisterPage();
+        return const AuthPage();
       },
     ),
     ShellRoute(
