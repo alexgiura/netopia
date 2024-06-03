@@ -34,10 +34,10 @@ class CustomTextField1 extends StatefulWidget {
   final String? Function(String?)? validator;
   final AutovalidateMode? autovalidateMode;
   @override
-  State<CustomTextField1> createState() => CustomTextFieldState();
+  State<CustomTextField1> createState() => CustomTextField1State();
 }
 
-class CustomTextFieldState extends State<CustomTextField1> {
+class CustomTextField1State extends State<CustomTextField1> {
   final TextEditingController _textController = TextEditingController();
   String? lastInitialValue;
   bool? _obscureText = true;

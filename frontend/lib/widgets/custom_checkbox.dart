@@ -24,7 +24,8 @@ class CustomCheckbox extends StatelessWidget {
                     .medium // Set the color for the unchecked border here
                 ),
             child: Checkbox(
-                overlayColor: const WidgetStatePropertyAll(Colors.transparent),
+                overlayColor:
+                    const MaterialStatePropertyAll(Colors.transparent),
                 // checkColor: Colors.red,
                 activeColor: CustomColor.active,
                 value: value,
