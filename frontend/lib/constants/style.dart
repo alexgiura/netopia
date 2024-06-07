@@ -32,7 +32,6 @@ class CustomColor {
   static const slate_700 = Color(0xff334155);
   static const slate_800 = Color(0xff1E293B);
   static const slate_900 = Color(0xff0F172A);
-  static const redErrorRequired = Color(0xffF43F5E);
 }
 //from other project
 // const light = Color(0xFFF7F8FC);
@@ -83,8 +82,8 @@ class CustomStyle {
     fontStyle: FontStyle.italic,
   );
 
-  static TextStyle errorText =
-      CustomStyle.labelSemibold12(color: CustomColor.redErrorRequired);
+  static const TextStyle errorText =
+      TextStyle(fontSize: 14, color: Colors.red, fontWeight: FontWeight.normal);
 
   static const TextStyle primaryButtonText = TextStyle(
     fontSize: 16,
@@ -92,15 +91,18 @@ class CustomStyle {
     fontWeight: FontWeight.normal,
   );
 
-  static const TextStyle secondaryButtonText = TextStyle( 
+  static const TextStyle secondaryButtonText = TextStyle(
     fontSize: 16,
-    color: CustomColor.textPrimary,
+    color: CustomColor.medium,
     fontWeight: FontWeight.normal,
   );
 
-  static TextStyle tertiaryButtonText = CustomStyle.buttonSemibold14();
-  static TextStyle tertiaryButtonTextUnderline =
-      CustomStyle.buttonSemibold14(isUnderline: true);
+  static const TextStyle tertiaryButtonText = TextStyle(
+    fontSize: 16,
+    color: CustomColor.active,
+    fontWeight: FontWeight.normal,
+    // decoration: TextDecoration.underline,
+  );
 
   //-----------------New text styles from figma design--------------------------//
   static TextStyle regular64({Color color = CustomColor.textPrimary}) {
@@ -259,12 +261,10 @@ class CustomStyle {
     );
   }
 
-  static TextStyle buttonSemibold14(
-      {Color color = CustomColor.textPrimary, bool? isUnderline}) {
+  static TextStyle buttonSemibold14({Color color = CustomColor.textPrimary}) {
     return TextStyle(
       fontSize: 14,
       color: color,
-      decoration: isUnderline == true ? TextDecoration.underline : null,
       fontWeight: FontWeight.w600,
     );
   }
@@ -303,22 +303,18 @@ class CustomStyle {
 
   //label
 
-  static TextStyle labelSemibold16(
-      {Color color = CustomColor.textPrimary, bool? isUnderline}) {
+  static TextStyle labelSemibold16({Color color = CustomColor.textPrimary}) {
     return TextStyle(
       fontSize: 16,
       color: color,
-      decoration: isUnderline == true ? TextDecoration.underline : null,
       fontWeight: FontWeight.w600,
     );
   }
 
-  static TextStyle labelSemibold14(
-      {Color color = CustomColor.textPrimary, bool? isUnderline}) {
+  static TextStyle labelSemibold14({Color color = CustomColor.textPrimary}) {
     return TextStyle(
       fontSize: 14,
       color: color,
-      decoration: isUnderline == true ? TextDecoration.underline : null,
       fontWeight: FontWeight.w600,
     );
   }
@@ -409,14 +405,6 @@ class CustomStyle {
     iconColor: MaterialStatePropertyAll(CustomColor.active),
     padding: MaterialStateProperty.all(EdgeInsets.zero),
   );
-  static ButtonStyle tertiaryUnderlineButton = ButtonStyle(
-    overlayColor: MaterialStatePropertyAll(Colors.transparent),
-    textStyle:
-        MaterialStatePropertyAll(CustomStyle.tertiaryButtonTextUnderline),
-    iconSize: MaterialStatePropertyAll(18),
-    iconColor: MaterialStatePropertyAll(CustomColor.active),
-    padding: MaterialStateProperty.all(EdgeInsets.zero),
-  );
 
   // Button Style
   static ButtonStyle negativeButton = ButtonStyle(
@@ -425,39 +413,6 @@ class CustomStyle {
           RoundedRectangleBorder(
         borderRadius: CustomStyle.customBorderRadius,
       )));
-
-  static ButtonStyle submitBlackButton = ButtonStyle(
-    padding: MaterialStateProperty.all(
-        EdgeInsets.symmetric(horizontal: 14, vertical: 20)),
-    backgroundColor: MaterialStateProperty.all(CustomColor.textPrimary),
-    shape: MaterialStateProperty.all(RoundedRectangleBorder(
-      borderRadius: BorderRadius.circular(15),
-    )),
-    textStyle: MaterialStateProperty.all(
-      CustomStyle.buttonSemibold14(
-        color: CustomColor.textPrimary,
-      ),
-    ),
-    iconSize: MaterialStateProperty.all(18),
-    iconColor: MaterialStateProperty.all(CustomColor.white),
-  );
-
-  static ButtonStyle secondaryElevatedButtonStyle = ButtonStyle(
-    padding: MaterialStateProperty.all(
-        const EdgeInsets.symmetric(horizontal: 14, vertical: 20)),
-    textStyle: MaterialStateProperty.all(
-      buttonSemibold14(color: CustomColor.textPrimary),
-    ),
-    backgroundColor: MaterialStateProperty.all(CustomColor.white),
-    shape: MaterialStateProperty.all(
-      RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(15),
-      ),
-    ),
-    side: MaterialStateProperty.all(
-      const BorderSide(color: CustomColor.textPrimary),
-    ),
-  );
 
   // Container decoration
   static BoxDecoration customContainerDecoration = BoxDecoration(
@@ -503,19 +458,6 @@ class CustomStyle {
       color: CustomColor.light, // Use Colors.light color for the border
       width: 0.5, // Border width
     ),
-  );
-
-  static BoxDecoration customStyledContainerDecorationShadow = BoxDecoration(
-    color: CustomColor.bgSecondary,
-    boxShadow: [
-      BoxShadow(
-        color: Colors.black.withOpacity(0.1),
-        spreadRadius: 20,
-        blurRadius: 40,
-        offset: const Offset(0, 35), // changes position of shadow
-      )
-    ],
-    borderRadius: BorderRadius.circular(28),
   );
 
 // Border Radius

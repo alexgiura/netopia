@@ -4,14 +4,10 @@ import 'package:flutter/material.dart';
 class TertiaryButton extends StatelessWidget {
   final String text;
   final IconData? icon;
-  final bool isUnderline;
+
   final VoidCallback? onPressed;
   const TertiaryButton(
-      {super.key,
-      required this.text,
-      this.icon,
-      required this.onPressed,
-      this.isUnderline = false});
+      {super.key, required this.text, this.icon, required this.onPressed});
 
   @override
   Widget build(BuildContext context) {
@@ -20,9 +16,7 @@ class TertiaryButton extends StatelessWidget {
         style: CustomStyle.tertiaryButton,
         label: Text(
           text,
-          style: isUnderline
-              ? CustomStyle.tertiaryButtonTextUnderline
-              : CustomStyle.tertiaryButtonText,
+          style: CustomStyle.tertiaryButtonText,
         ),
         icon: Icon(
           icon,
@@ -31,9 +25,7 @@ class TertiaryButton extends StatelessWidget {
       );
     } else {
       return TextButton(
-        style: isUnderline
-            ? CustomStyle.tertiaryButton
-            : CustomStyle.tertiaryUnderlineButton,
+        style: CustomStyle.tertiaryButton,
         onPressed: onPressed,
         child: Text(text, style: CustomStyle.tertiaryButtonText),
       );

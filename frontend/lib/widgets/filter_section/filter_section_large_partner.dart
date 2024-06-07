@@ -137,7 +137,8 @@ class _FilterSectionLarge2State
                   widget.onPressed();
                 },
                 style: CustomStyle.tertiaryButton,
-                child: Text('Clear', style: CustomStyle.tertiaryButtonText),
+                child:
+                    const Text('Clear', style: CustomStyle.tertiaryButtonText),
               )
             ],
           )

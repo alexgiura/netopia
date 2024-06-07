@@ -43,26 +43,6 @@
 /dev/integration_tests/**/Pods
 /packages/flutter/coverage/
 version
-/front/analysis_benchmark.json
-
-# packages file containing multi-root paths
-/front/.packages.generated
-
-# Flutter/Dart/Pub related
-**/doc/api/
-/front/.dart_tool/
-/front/.flutter-plugins
-/front/.flutter-plugins-dependencies
-**/generated_plugin_registrant.dart
-/front/.packages
-/front/.pub-preload-cache/
-/front/.pub-cache/
-/front/.pub/
-/front/build/
-/front/flutter_*.png
-/front/linked_*.ds
-/front/unlinked.ds
-/front/unlinked_spec.ds
 analysis_benchmark.json
 
 # packages file containing multi-root paths
