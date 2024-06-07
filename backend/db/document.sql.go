@@ -295,7 +295,10 @@ Select
     name,
     is_active,
     type,
+<<<<<<< HEAD
+=======
     vat,
+>>>>>>> origin/dev
     vat_number,
     registration_number,
     personal_number
@@ -309,7 +312,10 @@ type GetDocumentHeaderPartnerRow struct {
 	Name               string
 	IsActive           bool
 	Type               string
+<<<<<<< HEAD
+=======
 	Vat                bool
+>>>>>>> origin/dev
 	VatNumber          sql.NullString
 	RegistrationNumber sql.NullString
 	PersonalNumber     sql.NullString
@@ -324,7 +330,10 @@ func (q *Queries) GetDocumentHeaderPartner(ctx context.Context, id uuid.UUID) (G
 		&i.Name,
 		&i.IsActive,
 		&i.Type,
+<<<<<<< HEAD
+=======
 		&i.Vat,
+>>>>>>> origin/dev
 		&i.VatNumber,
 		&i.RegistrationNumber,
 		&i.PersonalNumber,

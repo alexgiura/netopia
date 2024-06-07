@@ -9,12 +9,13 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"github.com/jackc/pgx/v4"
 	"io"
 	"log"
 	"net/http"
 	"strings"
 	"time"
+
+	"github.com/jackc/pgx/v4"
 )
 
 func (r *Resolver) _GetCompanyInfo(ctx context.Context, taxID *string) (*models.Company, error) {

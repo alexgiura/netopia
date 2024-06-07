@@ -127,7 +127,10 @@ func (q *Queries) GetPartnersByDocumentIds(ctx context.Context, dollar_1 []uuid.
 }
 
 const insertPartner = `-- name: InsertPartner :one
+<<<<<<< HEAD
+=======
 
+>>>>>>> origin/dev
 Insert into core.partners (code,name,type,vat_number,registration_number,personal_number)
 VALUES ($1,$2,$3,$4,$5,$6)
 RETURNING id
