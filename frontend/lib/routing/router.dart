@@ -2,7 +2,7 @@ import 'dart:typed_data';
 
 import 'package:erp_frontend_v2/constants/theme.dart';
 import 'package:erp_frontend_v2/layout.dart';
-import 'package:erp_frontend_v2/pages/auth/auth_page.dart';
+import 'package:erp_frontend_v2/pages/auth/login_page.dart';
 import 'package:erp_frontend_v2/pages/dashboard/dashboard_page.dart';
 import 'package:erp_frontend_v2/pages/document/document_details_page/document_details_page.dart';
 import 'package:erp_frontend_v2/pages/item/item_category_page.dart';
@@ -32,7 +32,7 @@ final GoRouter router = GoRouter(
       name: authenticationPageName,
       path: authenticationPageRoute,
       builder: (BuildContext context, GoRouterState state) {
-        return const AuthPage();
+        return const LoginPage();
       },
     ),
     ShellRoute(

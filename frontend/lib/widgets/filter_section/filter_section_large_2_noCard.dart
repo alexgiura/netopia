@@ -126,7 +126,8 @@ class _FilterSectionLarge2NoCardState
                   // Handle button press
                 },
                 style: CustomStyle.tertiaryButton,
-                child: Text('Clear', style: CustomStyle.tertiaryButtonText),
+                child:
+                    const Text('Clear', style: CustomStyle.tertiaryButtonText),
               )
             ],
           )

@@ -1,4 +1,3 @@
-import 'package:erp_frontend_v2/models/app_localizations.dart';
 import 'package:flutter/material.dart';
 
 extension BuildContextExtensions on BuildContext {
