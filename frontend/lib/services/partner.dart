@@ -77,7 +77,7 @@ class PartnerService {
           "type": partner.type,
           "tax_id": partner.vatNumber,
           "company_number": partner.registrationNumber,
-          "personal_id": partner.individualNumber,
+          "personal_number": partner.individualNumber,
           "is_active": partner.isActive,
         }
       },

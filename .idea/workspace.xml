@@ -5,22 +5,12 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="0a93d7e6-28d3-4e96-8877-54720ee52a94" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/backend/loaders/recipe_loader.go" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/backend/models/recipe.go" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/db/recipe.sql.go" beforeDir="false" afterPath="$PROJECT_DIR$/backend/db/recipe.sql.go" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/backend/graph/generated/generated.go" beforeDir="false" afterPath="$PROJECT_DIR$/backend/graph/generated/generated.go" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/backend/graph/model/models_gen.go" beforeDir="false" afterPath="$PROJECT_DIR$/backend/graph/model/models_gen.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/graph/recipe.graphqls" beforeDir="false" afterPath="$PROJECT_DIR$/backend/graph/recipe.graphqls" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/handlers/recipe.resolvers.go" beforeDir="false" afterPath="$PROJECT_DIR$/backend/handlers/recipe.resolvers.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/handlers/recipe_helpers.go" beforeDir="false" afterPath="$PROJECT_DIR$/backend/handlers/recipe_helpers.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/loaders/loaders.go" beforeDir="false" afterPath="$PROJECT_DIR$/backend/loaders/loaders.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/models/loaders.go" beforeDir="false" afterPath="$PROJECT_DIR$/backend/models/loaders.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/sqlc/recipe.sql" beforeDir="false" afterPath="$PROJECT_DIR$/backend/sqlc/recipe.sql" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/util/util.go" beforeDir="false" afterPath="$PROJECT_DIR$/backend/util/util.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/lib/graphql/queries/recipe.dart" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/lib/graphql/queries/recipe.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/lib/pages/document/document_details_page/document_details_page.dart" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/lib/pages/document/document_details_page/document_details_page.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/lib/pages/document/document_details_page/widgets/document_details_production_note_data_table.dart" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/lib/pages/document/document_details_page/widgets/document_details_production_note_data_table.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/handlers/company.resolvers.go" beforeDir="false" afterPath="$PROJECT_DIR$/backend/handlers/company.resolvers.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/handlers/user.resolvers.go" beforeDir="false" afterPath="$PROJECT_DIR$/backend/handlers/user.resolvers.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/models/company.go" beforeDir="false" afterPath="$PROJECT_DIR$/backend/models/company.go" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />

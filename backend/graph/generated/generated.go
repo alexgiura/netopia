@@ -1722,40 +1722,36 @@ extend type Mutation {
     saveItem(input: ItemInput!): String
     saveItemCategory(input: ItemCategoryInput!): String
 }`, BuiltIn: false},
-	{Name: "../partner.graphqls", Input: `
-type Partner{
-    id: String!
-    code: String
-    type: String!
-    active:Boolean!
-    name: String!
-    vat_number: String
-    vat: Boolean!
-    registration_number: String
-    individual_number: String
-    address: Address
-
+	{Name: "../partner.graphqls", Input: `type Partner {
+  id: String!
+  code: String
+  type: String!
+  active: Boolean!
+  name: String!
+  vat_number: String
+  vat: Boolean!
+  registration_number: String
+  individual_number: String
+  address: Address
 }
 
-
-input PartnerInput{
-    id: String
-    code: String
-    name: String!
-    type: String!
-    tax_id:String
-    company_number:String
-    personal_number:String
-    is_active:Boolean
+input PartnerInput {
+  id: String
+  code: String
+  name: String!
+  type: String!
+  tax_id: String
+  company_number: String
+  personal_number: String
+  is_active: Boolean
 }
 
 extend type Query {
-    getPartners: [Partner]
-
+  getPartners: [Partner]
 }
 
 extend type Mutation {
-    savePartner(input: PartnerInput!): String @isAuthenticated
+  savePartner(input: PartnerInput!): String
 }
 `, BuiltIn: false},
 	{Name: "../recipe.graphqls", Input: `type Recipe{
@@ -5388,28 +5384,8 @@ func (ec *executionContext) _Mutation_savePartner(ctx context.Context, field gra
 		}
 	}()
 	resTmp := ec._fieldMiddleware(ctx, nil, func(rctx context.Context) (interface{}, error) {
-		directive0 := func(rctx context.Context) (interface{}, error) {
-			ctx = rctx // use context from middleware stack in children
-			return ec.resolvers.Mutation().SavePartner(rctx, fc.Args["input"].(model.PartnerInput))
-		}
-		directive1 := func(ctx context.Context) (interface{}, error) {
-			if ec.directives.IsAuthenticated == nil {
-				return nil, errors.New("directive isAuthenticated is not implemented")
-			}
-			return ec.directives.IsAuthenticated(ctx, nil, directive0)
-		}
-
-		tmp, err := directive1(rctx)
-		if err != nil {
-			return nil, graphql.ErrorOnPath(ctx, err)
-		}
-		if tmp == nil {
-			return nil, nil
-		}
-		if data, ok := tmp.(*string); ok {
-			return data, nil
-		}
-		return nil, fmt.Errorf(`unexpected type %T from directive, should be *string`, tmp)
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Mutation().SavePartner(rctx, fc.Args["input"].(model.PartnerInput))
 	})
 
 	if resTmp == nil {

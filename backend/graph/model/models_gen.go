@@ -21,8 +21,6 @@ type ChartData struct {
 	SecondY *float64 `json:"second_y,omitempty"`
 }
 
-<<<<<<< HEAD
-=======
 type CompanyInput struct {
 	Name               string        `json:"name"`
 	VatNumber          string        `json:"vat_number"`
@@ -36,7 +34,6 @@ type CreateNewAccountInput struct {
 	Company *CompanyInput `json:"company"`
 }
 
->>>>>>> origin/dev
 type Currency struct {
 	ID   int    `json:"id"`
 	Name string `json:"name"`
