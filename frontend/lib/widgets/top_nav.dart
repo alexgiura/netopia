@@ -1,5 +1,7 @@
+import 'package:erp_frontend_v2/routing/routes.dart';
 import 'package:erp_frontend_v2/widgets/custom_search_bar.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 
 import '../constants/style.dart';
 import '../helpers/responsiveness.dart';
@@ -35,7 +37,9 @@ AppBar topNavigationBar(BuildContext context, GlobalKey<ScaffoldState> key) =>
             IconButton(
                 splashRadius: 22,
                 icon: const Icon(Icons.settings_outlined),
-                onPressed: () {}),
+                onPressed: () {
+                  context.go(settingsPageRoute);
+                }),
             Stack(
               children: [
                 IconButton(

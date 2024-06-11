@@ -24,6 +24,11 @@ class CustomColor {
   static const accentColor = Color(0xffCEFF7B);
   static const textPrimary = Color(0xff010101);
   static const textSecondary = Color(0xffF1F5EA);
+  static const error = Color(0xffD03E00);
+  static const warning = Color(0xffE9B635);
+  static const green = Color(0xff2D8E26);
+
+  static const darkGreen = Color(0xff083F031F);
   static const slate_50 = Color(0xffF8FAFC);
   static const slate_100 = Color(0xffF1F5F9);
   static const slate_200 = Color(0xffE2E8F0);
@@ -479,14 +484,26 @@ class CustomStyle {
 
   // Container decoration
   static BoxDecoration customContainerDecoration = BoxDecoration(
-    color: CustomColor.white,
-    borderRadius: CustomStyle.customBorderRadius,
-    border: Border.all(color: CustomColor.light, width: 0.5),
+    color: CustomColor.bgSecondary,
+    borderRadius: BorderRadius.circular(12),
+    border: Border.all(color: Colors.transparent),
     boxShadow: [
       BoxShadow(
           offset: const Offset(0, 6),
-          color: CustomColor.medium.withOpacity(.1),
-          blurRadius: 12)
+          color: CustomColor.darkGreen.withOpacity(0.12),
+          blurRadius: 16)
+    ],
+  );
+
+  static BoxDecoration customBorderContainerDecoration = BoxDecoration(
+    color: CustomColor.bgSecondary,
+    borderRadius: BorderRadius.circular(12),
+    border: Border.all(color: CustomColor.textPrimary),
+    boxShadow: [
+      BoxShadow(
+          offset: const Offset(0, 6),
+          color: CustomColor.darkGreen.withOpacity(0.12),
+          blurRadius: 16)
     ],
   );
 

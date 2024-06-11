@@ -6,6 +6,9 @@ const authenticationPageRoute = "/authentication";
 const overviewPageName = "Overview";
 const overviewPageRoute = "/";
 
+const settingsPageName = "Settings";
+const settingsPageRoute = "/settings";
+
 const itemsPageName = "Items";
 const itemsRoute = "/items";
 

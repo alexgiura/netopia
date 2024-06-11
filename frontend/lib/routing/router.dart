@@ -10,6 +10,7 @@ import 'package:erp_frontend_v2/pages/production/production_recipe_details_page.
 import 'package:erp_frontend_v2/pages/report/item_stock/item_stock_report_page.dart';
 import 'package:erp_frontend_v2/pages/report/production_note/production_note_report_page.dart';
 import 'package:erp_frontend_v2/pages/report/transaction_available_items/transaction_available_items_report_page.dart';
+import 'package:erp_frontend_v2/pages/settings/settings_page.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
@@ -41,6 +42,13 @@ final GoRouter router = GoRouter(
           return AppLayout(child: child);
         },
         routes: [
+          GoRoute(
+            path: settingsPageRoute,
+            builder: (BuildContext context, GoRouterState state) {
+              return const SettingsPage();
+            },
+          ),
+
           GoRoute(
             path: overviewPageRoute,
             builder: (BuildContext context, GoRouterState state) {

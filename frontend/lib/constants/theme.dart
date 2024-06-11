@@ -1,4 +1,5 @@
 import 'package:erp_frontend_v2/constants/style.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
@@ -9,19 +10,36 @@ ThemeData customTheme(BuildContext context) {
         GoogleFonts.wixMadeforDisplayTextTheme(Theme.of(context).textTheme),
     // canvasColor: CustomColor.white,
     pageTransitionsTheme: PageTransitionsTheme(builders: {
-      TargetPlatform.iOS: FadeUpwardsPageTransitionsBuilder(),
-      TargetPlatform.android: FadeUpwardsPageTransitionsBuilder(),
+      TargetPlatform.iOS: const FadeUpwardsPageTransitionsBuilder(),
+      TargetPlatform.android: const FadeUpwardsPageTransitionsBuilder(),
       // Default transition for other platforms like web
       TargetPlatform.linux: CustomScaleTransitionBuilder(),
       TargetPlatform.macOS: CustomScaleTransitionBuilder(),
       TargetPlatform.windows: CustomScaleTransitionBuilder(),
     }),
-    iconTheme: const IconThemeData(color: CustomColor.darkest),
+    iconTheme: const IconThemeData(color: CustomColor.textPrimary),
     //dividerColor: Colors.transparent, // Set the divider color to transparent
-    hoverColor: CustomColor.lightest,
+    hoverColor: Colors.transparent,
+    focusColor: Colors.transparent,
     dialogBackgroundColor: CustomColor.white,
-
-    // splashColor: Colors.white,
+    checkboxTheme: CheckboxThemeData(
+      side: MaterialStateBorderSide.resolveWith(
+        (Set<MaterialState> states) {
+          if (states.contains(MaterialState.selected)) {
+            return const BorderSide(color: CustomColor.textPrimary, width: 1.5);
+          }
+          return const BorderSide(color: CustomColor.slate_400);
+        },
+      ),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(4),
+      ),
+      fillColor: const MaterialStatePropertyAll(Colors.transparent),
+      checkColor: const MaterialStatePropertyAll(
+        CustomColor.textPrimary,
+      ),
+      overlayColor: const MaterialStatePropertyAll(Colors.transparent),
+    ),
   );
 }
 
