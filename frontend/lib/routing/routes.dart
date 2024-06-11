@@ -1,7 +1,7 @@
 const rootRoute = "/";
 
-const authenticationPageName = "Log in";
-const authenticationPageRoute = "/login";
+const authenticationPageName = "Authentication";
+const authenticationPageRoute = "/authentication";
 
 const overviewPageName = "Overview";
 const overviewPageRoute = "/";

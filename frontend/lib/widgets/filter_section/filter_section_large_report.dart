@@ -129,7 +129,7 @@ class _FilterSectionLargeReportState
                 },
                 style: CustomStyle.tertiaryButton,
                 child:
-                    const Text('Clear', style: CustomStyle.tertiaryButtonText),
+                     Text('Clear', style: CustomStyle.tertiaryButtonText),
               )
             ],
           )

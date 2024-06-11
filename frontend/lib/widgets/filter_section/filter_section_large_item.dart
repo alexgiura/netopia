@@ -133,7 +133,7 @@ class _FilterSectionLarge2State extends ConsumerState<FilterSectionLarge2> {
                 },
                 style: CustomStyle.tertiaryButton,
                 child:
-                    const Text('Clear', style: CustomStyle.tertiaryButtonText),
+                     Text('Clear', style: CustomStyle.tertiaryButtonText),
               )
             ],
           )
