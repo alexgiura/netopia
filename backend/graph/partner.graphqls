@@ -1,35 +1,31 @@
-
-type Partner{
-    id: String!
-    code: String
-    type: String!
-    active:Boolean!
-    name: String!
-    vat_number: String
-    vat: Boolean!
-    registration_number: String
-    individual_number: String
-    address: Address
-
+type Partner {
+  id: String!
+  code: String
+  type: String!
+  active: Boolean!
+  name: String!
+  vat_number: String
+  vat: Boolean!
+  registration_number: String
+  individual_number: String
+  address: Address
 }
 
-
-input PartnerInput{
-    id: String
-    code: String
-    name: String!
-    type: String!
-    tax_id:String
-    company_number:String
-    personal_number:String
-    is_active:Boolean
+input PartnerInput {
+  id: String
+  code: String
+  name: String!
+  type: String!
+  tax_id: String
+  company_number: String
+  personal_number: String
+  is_active: Boolean
 }
 
 extend type Query {
-    getPartners: [Partner]
-
+  getPartners: [Partner]
 }
 
 extend type Mutation {
-    savePartner(input: PartnerInput!): String @isAuthenticated
+  savePartner(input: PartnerInput!): String
 }
