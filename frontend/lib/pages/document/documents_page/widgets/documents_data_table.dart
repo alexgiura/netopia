@@ -1,7 +1,9 @@
+import 'package:erp_frontend_v2/models/app_localizations.dart';
 import 'package:erp_frontend_v2/models/document/document_model.dart';
 import 'package:erp_frontend_v2/models/document/documents_filter_model.dart';
 import 'package:erp_frontend_v2/providers/document_providers.dart';
 import 'package:erp_frontend_v2/providers/partner_provider.dart';
+import 'package:erp_frontend_v2/widgets/buttons/primary_button.dart';
 import 'package:erp_frontend_v2/widgets/custom_data_table.dart';
 import 'package:erp_frontend_v2/widgets/filters/date_interval_picker/date_picker_widget.dart';
 import 'package:erp_frontend_v2/widgets/filters/drop_down_filter/drop_down_filter.dart';
@@ -174,6 +176,9 @@ class _DocumentsDataTableState extends ConsumerState<DocumentsDataTable> {
                   style: CustomStyle.tagText),
             ),
           ),
+          DataCell(SizedBox(
+            child: _eFacturaWidget(row.value, context),
+          )),
           DataCell(
             IconButton(
               hoverColor: CustomColor.lightest,
@@ -198,7 +203,39 @@ class _DocumentsDataTableState extends ConsumerState<DocumentsDataTable> {
   }
 }
 
-List<DataColumn2> _columns = [
+Widget _eFacturaWidget(Document document, BuildContext context) {
+  if (document.efacturaStatus == null) {
+    return PrimaryButton(text: 'send'.tr(context), onPressed: null);
+  } else if (document.efacturaStatus == null || document.isDeleted == true) {
+    return Row(
+      children: [
+        Icon(
+          Icons.check_circle_outline,
+          color: CustomColor.greenText,
+        ),
+        Text('Procesat',
+            style: CustomStyle.labelSemibold14(color: CustomColor.greenText)),
+      ],
+    );
+  } else if (document.efacturaStatus == 'PROCESAT') {
+    return Row(
+      children: [
+        Icon(
+          Icons.check_circle_outline,
+          color: CustomColor.greenText,
+        ),
+        Text('Procesat',
+            style: CustomStyle.labelSemibold14(color: CustomColor.greenText)),
+      ],
+    );
+  } else if (document.efacturaStatus == 'NEPROCESAT') {
+    return PrimaryButton(text: "resend".tr(context), onPressed: null);
+  } else {
+    return PrimaryButton(text: "ss", onPressed: null);
+  }
+}
+
+List<DataColumn2> _columns = const [
   DataColumn2(
     label: Text('Serie'),
     size: ColumnSize.S,
@@ -218,6 +255,10 @@ List<DataColumn2> _columns = [
   DataColumn2(
     label: Text('Stare'),
     size: ColumnSize.S,
+  ),
+  DataColumn2(
+    label: Text('e-Factura'),
+    size: ColumnSize.M,
   ),
   DataColumn2(label: Text('Editează'), fixedWidth: 100),
 ];

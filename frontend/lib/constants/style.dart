@@ -12,6 +12,7 @@ class CustomColor {
   static const Color dark = Color(0xFF505673);
   static const Color darkest = Color(0xFF191C32);
   static const Color active = Color(0xFF4958EC);
+  static const Color greenText = Color(0xff2D8E26);
 
   // New colors&gradients from figma design
   static const LinearGradient bgPrimary = LinearGradient(colors: [
@@ -413,6 +414,22 @@ class CustomStyle {
           RoundedRectangleBorder(
         borderRadius: CustomStyle.customBorderRadius,
       )));
+
+  static ButtonStyle primaryBlackButton = ButtonStyle(
+    padding: MaterialStateProperty.all(
+        EdgeInsets.symmetric(horizontal: 14, vertical: 17)),
+    backgroundColor: MaterialStateProperty.all(CustomColor.textPrimary),
+    shape: MaterialStateProperty.all(RoundedRectangleBorder(
+      borderRadius: BorderRadius.circular(15),
+    )),
+    textStyle: MaterialStateProperty.all(
+      CustomStyle.buttonSemibold14(
+        color: CustomColor.textPrimary,
+      ),
+    ),
+    iconSize: MaterialStateProperty.all(18),
+    iconColor: MaterialStateProperty.all(CustomColor.white),
+  );
 
   // Container decoration
   static BoxDecoration customContainerDecoration = BoxDecoration(
