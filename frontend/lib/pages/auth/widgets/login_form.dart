@@ -39,9 +39,7 @@ class _LoginFormState extends ConsumerState<LoginForm> {
     if (formKey.currentState!.validate()) {
       _signInWithEmailAndPassword(
           emailController.text, passwordController.text);
-    } else {
-      print("nu e valid");
-    }
+    } else {}
   }
 
   Future<void> _signInWithEmailAndPassword(

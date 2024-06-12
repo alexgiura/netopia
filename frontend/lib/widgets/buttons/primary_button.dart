@@ -17,16 +17,20 @@ class PrimaryButton extends StatelessWidget {
   Widget build(BuildContext context) {
     if (icon != null) {
       return ElevatedButton.icon(
-        style: style ?? CustomStyle.primaryBlackButton,
-        label: Text(text, style: CustomStyle.primaryButtonText),
+        style: style ?? CustomStyle.submitBlackButton,
+        label: Text(text,
+            style:
+                CustomStyle.buttonSemibold14(color: CustomColor.textSecondary)),
         icon: Icon(icon),
         onPressed: onPressed,
       );
     } else {
       return ElevatedButton(
-        style: style ?? CustomStyle.primaryBlackButton,
+        style: style ?? CustomStyle.submitBlackButton,
         onPressed: onPressed,
-        child: Text(text, style: CustomStyle.primaryButtonText),
+        child: Text(text,
+            style:
+                CustomStyle.buttonSemibold14(color: CustomColor.textSecondary)),
       );
     }
   }

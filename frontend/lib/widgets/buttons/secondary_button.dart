@@ -17,16 +17,20 @@ class SecondaryButton extends StatelessWidget {
   Widget build(BuildContext context) {
     if (icon != null) {
       return OutlinedButton.icon(
-        style: buttonStyle ?? CustomStyle.secondaryButton,
-        label: Text(text, style: CustomStyle.secondaryButtonText),
+        style: buttonStyle ?? CustomStyle.secondaryElevatedButtonStyle,
+        label: Text(text,
+            style:
+                CustomStyle.buttonSemibold14(color: CustomColor.textPrimary)),
         icon: Icon(icon),
         onPressed: onPressed,
       );
     } else {
       return OutlinedButton(
-        style: buttonStyle ?? CustomStyle.secondaryButton,
+        style: buttonStyle ?? CustomStyle.secondaryElevatedButtonStyle,
         onPressed: onPressed,
-        child: Text(text, style: CustomStyle.secondaryButtonText),
+        child: Text(text,
+            style:
+                CustomStyle.buttonSemibold14(color: CustomColor.textPrimary)),
       );
     }
   }

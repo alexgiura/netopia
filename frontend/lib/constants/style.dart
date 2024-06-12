@@ -27,6 +27,7 @@ class CustomColor {
   static const error = Color(0xffD03E00);
   static const warning = Color(0xffE9B635);
   static const green = Color(0xff2D8E26);
+  static const greenGray = Color(0xff7B897F);
 
   static const darkGreen = Color(0xff083F031F);
   static const slate_50 = Color(0xffF8FAFC);
@@ -440,11 +441,7 @@ class CustomStyle {
     shape: MaterialStateProperty.all(RoundedRectangleBorder(
       borderRadius: BorderRadius.circular(15),
     )),
-    textStyle: MaterialStateProperty.all(
-      CustomStyle.buttonSemibold14(
-        color: CustomColor.textPrimary,
-      ),
-    ),
+    foregroundColor: MaterialStateProperty.all(CustomColor.textSecondary),
     iconSize: MaterialStateProperty.all(18),
     iconColor: MaterialStateProperty.all(CustomColor.white),
   );
@@ -452,9 +449,7 @@ class CustomStyle {
   static ButtonStyle secondaryElevatedButtonStyle = ButtonStyle(
     padding: MaterialStateProperty.all(
         const EdgeInsets.symmetric(horizontal: 14, vertical: 20)),
-    textStyle: MaterialStateProperty.all(
-      buttonSemibold14(color: CustomColor.textPrimary),
-    ),
+    foregroundColor: MaterialStateProperty.all(CustomColor.textPrimary),
     backgroundColor: MaterialStateProperty.all(CustomColor.white),
     shape: MaterialStateProperty.all(
       RoundedRectangleBorder(
