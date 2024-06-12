@@ -64,6 +64,59 @@ func (q *Queries) GetCompany(ctx context.Context) (GetCompanyRow, error) {
 	return i, err
 }
 
+const getCompanyByTaxId = `-- name: GetCompanyByTaxId :one
+SELECT id,
+       name,
+       vat,
+       vat_number,
+       registration_number,
+       address,
+       locality,
+       county_code,
+       email,
+       bank_name,
+       bank_account,
+       frontend_url
+from core.company
+where vat_number=$1
+         LIMIT 1
+`
+
+type GetCompanyByTaxIdRow struct {
+	ID                 uuid.UUID
+	Name               string
+	Vat                bool
+	VatNumber          string
+	RegistrationNumber sql.NullString
+	Address            string
+	Locality           sql.NullString
+	CountyCode         sql.NullString
+	Email              sql.NullString
+	BankName           sql.NullString
+	BankAccount        sql.NullString
+	FrontendUrl        sql.NullString
+}
+
+func (q *Queries) GetCompanyByTaxId(ctx context.Context, vatNumber string) (GetCompanyByTaxIdRow, error) {
+	row := q.db.QueryRow(ctx, getCompanyByTaxId, vatNumber)
+	var i GetCompanyByTaxIdRow
+	err := row.Scan(
+		&i.ID,
+		&i.Name,
+		&i.Vat,
+		&i.VatNumber,
+		&i.RegistrationNumber,
+		&i.Address,
+		&i.Locality,
+		&i.CountyCode,
+		&i.Email,
+		&i.BankName,
+		&i.BankAccount,
+		&i.FrontendUrl,
+	)
+	return i, err
+}
+
 const saveCompany = `-- name: SaveCompany :one
 INSERT INTO core.company(name,vat,vat_number,registration_number,address, locality,county_code)
 values ($1,$2,$3,$4,$5,$6,$7)

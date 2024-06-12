@@ -11,12 +11,22 @@ import (
 )
 
 // GetCompany is the resolver for the getCompany field.
-func (r *queryResolver) GetCompany(ctx context.Context) (*models.Company, error) {
-	company, err := r._GetMyCompany(ctx)
-	if err != nil {
-		return nil, err
+func (r *queryResolver) GetCompany(ctx context.Context, taxID *string) (*models.Company, error) {
+	if taxID != nil {
+		company, err := r._GetCompanyByTaxId(ctx, taxID)
+		if err != nil {
+			return nil, err
+		}
+		return company, nil
+	} else {
+
+		company, err := r._GetMyCompany(ctx)
+		if err != nil {
+			return nil, err
+		}
+		return company, nil
 	}
-	return company, nil
+
 }
 
 // GetCompanyByTaxID is the resolver for the getCompanyByTaxId field.

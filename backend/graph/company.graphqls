@@ -39,7 +39,7 @@ input AddressInput{
 
 
 extend type Query {
-    getCompany: Company
+    getCompany(taxId: String): Company
     getCompanyByTaxId(taxId: String):Company
 }
 

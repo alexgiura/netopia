@@ -90,6 +90,29 @@ func (r *Resolver) _GetMyCompany(ctx context.Context) (*models.Company, error) {
 	}, nil
 }
 
+func (r *Resolver) _GetCompanyByTaxId(ctx context.Context, taxId *string) (*models.Company, error) {
+	row, err := r.DBProvider.GetCompanyByTaxId(ctx, *taxId)
+	if err != nil {
+		if errors.Is(err, pgx.ErrNoRows) {
+			return nil, nil
+		}
+		log.Print("\"message\":Failed to execute DBProvider.GetCompanyByTaxId, "+"\"error\": ", err.Error())
+		return nil, _err.Error(ctx, "InvalidCompany", "DatabaseError")
+	}
+	return &models.Company{
+		Id:                 row.ID.String(),
+		Name:               row.Name,
+		VatNumber:          &row.VatNumber,
+		Vat:                row.Vat,
+		RegistrationNumber: util.StringOrNil(row.RegistrationNumber),
+		CompanyAddress: &models.Address{
+			Address:    &row.Address,
+			Locality:   util.StringOrNil(row.Locality),
+			CountyCode: util.StringOrNil(row.CountyCode),
+		},
+	}, nil
+}
+
 func MapToCompany(apiResp models.ApiResponse) *models.Company {
 	if len(apiResp.Found) > 0 {
 		foundObj := apiResp.Found[0]

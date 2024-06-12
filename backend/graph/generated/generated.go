@@ -191,7 +191,7 @@ type ComplexityRoot struct {
 	}
 
 	Query struct {
-		GetCompany                   func(childComplexity int) int
+		GetCompany                   func(childComplexity int, taxID *string) int
 		GetCompanyByTaxID            func(childComplexity int, taxID *string) int
 		GetCurrencyList              func(childComplexity int) int
 		GetDocumentByID              func(childComplexity int, documentID *string) int
@@ -273,7 +273,7 @@ type QueryResolver interface {
 	GetStockReport(ctx context.Context, input *model.StockReportInput) ([]*model.StockReportItem, error)
 	GetTransactionAvailableItems(ctx context.Context, input *model.TransactionAvailableItemsInput) ([]*model.GenerateAvailableItems, error)
 	GetRevenueChart(ctx context.Context) ([]*model.ChartData, error)
-	GetCompany(ctx context.Context) (*models.Company, error)
+	GetCompany(ctx context.Context, taxID *string) (*models.Company, error)
 	GetCompanyByTaxID(ctx context.Context, taxID *string) (*models.Company, error)
 	GetDocuments(ctx context.Context, input model.GetDocumentsInput) ([]*models.Document, error)
 	GetDocumentByID(ctx context.Context, documentID *string) (*models.Document, error)
@@ -1012,7 +1012,12 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			break
 		}
 
-		return e.complexity.Query.GetCompany(childComplexity), true
+		args, err := ec.field_Query_getCompany_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Query.GetCompany(childComplexity, args["taxId"].(*string)), true
 
 	case "Query.getCompanyByTaxId":
 		if e.complexity.Query.GetCompanyByTaxID == nil {
@@ -1513,7 +1518,7 @@ input AddressInput{
 
 
 extend type Query {
-    getCompany: Company
+    getCompany(taxId: String): Company
     getCompanyByTaxId(taxId: String):Company
 }
 
@@ -2059,6 +2064,21 @@ func (ec *executionContext) field_Query___type_args(ctx context.Context, rawArgs
 }
 
 func (ec *executionContext) field_Query_getCompanyByTaxId_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 *string
+	if tmp, ok := rawArgs["taxId"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("taxId"))
+		arg0, err = ec.unmarshalOString2ᚖstring(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["taxId"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_Query_getCompany_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
 	var arg0 *string
@@ -6393,7 +6413,7 @@ func (ec *executionContext) _Query_getCompany(ctx context.Context, field graphql
 	}()
 	resTmp := ec._fieldMiddleware(ctx, nil, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().GetCompany(rctx)
+		return ec.resolvers.Query().GetCompany(rctx, fc.Args["taxId"].(*string))
 	})
 
 	if resTmp == nil {
@@ -6427,6 +6447,17 @@ func (ec *executionContext) fieldContext_Query_getCompany(ctx context.Context, f
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Company", field.Name)
 		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Query_getCompany_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
 	}
 	return fc, nil
 }

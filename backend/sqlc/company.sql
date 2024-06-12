@@ -14,6 +14,23 @@ SELECT id,
 from core.company
     LIMIT 1;
 
+-- name: GetCompanyByTaxId :one
+SELECT id,
+       name,
+       vat,
+       vat_number,
+       registration_number,
+       address,
+       locality,
+       county_code,
+       email,
+       bank_name,
+       bank_account,
+       frontend_url
+from core.company
+where vat_number=$1
+         LIMIT 1;
+
 -- name: SaveCompany :one
 INSERT INTO core.company(name,vat,vat_number,registration_number,address, locality,county_code)
 values ($1,$2,$3,$4,$5,$6,$7)
