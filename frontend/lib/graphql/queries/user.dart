@@ -1,6 +1,6 @@
 const String getUser = r'''
-query getUser{
-    getUser{    
+query getUser($userId: String!) {
+    getUser(userId:$userId){    
         id,
         email,
         phone_number,

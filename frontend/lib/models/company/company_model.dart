@@ -7,9 +7,9 @@ class Company {
   String vatNumber;
   String? registrationNumber;
   Address? address;
-  String? email;
-  String? bankName;
-  String? bankAccount;
+
+  // String? bankName;
+  // String? bankAccount;
 
   Company({
     this.id,
@@ -18,10 +18,21 @@ class Company {
     required this.address,
     this.vat,
     this.registrationNumber,
-    this.email,
-    this.bankName,
-    this.bankAccount,
+
+    // this.bankName,
+    // this.bankAccount,
   });
+
+  Company.empty()
+      : id = null,
+        name = '',
+        vat = null,
+        vatNumber = '',
+        registrationNumber = null,
+        address = Address.empty();
+
+  // bankName = null,
+  // bankAccount = null;
 
   factory Company.fromJson(Map<String, dynamic> json) {
     return Company(
@@ -33,9 +44,19 @@ class Company {
       address: json.containsKey('company_address')
           ? Address.fromJson(json['company_address'])
           : null,
-      email: json['email'],
-      bankName: json['bank_name'],
-      bankAccount: json['bank_account'],
+
+      // bankName: json['bank_name'],
+      // bankAccount: json['bank_account'],
     );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'name': name,
+      'vat': vat,
+      'vat_number': vatNumber,
+      'registration_number': registrationNumber,
+      'company_address': address?.toJson(),
+    };
   }
 }

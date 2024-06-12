@@ -10,6 +10,7 @@
     "remember_me": "Ține-mă minte",
     "email": "E-mail",
     "continue": "Continuă",
+    "save": "Salvează",
     "retry": "Reîncearcă",
     "back": "Înapoi",
     "error_email": "E-mailul invalid",
@@ -45,12 +46,11 @@
     "retry_authorization": "Reînceracă autorizarea:",
     "close_browser_windows": "Închide acest browser cu toate ferestrele",
     "reopen_browser_incognito": "Redeschide acest browser în mod incognito",
-    "retry_authorization_process": "Reia procesul de autorizare"
+    "retry_authorization_process": "Reia procesul de autorizare",
     "data_of_your_company": "Datele firmei tale",
     "input_cui_code_and_we_automaticaly_fill_the_rest": "Introdu CUI-ul firmei tale, iar noi îți vom extrage datele instant!",
     "company_cui": "CUI-ul firmei",
     "error_company_cui": "CUI-ul firmei este obligatoriu",
-    "continue": "Continuă",
     "or": "sau",
     "input_data_manually": "Introdu datele manual",
     "already_have_an_account": "Deja ai un cont?",
@@ -82,5 +82,5 @@
     "phone": "Telefon",
     "error_phone": "Telefonul este obligatoriu",
     "phone_placeholder": "Introdu telefonul",
-    "back": "Înapoi"
+    "code_validation_failed": "Codul introdus nu a putut fi validat automat! "
 }

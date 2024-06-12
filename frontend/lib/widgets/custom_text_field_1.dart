@@ -151,6 +151,9 @@ class CustomTextField1State extends State<CustomTextField1> {
                 errorMaxLines:
                     1, // ajustați numărul maxim de linii pentru mesajele de eroare
               ),
+              onChanged: (value) {
+                widget.onValueChanged!(value);
+              },
             ),
           ],
         ),

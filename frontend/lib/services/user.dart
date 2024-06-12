@@ -5,9 +5,12 @@ import '../graphql/queries/user.dart' as queries;
 import '../graphql/mutations/user.dart' as mutations;
 
 class UserService {
-  Future<User?> getUser() async {
+  Future<User?> getUser(String userId) async {
     final QueryOptions options = QueryOptions(
       document: gql(queries.getUser),
+      variables: <String, dynamic>{
+        "userId": userId,
+      },
       fetchPolicy: FetchPolicy.noCache,
     );
 
@@ -31,9 +34,7 @@ class UserService {
     final MutationOptions options = MutationOptions(
       document: gql(mutations.saveUser),
       variables: <String, dynamic>{
-        'input': {
-          'user': user,
-        },
+        'input': user.toJson(),
       },
     );
 

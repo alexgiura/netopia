@@ -19,22 +19,20 @@ input UpdateUserInput{
 }
 
 input UserInput{
+    id: String!
     email: String!
     phone_number: String
-}
-
-input CreateNewAccountInput {
-    user: UserInput!
     company: CompanyInput!
 }
 
 
+
 extend type Query {
-    getUser: User
+    getUser(userId: String!): User
 }
 
 extend type Mutation {
 #    saveUser(input: SaveUserInput!): String
 #    updateUser(input: UpdateUserInput!): User
-    createNewAccount(input: CreateNewAccountInput!):User
+    createNewAccount(input: UserInput!):User
 }

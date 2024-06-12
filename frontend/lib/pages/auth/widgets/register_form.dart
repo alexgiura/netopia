@@ -1,14 +1,24 @@
+import 'package:erp_frontend_v2/boxes.dart';
 import 'package:erp_frontend_v2/constants/style.dart';
 import 'package:erp_frontend_v2/models/app_localizations.dart';
+import 'package:erp_frontend_v2/models/company/company_model.dart';
+import 'package:erp_frontend_v2/models/user/user.dart' as custom_user;
 import 'package:erp_frontend_v2/pages/auth/widgets/step_indicator.dart';
+import 'package:erp_frontend_v2/routing/routes.dart';
+import 'package:erp_frontend_v2/services/company.dart';
+import 'package:erp_frontend_v2/services/user.dart';
+import 'package:erp_frontend_v2/utils/customSnackBar.dart';
 import 'package:erp_frontend_v2/utils/extensions.dart';
 import 'package:erp_frontend_v2/widgets/buttons/primary_button.dart';
 import 'package:erp_frontend_v2/widgets/buttons/secondary_button.dart';
 import 'package:erp_frontend_v2/widgets/custom_radio_button.dart';
 import 'package:erp_frontend_v2/widgets/custom_text_field.dart';
+import 'package:erp_frontend_v2/widgets/custom_text_field_1.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:gap/gap.dart';
+import 'package:go_router/go_router.dart';
 
 class RegisterForm extends ConsumerStatefulWidget {
   final void Function() changeForm;
@@ -21,16 +31,21 @@ class RegisterForm extends ConsumerStatefulWidget {
 class _RegisterFormState extends ConsumerState<RegisterForm> {
   final GlobalKey<CustomTextFieldState> formKey1 =
       GlobalKey<CustomTextFieldState>();
-  final companyCuiController = TextEditingController();
-  final emailController = TextEditingController();
+
+  custom_user.User user = custom_user.User.empty();
+  // Company company = Company.empty();
+
+  final companyTaxIdController = TextEditingController();
+  bool errorCompanyTaxIdController = false;
+  // final emailController = TextEditingController();
   final passwordController = TextEditingController();
-  final companyNameController = TextEditingController();
-  final addressController = TextEditingController();
-  final countyController = TextEditingController();
-  final cityController = TextEditingController();
+  // final companyNameController = TextEditingController();
+  // final addressController = TextEditingController();
+  // final countyController = TextEditingController();
+  // final cityController = TextEditingController();
   final vatPayerController = TextEditingController();
-  final regNumberController = TextEditingController();
-  final phoneController = TextEditingController();
+  // final regNumberController = TextEditingController();
+  // final phoneController = TextEditingController();
 
   bool rememberMe = false;
   String errorText = 'error';
@@ -42,6 +57,61 @@ class _RegisterFormState extends ConsumerState<RegisterForm> {
   @override
   void initState() {
     super.initState();
+  }
+
+  Future<custom_user.User?> _saveUser(custom_user.User user) async {
+    try {
+      final userService = UserService();
+      return await userService.saveUser(user);
+    } catch (error) {
+      print(error);
+    }
+  }
+
+  Future<Company?> _getCompanyByTaxId(String taxId) async {
+    try {
+      final companyService = CompanyService();
+
+      Company? result = await companyService.getCompanyByTaxId(taxId);
+      if (result != null) {
+        if (context.mounted) {
+          setState(() {
+            errorCompanyTaxIdController = false;
+          });
+          return result;
+        }
+      }
+      return result;
+    } catch (error) {
+      if (error.toString().contains('InvalidTaxId')) {
+        setState(() {
+          errorCompanyTaxIdController = true;
+        });
+      }
+    }
+  }
+
+  Future<String?> _createUserWithEmailAndPassword(
+      String email, String password) async {
+    try {
+      final credential =
+          await FirebaseAuth.instance.createUserWithEmailAndPassword(
+        email: email,
+        password: password,
+      );
+
+      return credential.user?.uid;
+    } on FirebaseAuthException catch (e) {
+      if (e.code == 'weak-password') {
+        print('The password provided is too weak.');
+      } else if (e.code == 'email-already-in-use') {
+        print('The account already exists for that email.');
+      }
+    } catch (e) {
+      print('An unexpected error occurred: $e');
+    }
+
+    return null;
   }
 
   @override
@@ -87,18 +157,35 @@ class _RegisterFormState extends ConsumerState<RegisterForm> {
     );
   }
 
-  void _nextFormStep() {
-    if (currentStep == 1 && formKey1.currentState!.valid()) {
-      _fetchCompanyData();
-      setState(() {
-        currentStep++;
-      });
+  void _nextFormStep() async {
+    if (currentStep == 1
+        //  && formKey1.currentState!.valid()
+        ) {
+      Company? company = await _getCompanyByTaxId(companyTaxIdController.text);
+      user.company = company;
+
+      if (errorCompanyTaxIdController == false) {
+        setState(() {
+          currentStep++;
+        });
+      }
     } else if (currentStep == 2) {
       setState(() {
         currentStep++;
       });
     } else if (currentStep == 3) {
-      print('done');
+      // create user in firebase
+      String? userId = await _createUserWithEmailAndPassword(
+          user.email!, passwordController.text);
+      user.id = userId!;
+      user.company!.vat = true;
+
+      // create user in db
+      custom_user.User? result = await _saveUser(user);
+
+      // Save user in local storage and navigate to app
+      boxUser.put('user', result);
+      context.go(overviewPageRoute);
     }
   }
 
@@ -122,22 +209,18 @@ class _RegisterFormState extends ConsumerState<RegisterForm> {
   }
 
   Widget _firstStep() {
-    return CustomTextField(
-      key: formKey1,
+    return CustomTextField1(
+      validator: (value) {
+        return errorCompanyTaxIdController
+            ? 'code_validation_failed'.tr(context)
+            : null;
+      },
+      borderVisible: true,
+      keyboardType: TextInputType.emailAddress,
       labelText: 'company_cui'.tr(context),
       hintText: 'RO12345678',
-      initialValue: companyCuiController.text,
-      errorText: errorText,
       onValueChanged: (value) {
-        setState(() {
-          companyCuiController.text = value;
-        });
-      },
-      customValidator: (p0) {
-        if (_validateCompanyCif(p0) != null) {
-          return true;
-        }
-        return false;
+        companyTaxIdController.text = value;
       },
       required: true,
     );
@@ -155,10 +238,7 @@ class _RegisterFormState extends ConsumerState<RegisterForm> {
                 hintText: 'company_name'.tr(context),
                 errorText: 'error_company_name'.tr(context),
                 onValueChanged: (value) {
-                  setState(() {
-                    companyNameController.text = value;
-                  });
-                  return null;
+                  user.company!.name = value;
                 },
                 required: true,
               ),
@@ -171,10 +251,7 @@ class _RegisterFormState extends ConsumerState<RegisterForm> {
                       hintText: 'RO12345678',
                       errorText: 'error_company_cui'.tr(context),
                       onValueChanged: (value) {
-                        setState(() {
-                          companyCuiController.text = value;
-                        });
-                        return null;
+                        user.company!.vatNumber = value;
                       },
                       required: true,
                     ),
@@ -187,10 +264,7 @@ class _RegisterFormState extends ConsumerState<RegisterForm> {
                       hintText: 'registry_nr'.tr(context),
                       errorText: 'error_registry_nr'.tr(context),
                       onValueChanged: (value) {
-                        setState(() {
-                          regNumberController.text = value;
-                        });
-                        return null;
+                        user.company!.registrationNumber = value;
                       },
                       required: true,
                     ),
@@ -203,10 +277,7 @@ class _RegisterFormState extends ConsumerState<RegisterForm> {
                 hintText: 'address'.tr(context),
                 errorText: 'error_address'.tr(context),
                 onValueChanged: (value) {
-                  setState(() {
-                    addressController.text = value;
-                  });
-                  return null;
+                  user.company!.address!.address = value;
                 },
                 required: true,
               ),
@@ -219,10 +290,7 @@ class _RegisterFormState extends ConsumerState<RegisterForm> {
                       hintText: 'ex_Bihor'.tr(context),
                       errorText: 'error_state'.tr(context),
                       onValueChanged: (value) {
-                        setState(() {
-                          countyController.text = value;
-                        });
-                        return null;
+                        user.company!.address!.countyCode = value;
                       },
                       required: true,
                     ),
@@ -235,10 +303,7 @@ class _RegisterFormState extends ConsumerState<RegisterForm> {
                       hintText: 'ex_locality'.tr(context),
                       errorText: 'error_locality'.tr(context),
                       onValueChanged: (value) {
-                        setState(() {
-                          cityController.text = value;
-                        });
-                        return null;
+                        user.company!.address!.locality = value;
                       },
                       required: true,
                     ),
@@ -283,9 +348,7 @@ class _RegisterFormState extends ConsumerState<RegisterForm> {
                 hintText: 'input_email'.tr(context),
                 errorText: errorText,
                 onValueChanged: (value) {
-                  setState(() {
-                    emailController.text = value;
-                  });
+                  user.email = value;
                 },
                 required: true,
               ),
@@ -295,9 +358,7 @@ class _RegisterFormState extends ConsumerState<RegisterForm> {
                 hintText: 'phone_placeholder'.tr(context),
                 errorText: errorText,
                 onValueChanged: (value) {
-                  setState(() {
-                    phoneController.text = value;
-                  });
+                  user.phoneNumber = value;
                 },
                 required: false,
               ),
@@ -458,7 +519,8 @@ class _RegisterFormState extends ConsumerState<RegisterForm> {
         Expanded(
           child: PrimaryButton(
             style: CustomStyle.submitBlackButton,
-            text: 'continue'.tr(context),
+            text:
+                currentStep == 3 ? 'save'.tr(context) : 'continue'.tr(context),
             onPressed: () {
               _nextFormStep();
             },
@@ -506,9 +568,5 @@ class _RegisterFormState extends ConsumerState<RegisterForm> {
       return 'CIF invalid!';
     }
     return null;
-  }
-
-  void _fetchCompanyData() {
-    // fetch data
   }
 }

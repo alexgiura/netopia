@@ -29,11 +29,6 @@ type CompanyInput struct {
 	CompanyAddress     *AddressInput `json:"company_address,omitempty"`
 }
 
-type CreateNewAccountInput struct {
-	User    *UserInput    `json:"user"`
-	Company *CompanyInput `json:"company"`
-}
-
 type Currency struct {
 	ID   int    `json:"id"`
 	Name string `json:"name"`
@@ -209,8 +204,10 @@ type UpdateUserInput struct {
 }
 
 type UserInput struct {
-	Email       string  `json:"email"`
-	PhoneNumber *string `json:"phone_number,omitempty"`
+	ID          string        `json:"id"`
+	Email       string        `json:"email"`
+	PhoneNumber *string       `json:"phone_number,omitempty"`
+	Company     *CompanyInput `json:"company"`
 }
 
 type ProductionItemType string

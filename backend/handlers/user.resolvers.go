@@ -20,12 +20,12 @@ import (
 )
 
 // CreateNewAccount is the resolver for the createNewAccount field.
-func (r *mutationResolver) CreateNewAccount(ctx context.Context, input model.CreateNewAccountInput) (*models.User, error) {
+func (r *mutationResolver) CreateNewAccount(ctx context.Context, input model.UserInput) (*models.User, error) {
 	//userId, ok := middleware.GetUserUUIDFromContext(ctx)
 	//if !ok {
 	//	return nil, _err.Error(ctx, "User not found in context", "UserNotFound")
 	//}
-	userId := "123"
+	userId := input.ID
 
 	var returnUser *models.User
 	//
@@ -44,8 +44,8 @@ func (r *mutationResolver) CreateNewAccount(ctx context.Context, input model.Cre
 		// Save User
 		userRow, err := transaction.SaveUser(ctx, db.SaveUserParams{
 			ID:          userId,
-			Email:       input.User.Email,
-			PhoneNumber: util.NullableStr(input.User.PhoneNumber),
+			Email:       input.Email,
+			PhoneNumber: util.NullableStr(input.PhoneNumber),
 		})
 		if err != nil {
 			err, ok := err.(*pgconn.PgError)
@@ -88,13 +88,13 @@ func (r *mutationResolver) CreateNewAccount(ctx context.Context, input model.Cre
 }
 
 // GetUser is the resolver for the getUser field.
-func (r *queryResolver) GetUser(ctx context.Context) (*models.User, error) {
+func (r *queryResolver) GetUser(ctx context.Context, userID string) (*models.User, error) {
 	//// Get the user ID from the context
 	//userId, ok := middleware.GetUserUUIDFromContext(ctx)
 	//if !ok {
 	//	return nil, _err.Error(ctx, "User not found in context", "UserNotFound")
 	//}
-	userId := "1"
+	userId := userID
 	user, err := r.DBProvider.GetUserById(ctx, userId)
 	if err != nil {
 		r.Logger.Error("failed to execute DBProvider.GetUserById", zap.Error(err))

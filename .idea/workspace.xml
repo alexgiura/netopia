@@ -8,9 +8,28 @@
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/backend/graph/generated/generated.go" beforeDir="false" afterPath="$PROJECT_DIR$/backend/graph/generated/generated.go" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/backend/graph/model/models_gen.go" beforeDir="false" afterPath="$PROJECT_DIR$/backend/graph/model/models_gen.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/handlers/company.resolvers.go" beforeDir="false" afterPath="$PROJECT_DIR$/backend/handlers/company.resolvers.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/graph/user.graphqls" beforeDir="false" afterPath="$PROJECT_DIR$/backend/graph/user.graphqls" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/backend/handlers/user.resolvers.go" beforeDir="false" afterPath="$PROJECT_DIR$/backend/handlers/user.resolvers.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/models/company.go" beforeDir="false" afterPath="$PROJECT_DIR$/backend/models/company.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/assets/lang/ro.json" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/assets/lang/ro.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/lib/graphql/mutations/user.dart" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/lib/graphql/mutations/user.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/lib/graphql/queries/company.dart" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/lib/graphql/queries/company.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/lib/graphql/queries/user.dart" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/lib/graphql/queries/user.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/lib/main.dart" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/lib/main.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/lib/models/address/address_model.dart" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/lib/models/address/address_model.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/lib/models/company/company_model.dart" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/lib/models/company/company_model.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/lib/models/user/user.dart" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/lib/models/user/user.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/lib/models/user/user.g.dart" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/lib/models/user/user.g.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/lib/pages/auth/widgets/login_form.dart" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/lib/pages/auth/widgets/login_form.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/lib/pages/auth/widgets/register_form.dart" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/lib/pages/auth/widgets/register_form.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/lib/pdf/pdf_document.dart" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/lib/pdf/pdf_document.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/lib/services/company.dart" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/lib/services/company.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/lib/services/user.dart" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/lib/services/user.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/lib/widgets/custom_text_field_1.dart" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/lib/widgets/custom_text_field_1.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/macos/Flutter/GeneratedPluginRegistrant.swift" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/macos/Flutter/GeneratedPluginRegistrant.swift" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/pubspec.lock" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/pubspec.lock" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/pubspec.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/pubspec.yaml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/windows/flutter/generated_plugin_registrant.cc" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/windows/flutter/generated_plugin_registrant.cc" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/windows/flutter/generated_plugins.cmake" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/windows/flutter/generated_plugins.cmake" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />

@@ -216,18 +216,18 @@ class PdfDocument {
             title: "Adresa: ",
             value: company != null ? company.address!.address! : '',
           ),
-          buildText2(
-            title: "Email: ",
-            value: company != null ? company.email ?? '' : '',
-          ),
-          buildText2(
-            title: "Cont: ",
-            value: company != null ? company.bankAccount ?? '' : '',
-          ),
-          buildText2(
-            title: "Banca: ",
-            value: company != null ? company.bankName ?? '' : '',
-          ),
+          // buildText2(
+          //   title: "Email: ",
+          //   value: company != null ? company.email ?? '' : '',
+          // ),
+          // buildText2(
+          //   title: "Cont: ",
+          //   value: company != null ? company.bankAccount ?? '' : '',
+          // ),
+          // buildText2(
+          //   title: "Banca: ",
+          //   value: company != null ? company.bankName ?? '' : '',
+          // ),
 
           //SizedBox(height: 1 * PdfPageFormat.mm),
         ],

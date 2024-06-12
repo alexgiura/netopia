@@ -24,4 +24,29 @@ class CompanyService {
       throw Exception('Invalid company data.');
     }
   }
+
+  Future<Company?> getCompanyByTaxId(String taxId) async {
+    final QueryOptions options = QueryOptions(
+      document: gql(queries.getCompanyByTaxId),
+      variables: <String, dynamic>{
+        "taxId": taxId,
+      },
+      fetchPolicy: FetchPolicy.noCache,
+    );
+
+    final QueryResult result = await graphQLClient.value.query(options);
+
+    if (result.hasException) {
+      throw Exception(result.exception.toString());
+    }
+    final dynamic data = result.data!['getCompanyByTaxId'];
+
+    if (data != null) {
+      final Company company = Company.fromJson(data);
+
+      return company;
+    } else {
+      throw Exception('Invalid company data.');
+    }
+  }
 }

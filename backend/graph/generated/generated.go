@@ -156,7 +156,7 @@ type ComplexityRoot struct {
 
 	Mutation struct {
 		CheckEfacturaUploadState          func(childComplexity int, efacturaDocumentID string) int
-		CreateNewAccount                  func(childComplexity int, input model.CreateNewAccountInput) int
+		CreateNewAccount                  func(childComplexity int, input model.UserInput) int
 		DeleteDocument                    func(childComplexity int, input model.DeleteDocumentInput) int
 		GenerateEfacturaAuthorizationLink func(childComplexity int) int
 		GeneratePNAllDoc                  func(childComplexity int, start *bool) int
@@ -208,7 +208,7 @@ type ComplexityRoot struct {
 		GetStockReport               func(childComplexity int, input *model.StockReportInput) int
 		GetTransactionAvailableItems func(childComplexity int, input *model.TransactionAvailableItemsInput) int
 		GetUmList                    func(childComplexity int) int
-		GetUser                      func(childComplexity int) int
+		GetUser                      func(childComplexity int, userID string) int
 		GetVatList                   func(childComplexity int) int
 	}
 
@@ -266,7 +266,7 @@ type MutationResolver interface {
 	SaveItemCategory(ctx context.Context, input model.ItemCategoryInput) (*string, error)
 	SavePartner(ctx context.Context, input model.PartnerInput) (*string, error)
 	SaveRecipe(ctx context.Context, input model.SaveRecipeInput) (*string, error)
-	CreateNewAccount(ctx context.Context, input model.CreateNewAccountInput) (*models.User, error)
+	CreateNewAccount(ctx context.Context, input model.UserInput) (*models.User, error)
 }
 type QueryResolver interface {
 	GetProductionNoteReport(ctx context.Context, input *model.ReportInput) ([]*model.ProductionNote, error)
@@ -287,7 +287,7 @@ type QueryResolver interface {
 	GetPartners(ctx context.Context) ([]*models.Partner, error)
 	GetRecipes(ctx context.Context) ([]*models.Recipe, error)
 	GetRecipeByID(ctx context.Context, recipeID int) (*models.Recipe, error)
-	GetUser(ctx context.Context) (*models.User, error)
+	GetUser(ctx context.Context, userID string) (*models.User, error)
 }
 type RecipeResolver interface {
 	DocumentItems(ctx context.Context, obj *models.Recipe) ([]*models.DocumentItem, error)
@@ -785,7 +785,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.Mutation.CreateNewAccount(childComplexity, args["input"].(model.CreateNewAccountInput)), true
+		return e.complexity.Mutation.CreateNewAccount(childComplexity, args["input"].(model.UserInput)), true
 
 	case "Mutation.deleteDocument":
 		if e.complexity.Mutation.DeleteDocument == nil {
@@ -1176,7 +1176,12 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			break
 		}
 
-		return e.complexity.Query.GetUser(childComplexity), true
+		args, err := ec.field_Query_getUser_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Query.GetUser(childComplexity, args["userId"].(string)), true
 
 	case "Query.getVatList":
 		if e.complexity.Query.GetVatList == nil {
@@ -1342,7 +1347,6 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 	inputUnmarshalMap := graphql.BuildUnmarshalerMap(
 		ec.unmarshalInputAddressInput,
 		ec.unmarshalInputCompanyInput,
-		ec.unmarshalInputCreateNewAccountInput,
 		ec.unmarshalInputDeleteDocumentInput,
 		ec.unmarshalInputDocumentInput,
 		ec.unmarshalInputDocumentItemInput,
@@ -1850,24 +1854,22 @@ input UpdateUserInput{
 }
 
 input UserInput{
+    id: String!
     email: String!
     phone_number: String
-}
-
-input CreateNewAccountInput {
-    user: UserInput!
     company: CompanyInput!
 }
 
 
+
 extend type Query {
-    getUser: User
+    getUser(userId: String!): User
 }
 
 extend type Mutation {
 #    saveUser(input: SaveUserInput!): String
 #    updateUser(input: UpdateUserInput!): User
-    createNewAccount(input: CreateNewAccountInput!):User
+    createNewAccount(input: UserInput!):User
 }`, BuiltIn: false},
 }
 var parsedSchema = gqlparser.MustLoadSchema(sources...)
@@ -1894,10 +1896,10 @@ func (ec *executionContext) field_Mutation_checkEfacturaUploadState_args(ctx con
 func (ec *executionContext) field_Mutation_createNewAccount_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
-	var arg0 model.CreateNewAccountInput
+	var arg0 model.UserInput
 	if tmp, ok := rawArgs["input"]; ok {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
-		arg0, err = ec.unmarshalNCreateNewAccountInput2backendᚋgraphᚋmodelᚐCreateNewAccountInput(ctx, tmp)
+		arg0, err = ec.unmarshalNUserInput2backendᚋgraphᚋmodelᚐUserInput(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -2188,6 +2190,21 @@ func (ec *executionContext) field_Query_getTransactionAvailableItems_args(ctx co
 		}
 	}
 	args["input"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_Query_getUser_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 string
+	if tmp, ok := rawArgs["userId"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("userId"))
+		arg0, err = ec.unmarshalNString2string(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["userId"] = arg0
 	return args, nil
 }
 
@@ -5483,7 +5500,7 @@ func (ec *executionContext) _Mutation_createNewAccount(ctx context.Context, fiel
 	}()
 	resTmp := ec._fieldMiddleware(ctx, nil, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().CreateNewAccount(rctx, fc.Args["input"].(model.CreateNewAccountInput))
+		return ec.resolvers.Mutation().CreateNewAccount(rctx, fc.Args["input"].(model.UserInput))
 	})
 
 	if resTmp == nil {
@@ -7172,7 +7189,7 @@ func (ec *executionContext) _Query_getUser(ctx context.Context, field graphql.Co
 	}()
 	resTmp := ec._fieldMiddleware(ctx, nil, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().GetUser(rctx)
+		return ec.resolvers.Query().GetUser(rctx, fc.Args["userId"].(string))
 	})
 
 	if resTmp == nil {
@@ -7202,6 +7219,17 @@ func (ec *executionContext) fieldContext_Query_getUser(ctx context.Context, fiel
 			}
 			return nil, fmt.Errorf("no field named %q was found under type User", field.Name)
 		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Query_getUser_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
 	}
 	return fc, nil
 }
@@ -9956,40 +9984,6 @@ func (ec *executionContext) unmarshalInputCompanyInput(ctx context.Context, obj 
 	return it, nil
 }
 
-func (ec *executionContext) unmarshalInputCreateNewAccountInput(ctx context.Context, obj interface{}) (model.CreateNewAccountInput, error) {
-	var it model.CreateNewAccountInput
-	asMap := map[string]interface{}{}
-	for k, v := range obj.(map[string]interface{}) {
-		asMap[k] = v
-	}
-
-	fieldsInOrder := [...]string{"user", "company"}
-	for _, k := range fieldsInOrder {
-		v, ok := asMap[k]
-		if !ok {
-			continue
-		}
-		switch k {
-		case "user":
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("user"))
-			data, err := ec.unmarshalNUserInput2ᚖbackendᚋgraphᚋmodelᚐUserInput(ctx, v)
-			if err != nil {
-				return it, err
-			}
-			it.User = data
-		case "company":
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("company"))
-			data, err := ec.unmarshalNCompanyInput2ᚖbackendᚋgraphᚋmodelᚐCompanyInput(ctx, v)
-			if err != nil {
-				return it, err
-			}
-			it.Company = data
-		}
-	}
-
-	return it, nil
-}
-
 func (ec *executionContext) unmarshalInputDeleteDocumentInput(ctx context.Context, obj interface{}) (model.DeleteDocumentInput, error) {
 	var it model.DeleteDocumentInput
 	asMap := map[string]interface{}{}
@@ -10821,13 +10815,20 @@ func (ec *executionContext) unmarshalInputUserInput(ctx context.Context, obj int
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"email", "phone_number"}
+	fieldsInOrder := [...]string{"id", "email", "phone_number", "company"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
 			continue
 		}
 		switch k {
+		case "id":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("id"))
+			data, err := ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.ID = data
 		case "email":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("email"))
 			data, err := ec.unmarshalNString2string(ctx, v)
@@ -10842,6 +10843,13 @@ func (ec *executionContext) unmarshalInputUserInput(ctx context.Context, obj int
 				return it, err
 			}
 			it.PhoneNumber = data
+		case "company":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("company"))
+			data, err := ec.unmarshalNCompanyInput2ᚖbackendᚋgraphᚋmodelᚐCompanyInput(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Company = data
 		}
 	}
 
@@ -12893,11 +12901,6 @@ func (ec *executionContext) unmarshalNCompanyInput2ᚖbackendᚋgraphᚋmodelᚐ
 	return &res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) unmarshalNCreateNewAccountInput2backendᚋgraphᚋmodelᚐCreateNewAccountInput(ctx context.Context, v interface{}) (model.CreateNewAccountInput, error) {
-	res, err := ec.unmarshalInputCreateNewAccountInput(ctx, v)
-	return res, graphql.ErrorOnPath(ctx, err)
-}
-
 func (ec *executionContext) unmarshalNDeleteDocumentInput2backendᚋgraphᚋmodelᚐDeleteDocumentInput(ctx context.Context, v interface{}) (model.DeleteDocumentInput, error) {
 	res, err := ec.unmarshalInputDeleteDocumentInput(ctx, v)
 	return res, graphql.ErrorOnPath(ctx, err)
@@ -13067,9 +13070,9 @@ func (ec *executionContext) marshalNUm2backendᚋmodelsᚐUm(ctx context.Context
 	return ec._Um(ctx, sel, &v)
 }
 
-func (ec *executionContext) unmarshalNUserInput2ᚖbackendᚋgraphᚋmodelᚐUserInput(ctx context.Context, v interface{}) (*model.UserInput, error) {
+func (ec *executionContext) unmarshalNUserInput2backendᚋgraphᚋmodelᚐUserInput(ctx context.Context, v interface{}) (model.UserInput, error) {
 	res, err := ec.unmarshalInputUserInput(ctx, v)
-	return &res, graphql.ErrorOnPath(ctx, err)
+	return res, graphql.ErrorOnPath(ctx, err)
 }
 
 func (ec *executionContext) marshalNVat2backendᚋmodelsᚐVat(ctx context.Context, sel ast.SelectionSet, v models.Vat) graphql.Marshaler {

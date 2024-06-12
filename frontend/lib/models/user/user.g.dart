@@ -18,7 +18,7 @@ class UserAdapter extends TypeAdapter<User> {
     };
     return User(
       id: fields[0] as String,
-      email: fields[1] as String,
+      email: fields[1] as String?,
       phoneNumber: fields[2] as String?,
       company: fields[3] as Company?,
     );

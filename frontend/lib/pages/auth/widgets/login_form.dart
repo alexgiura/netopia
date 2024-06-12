@@ -1,11 +1,15 @@
+import 'package:erp_frontend_v2/boxes.dart';
 import 'package:erp_frontend_v2/constants/style.dart';
 import 'package:erp_frontend_v2/models/app_localizations.dart';
+import 'package:erp_frontend_v2/models/user/user.dart' as custom_user;
 import 'package:erp_frontend_v2/routing/routes.dart';
+import 'package:erp_frontend_v2/services/user.dart';
 import 'package:erp_frontend_v2/utils/extensions.dart';
 import 'package:erp_frontend_v2/widgets/buttons/primary_button.dart';
 import 'package:erp_frontend_v2/widgets/buttons/tertiary_button.dart';
 import 'package:erp_frontend_v2/widgets/custom_checkbox.dart';
 import 'package:erp_frontend_v2/widgets/custom_text_field_1.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:gap/gap.dart';
@@ -33,7 +37,51 @@ class _LoginFormState extends ConsumerState<LoginForm> {
 
   void _submit() {
     if (formKey.currentState!.validate()) {
-      context.go(overviewPageRoute);
+      _signInWithEmailAndPassword(
+          emailController.text, passwordController.text);
+    } else {
+      print("nu e valid");
+    }
+  }
+
+  Future<void> _signInWithEmailAndPassword(
+      String email, String password) async {
+    try {
+      final credential = await FirebaseAuth.instance.signInWithEmailAndPassword(
+        email: email,
+        password: password,
+      );
+
+      final firebaseUser = credential.user!;
+
+      custom_user.User? user = await _fetchUser(firebaseUser.uid);
+
+      if (user != null) {
+        boxUser.put('user', user);
+        context.go(overviewPageRoute);
+      } else {
+        print('No user found in the database.');
+      }
+    } on FirebaseAuthException catch (e) {
+      if (e.code == 'user-not-found') {
+        print('No user found for that email.');
+      } else if (e.code == 'wrong-password') {
+        print('Wrong password provided for that user.');
+      } else if (e.code == 'invalid-credential') {
+        print('Invalid Credentials');
+      }
+    } catch (e) {
+      print('An unexpected error occurred: $e');
+    }
+  }
+
+  Future<custom_user.User?> _fetchUser(String userId) async {
+    try {
+      final userService = UserService();
+      final user = await userService.getUser(userId);
+      return user;
+    } catch (error) {
+      return null; // Return null in case of an error
     }
   }
 
@@ -77,9 +125,7 @@ class _LoginFormState extends ConsumerState<LoginForm> {
                 labelText: 'email'.tr(context),
                 hintText: 'input_email'.tr(context),
                 onValueChanged: (value) {
-                  setState(() {
-                    emailController.text = value;
-                  });
+                  emailController.text = value;
                 },
                 required: true,
               ),
@@ -98,9 +144,7 @@ class _LoginFormState extends ConsumerState<LoginForm> {
                 },
                 obscureText: true,
                 onValueChanged: (value) {
-                  setState(() {
-                    passwordController.text = value;
-                  });
+                  passwordController.text = value;
                 },
                 required: true,
               ),
