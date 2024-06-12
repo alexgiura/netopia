@@ -61,7 +61,7 @@ class Document {
       partner: Partner.fromJson(json['partner'] as Map<String, dynamic>),
       recipeId: json.containsKey('recipe_id') ? json['recipe_id'] : null,
       notes: json.containsKey('notes') ? json['notes'] : null,
-      isDeleted: json['is_deleted'],
+      isDeleted: json['deleted'],
       efacturaStatus: json['efactura_status'],
       documentItems: items,
     );

@@ -151,25 +151,17 @@ class _AuthPageState extends ConsumerState<AuthPage> {
 
   Widget _leftPart() {
     return Column(
-      crossAxisAlignment: CrossAxisAlignment.center,
+      crossAxisAlignment: CrossAxisAlignment.start,
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
         SizedBox(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Row(
-                children: [
-                  Image.asset(
-                    'assets/images/logo.png',
-                    width: 30,
-                    color: CustomColor.textPrimary,
-                  ),
-                  Text(
-                    'app_name'.tr(context),
-                    style: CustomStyle.titleText,
-                  ),
-                ],
+              Image.asset(
+                'assets/images/logo.png',
+                width: context.width05,
+                color: CustomColor.textPrimary,
               ),
               Text(
                 'start_to_grow_your_business'.tr(context),
@@ -182,14 +174,11 @@ class _AuthPageState extends ConsumerState<AuthPage> {
         Container(
           decoration: CustomStyle.customStyledContainerDecorationShadow,
           padding: const EdgeInsets.all(0),
-          child: AspectRatio(
-            aspectRatio: 1.9,
-            child: ClipRRect(
-              borderRadius: BorderRadius.circular(28),
-              child: Image.asset(
-                'images/dashboard_image.png',
-                fit: BoxFit.fill,
-              ),
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(28),
+            child: Image.asset(
+              'assets/images/preview-dashboard.png',
+              fit: BoxFit.fill,
             ),
           ),
         )

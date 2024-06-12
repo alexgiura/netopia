@@ -175,8 +175,9 @@ class _LoginFormState extends ConsumerState<LoginForm> {
             mainAxisAlignment: MainAxisAlignment.start,
             children: [
               Image.asset(
-                'assets/images/logo.png',
+                'assets/images/logo_icon.png',
                 width: 30,
+                color: CustomColor.slate_500,
               ),
               Text('welcome_back'.tr(context),
                   style: CustomStyle.regular24(color: CustomColor.slate_500)),

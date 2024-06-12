@@ -28,9 +28,10 @@ class RegisterForm extends ConsumerStatefulWidget {
   ConsumerState<ConsumerStatefulWidget> createState() => _RegisterFormState();
 }
 
+final currentStepRegister = StateProvider<int>((ref) => 1);
+
 class _RegisterFormState extends ConsumerState<RegisterForm> {
-  final GlobalKey<CustomTextFieldState> formKey1 =
-      GlobalKey<CustomTextFieldState>();
+  final GlobalKey<FormState> formKey1 = GlobalKey<FormState>();
 
   custom_user.User user = custom_user.User.empty();
 
@@ -44,7 +45,6 @@ class _RegisterFormState extends ConsumerState<RegisterForm> {
   bool rememberMe = false;
   String errorText = 'error';
 
-  int currentStep = 1;
   final _formsPageViewController = PageController();
   List _forms = [];
 
@@ -153,23 +153,26 @@ class _RegisterFormState extends ConsumerState<RegisterForm> {
         onPopInvoked: (didPop) => Future.sync(onWillPop),
       )
     ];
+
+    final currentStep = ref.watch(currentStepRegister);
+
     return Column(
       mainAxisSize: MainAxisSize.max,
       children: [
-        _formHeader(context),
+        _formHeader(context, currentStep),
         Gap(context.height02),
-        Flexible(child: _formBody()),
+        Flexible(child: _formBody(currentStep)),
         Gap(context.height02),
-        _formNavigation(),
+        _formNavigation(currentStep),
         if (currentStep == 1) Gap(context.height02),
-        if (currentStep == 1) _formOptions(context),
+        if (currentStep == 1) _formOptions(context, currentStep),
         if (currentStep == 1) Gap(context.height05),
         if (currentStep == 1) FittedBox(child: _bottomForm(context)),
       ],
     );
   }
 
-  Widget _formBody() {
+  Widget _formBody(int currentStep) {
     return IndexedStack(
       index: currentStep - 1,
       children: [
@@ -180,31 +183,29 @@ class _RegisterFormState extends ConsumerState<RegisterForm> {
     );
   }
 
-  void _nextFormStep() async {
+  void _nextFormStep(int currentStep) async {
     if (currentStep == 1) {
       Company? company = await _getCompanyByTaxId(companyTaxIdController.text);
 
       if (company != null && !errorCompanyTaxId) {
         user.company = company;
-
-        setState(() {
-          currentStep++;
-        });
+        ref.read(currentStepRegister.notifier).state++;
       }
     } else if (currentStep == 2) {
-      setState(() {
-        currentStep++;
-      });
+      ref.read(currentStepRegister.notifier).state++;
     } else if (currentStep == 3) {
       await _createAndSaveUser();
     }
   }
 
-  void _backFormStep() {
-    _formsPageViewController.previousPage(
-      duration: const Duration(milliseconds: 300),
-      curve: Curves.ease,
-    );
+  void _backFormStep(int currentStep) {
+    if (currentStep > 1) {
+      ref.read(currentStepRegister.notifier).state--;
+      _formsPageViewController.previousPage(
+        duration: const Duration(milliseconds: 300),
+        curve: Curves.ease,
+      );
+    }
   }
 
   bool onWillPop() {
@@ -221,8 +222,11 @@ class _RegisterFormState extends ConsumerState<RegisterForm> {
 
   Widget _firstStep() {
     return CustomTextField1(
-      validator: (value) {
-        return errorCompanyTaxId ? 'code_validation_failed'.tr(context) : null;
+      validator: (p0) {
+        if (p0!.isEmpty) {
+          return 'code_validation_failed'.tr(context);
+        }
+        return _validateCompanyCif(p0);
       },
       borderVisible: true,
       keyboardType: TextInputType.emailAddress,
@@ -237,7 +241,7 @@ class _RegisterFormState extends ConsumerState<RegisterForm> {
 
   Widget _secondStep() {
     return SingleChildScrollView(
-      child: Flexible(
+      child: Container(
         child: Form(
           child: Column(
             children: [
@@ -353,7 +357,7 @@ class _RegisterFormState extends ConsumerState<RegisterForm> {
 
   Widget _thirdStep() {
     return SingleChildScrollView(
-      child: Flexible(
+      child: Container(
         child: Form(
           child: Column(
             children: [
@@ -428,7 +432,7 @@ class _RegisterFormState extends ConsumerState<RegisterForm> {
     );
   }
 
-  Column _formHeader(BuildContext context) {
+  Column _formHeader(BuildContext context, int currentStep) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -437,7 +441,8 @@ class _RegisterFormState extends ConsumerState<RegisterForm> {
             mainAxisAlignment: MainAxisAlignment.start,
             children: [
               Image.asset(
-                'assets/images/logo.png',
+                'assets/images/logo_icon.png',
+                color: CustomColor.slate_500,
                 width: 30,
               ),
               Text('welcome_back'.tr(context),
@@ -474,7 +479,7 @@ class _RegisterFormState extends ConsumerState<RegisterForm> {
     );
   }
 
-  Widget _formOptions(BuildContext context) {
+  Widget _formOptions(BuildContext context, int currentStep) {
     return FittedBox(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -489,9 +494,7 @@ class _RegisterFormState extends ConsumerState<RegisterForm> {
           ),
           Gap(context.height01 * 0.2),
           InkWell(
-            onTap: () => setState(() {
-              currentStep = 2;
-            }),
+            onTap: () => ref.read(currentStepRegister.notifier).state++,
             child: Text(
               'input_data_manually'.tr(context),
               style: CustomStyle.labelSemibold14(isUnderline: true),
@@ -531,7 +534,7 @@ class _RegisterFormState extends ConsumerState<RegisterForm> {
     );
   }
 
-  Widget _formNavigation() {
+  Widget _formNavigation(int currentStep) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
@@ -542,10 +545,7 @@ class _RegisterFormState extends ConsumerState<RegisterForm> {
               text: 'back'.tr(context),
               onPressed: () {
                 if (currentStep > 1) {
-                  setState(() {
-                    currentStep--;
-                  });
-                  _backFormStep();
+                  _backFormStep(currentStep);
                 }
               },
             ),
@@ -557,7 +557,7 @@ class _RegisterFormState extends ConsumerState<RegisterForm> {
             text:
                 currentStep == 3 ? 'save'.tr(context) : 'continue'.tr(context),
             onPressed: () {
-              _nextFormStep();
+              _nextFormStep(currentStep);
             },
           ),
         ),

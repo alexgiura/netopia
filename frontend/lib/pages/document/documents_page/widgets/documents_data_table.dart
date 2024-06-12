@@ -171,7 +171,8 @@ class _DocumentsDataTableState extends ConsumerState<DocumentsDataTable> {
                     : CustomColor.active,
                 borderRadius: CustomStyle.customBorderRadius,
               ),
-              padding: EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),
+              padding:
+                  const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),
               child: Text(row.value.isDeleted == true ? 'Anulat' : 'Valid',
                   style: CustomStyle.tagText),
             ),
@@ -203,13 +204,15 @@ class _DocumentsDataTableState extends ConsumerState<DocumentsDataTable> {
   }
 }
 
-Widget _eFacturaWidget(Document document, BuildContext context) {
-  if (document.efacturaStatus == null) {
+Widget? _eFacturaWidget(Document document, BuildContext context) {
+  if (document.efacturaStatus == null || document.isDeleted == true) {
+    return null;
+  } else if (document.efacturaStatus == null) {
     return PrimaryButton(text: 'send'.tr(context), onPressed: null);
-  } else if (document.efacturaStatus == null || document.isDeleted == true) {
+  } else if (document.efacturaStatus != null) {
     return Row(
       children: [
-        Icon(
+        const Icon(
           Icons.check_circle_outline,
           color: CustomColor.greenText,
         ),
@@ -217,21 +220,10 @@ Widget _eFacturaWidget(Document document, BuildContext context) {
             style: CustomStyle.labelSemibold14(color: CustomColor.greenText)),
       ],
     );
-  } else if (document.efacturaStatus == 'PROCESAT') {
-    return Row(
-      children: [
-        Icon(
-          Icons.check_circle_outline,
-          color: CustomColor.greenText,
-        ),
-        Text('Procesat',
-            style: CustomStyle.labelSemibold14(color: CustomColor.greenText)),
-      ],
-    );
-  } else if (document.efacturaStatus == 'NEPROCESAT') {
+  } else if (document.efacturaStatus != null ||
+      document.efacturaStatus == 'error' ||
+      document.efacturaStatus == 'neprocesat') {
     return PrimaryButton(text: "resend".tr(context), onPressed: null);
-  } else {
-    return PrimaryButton(text: "ss", onPressed: null);
   }
 }
 
