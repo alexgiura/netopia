@@ -78,6 +78,7 @@
     "error_password_confirmation": "Confirmarea parolei este obligatorie",
     "password_placeholder": "Introdu parola",
     "error_password_confirmation_match": "Parolele nu se potrivesc",
+    "error_weak_password": "Parola furnizată este prea slabă",
     "password_confirmation_placeholder": "Reintrodu parola",
     "phone": "Telefon",
     "error_phone": "Telefonul este obligatoriu",

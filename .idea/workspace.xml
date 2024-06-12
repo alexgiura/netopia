@@ -5,6 +5,11 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="0a93d7e6-28d3-4e96-8877-54720ee52a94" name="Changes" comment="">
+      <change beforePath="$PROJECT_DIR$/frontend/assets/lang/ro.json" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/assets/lang/ro.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/lib/graphql/mutations/user.dart" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/lib/graphql/mutations/user.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/lib/pages/auth/widgets/register_form.dart" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/lib/pages/auth/widgets/register_form.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/lib/services/user.dart" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/lib/services/user.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/lib/widgets/custom_text_field.dart" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/lib/widgets/custom_text_field.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/backend/db/company.sql.go" beforeDir="false" afterPath="$PROJECT_DIR$/backend/db/company.sql.go" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/backend/graph/company.graphqls" beforeDir="false" afterPath="$PROJECT_DIR$/backend/graph/company.graphqls" afterDir="false" />

@@ -44,7 +44,7 @@ class UserService {
       throw result.exception!;
     }
 
-    final dynamic userData = result.data!['saveUser'];
+    final dynamic userData = result.data!['createNewAccount'];
     if (userData != null) {
       final User user = User.fromJson(userData);
       return user;

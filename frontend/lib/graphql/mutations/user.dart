@@ -1,6 +1,7 @@
 const String saveUser = r'''
 mutation  createNewAccount($input: UserInput!){   
     createNewAccount(input:$input){
+        id,
         email,
         phone_number
         company{

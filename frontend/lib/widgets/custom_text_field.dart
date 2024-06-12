@@ -13,6 +13,7 @@ class CustomTextField extends StatefulWidget {
     this.initialValue,
     this.enabled = true,
     this.errorText,
+    this.validator,
     this.customValidator,
     this.visible,
     this.onTap,
@@ -29,6 +30,7 @@ class CustomTextField extends StatefulWidget {
   final String? labelText;
   final String? hintText;
   final String? errorText;
+  final String? Function(String?)? validator;
   final bool Function(String)? customValidator;
   final Widget? prefixWidget;
   final Function(String)? onValueChanged;
@@ -223,11 +225,13 @@ class CustomTextFieldState extends State<CustomTextField> {
             return false;
           }
         }
-        if (widget.customValidator != null) {
-          if (!widget.customValidator!(_textController.text)) {
+        if (widget.validator != null) {
+          final String? validatorError =
+              widget.validator!(_textController.text);
+          if (validatorError != null) {
             setState(() {
               _showError = true;
-              _errorText = widget.errorText ?? 'error';
+              _errorText = validatorError;
             });
             return false;
           }
