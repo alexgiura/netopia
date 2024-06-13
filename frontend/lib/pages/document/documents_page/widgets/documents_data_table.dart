@@ -29,8 +29,8 @@ class DocumentsDataTable extends ConsumerStatefulWidget {
 
 class _DocumentsDataTableState extends ConsumerState<DocumentsDataTable> {
   String selectedHid = '';
-
   DocumentFilter _documentFilter = DocumentFilter.empty();
+  bool showLoadingButton = false;
 
   @override
   void initState() {
@@ -202,28 +202,43 @@ class _DocumentsDataTableState extends ConsumerState<DocumentsDataTable> {
       );
     }).toList();
   }
-}
 
-Widget? _eFacturaWidget(Document document, BuildContext context) {
-  if (document.efacturaStatus == null || document.isDeleted == true) {
-    return null;
-  } else if (document.efacturaStatus == null) {
-    return PrimaryButton(text: 'send'.tr(context), onPressed: null);
-  } else if (document.efacturaStatus != null) {
-    return Row(
-      children: [
-        const Icon(
-          Icons.check_circle_outline,
-          color: CustomColor.greenText,
-        ),
-        Text('Procesat',
-            style: CustomStyle.labelSemibold14(color: CustomColor.greenText)),
-      ],
-    );
-  } else if (document.efacturaStatus != null ||
-      document.efacturaStatus == 'error' ||
-      document.efacturaStatus == 'neprocesat') {
-    return PrimaryButton(text: "resend".tr(context), onPressed: null);
+  Widget? _eFacturaWidget(Document document, BuildContext context) {
+    if (document.efacturaStatus == null || document.isDeleted == true) {
+      return null;
+    } else if (document.efacturaStatus == null) {
+      return PrimaryButton(
+          text: 'send'.tr(context),
+          onPressed: () => _sendEfactura(context, document));
+    } else if (document.efacturaStatus != null) {
+      return Row(
+        children: [
+          const Icon(
+            Icons.check_circle_outline,
+            color: CustomColor.greenText,
+          ),
+          Text('Procesat',
+              style: CustomStyle.labelSemibold14(color: CustomColor.greenText)),
+        ],
+      );
+    } else if (document.efacturaStatus != null ||
+        document.efacturaStatus == 'error' ||
+        document.efacturaStatus == 'neprocesat') {
+      return PrimaryButton(
+          text: "resend".tr(context),
+          onPressed: () => _sendEfactura(context, document));
+    }
+  }
+
+  void _sendEfactura(BuildContext context, Document document) {
+    // Send eFactura
+    // activate the loading indicator
+    setState(() {
+      showLoadingButton = true;
+    });
+    // Call the API to send the eFactura
+    // If the API call is successful, update the document with the new eFactura status
+
   }
 }
 
