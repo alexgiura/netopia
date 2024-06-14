@@ -120,9 +120,7 @@ class _AuthPageState extends ConsumerState<AuthPage> {
           Expanded(
             flex: 4,
             child: Container(
-                width: double.infinity,
-                height: double.infinity,
-                child: _rightPart()),
+                width: double.infinity, height: 800, child: _rightPart()),
           )
           // Gap(context.width05),
         ],
