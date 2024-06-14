@@ -4,6 +4,7 @@ import 'package:erp_frontend_v2/models/app_localizations.dart';
 import 'package:erp_frontend_v2/models/company/company_model.dart';
 import 'package:erp_frontend_v2/models/user/user.dart' as custom_user;
 import 'package:erp_frontend_v2/pages/auth/widgets/step_indicator.dart';
+import 'package:erp_frontend_v2/providers/user_provider.dart';
 import 'package:erp_frontend_v2/routing/routes.dart';
 import 'package:erp_frontend_v2/services/company.dart';
 import 'package:erp_frontend_v2/services/user.dart';
@@ -14,6 +15,7 @@ import 'package:erp_frontend_v2/widgets/buttons/secondary_button.dart';
 import 'package:erp_frontend_v2/widgets/custom_radio_button.dart';
 import 'package:erp_frontend_v2/widgets/custom_text_field.dart';
 import 'package:erp_frontend_v2/widgets/custom_text_field_1.dart';
+import 'package:erp_frontend_v2/widgets/dialog_widgets/warning_dialog.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -31,10 +33,10 @@ class RegisterForm extends ConsumerStatefulWidget {
 final currentStepRegister = StateProvider<int>((ref) => 1);
 
 class _RegisterFormState extends ConsumerState<RegisterForm> {
-  final GlobalKey<FormState> formKey1 = GlobalKey<FormState>();
-
-  custom_user.User user = custom_user.User.empty();
-
+  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+  final GlobalKey<FormState> _formKey2 = GlobalKey<FormState>();
+  final GlobalKey<CustomTextFieldState> formKey1 =
+      GlobalKey<CustomTextFieldState>();
   final companyTaxIdController = TextEditingController();
   bool errorCompanyTaxId = false;
   final passwordController = TextEditingController();
@@ -72,25 +74,22 @@ class _RegisterFormState extends ConsumerState<RegisterForm> {
 
       if (result != null) {
         if (context.mounted) {
-          setState(() {
-            errorCompanyTaxId = false;
-          });
+          errorCompanyTaxId = false;
+          formKey1.currentState!.valid();
         }
         return result;
       } else {
         if (context.mounted) {
-          setState(() {
-            errorCompanyTaxId = true;
-          });
+          errorCompanyTaxId = true;
+          formKey1.currentState!.valid();
         }
         return null;
       }
     } catch (error) {
       if (error.toString().contains('InvalidTaxId')) {
         if (context.mounted) {
-          setState(() {
-            errorCompanyTaxId = true;
-          });
+          errorCompanyTaxId = true;
+          formKey1.currentState!.valid();
         }
       }
       return null;
@@ -109,8 +108,23 @@ class _RegisterFormState extends ConsumerState<RegisterForm> {
       return credential.user?.uid;
     } on FirebaseAuthException catch (e) {
       if (e.code == 'email-already-in-use') {
-        //popup
-        print('The account already exists for that email.');
+        showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return WarningCustomDialog(
+              title: 'email_already_registered_title'.tr(context),
+              subtitle: 'email_already_registered_subtitle'.tr(context),
+              primaryButtonText: 'back_to_Login'.tr(context),
+              primaryButtonAction: () {
+                widget.changeForm();
+              },
+              secondaryButtonText: 'cancel'.tr(context),
+              secondaryButtonAction: () {
+                Navigator.of(context).pop();
+              },
+            );
+          },
+        );
       }
     } catch (e) {
       //popup
@@ -118,23 +132,6 @@ class _RegisterFormState extends ConsumerState<RegisterForm> {
     }
 
     return null;
-  }
-
-  Future<void> _createAndSaveUser() async {
-    String? userId = await _createUserWithEmailAndPassword(
-        user.email!, passwordController.text);
-    if (userId != null) {
-      user.id = userId;
-      user.company!.vat = true;
-
-      custom_user.User? result = await _saveUser(user);
-      if (result != null) {
-        boxUser.put('user', result);
-        if (mounted) {
-          context.go(overviewPageRoute);
-        }
-      }
-    }
   }
 
   @override
@@ -155,6 +152,7 @@ class _RegisterFormState extends ConsumerState<RegisterForm> {
     ];
 
     final currentStep = ref.watch(currentStepRegister);
+    // final currentUser = ref.watch(userProvider);
 
     return Column(
       mainAxisSize: MainAxisSize.max,
@@ -183,18 +181,13 @@ class _RegisterFormState extends ConsumerState<RegisterForm> {
     );
   }
 
-  void _nextFormStep(int currentStep) async {
+  Future<void> _nextFormStep(int currentStep) async {
     if (currentStep == 1) {
-      Company? company = await _getCompanyByTaxId(companyTaxIdController.text);
-
-      if (company != null && !errorCompanyTaxId) {
-        user.company = company;
-        ref.read(currentStepRegister.notifier).state++;
-      }
+      await _submitFirstStep();
     } else if (currentStep == 2) {
-      ref.read(currentStepRegister.notifier).state++;
+      await _submitSecondStep();
     } else if (currentStep == 3) {
-      await _createAndSaveUser();
+      await _submitThirdStep();
     }
   }
 
@@ -220,13 +213,19 @@ class _RegisterFormState extends ConsumerState<RegisterForm> {
     return false;
   }
 
+  // First Step
   Widget _firstStep() {
-    return CustomTextField1(
-      validator: (p0) {
-        if (p0!.isEmpty) {
-          return 'code_validation_failed'.tr(context);
+    return CustomTextField(
+      key: formKey1,
+      validator: (value) {
+        if (value!.isEmpty) {
+          return 'error_required_field'.tr(context);
+        } else {
+          if (errorCompanyTaxId) {
+            return 'code_validation_failed'.tr(context);
+          }
+          return validateCompanyCif(value);
         }
-        return _validateCompanyCif(p0);
       },
       borderVisible: true,
       keyboardType: TextInputType.emailAddress,
@@ -239,90 +238,156 @@ class _RegisterFormState extends ConsumerState<RegisterForm> {
     );
   }
 
+  Future<void> _submitFirstStep() async {
+    errorCompanyTaxId = false;
+    if (formKey1.currentState!.valid()) {
+      Company? company = await _getCompanyByTaxId(companyTaxIdController.text);
+      if (company != null && !errorCompanyTaxId) {
+        ref.read(userProvider.notifier).updateUserField('company', company);
+        ref.read(currentStepRegister.notifier).state++;
+      }
+    }
+  }
+
+// Second Step
   Widget _secondStep() {
     return SingleChildScrollView(
       child: Container(
         child: Form(
+          key: _formKey,
           child: Column(
             children: [
-              CustomTextField(
-                initialValue: user.company!.name,
+              CustomTextField1(
+                initialValue: ref.read(userProvider).company?.name ?? '',
+                validator: (value) {
+                  if (value!.isEmpty) {
+                    return 'error_required_field'.tr(context);
+                  }
+                  return null;
+                },
                 keyboardType: TextInputType.name,
                 labelText: 'company_name'.tr(context),
                 hintText: 'company_name'.tr(context),
-                errorText: 'error_company_name'.tr(context),
+                // errorText: 'error_company_name'.tr(context),
                 onValueChanged: (value) {
-                  user.company!.name = value;
+                  ref
+                      .read(userProvider.notifier)
+                      .updateUserField('company.name', value);
                 },
                 required: true,
               ),
               Row(
                 children: [
                   Flexible(
-                    child: CustomTextField(
-                      initialValue: user.company!.vatNumber,
+                    child: CustomTextField1(
+                      initialValue:
+                          ref.read(userProvider).company?.vatNumber ?? '',
+                      validator: (value) {
+                        if (value!.isEmpty) {
+                          return 'error_required_field'.tr(context);
+                        } else {
+                          if (errorCompanyTaxId) {
+                            return 'code_validation_failed'.tr(context);
+                          }
+                          return validateCompanyCif(value);
+                        }
+                      },
                       keyboardType: TextInputType.name,
                       labelText: 'cui'.tr(context),
                       hintText: 'RO12345678',
-                      errorText: 'error_company_cui'.tr(context),
                       onValueChanged: (value) {
-                        user.company!.vatNumber = value;
+                        ref
+                            .read(userProvider.notifier)
+                            .updateUserField('company.vatNumber', value);
                       },
                       required: true,
                     ),
                   ),
                   Gap(context.width01),
                   Flexible(
-                    child: CustomTextField(
-                      initialValue: user.company!.registrationNumber,
+                    child: CustomTextField1(
+                      initialValue:
+                          ref.read(userProvider).company?.registrationNumber ??
+                              '',
+                      validator: (value) {
+                        if (value!.isEmpty) {
+                          return 'error_required_field'.tr(context);
+                        }
+                        return null;
+                      },
                       keyboardType: TextInputType.name,
                       labelText: 'registry_nr'.tr(context),
                       hintText: 'registry_nr'.tr(context),
-                      errorText: 'error_registry_nr'.tr(context),
                       onValueChanged: (value) {
-                        user.company!.registrationNumber = value;
+                        ref.read(userProvider.notifier).updateUserField(
+                            'company.registrationNumber', value);
                       },
                       required: true,
                     ),
                   ),
                 ],
               ),
-              CustomTextField(
-                initialValue: user.company!.address!.address,
+              CustomTextField1(
+                initialValue:
+                    ref.read(userProvider).company?.address?.address ?? '',
+                validator: (value) {
+                  if (value!.isEmpty) {
+                    return 'error_required_field'.tr(context);
+                  }
+                  return null;
+                },
                 keyboardType: TextInputType.name,
                 labelText: 'address'.tr(context),
                 hintText: 'address'.tr(context),
-                errorText: 'error_address'.tr(context),
                 onValueChanged: (value) {
-                  user.company!.address!.address = value;
+                  ref
+                      .read(userProvider.notifier)
+                      .updateUserField('company.address.address', value);
                 },
                 required: true,
               ),
               Row(
                 children: [
                   Flexible(
-                    child: CustomTextField(
-                      initialValue: user.company!.address!.countyCode,
+                    child: CustomTextField1(
+                      initialValue:
+                          ref.read(userProvider).company?.address?.countyCode ??
+                              '',
+                      validator: (value) {
+                        if (value!.isEmpty) {
+                          return 'error_required_field'.tr(context);
+                        }
+                        return null;
+                      },
                       keyboardType: TextInputType.name,
                       labelText: 'state'.tr(context),
                       hintText: 'ex_Bihor'.tr(context),
-                      errorText: 'error_state'.tr(context),
                       onValueChanged: (value) {
-                        user.company!.address!.countyCode = value;
+                        ref.read(userProvider.notifier).updateUserField(
+                            'company.address.countyCode', value);
                       },
                       required: true,
                     ),
                   ),
                   Gap(context.width01),
                   Flexible(
-                    child: CustomTextField(
-                      initialValue: user.company!.address!.locality,
+                    child: CustomTextField1(
+                      initialValue:
+                          ref.read(userProvider).company?.address?.locality ??
+                              '',
+                      validator: (value) {
+                        if (value!.isEmpty) {
+                          return 'error_required_field'.tr(context);
+                        }
+                        return null;
+                      },
                       keyboardType: TextInputType.name,
                       labelText: 'locality'.tr(context),
                       hintText: 'ex_locality'.tr(context),
-                      errorText: 'error_locality'.tr(context),
                       onValueChanged: (value) {
-                        user.company!.address!.locality = value;
+                        ref
+                            .read(userProvider.notifier)
+                            .updateUserField('company.address.locality', value);
                       },
                       required: true,
                     ),
@@ -355,29 +420,39 @@ class _RegisterFormState extends ConsumerState<RegisterForm> {
     );
   }
 
+  Future<void> _submitSecondStep() async {
+    if (_formKey.currentState!.validate()) {
+      ref.read(currentStepRegister.notifier).state++;
+    }
+  }
+
+// Third Step
   Widget _thirdStep() {
     return SingleChildScrollView(
       child: Container(
         child: Form(
+          key: _formKey2,
           child: Column(
             children: [
-              CustomTextField(
+              CustomTextField1(
                 keyboardType: TextInputType.emailAddress,
                 labelText: 'email'.tr(context),
                 hintText: 'input_email'.tr(context),
-                errorText: errorText,
                 onValueChanged: (value) {
-                  user.email = value;
+                  ref
+                      .read(userProvider.notifier)
+                      .updateUserField('email', value);
                 },
                 required: true,
               ),
-              CustomTextField(
+              CustomTextField1(
                 keyboardType: TextInputType.phone,
                 labelText: 'phone'.tr(context),
                 hintText: 'phone_placeholder'.tr(context),
-                errorText: errorText,
                 onValueChanged: (value) {
-                  user.phoneNumber = value;
+                  ref
+                      .read(userProvider.notifier)
+                      .updateUserField('phoneNumber', value);
                 },
                 required: false,
               ),
@@ -393,9 +468,10 @@ class _RegisterFormState extends ConsumerState<RegisterForm> {
                     return validatePassword(context, value);
                   }
                 },
-                keyboardType: TextInputType.phone,
+                keyboardType: TextInputType.visiblePassword,
                 labelText: 'password'.tr(context),
                 hintText: 'password_placeholder'.tr(context),
+                obscureText: true,
                 onValueChanged: (value) {
                   setState(() {
                     passwordController.text = value;
@@ -415,9 +491,10 @@ class _RegisterFormState extends ConsumerState<RegisterForm> {
                     return validatePassword(context, value);
                   }
                 },
-                keyboardType: TextInputType.phone,
+                keyboardType: TextInputType.visiblePassword,
                 labelText: 'password_confirmation'.tr(context),
                 hintText: 'password_confirmation_placeholder'.tr(context),
+                obscureText: true,
                 onValueChanged: (value) {
                   setState(() {
                     passwordConfirmationController.text = value;
@@ -430,6 +507,28 @@ class _RegisterFormState extends ConsumerState<RegisterForm> {
         ),
       ),
     );
+  }
+
+  Future<void> _submitThirdStep() async {
+    if (_formKey.currentState!.validate()) {
+      // Create Firebase user
+      String? userId = await _createUserWithEmailAndPassword(
+          ref.read(userProvider).email!, passwordController.text);
+      if (userId != null) {
+        ref.read(userProvider.notifier).updateUserField('id', userId);
+        // Trebuie updatat din radio button
+        ref.read(userProvider.notifier).updateUserField('company.vat', true);
+
+        // Save user in DB
+        custom_user.User? result = await _saveUser(ref.read(userProvider));
+        if (result != null) {
+          boxUser.put('user', result);
+          if (mounted) {
+            context.go(overviewPageRoute);
+          }
+        }
+      }
+    }
   }
 
   Column _formHeader(BuildContext context, int currentStep) {
@@ -556,52 +655,15 @@ class _RegisterFormState extends ConsumerState<RegisterForm> {
             style: CustomStyle.submitBlackButton,
             text:
                 currentStep == 3 ? 'save'.tr(context) : 'continue'.tr(context),
-            onPressed: () {
-              _nextFormStep(currentStep);
+            // onPressed: () {
+            //   _nextFormStep(currentStep);
+            // },
+            asyncOnPressed: () async {
+              await _nextFormStep(currentStep);
             },
           ),
         ),
       ],
     );
-  }
-
-  String? _validateCompanyCif(String v) {
-    String cif = v.toUpperCase();
-    cif = cif.indexOf('RO') > -1 ? cif.substring(2) : cif;
-    cif = cif.replaceAll(RegExp(r'\s'), '');
-
-    if (cif.length < 2 || cif.length > 10) {
-      return 'Lungimea corectă fără RO, este între 2 și 10 caractere!';
-    }
-
-    if (int.tryParse(cif) == null) {
-      return 'Nu este număr!';
-    }
-
-    const testKey = '753217532';
-    final controlNumber = int.parse(cif.substring(cif.length - 1));
-    cif = cif.substring(0, cif.length - 1);
-
-    while (cif.length != testKey.length) {
-      cif = '0' + cif;
-    }
-
-    int sum = 0;
-    int i = cif.length;
-
-    while (i-- > 0) {
-      sum = sum + int.parse(cif[i]) * int.parse(testKey[i]);
-    }
-
-    int calculatedControlNumber = (sum * 10) % 11;
-
-    if (calculatedControlNumber == 10) {
-      calculatedControlNumber = 0;
-    }
-
-    if (controlNumber != calculatedControlNumber) {
-      return 'CIF invalid!';
-    }
-    return null;
   }
 }

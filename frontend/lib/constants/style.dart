@@ -174,6 +174,22 @@ class CustomStyle {
     );
   }
 
+  static TextStyle medium12({Color color = CustomColor.textPrimary}) {
+    return TextStyle(
+      fontSize: 12,
+      color: color,
+      fontWeight: FontWeight.w500,
+    );
+  }
+
+  static TextStyle medium14({Color color = CustomColor.textPrimary}) {
+    return TextStyle(
+      fontSize: 14,
+      color: color,
+      fontWeight: FontWeight.w500,
+    );
+  }
+
   static TextStyle medium20({Color color = CustomColor.textPrimary}) {
     return TextStyle(
       fontSize: 20,

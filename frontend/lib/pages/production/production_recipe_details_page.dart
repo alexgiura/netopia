@@ -78,8 +78,7 @@ class _ProductionRecipeDetailsPageState
 
       if (result.isNotEmpty) {
         if (context.mounted) {
-          showSnackBar(
-              context, 'Reteta a fost salvata!', const TextStyle(fontSize: 16));
+          showSnackBar(context, 'Reteta a fost salvata!', SnackBarType.success);
           if (widget.refreshCallback != null) {
             widget.refreshCallback!();
           }

@@ -65,8 +65,8 @@ class _PartnerDetailsPopupState extends ConsumerState<PartnerDetailsPopup>
         ref.read(partnerProvider.notifier).refreshPartners();
 
         if (context.mounted) {
-          showSnackBar(context, 'Partner saved successfully!',
-              const TextStyle(fontSize: 16));
+          showSnackBar(
+              context, 'Partner saved successfully!', SnackBarType.success);
           Navigator.of(context).pop();
         }
       }

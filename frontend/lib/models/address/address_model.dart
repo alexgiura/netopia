@@ -14,6 +14,18 @@ class Address {
         locality = null,
         countyCode = null;
 
+  Address copyWith({
+    String? address,
+    String? locality,
+    String? countyCode,
+  }) {
+    return Address(
+      address: address ?? this.address,
+      locality: locality ?? this.locality,
+      countyCode: countyCode ?? this.countyCode,
+    );
+  }
+
   factory Address.fromJson(Map<String, dynamic> json) {
     return Address(
       address: json['address'],

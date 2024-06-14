@@ -14,7 +14,6 @@ class CustomTextField extends StatefulWidget {
     this.enabled = true,
     this.errorText,
     this.validator,
-    this.customValidator,
     this.visible,
     this.onTap,
     this.readOnly,
@@ -31,7 +30,6 @@ class CustomTextField extends StatefulWidget {
   final String? hintText;
   final String? errorText;
   final String? Function(String?)? validator;
-  final bool Function(String)? customValidator;
   final Widget? prefixWidget;
   final Function(String)? onValueChanged;
   final Function()? onTap;
@@ -100,6 +98,8 @@ class CustomTextFieldState extends State<CustomTextField> {
           Container(
             constraints: const BoxConstraints(minWidth: 200),
             child: TextFormField(
+              // validator: widget.validator,
+              // autovalidateMode: AutovalidateMode.onUserInteraction,
               keyboardType: widget.keyboardType,
               controller: _textController,
               cursorColor: _showError ? Colors.red : CustomColor.active,
@@ -108,9 +108,9 @@ class CustomTextFieldState extends State<CustomTextField> {
                       ? true
                       : false
                   : true,
-              expands: widget.expand,
-              maxLines: widget.obscureText == true ? 1 : null,
-              minLines: null,
+              // expands: widget.expand,
+              // maxLines: widget.expand == true ? null : 1,
+              // minLines: widget.obscureText == true ? null : 1,
               obscureText: widget.obscureText ?? false,
               decoration: InputDecoration(
                   filled:
@@ -128,9 +128,9 @@ class CustomTextFieldState extends State<CustomTextField> {
                       color: widget.borderVisible == false
                           ? Colors.transparent
                           : _showError
-                              ? Colors.red
-                              : CustomColor.light,
-                      width: 0.5,
+                              ? CustomColor.error
+                              : CustomColor.slate_300,
+                      width: 1,
                     ),
                     borderRadius: CustomStyle.customBorderRadius,
                   ),
@@ -140,8 +140,8 @@ class CustomTextFieldState extends State<CustomTextField> {
                             color: widget.borderVisible == false
                                 ? Colors.transparent
                                 : _showError
-                                    ? Colors.red
-                                    : CustomColor.active,
+                                    ? CustomColor.error
+                                    : CustomColor.textPrimary,
                             width: 1,
                           )
                         : const BorderSide(
@@ -153,10 +153,18 @@ class CustomTextFieldState extends State<CustomTextField> {
                     borderSide: BorderSide(
                       color: widget.borderVisible == false
                           ? Colors.transparent
-                          : CustomColor.light,
-                      width: 0.5,
+                          : CustomColor.slate_200,
+                      width: 1,
                     ),
                     borderRadius: CustomStyle.customBorderRadius,
+                  ),
+                  errorBorder: OutlineInputBorder(
+                    borderRadius: CustomStyle.customBorderRadius,
+                    borderSide: const BorderSide(color: CustomColor.error),
+                  ),
+                  focusedErrorBorder: OutlineInputBorder(
+                    borderRadius: CustomStyle.customBorderRadius,
+                    borderSide: const BorderSide(color: CustomColor.error),
                   ),
                   prefixIcon: widget.prefixWidget != null
                       ? Padding(
@@ -165,7 +173,7 @@ class CustomTextFieldState extends State<CustomTextField> {
                         )
                       : null,
                   hoverColor: Colors.transparent),
-              style: CustomStyle.bodyText,
+              style: CustomStyle.medium14(),
               onChanged: (value) {
                 if (_showError == true) {
                   if (valid()) {
@@ -186,7 +194,7 @@ class CustomTextFieldState extends State<CustomTextField> {
           widget.hideErrortext == true
               ? SizedBox.shrink()
               : Padding(
-                  padding: const EdgeInsets.only(bottom: 2),
+                  padding: const EdgeInsets.only(bottom: 4),
                   child: Text(
                     _showError ? _errorText : '',
                     style: CustomStyle.errorText,
@@ -198,44 +206,14 @@ class CustomTextFieldState extends State<CustomTextField> {
   }
 
   bool valid() {
-    if (widget.required) {
-      if (_textController.text == '') {
+    if (widget.validator != null) {
+      final String? validatorError = widget.validator!(_textController.text);
+      if (validatorError != null) {
         setState(() {
           _showError = true;
-          _errorText = 'error_required_field'.tr(context);
+          _errorText = validatorError;
         });
         return false;
-      } else {
-        if (widget.keyboardType == TextInputType.emailAddress) {
-          if (!isValidEmail(_textController.text)) {
-            setState(() {
-              _showError = true;
-              _errorText = 'error_email'.tr(context);
-            });
-            return false;
-          }
-        } else if (widget.keyboardType == TextInputType.visiblePassword) {
-          String? passwordError =
-              validatePassword(context, _textController.text);
-          if (passwordError != null) {
-            setState(() {
-              _showError = true;
-              _errorText = passwordError;
-            });
-            return false;
-          }
-        }
-        if (widget.validator != null) {
-          final String? validatorError =
-              widget.validator!(_textController.text);
-          if (validatorError != null) {
-            setState(() {
-              _showError = true;
-              _errorText = validatorError;
-            });
-            return false;
-          }
-        }
       }
     }
 

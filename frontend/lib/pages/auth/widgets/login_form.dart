@@ -4,10 +4,12 @@ import 'package:erp_frontend_v2/models/app_localizations.dart';
 import 'package:erp_frontend_v2/models/user/user.dart' as custom_user;
 import 'package:erp_frontend_v2/routing/routes.dart';
 import 'package:erp_frontend_v2/services/user.dart';
+import 'package:erp_frontend_v2/utils/customSnackBar.dart';
 import 'package:erp_frontend_v2/utils/extensions.dart';
 import 'package:erp_frontend_v2/widgets/buttons/primary_button.dart';
 import 'package:erp_frontend_v2/widgets/buttons/tertiary_button.dart';
 import 'package:erp_frontend_v2/widgets/custom_checkbox.dart';
+import 'package:erp_frontend_v2/widgets/custom_text_field.dart';
 import 'package:erp_frontend_v2/widgets/custom_text_field_1.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -30,17 +32,10 @@ class LoginForm extends ConsumerStatefulWidget {
 }
 
 class _LoginFormState extends ConsumerState<LoginForm> {
-  final formKey = GlobalKey<FormState>();
+  final GlobalKey<FormState> formKey = GlobalKey<FormState>();
   final emailController = TextEditingController();
   final passwordController = TextEditingController();
   bool rememberMe = false;
-
-  void _submit() {
-    if (formKey.currentState!.validate()) {
-      _signInWithEmailAndPassword(
-          emailController.text, passwordController.text);
-    } else {}
-  }
 
   Future<void> _signInWithEmailAndPassword(
       String email, String password) async {
@@ -56,20 +51,26 @@ class _LoginFormState extends ConsumerState<LoginForm> {
 
       if (user != null) {
         boxUser.put('user', user);
-        context.go(overviewPageRoute);
+        if (mounted) {
+          context.go(overviewPageRoute);
+        }
       } else {
         print('No user found in the database.');
       }
     } on FirebaseAuthException catch (e) {
       if (e.code == 'user-not-found') {
-        print('No user found for that email.');
+        showSnackBar(
+            context, 'user-not-found'.tr(context), SnackBarType.warning);
       } else if (e.code == 'wrong-password') {
-        print('Wrong password provided for that user.');
+        showSnackBar(
+            context, 'wrong-password'.tr(context), SnackBarType.warning);
       } else if (e.code == 'invalid-credential') {
-        print('Invalid Credentials');
+        showSnackBar(
+            context, 'invalid-credential'.tr(context), SnackBarType.warning);
       }
     } catch (e) {
-      print('An unexpected error occurred: $e');
+      showSnackBar(
+          context, 'unexpected-error'.tr(context), SnackBarType.warning);
     }
   }
 
@@ -111,14 +112,11 @@ class _LoginFormState extends ConsumerState<LoginForm> {
               CustomTextField1(
                 validator: (value) {
                   if (value!.isEmpty) {
-                    return 'error_email'.tr(context);
+                    return 'error_required_field'.tr(context);
                   } else {
-                    return isValidEmail(value)
-                        ? null
-                        : 'error_email_format'.tr(context);
+                    return validateEmail(context, value);
                   }
                 },
-                borderVisible: true,
                 keyboardType: TextInputType.emailAddress,
                 labelText: 'email'.tr(context),
                 hintText: 'input_email'.tr(context),
@@ -130,15 +128,13 @@ class _LoginFormState extends ConsumerState<LoginForm> {
               Gap(context.height01),
               CustomTextField1(
                 keyboardType: TextInputType.visiblePassword,
-                autovalidateMode: AutovalidateMode.onUserInteraction,
                 labelText: 'password'.tr(context),
                 hintText: 'input_password'.tr(context),
                 validator: (value) {
                   if (value!.isEmpty) {
-                    return 'error_password'.tr(context);
-                  } else {
-                    return validatePassword(context, value);
+                    return 'error_required_field'.tr(context);
                   }
+                  return null;
                 },
                 obscureText: true,
                 onValueChanged: (value) {
@@ -159,7 +155,12 @@ class _LoginFormState extends ConsumerState<LoginForm> {
       child: PrimaryButton(
         style: CustomStyle.submitBlackButton,
         text: 'login'.tr(context),
-        onPressed: () => _submit(),
+        onPressed: () {
+          if (formKey.currentState!.validate()) {
+            _signInWithEmailAndPassword(
+                emailController.text, passwordController.text);
+          }
+        },
       ),
     );
   }

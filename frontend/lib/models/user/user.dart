@@ -30,6 +30,20 @@ class User {
         phoneNumber = null,
         company = Company.empty();
 
+  User copyWith({
+    String? id,
+    String? email,
+    String? phoneNumber,
+    Company? company,
+  }) {
+    return User(
+      id: id ?? this.id,
+      email: email ?? this.email,
+      phoneNumber: phoneNumber ?? this.phoneNumber,
+      company: company ?? this.company,
+    );
+  }
+
   factory User.fromJson(Map<String, dynamic> json) {
     return User(
       id: json['id'],

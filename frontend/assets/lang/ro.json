@@ -83,5 +83,14 @@
     "phone": "Telefon",
     "error_phone": "Telefonul este obligatoriu",
     "phone_placeholder": "Introdu telefonul",
-    "code_validation_failed": "Codul introdus nu a putut fi validat automat! "
+    "code_validation_failed": "Codul introdus nu a putut fi validat automat! ",
+    "user-not-found": "No user found for that email",
+    "wrong-password": "Wrong password provided for that user",
+    "invalid-credential": "Invalid credentials",
+    "unexpected-error": "An unexpected error occurred",
+    "email_already_registered_title": "E-mail deja înregistrat!",
+    "email_already_registered_subtitle": "Adresa de e-mail introdusă este deja înregistrată. Dacă ai deja un cont, te rugăm să te întorci la Login.",
+    "back_to_Login": "Înapoi la Login",
+    "cancel": "Cancel"
+
 }

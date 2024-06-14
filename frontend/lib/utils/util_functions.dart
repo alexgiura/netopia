@@ -43,10 +43,55 @@ String? validatePassword(BuildContext context, String password) {
   return null; // Password is valid
 }
 
-bool isValidEmail(String email) {
+String? validateEmail(BuildContext context, String email) {
   // Regular expression for validating an email address
   final RegExp emailRegex = RegExp(
     r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$',
   );
-  return emailRegex.hasMatch(email);
+
+  if (!emailRegex.hasMatch(email)) {
+    return 'error_email_format'.tr(context);
+  }
+
+  return null; // Email is valid
+}
+
+String? validateCompanyCif(String v) {
+  String cif = v.toUpperCase();
+  cif = cif.indexOf('RO') > -1 ? cif.substring(2) : cif;
+  cif = cif.replaceAll(RegExp(r'\s'), '');
+
+  if (cif.length < 2 || cif.length > 10) {
+    return 'Lungimea corectă fără RO, este între 2 și 10 caractere!';
+  }
+
+  if (int.tryParse(cif) == null) {
+    return 'Nu este număr!';
+  }
+
+  const testKey = '753217532';
+  final controlNumber = int.parse(cif.substring(cif.length - 1));
+  cif = cif.substring(0, cif.length - 1);
+
+  while (cif.length != testKey.length) {
+    cif = '0' + cif;
+  }
+
+  int sum = 0;
+  int i = cif.length;
+
+  while (i-- > 0) {
+    sum = sum + int.parse(cif[i]) * int.parse(testKey[i]);
+  }
+
+  int calculatedControlNumber = (sum * 10) % 11;
+
+  if (calculatedControlNumber == 10) {
+    calculatedControlNumber = 0;
+  }
+
+  if (controlNumber != calculatedControlNumber) {
+    return 'CIF invalid!';
+  }
+  return null;
 }

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:gap/gap.dart';
 
 import '../constants/style.dart';
@@ -40,6 +41,8 @@ class CustomTextField1State extends State<CustomTextField1> {
   final TextEditingController _textController = TextEditingController();
   String? lastInitialValue;
   bool? _obscureText = true;
+  String? _errorText = '';
+  bool? _showError = false;
 
   @override
   void initState() {
@@ -83,11 +86,30 @@ class CustomTextField1State extends State<CustomTextField1> {
           ),
         const Gap(8.0),
         Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             TextFormField(
               keyboardType: widget.keyboardType,
               controller: _textController,
-              validator: widget.validator,
+              validator: (value) {
+                String? validatorError = widget.validator?.call(value);
+                if (validatorError != null) {
+                  WidgetsBinding.instance.addPostFrameCallback((_) {
+                    setState(() {
+                      _showError = true;
+                      _errorText = validatorError;
+                    });
+                  });
+                } else {
+                  WidgetsBinding.instance.addPostFrameCallback((_) {
+                    setState(() {
+                      _showError = false;
+                      _errorText = '';
+                    });
+                  });
+                }
+                return validatorError;
+              },
               obscureText: widget.keyboardType == TextInputType.visiblePassword
                   ? _obscureText!
                   : false,
@@ -100,7 +122,16 @@ class CustomTextField1State extends State<CustomTextField1> {
                       : _obscureText = false;
                 });
               },
+              cursorColor: CustomColor.textPrimary,
+              cursorErrorColor: CustomColor.error,
               decoration: InputDecoration(
+                errorStyle: TextStyle(
+                  color: Colors.transparent,
+                  fontSize: 0,
+                ),
+
+                isCollapsed: true,
+                prefixText: '     ',
                 alignLabelWithHint: true,
                 floatingLabelBehavior: FloatingLabelBehavior.never,
                 suffixIcon: widget.obscureText != null
@@ -119,34 +150,38 @@ class CustomTextField1State extends State<CustomTextField1> {
                       )
                     : null,
                 contentPadding:
-                    const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+                    // 0 padding from left compansate with prefixText: otherwise error text is not allign on the left
+                    const EdgeInsets.fromLTRB(0, 12, 16, 12),
                 errorBorder: OutlineInputBorder(
                   borderRadius: CustomStyle.customBorderRadius,
-                  borderSide:
-                      const BorderSide(color: CustomColor.redErrorRequired),
+                  borderSide: const BorderSide(color: CustomColor.error),
                 ),
                 focusedErrorBorder: OutlineInputBorder(
                   borderRadius: CustomStyle.customBorderRadius,
-                  borderSide:
-                      const BorderSide(color: CustomColor.redErrorRequired),
+                  borderSide: const BorderSide(color: CustomColor.error),
                 ),
                 enabledBorder: OutlineInputBorder(
+                  borderSide: BorderSide(
+                    color: widget.borderVisible == false
+                        ? Colors.transparent
+                        : CustomColor.slate_300,
+                  ),
                   borderRadius: CustomStyle.customBorderRadius,
-                  borderSide:
-                      const BorderSide(color: CustomColor.light, width: 0.5),
                 ),
                 focusedBorder: OutlineInputBorder(
                   borderRadius: CustomStyle.customBorderRadius,
-                  borderSide: const BorderSide(color: CustomColor.active),
+                  borderSide: const BorderSide(color: CustomColor.textPrimary),
                 ),
+
                 hintText: widget.hintText,
                 hintStyle: CustomStyle.regular14(color: CustomColor.slate_500),
                 prefixIcon: widget.prefixWidget,
                 prefixIconConstraints: BoxConstraints.tight(const Size(10, 60)),
-                errorStyle: CustomStyle.errorText,
+                // errorStyle:
+                //     CustomStyle.labelSemibold12(color: CustomColor.error),
                 isDense: true,
-                helperText:
-                    ' ', // it's hack to avoid the error message to be shown
+                // helperText:
+                //     '', // it's hack to avoid the error message to be shown
                 errorMaxLines:
                     1, // ajustați numărul maxim de linii pentru mesajele de eroare
               ),
@@ -154,6 +189,22 @@ class CustomTextField1State extends State<CustomTextField1> {
                 widget.onValueChanged!(value);
               },
             ),
+            Padding(
+              padding: const EdgeInsets.only(bottom: 4),
+              child: Text(
+                _errorText!,
+                style: CustomStyle.errorText,
+              ),
+            ),
+            // (_showError == true && _errorText != null)
+            //     ? Padding(
+            //         padding: const EdgeInsets.only(bottom: 4),
+            //         child: Text(
+            //           _errorText!,
+            //           style: CustomStyle.errorText,
+            //         ),
+            //       )
+            //     : SizedBox.shrink()
           ],
         ),
       ],

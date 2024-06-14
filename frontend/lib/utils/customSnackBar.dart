@@ -1,7 +1,22 @@
+import 'package:erp_frontend_v2/constants/style.dart';
 import 'package:flutter/material.dart';
 
-void showSnackBar(BuildContext context, String text, TextStyle style) {
-  double textWidth = estimateTextWidth(text, style);
+enum SnackBarType { success, warning }
+
+void showSnackBar(BuildContext context, String text, SnackBarType type) {
+  TextStyle defaultStyle =
+      CustomStyle.medium14(color: CustomColor.textSecondary);
+  double textWidth = estimateTextWidth(text, defaultStyle);
+
+  Color backgroundColor;
+  switch (type) {
+    case SnackBarType.success:
+      backgroundColor = CustomColor.green;
+      break;
+    case SnackBarType.warning:
+      backgroundColor = CustomColor.warning;
+      break;
+  }
 
   ScaffoldMessenger.of(context).showSnackBar(
     SnackBar(
@@ -9,15 +24,15 @@ void showSnackBar(BuildContext context, String text, TextStyle style) {
       content: Container(
         child: Text(
           text,
-          style: style,
+          style: defaultStyle,
         ),
       ),
       behavior: SnackBarBehavior.floating,
-      backgroundColor: Colors.green,
+      backgroundColor: backgroundColor,
       margin: EdgeInsets.only(
         bottom: MediaQuery.of(context).size.height - 50,
-        right: (MediaQuery.of(context).size.width - 250 - textWidth - 32) / 2,
-        left: (MediaQuery.of(context).size.width - 250 - textWidth - 32) / 2,
+        right: (MediaQuery.of(context).size.width - textWidth - 32) / 2,
+        left: (MediaQuery.of(context).size.width - textWidth - 32) / 2,
       ),
     ),
   );

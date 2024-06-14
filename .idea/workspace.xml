@@ -5,11 +5,25 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="0a93d7e6-28d3-4e96-8877-54720ee52a94" name="Changes" comment="">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/assets/lang/ro.json" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/assets/lang/ro.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/lib/constants/sizes.dart" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/lib/constants/sizes.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/frontend/lib/constants/style.dart" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/lib/constants/style.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/frontend/lib/graphql/graphql_client.dart" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/lib/graphql/graphql_client.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/lib/models/address/address_model.dart" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/lib/models/address/address_model.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/lib/models/company/company_model.dart" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/lib/models/company/company_model.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/lib/models/user/user.dart" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/lib/models/user/user.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/frontend/lib/pages/auth/widgets/login_form.dart" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/lib/pages/auth/widgets/login_form.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/lib/widgets/buttons/primary_button.dart" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/lib/widgets/buttons/primary_button.dart" afterDir="false" />
-
+      <change beforePath="$PROJECT_DIR$/frontend/lib/pages/auth/widgets/register_form.dart" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/lib/pages/auth/widgets/register_form.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/lib/pages/document/document_details_page/document_details_page.dart" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/lib/pages/document/document_details_page/document_details_page.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/lib/pages/item/item_details_page.dart" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/lib/pages/item/item_details_page.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/lib/pages/partner/partner_details_page.dart" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/lib/pages/partner/partner_details_page.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/lib/pages/production/production_recipe_details_page.dart" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/lib/pages/production/production_recipe_details_page.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/lib/utils/customSnackBar.dart" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/lib/utils/customSnackBar.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/lib/utils/util_functions.dart" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/lib/utils/util_functions.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/lib/widgets/custom_text_field.dart" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/lib/widgets/custom_text_field.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/pubspec.lock" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/pubspec.lock" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/pubspec.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/pubspec.yaml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />

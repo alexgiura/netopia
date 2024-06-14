@@ -33,6 +33,23 @@ class Company {
 
   // bankName = null,
   // bankAccount = null;
+  Company copyWith({
+    String? id,
+    String? name,
+    bool? vat,
+    String? vatNumber,
+    String? registrationNumber,
+    Address? address,
+  }) {
+    return Company(
+      id: id ?? this.id,
+      name: name ?? this.name,
+      vat: vat ?? this.vat,
+      vatNumber: vatNumber ?? this.vatNumber,
+      registrationNumber: registrationNumber ?? this.registrationNumber,
+      address: address ?? this.address,
+    );
+  }
 
   factory Company.fromJson(Map<String, dynamic> json) {
     return Company(

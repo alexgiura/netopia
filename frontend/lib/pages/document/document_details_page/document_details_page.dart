@@ -137,8 +137,8 @@ class _DocumentDetailsPageState extends ConsumerState<DocumentDetailsPage> {
           );
           setState(() {});
 
-          showSnackBar(context, 'Document saved successfully!',
-              const TextStyle(fontSize: 16));
+          showSnackBar(
+              context, 'Document saved successfully!', SnackBarType.success);
           setState(() {
             _hId = result;
           });
@@ -175,8 +175,8 @@ class _DocumentDetailsPageState extends ConsumerState<DocumentDetailsPage> {
       });
 
       if (result2.isNotEmpty) {
-        showSnackBar(context, 'Document deleted successfully!',
-            const TextStyle(fontSize: 16));
+        showSnackBar(
+            context, 'Document deleted successfully!', SnackBarType.success);
 
         ref.read(documentProvider.notifier).refreshDocuments();
         Navigator.of(context).pop();

@@ -1,37 +1,76 @@
 import 'package:erp_frontend_v2/constants/style.dart';
 import 'package:flutter/material.dart';
 
-class PrimaryButton extends StatelessWidget {
+class PrimaryButton extends StatefulWidget {
   final String text;
   final IconData? icon;
   final ButtonStyle? style;
   final VoidCallback? onPressed;
-  const PrimaryButton(
-      {super.key,
-      required this.text,
-      this.icon,
-      required this.onPressed,
-      this.style});
+  final Future<void> Function()? asyncOnPressed;
+
+  const PrimaryButton({
+    super.key,
+    required this.text,
+    this.icon,
+    this.onPressed,
+    this.asyncOnPressed,
+    this.style,
+  });
+
+  @override
+  _PrimaryButtonState createState() => _PrimaryButtonState();
+}
+
+class _PrimaryButtonState extends State<PrimaryButton> {
+  bool _isLoading = false;
+
+  void _handlePressed() async {
+    if (widget.asyncOnPressed != null) {
+      setState(() {
+        _isLoading = true;
+      });
+
+      try {
+        await widget.asyncOnPressed!.call();
+      } finally {
+        setState(() {
+          _isLoading = false;
+        });
+      }
+    } else if (widget.onPressed != null) {
+      widget.onPressed?.call();
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
-    if (icon != null) {
-      return ElevatedButton.icon(
-        style: style ?? CustomStyle.submitBlackButton,
-        label: Text(text,
-            style:
-                CustomStyle.buttonSemibold14(color: CustomColor.textSecondary)),
-        icon: Icon(icon),
-        onPressed: onPressed,
-      );
-    } else {
-      return ElevatedButton(
-        style: style ?? CustomStyle.submitBlackButton,
-        onPressed: onPressed,
-        child: Text(text,
-            style:
-                CustomStyle.buttonSemibold14(color: CustomColor.textSecondary)),
-      );
-    }
+    return ElevatedButton(
+      style: widget.style ?? CustomStyle.submitBlackButton,
+      onPressed: _isLoading ? null : _handlePressed,
+      child: _isLoading
+          ? const Center(
+              child: SizedBox(
+                height: 18,
+                width: 18,
+                child: CircularProgressIndicator(
+                  strokeWidth: 2,
+                  valueColor:
+                      AlwaysStoppedAnimation<Color>(CustomColor.textSecondary),
+                ),
+              ),
+            )
+          : Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                if (widget.icon != null) Icon(widget.icon),
+                if (widget.icon != null) const SizedBox(width: 8),
+                Text(
+                  widget.text,
+                  style: CustomStyle.buttonSemibold14(
+                      color: CustomColor.textSecondary),
+                ),
+              ],
+            ),
+    );
   }
 }

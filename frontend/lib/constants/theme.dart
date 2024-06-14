@@ -19,6 +19,7 @@ ThemeData customTheme(BuildContext context) {
     }),
     iconTheme: const IconThemeData(color: CustomColor.textPrimary),
     //dividerColor: Colors.transparent, // Set the divider color to transparent
+
     hoverColor: Colors.transparent,
     focusColor: Colors.transparent,
     dialogBackgroundColor: CustomColor.white,

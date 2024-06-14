@@ -79,8 +79,8 @@ class _ItemDetailsPopupState extends ConsumerState<ItemDetailsPopup>
         ref.read(itemProvider.notifier).refreshItems();
 
         if (context.mounted) {
-          showSnackBar(context, 'Produsul a fost salvat!',
-              const TextStyle(fontSize: 16));
+          showSnackBar(
+              context, 'Produsul a fost salvat!', SnackBarType.success);
           Navigator.of(context).pop();
         }
       }
