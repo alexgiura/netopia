@@ -20,8 +20,8 @@ services:
     #   - "traefik.port=80"
     #   - "traefik.docker.network=traff"
 
-    networks:
-      - default
+    # networks:
+    #   - default
     environment:
       - POSTGRES_SSL_CERT=../certificate.pem
       - POSTGRES_DB_HOST=$POSTGRES_DB_HOST
@@ -46,8 +46,8 @@ services:
       dockerfile: Dockerfile
     ports:
        - "80:80"
-    networks:
-       - default
+    # networks:
+    #    - default
     # labels:
     #    - "traefik.enable=true"
     #    - "traefik.http.routers.erp-frontend.rule=Host(`erp.local`)"
