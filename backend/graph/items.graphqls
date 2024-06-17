@@ -17,12 +17,9 @@ type Um{
     id: Int!
     name: String!
     code: String!
+    is_active: Boolean!
 }
-#type Category{
-#    id: Int!
-#    name: String!
-#    is_active: Boolean!
-#}
+
 
 type Vat{
     id: Int!
@@ -58,6 +55,13 @@ input ItemCategoryInput{
     generate_pn:Boolean!
 }
 
+input UmInput{
+    id: Int
+    name: String!
+    code: String!
+    is_active:Boolean!
+}
+
 extend type Query {
     getItems(input: GetItemsInput!): [Item]
     getUmList:[Um]
@@ -66,5 +70,6 @@ extend type Query {
 }
 extend type Mutation {
     saveItem(input: ItemInput!): String
+    saveUm(input: UmInput!): Um
     saveItemCategory(input: ItemCategoryInput!): String
 }

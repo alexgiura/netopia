@@ -26,7 +26,6 @@ func (r *queryResolver) GetCompany(ctx context.Context, taxID *string) (*models.
 		}
 		return company, nil
 	}
-
 }
 
 // GetCompanyByTaxID is the resolver for the getCompanyByTaxId field.

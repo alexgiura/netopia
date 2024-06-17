@@ -61,6 +61,48 @@ func (r *mutationResolver) SaveItem(ctx context.Context, input model.ItemInput) 
 	return &response, nil
 }
 
+// SaveUm is the resolver for the saveUM field.
+func (r *mutationResolver) SaveUm(ctx context.Context, input model.UmInput) (*models.Um, error) {
+	if input.ID == nil {
+		// Insert new UM
+		newUm, err := r.DBProvider.InsertUm(ctx, db.InsertUmParams{
+			Name:     input.Name,
+			Code:     input.Code,
+			IsActive: input.IsActive,
+		})
+		if err != nil {
+			log.Printf("\"message\": \"Failed to execute DBProvider.InsertUm\", \"error\": \"%s\"", err.Error())
+			return nil, _err.Error(ctx, "InsertFailed", "DatabaseError")
+		}
+		return &models.Um{
+			ID:       int(newUm.ID),
+			Name:     newUm.Name,
+			Code:     newUm.Code,
+			IsActive: newUm.IsActive,
+		}, nil
+	} else {
+		// Update existing UM
+		updatedUm, err := r.DBProvider.UpdateUm(ctx, db.UpdateUmParams{
+			ID:       int32(*input.ID),
+			Name:     input.Name,
+			Code:     input.Code,
+			IsActive: input.IsActive,
+		})
+		if err != nil {
+			log.Printf("\"message\": \"Failed to execute DBProvider.UpdateUm\", \"error\": \"%s\"", err.Error())
+			return nil, _err.Error(ctx, "UpdateFailed", "DatabaseError")
+		}
+		return &models.Um{
+			ID:       int(updatedUm.ID),
+			Name:     updatedUm.Name,
+			Code:     updatedUm.Code,
+			IsActive: updatedUm.IsActive,
+		}, nil
+	}
+
+	return nil, nil
+}
+
 // SaveItemCategory is the resolver for the saveItemCategory field.
 func (r *mutationResolver) SaveItemCategory(ctx context.Context, input model.ItemCategoryInput) (*string, error) {
 	if input.ID == nil {

@@ -275,6 +275,30 @@ func (q *Queries) InsertItemCategory(ctx context.Context, arg InsertItemCategory
 	return id, err
 }
 
+const insertUm = `-- name: InsertUm :one
+Insert into core.item_um (name,code,is_active)
+VALUES ($1,$2,$3)
+    RETURNING id, name, code, is_active
+`
+
+type InsertUmParams struct {
+	Name     string
+	Code     string
+	IsActive bool
+}
+
+func (q *Queries) InsertUm(ctx context.Context, arg InsertUmParams) (CoreItemUm, error) {
+	row := q.db.QueryRow(ctx, insertUm, arg.Name, arg.Code, arg.IsActive)
+	var i CoreItemUm
+	err := row.Scan(
+		&i.ID,
+		&i.Name,
+		&i.Code,
+		&i.IsActive,
+	)
+	return i, err
+}
+
 const updateItem = `-- name: UpdateItem :exec
 Update core.items
 Set code=$2,
@@ -335,4 +359,37 @@ func (q *Queries) UpdateItemCategory(ctx context.Context, arg UpdateItemCategory
 		arg.GeneratePn,
 	)
 	return err
+}
+
+const updateUm = `-- name: UpdateUm :one
+Update core.item_um
+Set name=$2,
+    code=$3,
+    is_active=$4
+where id=$1
+    RETURNING id, name, code, is_active
+`
+
+type UpdateUmParams struct {
+	ID       int32
+	Name     string
+	Code     string
+	IsActive bool
+}
+
+func (q *Queries) UpdateUm(ctx context.Context, arg UpdateUmParams) (CoreItemUm, error) {
+	row := q.db.QueryRow(ctx, updateUm,
+		arg.ID,
+		arg.Name,
+		arg.Code,
+		arg.IsActive,
+	)
+	var i CoreItemUm
+	err := row.Scan(
+		&i.ID,
+		&i.Name,
+		&i.Code,
+		&i.IsActive,
+	)
+	return i, err
 }

@@ -166,6 +166,7 @@ type ComplexityRoot struct {
 		SaveItemCategory                  func(childComplexity int, input model.ItemCategoryInput) int
 		SavePartner                       func(childComplexity int, input model.PartnerInput) int
 		SaveRecipe                        func(childComplexity int, input model.SaveRecipeInput) int
+		SaveUm                            func(childComplexity int, input model.UmInput) int
 		UploadEfacturaDocument            func(childComplexity int, input model.GenerateEfacturaDocumentInput) int
 	}
 
@@ -227,9 +228,10 @@ type ComplexityRoot struct {
 	}
 
 	Um struct {
-		Code func(childComplexity int) int
-		ID   func(childComplexity int) int
-		Name func(childComplexity int) int
+		Code     func(childComplexity int) int
+		ID       func(childComplexity int) int
+		IsActive func(childComplexity int) int
+		Name     func(childComplexity int) int
 	}
 
 	User struct {
@@ -263,6 +265,7 @@ type MutationResolver interface {
 	UploadEfacturaDocument(ctx context.Context, input model.GenerateEfacturaDocumentInput) (*string, error)
 	CheckEfacturaUploadState(ctx context.Context, efacturaDocumentID string) (*string, error)
 	SaveItem(ctx context.Context, input model.ItemInput) (*string, error)
+	SaveUm(ctx context.Context, input model.UmInput) (*models.Um, error)
 	SaveItemCategory(ctx context.Context, input model.ItemCategoryInput) (*string, error)
 	SavePartner(ctx context.Context, input model.PartnerInput) (*string, error)
 	SaveRecipe(ctx context.Context, input model.SaveRecipeInput) (*string, error)
@@ -890,6 +893,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Mutation.SaveRecipe(childComplexity, args["input"].(model.SaveRecipeInput)), true
 
+	case "Mutation.saveUm":
+		if e.complexity.Mutation.SaveUm == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_saveUm_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.SaveUm(childComplexity, args["input"].(model.UmInput)), true
+
 	case "Mutation.uploadEfacturaDocument":
 		if e.complexity.Mutation.UploadEfacturaDocument == nil {
 			break
@@ -1265,6 +1280,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Um.ID(childComplexity), true
 
+	case "Um.is_active":
+		if e.complexity.Um.IsActive == nil {
+			break
+		}
+
+		return e.complexity.Um.IsActive(childComplexity), true
+
 	case "Um.name":
 		if e.complexity.Um.Name == nil {
 			break
@@ -1367,6 +1389,7 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 		ec.unmarshalInputSaveUserInput,
 		ec.unmarshalInputStockReportInput,
 		ec.unmarshalInputTransactionAvailableItemsInput,
+		ec.unmarshalInputUmInput,
 		ec.unmarshalInputUpdateUserInput,
 		ec.unmarshalInputUserInput,
 	)
@@ -1680,6 +1703,7 @@ type Um{
     id: Int!
     name: String!
     code: String!
+    is_active: Boolean!
 }
 #type Category{
 #    id: Int!
@@ -1721,6 +1745,13 @@ input ItemCategoryInput{
     generate_pn:Boolean!
 }
 
+input UmInput{
+    id: Int
+    name: String!
+    code: String!
+    is_active:Boolean!
+}
+
 extend type Query {
     getItems(input: GetItemsInput!): [Item]
     getUmList:[Um]
@@ -1729,6 +1760,7 @@ extend type Query {
 }
 extend type Mutation {
     saveItem(input: ItemInput!): String
+    saveUm(input: UmInput!): Um
     saveItemCategory(input: ItemCategoryInput!): String
 }`, BuiltIn: false},
 	{Name: "../partner.graphqls", Input: `type Partner {
@@ -2025,6 +2057,21 @@ func (ec *executionContext) field_Mutation_saveRecipe_args(ctx context.Context, 
 	if tmp, ok := rawArgs["input"]; ok {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
 		arg0, err = ec.unmarshalNSaveRecipeInput2backendᚋgraphᚋmodelᚐSaveRecipeInput(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["input"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_Mutation_saveUm_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 model.UmInput
+	if tmp, ok := rawArgs["input"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
+		arg0, err = ec.unmarshalNUmInput2backendᚋgraphᚋmodelᚐUmInput(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -4704,6 +4751,8 @@ func (ec *executionContext) fieldContext_Item_um(ctx context.Context, field grap
 				return ec.fieldContext_Um_name(ctx, field)
 			case "code":
 				return ec.fieldContext_Um_code(ctx, field)
+			case "is_active":
+				return ec.fieldContext_Um_is_active(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Um", field.Name)
 		},
@@ -5353,6 +5402,65 @@ func (ec *executionContext) fieldContext_Mutation_saveItem(ctx context.Context, 
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
 	if fc.Args, err = ec.field_Mutation_saveItem_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Mutation_saveUm(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Mutation_saveUm(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp := ec._fieldMiddleware(ctx, nil, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Mutation().SaveUm(rctx, fc.Args["input"].(model.UmInput))
+	})
+
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*models.Um)
+	fc.Result = res
+	return ec.marshalOUm2ᚖbackendᚋmodelsᚐUm(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Mutation_saveUm(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Mutation",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_Um_id(ctx, field)
+			case "name":
+				return ec.fieldContext_Um_name(ctx, field)
+			case "code":
+				return ec.fieldContext_Um_code(ctx, field)
+			case "is_active":
+				return ec.fieldContext_Um_is_active(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type Um", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Mutation_saveUm_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return fc, err
 	}
@@ -6932,6 +7040,8 @@ func (ec *executionContext) fieldContext_Query_getUmList(ctx context.Context, fi
 				return ec.fieldContext_Um_name(ctx, field)
 			case "code":
 				return ec.fieldContext_Um_code(ctx, field)
+			case "is_active":
+				return ec.fieldContext_Um_is_active(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Um", field.Name)
 		},
@@ -7834,6 +7944,47 @@ func (ec *executionContext) fieldContext_Um_code(ctx context.Context, field grap
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Um_is_active(ctx context.Context, field graphql.CollectedField, obj *models.Um) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Um_is_active(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp := ec._fieldMiddleware(ctx, obj, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.IsActive, nil
+	})
+
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(bool)
+	fc.Result = res
+	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Um_is_active(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Um",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Boolean does not have child fields")
 		},
 	}
 	return fc, nil
@@ -10805,6 +10956,54 @@ func (ec *executionContext) unmarshalInputTransactionAvailableItemsInput(ctx con
 	return it, nil
 }
 
+func (ec *executionContext) unmarshalInputUmInput(ctx context.Context, obj interface{}) (model.UmInput, error) {
+	var it model.UmInput
+	asMap := map[string]interface{}{}
+	for k, v := range obj.(map[string]interface{}) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"id", "name", "code", "is_active"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "id":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("id"))
+			data, err := ec.unmarshalOInt2ᚖint(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.ID = data
+		case "name":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("name"))
+			data, err := ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Name = data
+		case "code":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("code"))
+			data, err := ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Code = data
+		case "is_active":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("is_active"))
+			data, err := ec.unmarshalNBoolean2bool(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.IsActive = data
+		}
+	}
+
+	return it, nil
+}
+
 func (ec *executionContext) unmarshalInputUpdateUserInput(ctx context.Context, obj interface{}) (model.UpdateUserInput, error) {
 	var it model.UpdateUserInput
 	asMap := map[string]interface{}{}
@@ -11704,6 +11903,10 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
 				return ec._Mutation_saveItem(ctx, field)
 			})
+		case "saveUm":
+			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._Mutation_saveUm(ctx, field)
+			})
 		case "saveItemCategory":
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
 				return ec._Mutation_saveItemCategory(ctx, field)
@@ -12426,6 +12629,11 @@ func (ec *executionContext) _Um(ctx context.Context, sel ast.SelectionSet, obj *
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
+		case "is_active":
+			out.Values[i] = ec._Um_is_active(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -13099,6 +13307,11 @@ func (ec *executionContext) marshalNString2ᚖstring(ctx context.Context, sel as
 
 func (ec *executionContext) marshalNUm2backendᚋmodelsᚐUm(ctx context.Context, sel ast.SelectionSet, v models.Um) graphql.Marshaler {
 	return ec._Um(ctx, sel, &v)
+}
+
+func (ec *executionContext) unmarshalNUmInput2backendᚋgraphᚋmodelᚐUmInput(ctx context.Context, v interface{}) (model.UmInput, error) {
+	res, err := ec.unmarshalInputUmInput(ctx, v)
+	return res, graphql.ErrorOnPath(ctx, err)
 }
 
 func (ec *executionContext) unmarshalNUserInput2backendᚋgraphᚋmodelᚐUserInput(ctx context.Context, v interface{}) (model.UserInput, error) {

@@ -198,6 +198,13 @@ type TransactionAvailableItemsInput struct {
 	TransactionID int      `json:"transaction_id"`
 }
 
+type UmInput struct {
+	ID       *int   `json:"id,omitempty"`
+	Name     string `json:"name"`
+	Code     string `json:"code"`
+	IsActive bool   `json:"is_active"`
+}
+
 type UpdateUserInput struct {
 	User    *UserInput    `json:"user,omitempty"`
 	Company *CompanyInput `json:"company,omitempty"`

@@ -86,3 +86,16 @@ Set name=$2,
     is_active=$3,
     generate_pn=$4
 where id=$1;
+
+-- name: InsertUm :one
+Insert into core.item_um (name,code,is_active)
+VALUES ($1,$2,$3)
+    RETURNING id, name, code, is_active;
+
+-- name: UpdateUm :one
+Update core.item_um
+Set name=$2,
+    code=$3,
+    is_active=$4
+where id=$1
+    RETURNING id, name, code, is_active;
