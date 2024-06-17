@@ -87,7 +87,7 @@ class _LoginFormState extends ConsumerState<LoginForm> {
   @override
   Widget build(BuildContext context) {
     return Column(
-      mainAxisSize: MainAxisSize.max,
+      mainAxisSize: MainAxisSize.min,
       children: [
         _formHeader(context),
         Gap(context.height02),
@@ -96,7 +96,7 @@ class _LoginFormState extends ConsumerState<LoginForm> {
         _formOptions(context),
         Gap(context.height02),
         _formButton(context),
-        if (context.deviceWidth > largeScreenSize) const Spacer(),
+        // if (context.deviceWidth > largeScreenSize) const Spacer(),
         FittedBox(child: _formBottom(context)),
       ],
     );
