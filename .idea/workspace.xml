@@ -9,6 +9,7 @@
       <change beforePath="$PROJECT_DIR$/frontend/assets/lang/ro.json" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/assets/lang/ro.json" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/frontend/lib/constants/sizes.dart" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/lib/constants/sizes.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/frontend/lib/constants/style.dart" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/lib/constants/style.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/lib/constants/theme.dart" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/lib/constants/theme.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/frontend/lib/graphql/graphql_client.dart" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/lib/graphql/graphql_client.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/frontend/lib/models/address/address_model.dart" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/lib/models/address/address_model.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/frontend/lib/models/company/company_model.dart" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/lib/models/company/company_model.dart" afterDir="false" />
@@ -22,6 +23,7 @@
       <change beforePath="$PROJECT_DIR$/frontend/lib/utils/customSnackBar.dart" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/lib/utils/customSnackBar.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/frontend/lib/utils/util_functions.dart" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/lib/utils/util_functions.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/frontend/lib/widgets/custom_text_field.dart" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/lib/widgets/custom_text_field.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/lib/widgets/custom_text_field_1.dart" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/lib/widgets/custom_text_field_1.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/frontend/pubspec.lock" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/pubspec.lock" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/frontend/pubspec.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/pubspec.yaml" afterDir="false" />
     </list>

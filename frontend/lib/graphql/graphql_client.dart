@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
 
-final httpLink = HttpLink('http://172.18.0.5:8080/graphql', defaultHeaders: {
+final httpLink =
+    HttpLink('http://159.223.234.127:8080/graphql', defaultHeaders: {
   'Authorization':
       'Bearer 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',
   // 'Content-Type': 'application/json',
