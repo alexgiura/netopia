@@ -38,7 +38,7 @@ class _FilterSectionLarge3State extends ConsumerState<FilterSectionLarge3> {
     double width = MediaQuery.of(context).size.width;
 
     return Container(
-      decoration: CustomStyle.customContainerDecoration,
+      decoration: CustomStyle.customContainerDecoration(),
       padding: const EdgeInsets.all(16),
       child: Column(
         children: [
@@ -127,8 +127,7 @@ class _FilterSectionLarge3State extends ConsumerState<FilterSectionLarge3> {
                   // Handle button press
                 },
                 style: CustomStyle.tertiaryButton,
-                child:
-                     Text('Clear', style: CustomStyle.tertiaryButtonText),
+                child: Text('Clear', style: CustomStyle.tertiaryButtonText),
               )
             ],
           )

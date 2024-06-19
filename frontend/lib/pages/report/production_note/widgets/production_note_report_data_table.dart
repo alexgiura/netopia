@@ -32,7 +32,7 @@ class _ProductionNoteReportPageDataTableState
       children: [
         Expanded(
           child: Container(
-            decoration: CustomStyle.customContainerDecoration,
+            decoration: CustomStyle.customContainerDecoration(),
             child: Column(
               children: [
                 Expanded(

@@ -31,7 +31,9 @@ const String getUmList = r'''
 query getUmList{
     getUmList{
         id,
-        name
+        name,
+        code,
+        is_active
     }
 }
 ''';

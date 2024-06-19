@@ -58,7 +58,7 @@ class _EfacturaInfoPopupState extends State<EfacturaErrorPopup> {
 
               Container(
                 padding: const EdgeInsets.all(16.0),
-                decoration: CustomStyle.customContainerDecoration,
+                decoration: CustomStyle.customContainerDecoration(),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -159,7 +159,7 @@ class _EfacturaInfoPopupState extends State<EfacturaErrorPopup> {
               const Gap(16),
               Container(
                 padding: const EdgeInsets.all(16.0),
-                decoration: CustomStyle.customContainerDecoration,
+                decoration: CustomStyle.customContainerDecoration(),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [

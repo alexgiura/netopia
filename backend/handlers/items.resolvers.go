@@ -194,8 +194,10 @@ func (r *queryResolver) GetUmList(ctx context.Context) ([]*models.Um, error) {
 	umList := make([]*models.Um, 0)
 	for _, row := range rows {
 		um := &models.Um{
-			ID:   int(row.ID),
-			Name: row.Name,
+			ID:       int(row.ID),
+			Name:     row.Name,
+			Code:     row.Code,
+			IsActive: row.IsActive,
 		}
 
 		umList = append(umList, um)

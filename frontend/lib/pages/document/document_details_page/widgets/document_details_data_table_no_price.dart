@@ -1,6 +1,4 @@
 import 'package:erp_frontend_v2/models/partner/partner_model.dart';
-import 'package:erp_frontend_v2/pages/document/document_generate_popup/document_generate_popup.dart';
-import 'package:erp_frontend_v2/providers/document_transaction_provider.dart';
 import 'package:erp_frontend_v2/widgets/custom_data_table.dart';
 import 'package:flutter/material.dart';
 import 'package:data_table_2/data_table_2.dart';
@@ -8,7 +6,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../constants/style.dart';
 import '../../../../models/document/document_model.dart';
 import '../../../../widgets/custom_text_field_double.dart';
-import '../../document_add_item/document_add_item_popup.dart';
 
 class DocumentItemsNoPriceDataTable extends ConsumerStatefulWidget {
   const DocumentItemsNoPriceDataTable(
@@ -46,7 +43,7 @@ class _DocumentItemsNoPriceDataTableState
     }
 
     return Container(
-      decoration: CustomStyle.customContainerDecoration,
+      decoration: CustomStyle.customContainerDecoration(),
       child: CustomDataTable(columns: _columns, rows: getRows(widget.data!)),
     );
   }

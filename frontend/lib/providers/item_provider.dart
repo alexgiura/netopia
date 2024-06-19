@@ -23,11 +23,7 @@ final vatProvider = FutureProvider<List<Vat>>((ref) async {
   return vatList;
 });
 
-// final itemCategoryProvider = FutureProvider<List<ItemCategory>>((ref) async {
-//   final itemcategoryList = await ItemService().getItemCategoryList();
-
-//   return itemcategoryList;
-// });
+// Item Provider
 
 class ItemProvider extends StateNotifier<AsyncValue<List<Item>>> {
   ItemProvider() : super(const AsyncValue.loading()) {
@@ -61,6 +57,8 @@ final itemProvider =
   return ItemProvider();
 });
 
+// Item Category Provider
+
 class ItemCategoryProvider
     extends StateNotifier<AsyncValue<List<ItemCategory>>> {
   ItemCategoryProvider() : super(const AsyncValue.loading()) {
@@ -88,4 +86,31 @@ final itemCategoryProvider =
     StateNotifierProvider<ItemCategoryProvider, AsyncValue<List<ItemCategory>>>(
         (ref) {
   return ItemCategoryProvider();
+});
+
+// Item Units Provider
+
+class ItemUnitsProvider extends StateNotifier<AsyncValue<List<Um>>> {
+  ItemUnitsProvider() : super(const AsyncValue.loading()) {
+    fetchItemUnits(); // Optionally start fetching documents on initialization
+  }
+
+  Future<void> fetchItemUnits() async {
+    state = const AsyncValue.loading();
+    try {
+      final itemUnitsList = await ItemService().getUmList();
+      state = AsyncValue.data(itemUnitsList);
+    } catch (e) {
+      //state = AsyncValue.error(e);
+    }
+  }
+
+  void refreshItemUnits() {
+    fetchItemUnits();
+  }
+}
+
+final itemUnitsProvider =
+    StateNotifierProvider<ItemUnitsProvider, AsyncValue<List<Um>>>((ref) {
+  return ItemUnitsProvider();
 });

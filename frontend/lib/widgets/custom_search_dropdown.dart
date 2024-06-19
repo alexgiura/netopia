@@ -156,7 +156,7 @@ class SearchDropDownState<T> extends ConsumerState<SearchDropDown<T>> {
           hideOverlay();
         },
         child: Container(
-            decoration: CustomStyle.customContainerDecoration,
+            decoration: CustomStyle.customContainerDecoration(),
             constraints: const BoxConstraints(
               maxHeight: 350.0,
               //maxWidth: 350,

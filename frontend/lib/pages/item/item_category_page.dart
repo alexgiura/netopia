@@ -1,6 +1,6 @@
 import 'package:erp_frontend_v2/constants/style.dart';
 import 'package:erp_frontend_v2/models/item/item_category_model.dart';
-import 'package:erp_frontend_v2/pages/item/item_category_details_page.dart';
+import 'package:erp_frontend_v2/pages/item/widgets/item_category_popup.dart';
 import 'package:erp_frontend_v2/pages/item/widgets/item_category_data_table.dart';
 import 'package:flutter/material.dart';
 import '../../helpers/responsiveness.dart';

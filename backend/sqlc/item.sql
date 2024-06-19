@@ -32,7 +32,8 @@ select id,
        name,
        code,
        is_active
-from core.item_um;
+from core.item_um
+order by name asc;
 
 -- name: GetVatList :many
 select id,

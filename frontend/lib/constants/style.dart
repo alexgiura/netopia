@@ -22,6 +22,7 @@ class CustomColor {
   ]);
   static const bgSecondary = Color(0xffFDFFFF);
   static const accentColor = Color(0xffCEFF7B);
+  static const accentNeutral = Color(0xffDEE1DB);
   static const textPrimary = Color(0xff010101);
   static const textSecondary = Color(0xffF1F5EA);
   static const error = Color(0xffD03E00);
@@ -198,6 +199,14 @@ class CustomStyle {
     );
   }
 
+  static TextStyle medium40({Color color = CustomColor.textPrimary}) {
+    return TextStyle(
+      fontSize: 40,
+      color: color,
+      fontWeight: FontWeight.w500,
+    );
+  }
+
   static TextStyle bold20({Color color = CustomColor.textPrimary}) {
     return TextStyle(
       fontSize: 20,
@@ -346,10 +355,12 @@ class CustomStyle {
     );
   }
 
-  static TextStyle labelSemibold12({Color color = CustomColor.textPrimary}) {
+  static TextStyle labelSemibold12(
+      {Color color = CustomColor.textPrimary, bool? isUnderline}) {
     return TextStyle(
       fontSize: 12,
       color: color,
+      decoration: isUnderline == true ? TextDecoration.underline : null,
       fontWeight: FontWeight.w600,
     );
   }
@@ -494,29 +505,35 @@ class CustomStyle {
   );
 
   // Container decoration
-  static BoxDecoration customContainerDecoration = BoxDecoration(
-    color: CustomColor.bgSecondary,
-    borderRadius: BorderRadius.circular(12),
-    border: Border.all(color: Colors.transparent),
-    boxShadow: [
-      BoxShadow(
-          offset: const Offset(0, 6),
-          color: CustomColor.darkGreen.withOpacity(0.12),
-          blurRadius: 16)
-    ],
-  );
+  static BoxDecoration customContainerDecoration({BorderRadius? borderRadius}) {
+    return BoxDecoration(
+      color: CustomColor.bgSecondary,
+      borderRadius: borderRadius ?? BorderRadius.circular(12),
+      boxShadow: [
+        BoxShadow(
+            offset: const Offset(0, 6),
+            color: CustomColor.darkGreen.withOpacity(0.12),
+            blurRadius: 16)
+      ],
+    );
+  }
 
-  static BoxDecoration customBorderContainerDecoration = BoxDecoration(
-    color: CustomColor.bgSecondary,
-    borderRadius: BorderRadius.circular(12),
-    border: Border.all(color: CustomColor.textPrimary),
-    boxShadow: [
-      BoxShadow(
-          offset: const Offset(0, 6),
-          color: CustomColor.darkGreen.withOpacity(0.12),
-          blurRadius: 16)
-    ],
-  );
+  static BoxDecoration customBorderContainerDecoration(
+      {BorderRadius? borderRadius}) {
+    return BoxDecoration(
+      color: CustomColor.bgSecondary,
+      borderRadius: borderRadius ?? BorderRadius.circular(12),
+      border: Border.all(color: CustomColor.textPrimary),
+      boxShadow: [
+        BoxShadow(
+          color: Colors.black.withOpacity(0.1),
+          spreadRadius: 20,
+          blurRadius: 40,
+          offset: const Offset(0, 35), // changes position of shadow
+        )
+      ],
+    );
+  }
 
   // Container decoration
   static BoxDecoration customErrorContainerDecoration = BoxDecoration(

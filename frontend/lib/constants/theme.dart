@@ -7,6 +7,7 @@ ThemeData customTheme(BuildContext context) {
   return ThemeData(
     useMaterial3: false,
     textTheme:
+        // GoogleFonts.grechenFuemenTextTheme(Theme.of(context).textTheme),
         GoogleFonts.wixMadeforDisplayTextTheme(Theme.of(context).textTheme),
     // canvasColor: CustomColor.white,
     pageTransitionsTheme: PageTransitionsTheme(builders: {

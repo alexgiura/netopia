@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:data_table_2/data_table_2.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../constants/style.dart';
-import '../../../../widgets/custom_text_field_double.dart';
 
 class TransactionAvailableItemsDataTable extends ConsumerStatefulWidget {
   const TransactionAvailableItemsDataTable({
@@ -32,7 +31,7 @@ class _TransactionAvailableItemsDataTableState
   @override
   Widget build(BuildContext context) {
     return Container(
-        decoration: CustomStyle.customContainerDecoration,
+        decoration: CustomStyle.customContainerDecoration(),
         child: CustomDataTable(columns: _columns, rows: getRows(widget.data)));
   }
 

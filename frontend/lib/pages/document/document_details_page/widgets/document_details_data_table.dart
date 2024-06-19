@@ -62,7 +62,7 @@ class _DocumentItemsDataTableState
   @override
   Widget build(BuildContext context) {
     return Container(
-      decoration: CustomStyle.customContainerDecoration,
+      decoration: CustomStyle.customContainerDecoration(),
       child:
           CustomDataTable(columns: getColumns(), rows: getRows(widget.data!)),
     );

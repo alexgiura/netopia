@@ -161,6 +161,7 @@ select id,
        code,
        is_active
 from core.item_um
+order by name asc
 `
 
 func (q *Queries) GetUmList(ctx context.Context) ([]CoreItemUm, error) {

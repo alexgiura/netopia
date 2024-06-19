@@ -170,7 +170,7 @@ class _DropDownFilterState<T> extends ConsumerState<DropDownFilter<T>> {
         mainAxisSize: MainAxisSize.min,
         children: [
           Container(
-              decoration: CustomStyle.customContainerDecoration,
+              decoration: CustomStyle.customContainerDecoration(),
               constraints: const BoxConstraints(
                 maxHeight: 350.0, maxWidth: 350,
                 //minHeight: 200,

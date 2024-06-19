@@ -23,7 +23,7 @@ class _ItemStockReportPageDataTableState
     return Container(
       // padding: const EdgeInsets.all(16),
       // margin: const EdgeInsets.only(bottom: 30),
-      decoration: CustomStyle.customContainerDecoration,
+      decoration: CustomStyle.customContainerDecoration(),
       child: CustomDataTable(
         columns: _columns,
         rows: getRows(widget.data!),

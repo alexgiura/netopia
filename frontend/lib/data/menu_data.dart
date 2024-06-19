@@ -29,6 +29,11 @@ List dataList = [
       {
         "id": 5,
         "level": 1,
+        "title": "Unități de Măsură",
+      },
+      {
+        "id": 6,
+        "level": 1,
         "title": "Parteneri",
       }
     ]
@@ -36,23 +41,23 @@ List dataList = [
 
   //menu data item
   {
-    "id": 6,
+    "id": 7,
     "level": 0,
     "icon": Icons.login_outlined,
     "title": "Intrari",
     "children": [
       {
-        "id": 7,
+        "id": 8,
         "level": 1,
         "title": "Avize Furnizor",
       },
       {
-        "id": 8,
+        "id": 9,
         "level": 1,
         "title": "Facturi Furnizor",
       },
       {
-        "id": 9,
+        "id": 10,
         "level": 1,
         "title": "NIR-uri",
       }
@@ -61,19 +66,19 @@ List dataList = [
 
   //menu data item
   {
-    "id": 10,
+    "id": 11,
     "level": 0,
     "icon": Icons.logout_outlined,
     "title": "Ieșiri",
     "children": [
       {
-        "id": 11,
+        "id": 12,
         "level": 1,
         "icon": Icons.paypal,
         "title": "Avize Client",
       },
       {
-        "id": 12,
+        "id": 13,
         "level": 1,
         "icon": Icons.credit_card,
         "title": "Facturi Client",
@@ -84,18 +89,18 @@ List dataList = [
 
   //menu data item
   {
-    "id": 13,
+    "id": 14,
     "level": 0,
     "icon": Icons.warehouse_outlined,
     "title": "Depozit",
     "children": [
       {
-        "id": 14,
+        "id": 15,
         "level": 1,
         "title": "Bon de Consum",
       },
       {
-        "id": 15,
+        "id": 16,
         "level": 1,
         "title": "Nota de Predare",
       }
@@ -104,18 +109,18 @@ List dataList = [
 
   //menu data item
   {
-    "id": 16,
+    "id": 17,
     "level": 0,
     "icon": Icons.precision_manufacturing_outlined,
     "title": "Producție",
     "children": [
       {
-        "id": 17,
+        "id": 18,
         "level": 1,
         "title": "Rapoarte Producție",
       },
       {
-        "id": 18,
+        "id": 19,
         "level": 1,
         "title": "Rețete",
       },
@@ -124,28 +129,28 @@ List dataList = [
 
   //menu data item
   {
-    "id": 19,
+    "id": 20,
     "level": 0,
     "icon": Icons.topic_outlined,
     "title": "Rapoarte",
     "children": [
       {
-        "id": 20,
+        "id": 21,
         "level": 1,
         "title": "Print Raport Producție",
       },
       {
-        "id": 21,
+        "id": 22,
         "level": 1,
         "title": "Stocuri",
       },
       {
-        "id": 22,
+        "id": 23,
         "level": 1,
         "title": "Avize Client Nefacturate",
       },
       {
-        "id": 23,
+        "id": 24,
         "level": 1,
         "title": "Avize Furnizor Nerecepționate",
       },

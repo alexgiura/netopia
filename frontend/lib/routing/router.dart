@@ -6,6 +6,7 @@ import 'package:erp_frontend_v2/pages/auth/auth_page.dart';
 import 'package:erp_frontend_v2/pages/dashboard/dashboard_page.dart';
 import 'package:erp_frontend_v2/pages/document/document_details_page/document_details_page.dart';
 import 'package:erp_frontend_v2/pages/item/item_category_page.dart';
+import 'package:erp_frontend_v2/pages/item/item_units_page.dart';
 import 'package:erp_frontend_v2/pages/production/production_recipe_details_page.dart';
 import 'package:erp_frontend_v2/pages/report/item_stock/item_stock_report_page.dart';
 import 'package:erp_frontend_v2/pages/report/production_note/production_note_report_page.dart';
@@ -69,6 +70,14 @@ final GoRouter router = GoRouter(
             path: itemCategoryRoute,
             builder: (BuildContext context, GoRouterState state) {
               return const ItemCategoryPage();
+            },
+          ),
+
+          // Measurement Units route
+          GoRoute(
+            path: unitsRoute,
+            builder: (BuildContext context, GoRouterState state) {
+              return const ItemUnitsPage();
             },
           ),
 
@@ -418,6 +427,8 @@ List<String> generateRoute(Menu menuItem) {
       return [itemsRoute];
     case 'Tip Produse':
       return [itemCategoryRoute];
+    case 'Unități de Măsură':
+      return [unitsRoute];
     case 'Avize Client':
       return [clientDeliveryNoteRoute];
     case 'Facturi Client':

@@ -87,7 +87,7 @@ class _PartnerPageDataTableState extends ConsumerState<PartnerPageDataTable>
     // final StaticData inactiveValue = StaticData(name: PartnerType.partnerTypes);
     return Container(
       padding: const EdgeInsets.only(top: 16),
-      decoration: CustomStyle.customContainerDecoration,
+      decoration: CustomStyle.customContainerDecoration(),
       child: partnerState.when(
         skipLoadingOnReload: true,
         skipLoadingOnRefresh: true,

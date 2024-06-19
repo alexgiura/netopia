@@ -1,14 +1,10 @@
 import 'package:erp_frontend_v2/models/item/item_category_model.dart';
 import 'package:erp_frontend_v2/widgets/custom_checkbox.dart';
-import 'package:erp_frontend_v2/widgets/custom_dropdown.dart';
 import 'package:flutter/material.dart';
-
-import '../../constants/style.dart';
-import '../../models/item/item_model.dart';
-import '../../providers/item_provider.dart';
-import '../../utils/customSnackBar.dart';
-import '../../widgets/custom_text_field.dart';
-import '../../services/item.dart';
+import '../../../constants/style.dart';
+import '../../../providers/item_provider.dart';
+import '../../../widgets/custom_text_field.dart';
+import '../../../services/item.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class ItemCategoryDetailsPopup extends ConsumerStatefulWidget {

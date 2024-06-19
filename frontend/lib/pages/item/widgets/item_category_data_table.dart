@@ -1,5 +1,5 @@
 import 'package:erp_frontend_v2/models/item/item_category_model.dart';
-import 'package:erp_frontend_v2/pages/item/item_category_details_page.dart';
+import 'package:erp_frontend_v2/pages/item/widgets/item_category_popup.dart';
 import 'package:flutter/material.dart';
 import 'package:data_table_2/data_table_2.dart';
 import '../../../constants/style.dart';
@@ -25,7 +25,7 @@ class _ItemCategoryPageDataTableState extends State<ItemCategoryPageDataTable> {
   Widget build(BuildContext context) {
     return Container(
       padding: const EdgeInsets.only(top: 0),
-      decoration: CustomStyle.customContainerDecoration,
+      decoration: CustomStyle.customContainerDecoration(),
       child: Column(
         children: [
           Expanded(

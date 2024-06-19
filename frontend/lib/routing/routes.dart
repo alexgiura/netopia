@@ -15,6 +15,9 @@ const itemsRoute = "/items";
 const itemCategoryPageName = "Item Category";
 const itemCategoryRoute = "/item-category";
 
+const unitsPageName = "Measurement Units";
+const unitsRoute = "/units";
+
 const partnersPageName = "Partners";
 const partnersRoute = "/partners";
 

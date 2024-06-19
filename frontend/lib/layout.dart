@@ -3,6 +3,7 @@ import 'package:erp_frontend_v2/widgets/large_screen.dart';
 import 'package:erp_frontend_v2/widgets/side_menu.dart';
 import 'package:erp_frontend_v2/widgets/top_nav.dart';
 import 'package:flutter/material.dart';
+import 'package:toastification/toastification.dart';
 
 class AppLayout extends StatelessWidget {
   const AppLayout({Key? key, required this.child}) : super(key: key);
@@ -21,12 +22,21 @@ class AppLayout extends StatelessWidget {
             key: scaffoldKey,
             appBar: topNavigationBar(context, scaffoldKey),
             drawer: const SideMenu(),
-            body: ResponsiveWidget(
-                largeScreen: LargeScreen(child: child),
-                smallScreen: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 0),
-                  child: child,
-                )),
+            body: LayoutBuilder(
+              builder: (context, constraints) {
+                // double bodyWidth = constraints.maxWidth;
+
+                return ToastificationWrapper(
+                  child: ResponsiveWidget(
+                    largeScreen: LargeScreen(child: child),
+                    smallScreen: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 0),
+                      child: child,
+                    ),
+                  ),
+                );
+              },
+            ),
           ),
         )
       ],

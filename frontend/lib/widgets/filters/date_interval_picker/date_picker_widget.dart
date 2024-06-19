@@ -223,7 +223,7 @@ class _DateIntervalPickerFilterState<T>
             hideOverlay();
           },
           child: Container(
-            decoration: CustomStyle.customContainerDecoration,
+            decoration: CustomStyle.customContainerDecoration(),
             constraints: const BoxConstraints(
               //maxHeight: 400,
               maxWidth: 480,

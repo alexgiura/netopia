@@ -29,7 +29,7 @@ class _ProductionRecipesDataTableState
   Widget build(BuildContext context) {
     return Container(
       padding: const EdgeInsets.only(top: 0),
-      decoration: CustomStyle.customContainerDecoration,
+      decoration: CustomStyle.customContainerDecoration(),
       child: Column(
         children: [
           Expanded(

@@ -79,7 +79,7 @@ class PartnerSearchWidgetState extends State<PartnerSearchWidget> {
                     constraints: const BoxConstraints(
                       maxHeight: 300.0,
                     ),
-                    decoration: CustomStyle.customContainerDecoration,
+                    decoration: CustomStyle.customContainerDecoration(),
                     width: constraints.biggest.width,
                     child: Material(
                       borderRadius: CustomStyle.customBorderRadius,

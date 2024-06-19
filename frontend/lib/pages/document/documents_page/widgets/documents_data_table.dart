@@ -119,7 +119,7 @@ class _DocumentsDataTableState extends ConsumerState<DocumentsDataTable> {
         ),
         Expanded(
           child: Container(
-            decoration: CustomStyle.customContainerDecoration,
+            decoration: CustomStyle.customContainerDecoration(),
             child: documentState.when(
               data: (documentList) {
                 return CustomDataTable(
@@ -238,7 +238,6 @@ class _DocumentsDataTableState extends ConsumerState<DocumentsDataTable> {
     });
     // Call the API to send the eFactura
     // If the API call is successful, update the document with the new eFactura status
-
   }
 }
 

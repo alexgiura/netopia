@@ -75,7 +75,7 @@ class _ItemsDataTableState extends ConsumerState<ItemsDataTable> {
         ),
         Expanded(
           child: Container(
-            decoration: CustomStyle.customContainerDecoration,
+            decoration: CustomStyle.customContainerDecoration(),
             child: itemState.when(
               data: (itemList) {
                 return CustomDataTable(

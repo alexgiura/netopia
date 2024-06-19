@@ -90,6 +90,31 @@ class ItemService {
     }
   }
 
+  Future<Um> saveUm({
+    required Um um,
+  }) async {
+    final QueryOptions options = QueryOptions(
+      document: gql(mutations.saveItemUnit),
+      variables: <String, dynamic>{
+        "input": um.toJson(),
+      },
+      fetchPolicy: FetchPolicy.noCache,
+    );
+
+    final QueryResult result = await graphQLClient.value.query(options);
+
+    if (result.hasException) {
+      throw Exception(result.exception.toString());
+    }
+    final dynamic data = result.data!['saveUm'];
+
+    if (data != null) {
+      return Um.fromJson(data);
+    } else {
+      throw Exception('Invalid data');
+    }
+  }
+
   Future<List<Vat>> getVatList() async {
     final QueryOptions options = QueryOptions(
       document: gql(queries.getVatList),

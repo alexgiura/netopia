@@ -9,6 +9,7 @@ class CustomTextField1 extends StatefulWidget {
     Key? key,
     this.labelText,
     this.hintText,
+    this.helperText,
     this.onValueChanged,
     this.initialValue,
     this.readOnly,
@@ -23,6 +24,7 @@ class CustomTextField1 extends StatefulWidget {
 
   final String? labelText;
   final String? hintText;
+  final Widget? helperText;
   final Widget? prefixWidget;
   final Function(String)? onValueChanged;
   final String? initialValue;
@@ -72,18 +74,9 @@ class CustomTextField1State extends State<CustomTextField1> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         if (widget.labelText != null)
-          RichText(
-            text: TextSpan(
-              text: widget.labelText,
-              children: [
-                if (widget.required)
-                  TextSpan(
-                    text: ' *',
-                    style: CustomStyle.errorText,
-                  ),
-              ],
-            ),
-          ),
+          widget.required
+              ? Text('${widget.labelText!} *')
+              : Text(widget.labelText!),
         const Gap(8.0),
         Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -125,13 +118,13 @@ class CustomTextField1State extends State<CustomTextField1> {
               cursorColor: CustomColor.textPrimary,
               cursorErrorColor: CustomColor.error,
               decoration: InputDecoration(
-                errorStyle: TextStyle(
+                errorStyle: const TextStyle(
                   color: Colors.transparent,
                   fontSize: 0,
                 ),
 
                 isCollapsed: true,
-                prefixText: '     ',
+                prefixText: '    ',
                 alignLabelWithHint: true,
                 floatingLabelBehavior: FloatingLabelBehavior.never,
                 suffixIcon: widget.obscureText != null
@@ -190,21 +183,15 @@ class CustomTextField1State extends State<CustomTextField1> {
               },
             ),
             Padding(
-              padding: const EdgeInsets.only(bottom: 4),
-              child: Text(
-                _errorText!,
-                style: CustomStyle.errorText,
-              ),
+              padding: const EdgeInsets.only(top: 2),
+              child: (_showError == false && widget.helperText != null)
+                  ? widget.helperText
+                  : Text(
+                      _errorText!,
+                      style:
+                          CustomStyle.labelSemibold12(color: CustomColor.error),
+                    ),
             ),
-            // (_showError == true && _errorText != null)
-            //     ? Padding(
-            //         padding: const EdgeInsets.only(bottom: 4),
-            //         child: Text(
-            //           _errorText!,
-            //           style: CustomStyle.errorText,
-            //         ),
-            //       )
-            //     : SizedBox.shrink()
           ],
         ),
       ],

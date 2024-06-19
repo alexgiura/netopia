@@ -91,6 +91,20 @@
     "email_already_registered_title": "E-mail deja înregistrat!",
     "email_already_registered_subtitle": "Adresa de e-mail introdusă este deja înregistrată. Dacă ai deja un cont, te rugăm să te întorci la Login.",
     "back_to_Login": "Înapoi la Login",
-    "cancel": "Cancel"
+    "cancel": "Cancel",
+    "measurement_units": "Unități de Măsură",
+    "edit_measurement_unit": "Editează Unitate de Măsură",
+    "add_measurement_unit": "Adaugă Unitate de Măsură",
+    "name": "Denumire",
+    "efactura_code": "Cod standard e-Factura",
+    "active": "Activ",
+    "measurement_unit_activ_description": "Unitatea de măsură este activă și poate fi utilizată în operațiunile curente",
+    "check_measurement_unit_list": "Consultă lista completă de unități de măsură",
+    "here": " aici",
+    "close": "Închide",
+    "suceess_add_um": "Unitatea de măsură a fost adăugată cu succes!",
+    "suceess_edit_um": "Unitatea de măsură a fost modificată cu succes!",
+    "error_um": "A apărut o eroare. Vă rugăm să încercați din nou!"
+
 
 }

@@ -28,7 +28,7 @@ class _RecipeDetailsDataTableState extends State<RecipeDetailsDataTable> {
     return Expanded(
       child: Container(
           padding: EdgeInsets.only(left: 16, right: 16, top: 16),
-          decoration: CustomStyle.customContainerDecoration,
+          decoration: CustomStyle.customContainerDecoration(),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [

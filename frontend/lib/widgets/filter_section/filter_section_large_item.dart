@@ -1,15 +1,10 @@
 import 'package:erp_frontend_v2/constants/style.dart';
 import 'package:erp_frontend_v2/models/item/item_category_model.dart';
 import 'package:erp_frontend_v2/providers/item_provider.dart';
-import 'package:erp_frontend_v2/widgets/custom_dropdown.dart';
 import 'package:erp_frontend_v2/widgets/custom_search_dropdown.dart';
 import 'package:erp_frontend_v2/widgets/custom_text_field.dart';
-import 'package:erp_frontend_v2/widgets/not_used_widgets/item_category_autocomplete.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-
-import '../../providers/partner_provider.dart';
-import '../partners_autocomplete.dart';
 
 class FilterSectionLarge2 extends ConsumerStatefulWidget {
   final void Function(
@@ -41,7 +36,7 @@ class _FilterSectionLarge2State extends ConsumerState<FilterSectionLarge2> {
     double width = MediaQuery.of(context).size.width;
 
     return Container(
-      decoration: CustomStyle.customContainerDecoration,
+      decoration: CustomStyle.customContainerDecoration(),
       padding: const EdgeInsets.all(16),
       child: Column(
         children: [
@@ -132,8 +127,7 @@ class _FilterSectionLarge2State extends ConsumerState<FilterSectionLarge2> {
                   widget.onPressed();
                 },
                 style: CustomStyle.tertiaryButton,
-                child:
-                     Text('Clear', style: CustomStyle.tertiaryButtonText),
+                child: Text('Clear', style: CustomStyle.tertiaryButtonText),
               )
             ],
           )

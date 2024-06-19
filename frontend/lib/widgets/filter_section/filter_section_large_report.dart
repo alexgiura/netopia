@@ -1,13 +1,11 @@
 import 'package:erp_frontend_v2/constants/style.dart';
 import 'package:erp_frontend_v2/models/partner/partner_model.dart';
 import 'package:erp_frontend_v2/utils/date.dart';
-import 'package:erp_frontend_v2/widgets/custom_dropdown.dart';
 import 'package:erp_frontend_v2/widgets/custom_search_dropdown.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../providers/partner_provider.dart';
-import '../partners_autocomplete.dart';
 import '../custom_date_picker.dart';
 
 class FilterSectionLargeReport extends ConsumerStatefulWidget {
@@ -42,7 +40,7 @@ class _FilterSectionLargeReportState
 
     return Container(
       //color: Colors.transparent,
-      decoration: CustomStyle.customContainerDecoration,
+      decoration: CustomStyle.customContainerDecoration(),
       padding: const EdgeInsets.all(16),
       child: Column(
         children: [
@@ -128,8 +126,7 @@ class _FilterSectionLargeReportState
                   widget.onPressed();
                 },
                 style: CustomStyle.tertiaryButton,
-                child:
-                     Text('Clear', style: CustomStyle.tertiaryButtonText),
+                child: Text('Clear', style: CustomStyle.tertiaryButtonText),
               )
             ],
           )

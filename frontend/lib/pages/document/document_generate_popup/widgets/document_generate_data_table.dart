@@ -87,7 +87,7 @@ class _DocumentGenerateDataTableState
 
     return Container(
       //padding: const EdgeInsets.only(top: 16),
-      decoration: CustomStyle.customContainerDecoration,
+      decoration: CustomStyle.customContainerDecoration(),
       child: CustomDataTable(columns: _columns, rows: getRows(widget.data)),
     );
   }

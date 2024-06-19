@@ -43,7 +43,7 @@ class _FilterSectionLargeItemStockReportState
 
     return Container(
       //color: Colors.transparent,
-      decoration: CustomStyle.customContainerDecoration,
+      decoration: CustomStyle.customContainerDecoration(),
       padding: const EdgeInsets.all(16),
       child: Column(
         children: [
@@ -149,8 +149,7 @@ class _FilterSectionLargeItemStockReportState
                   widget.onPressed();
                 },
                 style: CustomStyle.tertiaryButton,
-                child:
-                     Text('Clear', style: CustomStyle.tertiaryButtonText),
+                child: Text('Clear', style: CustomStyle.tertiaryButtonText),
               )
             ],
           )

@@ -38,7 +38,7 @@ class _FilterSectionLarge2State
     double width = MediaQuery.of(context).size.width;
 
     return Container(
-      decoration: CustomStyle.customContainerDecoration,
+      decoration: CustomStyle.customContainerDecoration(),
       padding: const EdgeInsets.all(16),
       child: Column(
         children: [
@@ -137,8 +137,7 @@ class _FilterSectionLarge2State
                   widget.onPressed();
                 },
                 style: CustomStyle.tertiaryButton,
-                child:
-                     Text('Clear', style: CustomStyle.tertiaryButtonText),
+                child: Text('Clear', style: CustomStyle.tertiaryButtonText),
               )
             ],
           )

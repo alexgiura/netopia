@@ -38,7 +38,7 @@ class _SplineChartState extends State<SplineChart> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      decoration: CustomStyle.customContainerDecoration,
+      decoration: CustomStyle.customContainerDecoration(),
       padding: const EdgeInsets.all(16),
       child: Row(
         children: [

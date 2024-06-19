@@ -1,7 +1,3 @@
-import 'package:erp_frontend_v2/models/partner/partner_model.dart';
-import 'package:erp_frontend_v2/pages/document/document_generate_popup/document_generate_popup.dart';
-import 'package:erp_frontend_v2/providers/document_transaction_provider.dart';
-import 'package:erp_frontend_v2/providers/partner_provider.dart';
 import 'package:erp_frontend_v2/providers/recipe_provider.dart';
 import 'package:erp_frontend_v2/widgets/custom_data_table.dart';
 import 'package:erp_frontend_v2/widgets/custom_dropdown.dart';
@@ -72,7 +68,7 @@ class _DocumentItemsNoPriceDataTableState
 
     return Container(
       padding: const EdgeInsets.only(top: 16),
-      decoration: CustomStyle.customContainerDecoration,
+      decoration: CustomStyle.customContainerDecoration(),
       child: Column(
         children: [
           Row(
