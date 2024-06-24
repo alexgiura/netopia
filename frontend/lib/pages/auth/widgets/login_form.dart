@@ -9,7 +9,6 @@ import 'package:erp_frontend_v2/utils/extensions.dart';
 import 'package:erp_frontend_v2/widgets/buttons/primary_button.dart';
 import 'package:erp_frontend_v2/widgets/buttons/tertiary_button.dart';
 import 'package:erp_frontend_v2/widgets/custom_checkbox.dart';
-import 'package:erp_frontend_v2/widgets/custom_text_field.dart';
 import 'package:erp_frontend_v2/widgets/custom_text_field_1.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -18,7 +17,6 @@ import 'package:gap/gap.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../../utils/util_functions.dart';
-import '../../../helpers/responsiveness.dart';
 
 class LoginForm extends ConsumerStatefulWidget {
   final void Function() changeForm;
@@ -86,70 +84,69 @@ class _LoginFormState extends ConsumerState<LoginForm> {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        _formHeader(context),
-        Gap(context.height02),
-        _formBody(context),
-        Gap(context.height02),
-        _formOptions(context),
-        Gap(context.height02),
-        _formButton(context),
-        // if (context.deviceWidth > largeScreenSize) const Spacer(),
-        FittedBox(child: _formBottom(context)),
-      ],
-    );
-  }
-
-  Widget _formBody(BuildContext context) {
     return SingleChildScrollView(
-      child: Flexible(
-        child: Form(
-          key: formKey,
-          child: Column(
-            children: [
-              CustomTextField1(
-                validator: (value) {
-                  if (value!.isEmpty) {
-                    return 'error_required_field'.tr(context);
-                  } else {
-                    return validateEmail(context, value);
-                  }
-                },
-                keyboardType: TextInputType.emailAddress,
-                labelText: 'email'.tr(context),
-                hintText: 'input_email'.tr(context),
-                onValueChanged: (value) {
-                  emailController.text = value;
-                },
-                required: true,
-              ),
-              Gap(context.height01),
-              CustomTextField1(
-                keyboardType: TextInputType.visiblePassword,
-                labelText: 'password'.tr(context),
-                hintText: 'input_password'.tr(context),
-                validator: (value) {
-                  if (value!.isEmpty) {
-                    return 'error_required_field'.tr(context);
-                  }
-                  return null;
-                },
-                obscureText: true,
-                onValueChanged: (value) {
-                  passwordController.text = value;
-                },
-                required: true,
-              ),
-            ],
-          ),
-        ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          _formHeader(context),
+          Gap(context.height02),
+          _formBody(context),
+          Gap(context.height02),
+          _formOptions(context),
+          Gap(context.height02),
+          _formButton(context),
+          Gap(context.height02),
+          FittedBox(child: _formBottom(context)),
+        ],
       ),
     );
   }
 
-  SizedBox _formButton(BuildContext context) {
+  Widget _formBody(BuildContext context) {
+    return Form(
+      key: formKey,
+      child: Column(
+        children: [
+          CustomTextField1(
+            validator: (value) {
+              if (value!.isEmpty) {
+                return 'error_required_field'.tr(context);
+              } else {
+                return validateEmail(context, value);
+              }
+            },
+            keyboardType: TextInputType.emailAddress,
+            labelText: 'email'.tr(context),
+            hintText: 'input_email'.tr(context),
+            onValueChanged: (value) {
+              emailController.text = value;
+            },
+            required: true,
+          ),
+          Gap(context.height01),
+          CustomTextField1(
+            keyboardType: TextInputType.visiblePassword,
+            labelText: 'password'.tr(context),
+            hintText: 'input_password'.tr(context),
+            validator: (value) {
+              if (value!.isEmpty) {
+                return 'error_required_field'.tr(context);
+              }
+              return null;
+            },
+            obscureText: true,
+            onValueChanged: (value) {
+              passwordController.text = value;
+            },
+            required: true,
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _formButton(BuildContext context) {
     return SizedBox(
       width: double.infinity,
       child: PrimaryButton(
@@ -166,33 +163,31 @@ class _LoginFormState extends ConsumerState<LoginForm> {
   }
 
   Widget _formHeader(BuildContext context) {
-    return SizedBox(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.start,
-            children: [
-              Image.asset(
-                'assets/images/logo_icon.png',
-                width: 30,
-                color: CustomColor.slate_500,
-              ),
-              Text('welcome_back'.tr(context),
-                  style: CustomStyle.regular24(color: CustomColor.slate_500)),
-            ],
-          ),
-          Gap(context.height02),
-          Text(
-            'login'.tr(context),
-            style: CustomStyle.regular32(),
-          ),
-          Text(
-            'input_your_account_data'.tr(context),
-            style: CustomStyle.regular16(color: CustomColor.slate_500),
-          )
-        ],
-      ),
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.start,
+          children: [
+            Image.asset(
+              'assets/images/logo_icon.png',
+              width: 30,
+              color: CustomColor.slate_500,
+            ),
+            Text('welcome_back'.tr(context),
+                style: CustomStyle.regular24(color: CustomColor.slate_500)),
+          ],
+        ),
+        Gap(context.height02),
+        Text(
+          'login'.tr(context),
+          style: CustomStyle.regular32(),
+        ),
+        Text(
+          'input_your_account_data'.tr(context),
+          style: CustomStyle.regular16(color: CustomColor.slate_500),
+        )
+      ],
     );
   }
 
@@ -204,18 +199,14 @@ class _LoginFormState extends ConsumerState<LoginForm> {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  Flexible(
-                    child: CustomCheckbox(
-                      labelText: 'remember_me'.tr(context),
-                      value: rememberMe,
-                      onChanged: (val) => setState(() => rememberMe = val),
-                    ),
+                  CustomCheckbox(
+                    labelText: 'remember_me'.tr(context),
+                    value: rememberMe,
+                    onChanged: (val) => setState(() => rememberMe = val),
                   ),
-                  Flexible(
-                    child: TertiaryButton(
-                      text: 'forgot_password'.tr(context),
-                      onPressed: () {},
-                    ),
+                  TertiaryButton(
+                    text: 'forgot_password'.tr(context),
+                    onPressed: () {},
                   ),
                 ],
               )
@@ -239,17 +230,15 @@ class _LoginFormState extends ConsumerState<LoginForm> {
   }
 
   Widget _formBottom(BuildContext context) {
-    return SizedBox(
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.end,
-        children: [
-          Text('dont_have_account'.tr(context), style: CustomStyle.regular16()),
-          const Gap(4),
-          TertiaryButton(
-              text: 'register_your_company'.tr(context),
-              onPressed: widget.changeForm),
-        ],
-      ),
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        Text('dont_have_account'.tr(context), style: CustomStyle.regular16()),
+        const Gap(4),
+        TertiaryButton(
+            text: 'register_your_company'.tr(context),
+            onPressed: widget.changeForm),
+      ],
     );
   }
 }

@@ -47,23 +47,10 @@ class _AuthPageState extends ConsumerState<AuthPage> {
           Column(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Image.asset(
-                    'assets/images/logo.png',
-                    width: 30,
-                    color: CustomColor.textPrimary,
-                  ),
-                  Text(
-                    'app_name'.tr(context),
-                    style: const TextStyle(
-                      fontSize: 24,
-                      fontWeight: FontWeight.bold,
-                      color: CustomColor.textPrimary,
-                    ),
-                  ),
-                ],
+              Image.asset(
+                'assets/images/logo.png',
+                width: context.width05,
+                color: CustomColor.textPrimary,
               ),
               Gap(context.height02),
               FittedBox(
@@ -78,7 +65,6 @@ class _AuthPageState extends ConsumerState<AuthPage> {
           // register form
           Flexible(
             flex: context.deviceWidth < customScreenSize ? 3 : 4,
-            // flex: 4,
             child: Container(
                 decoration: CustomStyle.customStyledContainerDecorationShadow,
                 padding: const EdgeInsets.all(30),
@@ -109,7 +95,7 @@ class _AuthPageState extends ConsumerState<AuthPage> {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Expanded(
-            flex: 7,
+            flex: 6,
             child: Container(
               width: double.infinity,
               height: double.infinity,
@@ -117,14 +103,12 @@ class _AuthPageState extends ConsumerState<AuthPage> {
             ),
           ),
           Gap(context.width03),
-          Expanded(
-            flex: 4,
+          Flexible(
+            flex: context.deviceWidth < customScreenSize ? 4 : 3,
             child: Container(
-                width: double.infinity,
-                height: double.infinity,
+                decoration: CustomStyle.customStyledContainerDecorationShadow,
                 child: _rightPart()),
           )
-          // Gap(context.width05),
         ],
       ),
     );
@@ -173,6 +157,7 @@ class _AuthPageState extends ConsumerState<AuthPage> {
         Gap(context.height05),
         Container(
           decoration: CustomStyle.customStyledContainerDecorationShadow,
+          width: double.infinity,
           padding: const EdgeInsets.all(0),
           child: ClipRRect(
             borderRadius: BorderRadius.circular(28),
