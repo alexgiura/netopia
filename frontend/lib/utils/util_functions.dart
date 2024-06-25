@@ -1,7 +1,5 @@
 import 'package:erp_frontend_v2/models/app_localizations.dart';
-import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
-import 'package:url_launcher/url_launcher.dart';
 
 String formatNumber(double value) {
   if ((value * 1000) % 10 != 0) {
@@ -96,31 +94,4 @@ String? validateCompanyCif(String v) {
     return 'CIF invalid!';
   }
   return null;
-}
-
-Widget buildTextWithLink({
-  required String text,
-  required String linkText,
-  required Uri url,
-  required TextStyle textStyle,
-  required TextStyle linkStyle,
-}) {
-  return Row(
-    mainAxisSize: MainAxisSize.min,
-    children: [
-      Text(
-        text,
-        style: textStyle,
-      ),
-      InkWell(
-        child: Text(
-          linkText,
-          style: linkStyle,
-        ),
-        onTap: () {
-          launchUrl(url);
-        },
-      )
-    ],
-  );
 }

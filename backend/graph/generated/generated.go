@@ -266,7 +266,7 @@ type MutationResolver interface {
 	CheckEfacturaUploadState(ctx context.Context, efacturaDocumentID string) (*string, error)
 	SaveItem(ctx context.Context, input model.ItemInput) (*string, error)
 	SaveUm(ctx context.Context, input model.UmInput) (*models.Um, error)
-	SaveItemCategory(ctx context.Context, input model.ItemCategoryInput) (*string, error)
+	SaveItemCategory(ctx context.Context, input model.ItemCategoryInput) (*models.ItemCategory, error)
 	SavePartner(ctx context.Context, input model.PartnerInput) (*string, error)
 	SaveRecipe(ctx context.Context, input model.SaveRecipeInput) (*string, error)
 	CreateNewAccount(ctx context.Context, input model.UserInput) (*models.User, error)
@@ -1705,11 +1705,7 @@ type Um{
     code: String!
     is_active: Boolean!
 }
-#type Category{
-#    id: Int!
-#    name: String!
-#    is_active: Boolean!
-#}
+
 
 type Vat{
     id: Int!
@@ -1761,7 +1757,7 @@ extend type Query {
 extend type Mutation {
     saveItem(input: ItemInput!): String
     saveUm(input: UmInput!): Um
-    saveItemCategory(input: ItemCategoryInput!): String
+    saveItemCategory(input: ItemCategoryInput!): ItemCategory
 }`, BuiltIn: false},
 	{Name: "../partner.graphqls", Input: `type Partner {
   id: String!
@@ -5487,9 +5483,9 @@ func (ec *executionContext) _Mutation_saveItemCategory(ctx context.Context, fiel
 	if resTmp == nil {
 		return graphql.Null
 	}
-	res := resTmp.(*string)
+	res := resTmp.(*models.ItemCategory)
 	fc.Result = res
-	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
+	return ec.marshalOItemCategory2ᚖbackendᚋmodelsᚐItemCategory(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Mutation_saveItemCategory(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -5499,7 +5495,17 @@ func (ec *executionContext) fieldContext_Mutation_saveItemCategory(ctx context.C
 		IsMethod:   true,
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_ItemCategory_id(ctx, field)
+			case "name":
+				return ec.fieldContext_ItemCategory_name(ctx, field)
+			case "is_active":
+				return ec.fieldContext_ItemCategory_is_active(ctx, field)
+			case "generate_pn":
+				return ec.fieldContext_ItemCategory_generate_pn(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type ItemCategory", field.Name)
 		},
 	}
 	defer func() {

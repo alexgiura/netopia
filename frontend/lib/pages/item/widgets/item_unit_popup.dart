@@ -1,12 +1,8 @@
 import 'package:erp_frontend_v2/models/app_localizations.dart';
-import 'package:erp_frontend_v2/models/item/item_category_model.dart';
 import 'package:erp_frontend_v2/models/item/um_model.dart';
-import 'package:erp_frontend_v2/utils/customSnackBar.dart';
-import 'package:erp_frontend_v2/utils/extensions.dart';
-import 'package:erp_frontend_v2/utils/util_functions.dart';
+import 'package:erp_frontend_v2/utils/util_widgets.dart';
 import 'package:erp_frontend_v2/widgets/buttons/primary_button.dart';
 import 'package:erp_frontend_v2/widgets/buttons/secondary_button.dart';
-import 'package:erp_frontend_v2/widgets/custom_checkbox.dart';
 import 'package:erp_frontend_v2/widgets/custom_text_field_1.dart';
 import 'package:erp_frontend_v2/widgets/custom_toggle.dart';
 import 'package:erp_frontend_v2/widgets/dialog_widgets/custom_toast.dart';
@@ -14,7 +10,6 @@ import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
 import '../../../constants/style.dart';
 import '../../../providers/item_provider.dart';
-import '../../../widgets/custom_text_field.dart';
 import '../../../services/item.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -108,7 +103,7 @@ class _ItemUnitPopupState extends ConsumerState<ItemUnitPopup>
                     return null;
                   },
                   keyboardType: TextInputType.name,
-                  labelText: 'efactura_code'.tr(context),
+                  labelText: 'efactura_standard_code'.tr(context),
                   helperText: buildTextWithLink(
                     text: 'check_measurement_unit_list'.tr(context),
                     linkText: 'here'.tr(context),
@@ -165,9 +160,7 @@ class _ItemUnitPopupState extends ConsumerState<ItemUnitPopup>
                                   ToastType.success);
                             } catch (e) {
                               Navigator.of(context).pop();
-                              showToast(
-                                  "A apărut o eroare. Vă rugăm să încercați din nou!",
-                                  ToastType.error);
+                              showToast('error'.tr(context), ToastType.error);
                             }
                           }
                         },

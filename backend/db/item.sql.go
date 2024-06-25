@@ -260,7 +260,7 @@ func (q *Queries) InsertItem(ctx context.Context, arg InsertItemParams) (uuid.UU
 const insertItemCategory = `-- name: InsertItemCategory :one
 Insert into core.item_category (name,is_active,generate_pn)
 VALUES ($1,$2,$3)
-    RETURNING id
+    RETURNING id, name, is_active, generate_pn
 `
 
 type InsertItemCategoryParams struct {
@@ -269,11 +269,16 @@ type InsertItemCategoryParams struct {
 	GeneratePn bool
 }
 
-func (q *Queries) InsertItemCategory(ctx context.Context, arg InsertItemCategoryParams) (int32, error) {
+func (q *Queries) InsertItemCategory(ctx context.Context, arg InsertItemCategoryParams) (CoreItemCategory, error) {
 	row := q.db.QueryRow(ctx, insertItemCategory, arg.Name, arg.IsActive, arg.GeneratePn)
-	var id int32
-	err := row.Scan(&id)
-	return id, err
+	var i CoreItemCategory
+	err := row.Scan(
+		&i.ID,
+		&i.Name,
+		&i.IsActive,
+		&i.GeneratePn,
+	)
+	return i, err
 }
 
 const insertUm = `-- name: InsertUm :one
@@ -337,12 +342,13 @@ func (q *Queries) UpdateItem(ctx context.Context, arg UpdateItemParams) error {
 	return err
 }
 
-const updateItemCategory = `-- name: UpdateItemCategory :exec
+const updateItemCategory = `-- name: UpdateItemCategory :one
 Update core.item_category
 Set name=$2,
     is_active=$3,
     generate_pn=$4
 where id=$1
+    RETURNING id, name, is_active, generate_pn
 `
 
 type UpdateItemCategoryParams struct {
@@ -352,14 +358,21 @@ type UpdateItemCategoryParams struct {
 	GeneratePn bool
 }
 
-func (q *Queries) UpdateItemCategory(ctx context.Context, arg UpdateItemCategoryParams) error {
-	_, err := q.db.Exec(ctx, updateItemCategory,
+func (q *Queries) UpdateItemCategory(ctx context.Context, arg UpdateItemCategoryParams) (CoreItemCategory, error) {
+	row := q.db.QueryRow(ctx, updateItemCategory,
 		arg.ID,
 		arg.Name,
 		arg.IsActive,
 		arg.GeneratePn,
 	)
-	return err
+	var i CoreItemCategory
+	err := row.Scan(
+		&i.ID,
+		&i.Name,
+		&i.IsActive,
+		&i.GeneratePn,
+	)
+	return i, err
 }
 
 const updateUm = `-- name: UpdateUm :one

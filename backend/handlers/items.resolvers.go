@@ -104,9 +104,9 @@ func (r *mutationResolver) SaveUm(ctx context.Context, input model.UmInput) (*mo
 }
 
 // SaveItemCategory is the resolver for the saveItemCategory field.
-func (r *mutationResolver) SaveItemCategory(ctx context.Context, input model.ItemCategoryInput) (*string, error) {
+func (r *mutationResolver) SaveItemCategory(ctx context.Context, input model.ItemCategoryInput) (*models.ItemCategory, error) {
 	if input.ID == nil {
-		_, err := r.DBProvider.InsertItemCategory(ctx, db.InsertItemCategoryParams{
+		newCategory, err := r.DBProvider.InsertItemCategory(ctx, db.InsertItemCategoryParams{
 			Name:       input.Name,
 			IsActive:   input.IsActive,
 			GeneratePn: input.GeneratePn,
@@ -115,8 +115,14 @@ func (r *mutationResolver) SaveItemCategory(ctx context.Context, input model.Ite
 			log.Print("\"message\":Failed to insert item category, "+"\"error\": ", err.Error())
 			return nil, _err.Error(ctx, "InsertFailed", "DatabaseError")
 		}
+		return &models.ItemCategory{
+			ID:         int(newCategory.ID),
+			Name:       newCategory.Name,
+			IsActive:   newCategory.IsActive,
+			GeneratePn: newCategory.GeneratePn,
+		}, nil
 	} else {
-		err := r.DBProvider.UpdateItemCategory(ctx, db.UpdateItemCategoryParams{
+		updatedCategory, err := r.DBProvider.UpdateItemCategory(ctx, db.UpdateItemCategoryParams{
 			ID:         int32(*input.ID),
 			Name:       input.Name,
 			IsActive:   input.IsActive,
@@ -126,9 +132,14 @@ func (r *mutationResolver) SaveItemCategory(ctx context.Context, input model.Ite
 			log.Print("\"message\":Failed to update item category, "+"\"error\": ", err.Error())
 			return nil, _err.Error(ctx, "UpdateFailed", "DatabaseError")
 		}
+		return &models.ItemCategory{
+			ID:         int(updatedCategory.ID),
+			Name:       updatedCategory.Name,
+			IsActive:   updatedCategory.IsActive,
+			GeneratePn: updatedCategory.GeneratePn,
+		}, nil
 	}
-	response := "success"
-	return &response, nil
+	return nil, nil
 }
 
 // GetItems is the resolver for the getItems field.

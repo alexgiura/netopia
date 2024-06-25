@@ -5,7 +5,7 @@ import 'package:erp_frontend_v2/routing/routes.dart';
 import 'package:erp_frontend_v2/services/recipe.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import '../../../helpers/responsiveness.dart';
+import '../../utils/responsiveness.dart';
 
 class ProductionRecipesPage extends StatefulWidget {
   const ProductionRecipesPage({super.key});

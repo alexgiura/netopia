@@ -1,4 +1,4 @@
-import 'package:erp_frontend_v2/helpers/responsiveness.dart';
+import 'package:erp_frontend_v2/utils/responsiveness.dart';
 import 'package:erp_frontend_v2/models/app_localizations.dart';
 import 'package:erp_frontend_v2/pages/dashboard/widgets/item_stock_chart.dart';
 import 'package:erp_frontend_v2/pages/report/widgets/spline_chart.dart';

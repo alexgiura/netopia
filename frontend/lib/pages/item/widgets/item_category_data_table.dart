@@ -1,161 +1,148 @@
+import 'package:erp_frontend_v2/models/app_localizations.dart';
 import 'package:erp_frontend_v2/models/item/item_category_model.dart';
 import 'package:erp_frontend_v2/pages/item/widgets/item_category_popup.dart';
+import 'package:erp_frontend_v2/providers/item_provider.dart';
+import 'package:erp_frontend_v2/widgets/buttons/edit_button.dart';
+import 'package:erp_frontend_v2/widgets/custom_activ_status.dart';
+import 'package:erp_frontend_v2/widgets/custom_data_table.dart';
 import 'package:flutter/material.dart';
 import 'package:data_table_2/data_table_2.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+
 import '../../../constants/style.dart';
 
-class ItemCategoryPageDataTable extends StatefulWidget {
-  const ItemCategoryPageDataTable({super.key, required this.data});
-  final List<ItemCategory>? data;
+class ItemCategoryDataTable extends ConsumerStatefulWidget {
+  const ItemCategoryDataTable({
+    super.key,
+  });
 
   @override
-  State<ItemCategoryPageDataTable> createState() =>
-      _ItemCategoryPageDataTableState();
+  ConsumerState<ItemCategoryDataTable> createState() =>
+      _ItemCategoryDataTableState();
 }
 
-class _ItemCategoryPageDataTableState extends State<ItemCategoryPageDataTable> {
-  void updateItemInDataTable(int index, ItemCategory modifiedItem) {
-    setState(() {
-      widget.data![index] = modifiedItem;
-    });
+class _ItemCategoryDataTableState extends ConsumerState<ItemCategoryDataTable> {
+  String selectedHid = '';
+
+  @override
+  void initState() {
+    super.initState();
   }
 
-  String selectedHid = '';
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.only(top: 0),
-      decoration: CustomStyle.customContainerDecoration(),
-      child: Column(
-        children: [
-          Expanded(
-            child: Theme(
-              data: Theme.of(context).copyWith(
-                dividerColor: CustomColor.lightest,
-                // Customize the color of the separator
-              ),
-              child: SelectionArea(
-                child: ClipRRect(
-                  borderRadius: CustomStyle.customBorderRadius,
-                  child: DataTable2(
-                      // hover row color
-                      dataRowColor: MaterialStateProperty.resolveWith<Color?>(
-                          (Set<MaterialState> states) {
-                        if (states.contains(MaterialState.hovered)) {
-                          return CustomColor.active.withOpacity(0.1);
-                        }
+    final itemCategoryState = ref.watch(itemCategoryProvider);
 
-                        return null; // Use the default value.
-                      }),
-                      dataTextStyle: CustomStyle.bodyText,
-                      headingTextStyle: CustomStyle.tableHeaderText,
-                      headingRowColor:
-                          const MaterialStatePropertyAll(CustomColor.lightest),
-                      showCheckboxColumn: false,
-                      dividerThickness: 1.0,
-                      dataRowHeight: 54,
-                      headingRowHeight: 54,
-                      horizontalMargin: 16,
-                      columnSpacing: 12,
-                      columns: _columns,
-                      rows: getRows(widget.data!)),
-                ),
+    final List<DataColumn2> _columns = [
+      DataColumn2(
+        label: Text(
+          'name'.tr(context),
+          style: CustomStyle.labelSemibold16(color: CustomColor.greenGray),
+        ),
+        size: ColumnSize.L,
+      ),
+      DataColumn2(
+        label: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Text('final_product'.tr(context),
+                style:
+                    CustomStyle.labelSemibold16(color: CustomColor.greenGray)),
+            const SizedBox(width: 4),
+            Tooltip(
+              message: 'auto_generate_production_report'.tr(context),
+              child: const Icon(
+                Icons.info_outline_rounded,
+                size: 20,
+                color: CustomColor.greenGray,
               ),
             ),
-          ),
-        ],
+          ],
+        ),
+        size: ColumnSize.L,
       ),
+      DataColumn2(
+          label: Container(
+              alignment: Alignment.center,
+              child: Text(
+                'active'.tr(context),
+                style:
+                    CustomStyle.labelSemibold16(color: CustomColor.greenGray),
+              )),
+          size: ColumnSize.L),
+      DataColumn2(
+          label: Container(
+              alignment: Alignment.center,
+              child: Text(
+                'edit'.tr(context),
+                style:
+                    CustomStyle.labelSemibold16(color: CustomColor.greenGray),
+              )),
+          fixedWidth: 100),
+    ];
+
+    return itemCategoryState.when(
+      skipLoadingOnReload: true,
+      skipLoadingOnRefresh: true,
+      data: (itemCategoryList) {
+        final rows = getRows(itemCategoryList);
+        return Container(
+          padding: const EdgeInsets.all(16),
+          decoration: CustomStyle.customContainerDecoration(),
+          child: CustomDataTable(
+            columns: _columns,
+            rows: rows,
+          ),
+        );
+      },
+      loading: () {
+        return const Center(
+          child: CircularProgressIndicator(),
+        );
+      },
+      error: (error, stackTrace) {
+        return Text("Error: $error");
+      },
     );
   }
 
-  List<DataRow2> getRows(List<ItemCategory> data) {
-    return data.asMap().entries.map((row) {
-      int index = row.key;
-      ItemCategory itemCategory = row.value; //
-      return DataRow2(
-        cells: [
-          DataCell(Text(row.value.name)),
-          DataCell(
-            Center(
-              child: Checkbox(
-                activeColor: CustomColor.active,
-                value: row.value.generatePn,
-                onChanged: (newValue) {
-                  // For read-only purposes, you can omit this onChanged callback.
-                },
+  List<DataRow2> getRows(List<ItemCategory> categoryList) => categoryList
+      .map((ItemCategory category) => DataRow2(
+            cells: [
+              DataCell(
+                Text(
+                  category.name,
+                  style: CustomStyle.labelSemibold14(),
+                ),
               ),
-            ),
-          ),
-          DataCell(
-            Center(
-              child: Checkbox(
-                activeColor: CustomColor.active,
-                value: row.value.isActive,
-                onChanged: (newValue) {
-                  // For read-only purposes, you can omit this onChanged callback.
-                },
-              ),
-            ),
-          ),
-          DataCell(
-            Center(
-              child: IconButton(
-                hoverColor: CustomColor.lightest,
-                splashRadius: 22,
-                icon: const Icon(Icons.edit_outlined,
-                    color: CustomColor
-                        .active), // Replace with your desired edit icon
-                onPressed: () {
-                  showDialog(
-                    context: context,
-                    builder: (BuildContext context) {
-                      return ItemCategoryDetailsPopup(
-                        itemCategory: itemCategory,
-                        onSave: (modifiedItemCategory) {
-                          updateItemInDataTable(index, modifiedItemCategory);
-                        },
-                      );
-                    },
-                  );
-                },
-              ),
-            ),
-          ),
-        ],
-      );
-    }).toList();
-  }
+              DataCell(Container(
+                alignment: Alignment.center,
+                child: CustomActiveStatus(
+                  isActive: category.isActive,
+                ),
+              )),
+              DataCell(Container(
+                alignment: Alignment.center,
+                child: CustomActiveStatus(
+                  isActive: category.generatePn,
+                ),
+              )),
+              DataCell(Container(
+                alignment: Alignment.center,
+                child: CustomEditButton(
+                  onTap: () {
+                    showDialog(
+                      context: context,
+                      builder: (BuildContext context) {
+                        return ItemCategoryPopup(
+                          category: category,
+                        );
+                      },
+                    );
+                  },
+                ),
+              )),
+            ],
+          ))
+      .toList();
 }
-
-List<DataColumn2> _columns = [
-  const DataColumn2(
-    label: Text('Denumire'),
-    size: ColumnSize.L,
-  ),
-
-  const DataColumn2(
-    label: Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        Text('Produs Finit'),
-        SizedBox(width: 4), // Add some spacing between text and icon
-        Tooltip(
-          message: 'Se va genera automat raport de productie',
-          child: Icon(
-            Icons.info_rounded,
-            size: 20,
-            color: CustomColor.light, // Adjust the size of the icon as needed
-          ),
-        ),
-      ],
-    ),
-    size: ColumnSize.L,
-  ),
-  const DataColumn2(
-    label: Center(child: Text('Activ')),
-    size: ColumnSize.L,
-  ),
-
-  /// Time Column definition
-  const DataColumn2(label: Center(child: Text('Editeaza')), fixedWidth: 100),
-];

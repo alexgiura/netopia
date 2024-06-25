@@ -1,5 +1,8 @@
+import 'dart:js';
+
 import 'package:erp_frontend_v2/constants/sizes.dart';
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 // Colors
 class CustomColor {
@@ -16,10 +19,15 @@ class CustomColor {
   static const Color redErrorRequired = Color(0xffF43F5E);
 
   // New colors&gradients from figma design
-  static const LinearGradient bgPrimary = LinearGradient(colors: [
-    Color(0xffEFF5E9),
-    Color(0xffF2F8F7),
-  ]);
+  static const LinearGradient bgPrimaryLinear = LinearGradient(
+    begin: Alignment.topCenter,
+    end: Alignment.bottomCenter,
+    colors: [
+      Color(0xffEFF5E9),
+      Color(0xffF2F8F7),
+    ],
+  );
+  static const bgPrimary = Color(0xffF2F8F7);
   static const bgSecondary = Color(0xffFDFFFF);
   static const accentColor = Color(0xffCEFF7B);
   static const accentNeutral = Color(0xffDEE1DB);
@@ -186,6 +194,14 @@ class CustomStyle {
   static TextStyle medium14({Color color = CustomColor.textPrimary}) {
     return TextStyle(
       fontSize: 14,
+      color: color,
+      fontWeight: FontWeight.w500,
+    );
+  }
+
+  static TextStyle medium16({Color color = CustomColor.textPrimary}) {
+    return TextStyle(
+      fontSize: 16,
       color: color,
       fontWeight: FontWeight.w500,
     );
@@ -463,7 +479,7 @@ class CustomStyle {
 
   static ButtonStyle submitBlackButton = ButtonStyle(
     padding: MaterialStateProperty.all(
-        EdgeInsets.symmetric(horizontal: 14, vertical: 20)),
+        const EdgeInsets.symmetric(horizontal: 14, vertical: 20)),
     backgroundColor: MaterialStateProperty.all(CustomColor.textPrimary),
     shape: MaterialStateProperty.all(RoundedRectangleBorder(
       borderRadius: BorderRadius.circular(15),

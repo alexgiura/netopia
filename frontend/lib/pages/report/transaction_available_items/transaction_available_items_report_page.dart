@@ -1,5 +1,5 @@
 import 'package:erp_frontend_v2/constants/style.dart';
-import 'package:erp_frontend_v2/helpers/responsiveness.dart';
+import 'package:erp_frontend_v2/utils/responsiveness.dart';
 import 'package:erp_frontend_v2/models/document/document_generate_model.dart';
 import 'package:erp_frontend_v2/pages/document/document_generate_popup/widgets/document_generate_data_table.dart';
 import 'package:erp_frontend_v2/pages/report/transaction_available_items/widgets/transaction_available_items_report_data_table.dart';

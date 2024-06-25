@@ -1,7 +1,7 @@
 import 'dart:typed_data';
 
 import 'package:erp_frontend_v2/constants/style.dart';
-import 'package:erp_frontend_v2/helpers/responsiveness.dart';
+import 'package:erp_frontend_v2/utils/responsiveness.dart';
 import 'package:erp_frontend_v2/models/report/item_stock_report_model.dart';
 import 'package:erp_frontend_v2/pages/report/item_stock/widgets/item_stock_report_data_table.dart';
 import 'package:erp_frontend_v2/pages/report/item_stock/widgets/pdf_item_stock_report.dart';

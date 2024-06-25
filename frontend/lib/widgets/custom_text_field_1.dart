@@ -16,6 +16,7 @@ class CustomTextField1 extends StatefulWidget {
     this.prefixWidget,
     this.borderVisible,
     this.obscureText,
+    this.hideErrortext,
     this.keyboardType = TextInputType.text,
     this.required = false,
     this.validator,
@@ -31,6 +32,7 @@ class CustomTextField1 extends StatefulWidget {
   final bool? readOnly;
   final bool? borderVisible;
   final bool? obscureText;
+  final bool? hideErrortext;
   final TextInputType keyboardType;
   final bool required;
   final String? Function(String?)? validator;
@@ -77,7 +79,7 @@ class CustomTextField1State extends State<CustomTextField1> {
           widget.required
               ? Text('${widget.labelText!} *')
               : Text(widget.labelText!),
-        const Gap(8.0),
+        if (widget.labelText != null) const Gap(8.0),
         Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -172,7 +174,7 @@ class CustomTextField1State extends State<CustomTextField1> {
                 prefixIconConstraints: BoxConstraints.tight(const Size(10, 60)),
                 // errorStyle:
                 //     CustomStyle.labelSemibold12(color: CustomColor.error),
-                isDense: true,
+                // isDense: true,
                 // helperText:
                 //     '', // it's hack to avoid the error message to be shown
                 errorMaxLines:
@@ -182,16 +184,18 @@ class CustomTextField1State extends State<CustomTextField1> {
                 widget.onValueChanged!(value);
               },
             ),
-            Padding(
-              padding: const EdgeInsets.only(top: 2),
-              child: (_showError == false && widget.helperText != null)
-                  ? widget.helperText
-                  : Text(
-                      _errorText!,
-                      style:
-                          CustomStyle.labelSemibold12(color: CustomColor.error),
-                    ),
-            ),
+            widget.hideErrortext == true
+                ? const SizedBox.shrink()
+                : Padding(
+                    padding: const EdgeInsets.only(top: 2),
+                    child: (_showError == false && widget.helperText != null)
+                        ? widget.helperText
+                        : Text(
+                            _errorText!,
+                            style: CustomStyle.labelSemibold12(
+                                color: CustomColor.error),
+                          ),
+                  ),
           ],
         ),
       ],

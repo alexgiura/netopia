@@ -1,7 +1,10 @@
+import 'package:erp_frontend_v2/models/app_localizations.dart';
 import 'package:erp_frontend_v2/models/partner/partner_model.dart';
 import 'package:erp_frontend_v2/models/partner/partner_type_model.dart';
 import 'package:erp_frontend_v2/models/static_model.dart';
 import 'package:erp_frontend_v2/providers/partner_provider.dart';
+import 'package:erp_frontend_v2/widgets/buttons/edit_button.dart';
+import 'package:erp_frontend_v2/widgets/custom_activ_status.dart';
 import 'package:erp_frontend_v2/widgets/custom_checkbox.dart';
 import 'package:erp_frontend_v2/widgets/custom_data_table.dart';
 import 'package:erp_frontend_v2/widgets/custom_search_bar.dart';
@@ -9,7 +12,9 @@ import 'package:erp_frontend_v2/widgets/custom_tab_bar.dart';
 import 'package:erp_frontend_v2/widgets/filters/drop_down_filter/drop_down_filter.dart';
 import 'package:flutter/material.dart';
 import 'package:data_table_2/data_table_2.dart';
+import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:gap/gap.dart';
 import '../../../constants/style.dart';
 
 import '../partner_details_page.dart';
@@ -30,7 +35,6 @@ class _PartnerPageDataTableState extends ConsumerState<PartnerPageDataTable>
   String selectedHid = '';
   late TabController _tabController;
   List<Partner> filteredData = [];
-  // params
   String? _searchText;
   List<bool> _selectStatus = [];
   List<String> _selectedTypes = [];
@@ -73,116 +77,92 @@ class _PartnerPageDataTableState extends ConsumerState<PartnerPageDataTable>
     super.dispose();
   }
 
-  // void updatePartnerInDataTable(int index, Partner modifiedPartner) {
-  //   setState(() {
-  //     widget.data![index] = modifiedPartner;
-  //   });
-  // }
-
   @override
   Widget build(BuildContext context) {
     final partnerState = ref.watch(partnerProvider);
-    // // Declare static variables
-    // final StaticData activValue = StaticData(name: PartnerType.company.name);
-    // final StaticData inactiveValue = StaticData(name: PartnerType.partnerTypes);
-    return Container(
-      padding: const EdgeInsets.only(top: 16),
-      decoration: CustomStyle.customContainerDecoration(),
-      child: partnerState.when(
-        skipLoadingOnReload: true,
-        skipLoadingOnRefresh: true,
-        data: (documentList) {
-          // return Column(
-          //   children: [
-          //     Container(height: 100, width: 100, color: Colors.black),
-          //   ],
-          // );
 
-          return Column(
+    return partnerState.when(
+      skipLoadingOnReload: true,
+      skipLoadingOnRefresh: true,
+      data: (documentList) {
+        return Container(
+          padding: const EdgeInsets.all(16),
+          decoration: CustomStyle.customContainerDecoration(),
+          child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
             children: [
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                child: CustomTabBar(
-                  tabController: _tabController,
-                  tabs: const [
-                    Tab(text: 'Activi'),
-                    Tab(text: 'Inactivi'),
-                    Tab(text: 'Toti'),
-                  ],
-                ),
+              CustomTabBar(
+                tabController: _tabController,
+                tabs: const [
+                  Tab(text: 'Activi'),
+                  Tab(text: 'Inactivi'),
+                  Tab(text: 'Toti'),
+                ],
               ),
-              const SizedBox(height: 24),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                child: Row(
-                  children: [
-                    Container(
-                      width: MediaQuery.of(context).size.width / 4,
-                      child: CustomSearchBar(
-                        hintText: "Cauta dupa denumire, CUI/CNP",
-                        initialValue: _searchText,
-                        onValueChanged: (value) {
-                          setState(() {
-                            _searchText = value;
-                          });
-                        },
-                      ),
-                    ),
-                    const SizedBox(width: 8),
-                    DropDownFilter(
-                        labelText: 'Tip partener',
-                        enableSearch: false,
-                        onValueChanged: (selectedList) {
-                          setState(() {
-                            _selectedTypes = selectedList
-                                .map((partner) => partner.name)
-                                .toList();
-                          });
-                        },
-                        staticData: PartnerType.partnerTypes),
-                    const SizedBox(
-                      width: 8,
-                    ),
-                    IconButton(
-                      icon: const Icon(
-                        Icons.refresh_rounded,
-                        color: CustomColor.active,
-                      ),
-                      onPressed: () {
-                        // Handle refresh logic here
-                        // _fetchDocuments();
+              Gap(24),
+              Row(
+                children: [
+                  Container(
+                    width: MediaQuery.of(context).size.width / 4,
+                    child: CustomSearchBar(
+                      hintText: 'partner_hint_search'.tr(context),
+                      initialValue: _searchText,
+                      onValueChanged: (value) {
+                        setState(() {
+                          _searchText = value;
+                        });
                       },
                     ),
-                    const Spacer(),
-                    const Spacer(),
-                  ],
-                ),
+                  ),
+                  const SizedBox(width: 8),
+                  DropDownFilter(
+                      labelText: 'partner_type'.tr(context),
+                      enableSearch: false,
+                      onValueChanged: (selectedList) {
+                        setState(() {
+                          _selectedTypes = selectedList
+                              .map((partner) => partner.name)
+                              .toList();
+                        });
+                      },
+                      staticData: PartnerType.partnerTypes),
+                  const SizedBox(
+                    width: 8,
+                  ),
+                  IconButton(
+                    icon: const Icon(
+                      Icons.refresh_rounded,
+                      color: CustomColor.active,
+                    ),
+                    onPressed: () {
+                      // Handle refresh logic here
+                      // _fetchDocuments();
+                    },
+                  ),
+                  const Spacer(),
+                  const Spacer(),
+                ],
               ),
-              const SizedBox(height: 16),
-              Expanded(
+              Gap(24),
+              Flexible(
                 child: CustomDataTable(
-                  // showCheckbox: true,
-                  columns: _columns,
+                  columns: getColumns(context),
                   rows: getRows(documentList),
-                  // onSelectRows: (selectedRows) {
-                  //   // List<Partner> selectedPartners =
-                  //   //     selectedRows.map((index) => documentList[index]).toList();
-                  // },
                 ),
               ),
             ],
-          );
-        },
-        loading: () {
-          return const Center(
-            child: CircularProgressIndicator(),
-          );
-        },
-        error: (error, stackTrace) {
-          return Text("Error: $error");
-        },
-      ),
+          ),
+        );
+      },
+      loading: () {
+        return const Center(
+          child: CircularProgressIndicator(),
+        );
+      },
+      error: (error, stackTrace) {
+        return Text("Error: $error");
+      },
     );
   }
 
@@ -204,86 +184,89 @@ class _PartnerPageDataTableState extends ConsumerState<PartnerPageDataTable>
     }).toList();
 
     return filteredData.asMap().entries.map((row) {
-      // int index = row.key;
-      Partner partner = row.value; // Get the partner object for the current row
+      Partner partner = row.value;
 
       return DataRow2(
         cells: [
-          //DataCell(Text(row.value.code ?? '')),
-          DataCell(Text(row.value.name)),
-          DataCell(Text(row.value.type)),
-          DataCell(Text(row.value.vatNumber ?? '')),
-          DataCell(Text(row.value.registrationNumber ?? '')),
-          DataCell(
-            Chip(
-              label: Text(row.value.isActive ? 'Activ' : 'Inactiv'),
-              labelStyle: TextStyle(
-                  color: row.value.isActive
-                      ? CustomColor.active
-                      : CustomColor.dark),
-              backgroundColor: row.value.isActive
-                  ? CustomColor.active.withOpacity(0.1)
-                  : CustomColor.lightest,
+          DataCell(Text(partner.name, style: CustomStyle.labelSemibold14())),
+          DataCell(Text(partner.type, style: CustomStyle.labelSemibold14())),
+          DataCell(Text(partner.vatNumber ?? '',
+              style: CustomStyle.labelSemibold14())),
+          DataCell(Text(partner.registrationNumber ?? '',
+              style: CustomStyle.labelSemibold14())),
+          DataCell(Container(
+            alignment: Alignment.center,
+            child: CustomActiveStatus(
+              isActive: partner.isActive,
             ),
-          ),
-          // DataCell(
-          //   Checkbox(
-          //     activeColor: CustomColor.active,
-          //     value: row.value.isActive,
-          //     onChanged: (newValue) {},
-          //   ),
-          // ),
-          DataCell(
-            IconButton(
-              hoverColor: CustomColor.lightest,
-              splashRadius: 22,
-              icon: const Icon(Icons.edit_outlined, color: CustomColor.active),
-              onPressed: () {
+          )),
+          DataCell(Container(
+            alignment: Alignment.center,
+            child: CustomEditButton(
+              onTap: () {
                 showDialog(
                   context: context,
                   builder: (BuildContext context) {
                     return PartnerDetailsPopup(
                       partner: partner,
-                      // onSave: (modifiedPartner) {
-                      //   updatePartnerInDataTable(index, modifiedPartner);
-                      // },
-                    ); // Use the CustomPopup widget here
+                    );
                   },
                 );
               },
             ),
-          ),
+          )),
         ],
       );
     }).toList();
   }
 }
 
-List<DataColumn2> _columns = [
-  const DataColumn2(
-    label: Text('Denumire'),
-    size: ColumnSize.L,
-  ),
-
-  const DataColumn2(
-    label: Text('Tip'),
-    size: ColumnSize.M,
-  ),
-
-  const DataColumn2(
-    label: Text('CUI/CNP'),
-    size: ColumnSize.M,
-  ),
-
-  const DataColumn2(
-    label: Text('Nr.Reg.Com.'),
-    size: ColumnSize.M,
-  ),
-  const DataColumn2(
-    label: Text('Activ'),
-    size: ColumnSize.S,
-  ),
-
-  /// Time Column definition
-  const DataColumn2(label: Text('Editează'), fixedWidth: 100),
-];
+List<DataColumn2> getColumns(BuildContext context) {
+  return [
+    DataColumn2(
+      label: Text(
+        'name'.tr(context),
+        style: CustomStyle.labelSemibold16(color: CustomColor.greenGray),
+      ),
+      size: ColumnSize.L,
+    ),
+    DataColumn2(
+      label: Text(
+        'partner_type'.tr(context),
+        style: CustomStyle.labelSemibold16(color: CustomColor.greenGray),
+      ),
+      size: ColumnSize.M,
+    ),
+    DataColumn2(
+      label: Text(
+        'vat_personal_number'.tr(context),
+        style: CustomStyle.labelSemibold16(color: CustomColor.greenGray),
+      ),
+      size: ColumnSize.M,
+    ),
+    DataColumn2(
+      label: Text(
+        'registration_number'.tr(context),
+        style: CustomStyle.labelSemibold16(color: CustomColor.greenGray),
+      ),
+      size: ColumnSize.M,
+    ),
+    DataColumn2(
+      label: Container(
+          alignment: Alignment.center,
+          child: Text(
+            'active'.tr(context), // Assuming 'tr' is a method for translations
+            style: CustomStyle.labelSemibold16(color: CustomColor.greenGray),
+          )),
+      size: ColumnSize.L,
+    ),
+    DataColumn2(
+        label: Container(
+            alignment: Alignment.center,
+            child: Text(
+              'edit'.tr(context),
+              style: CustomStyle.labelSemibold16(color: CustomColor.greenGray),
+            )),
+        fixedWidth: 100),
+  ];
+}

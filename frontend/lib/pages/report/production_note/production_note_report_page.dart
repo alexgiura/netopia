@@ -1,7 +1,7 @@
 import 'dart:typed_data';
 
 import 'package:erp_frontend_v2/constants/style.dart';
-import 'package:erp_frontend_v2/helpers/responsiveness.dart';
+import 'package:erp_frontend_v2/utils/responsiveness.dart';
 import 'package:erp_frontend_v2/models/report/production_note_report_model.dart';
 import 'package:erp_frontend_v2/models/report/report_filter_model.dart';
 import 'package:erp_frontend_v2/pages/report/production_note/widgets/pdf_production_note_report.dart';

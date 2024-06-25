@@ -18,7 +18,7 @@ import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import '../../../pdf/pdf_document.dart';
 import '../../../constants/style.dart';
-import '../../../helpers/responsiveness.dart';
+import '../../../utils/responsiveness.dart';
 import '../../../models/document/document_model.dart';
 import '../../../providers/partner_provider.dart';
 import '../../../services/document.dart';

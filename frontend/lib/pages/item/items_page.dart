@@ -5,7 +5,7 @@ import 'package:erp_frontend_v2/widgets/buttons/primary_button.dart';
 import 'package:erp_frontend_v2/widgets/custom_search_bar.dart';
 import 'package:erp_frontend_v2/widgets/custom_tab_bar.dart';
 import 'package:flutter/material.dart';
-import '../../helpers/responsiveness.dart';
+import '../../utils/responsiveness.dart';
 
 class ItemsPage extends StatefulWidget {
   const ItemsPage({super.key});
@@ -39,7 +39,7 @@ class _ItemsPageState extends State<ItemsPage>
       padding: EdgeInsets.only(
         left: ResponsiveWidget.isSmallScreen(context) ? 0 : 24,
         right: ResponsiveWidget.isSmallScreen(context) ? 0 : 24,
-        top: ResponsiveWidget.isSmallScreen(context) ? 56 : 32,
+        top: ResponsiveWidget.isSmallScreen(context) ? 24 : 24,
         bottom: ResponsiveWidget.isSmallScreen(context) ? 0 : 24,
       ),
       child: Column(

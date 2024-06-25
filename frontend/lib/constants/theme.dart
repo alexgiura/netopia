@@ -1,10 +1,13 @@
 import 'package:erp_frontend_v2/constants/style.dart';
+// ignore: unnecessary_import
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 ThemeData customTheme(BuildContext context) {
   return ThemeData(
+    scaffoldBackgroundColor: Colors.transparent,
+
     useMaterial3: false,
     textTheme:
         // GoogleFonts.grechenFuemenTextTheme(Theme.of(context).textTheme),
@@ -19,7 +22,6 @@ ThemeData customTheme(BuildContext context) {
       TargetPlatform.windows: CustomScaleTransitionBuilder(),
     }),
     iconTheme: const IconThemeData(color: CustomColor.textPrimary),
-    //dividerColor: Colors.transparent, // Set the divider color to transparent
 
     hoverColor: Colors.transparent,
     focusColor: Colors.transparent,

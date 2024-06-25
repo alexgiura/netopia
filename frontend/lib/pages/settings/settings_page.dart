@@ -1,12 +1,9 @@
 import 'package:erp_frontend_v2/constants/style.dart';
-import 'package:erp_frontend_v2/helpers/responsiveness.dart';
+import 'package:erp_frontend_v2/utils/responsiveness.dart';
 import 'package:erp_frontend_v2/models/app_localizations.dart';
-import 'package:erp_frontend_v2/pages/efactura/efactura_error_popup.dart';
 import 'package:erp_frontend_v2/pages/efactura/efactura_info_popup.dart';
 import 'package:erp_frontend_v2/pages/settings/widgets/settings_card.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:flutter_layout_grid/flutter_layout_grid.dart';
 import 'package:gap/gap.dart';
 
@@ -30,11 +27,10 @@ class _SettingsPageState extends State<SettingsPage> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      color: CustomColor.lightest,
       padding: EdgeInsets.only(
-        left: ResponsiveWidget.isSmallScreen(context) ? 16 : 24,
-        right: ResponsiveWidget.isSmallScreen(context) ? 16 : 24,
-        top: ResponsiveWidget.isSmallScreen(context) ? 32 : 56,
+        left: ResponsiveWidget.isSmallScreen(context) ? 0 : 24,
+        right: ResponsiveWidget.isSmallScreen(context) ? 0 : 24,
+        top: ResponsiveWidget.isSmallScreen(context) ? 24 : 24,
         bottom: ResponsiveWidget.isSmallScreen(context) ? 0 : 24,
       ),
       child: SingleChildScrollView(
@@ -45,7 +41,7 @@ class _SettingsPageState extends State<SettingsPage> {
               children: [
                 Text(
                   'settings'.tr(context),
-                  style: CustomStyle.titleText,
+                  style: CustomStyle.medium40(),
                 ),
                 Spacer()
               ],

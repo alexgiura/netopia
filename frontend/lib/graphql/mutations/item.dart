@@ -6,7 +6,12 @@ mutation saveItem($input: ItemInput!){
 
 const String saveItemCategory = r'''
 mutation saveItemCategory($input: ItemCategoryInput!){   
-    saveItemCategory(input:$input)
+    saveItemCategory(input:$input){
+        id,
+        name,
+        is_active,
+        generate_pn    
+    }
 }
 ''';
 

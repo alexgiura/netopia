@@ -1,5 +1,5 @@
 import 'package:erp_frontend_v2/constants/style.dart';
-import 'package:erp_frontend_v2/helpers/responsiveness.dart';
+import 'package:erp_frontend_v2/utils/responsiveness.dart';
 import 'package:erp_frontend_v2/models/app_localizations.dart';
 import 'package:erp_frontend_v2/pages/auth/widgets/login_form.dart';
 import 'package:erp_frontend_v2/pages/auth/widgets/register_form.dart';

@@ -79,14 +79,15 @@ WHERE ic.is_active = true AND i.id = $1
 -- name: InsertItemCategory :one
 Insert into core.item_category (name,is_active,generate_pn)
 VALUES ($1,$2,$3)
-    RETURNING id;
+    RETURNING id, name, is_active, generate_pn;
 
--- name: UpdateItemCategory :exec
+-- name: UpdateItemCategory :one
 Update core.item_category
 Set name=$2,
     is_active=$3,
     generate_pn=$4
-where id=$1;
+where id=$1
+    RETURNING id, name, is_active, generate_pn;
 
 -- name: InsertUm :one
 Insert into core.item_um (name,code,is_active)

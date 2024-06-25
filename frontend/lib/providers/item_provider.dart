@@ -77,7 +77,7 @@ class ItemCategoryProvider
     }
   }
 
-  void refreshItems() {
+  void refreshItemCategories() {
     fetchItemCategories();
   }
 }

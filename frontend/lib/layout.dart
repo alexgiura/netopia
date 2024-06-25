@@ -1,4 +1,6 @@
-import 'package:erp_frontend_v2/helpers/responsiveness.dart';
+import 'package:erp_frontend_v2/constants/style.dart';
+import 'package:erp_frontend_v2/utils/responsiveness.dart';
+import 'package:erp_frontend_v2/utils/util_widgets.dart';
 import 'package:erp_frontend_v2/widgets/large_screen.dart';
 import 'package:erp_frontend_v2/widgets/side_menu.dart';
 import 'package:erp_frontend_v2/widgets/top_nav.dart';
@@ -14,32 +16,32 @@ class AppLayout extends StatelessWidget {
   Widget build(BuildContext context) {
     final GlobalKey<ScaffoldState> scaffoldKey = GlobalKey();
 
-    return Row(
-      children: [
-        if (!ResponsiveWidget.isSmallScreen(context)) const SideMenu(),
-        Expanded(
-          child: Scaffold(
-            key: scaffoldKey,
-            appBar: topNavigationBar(context, scaffoldKey),
-            drawer: const SideMenu(),
-            body: LayoutBuilder(
-              builder: (context, constraints) {
-                // double bodyWidth = constraints.maxWidth;
-
-                return ToastificationWrapper(
-                  child: ResponsiveWidget(
-                    largeScreen: LargeScreen(child: child),
-                    smallScreen: Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 0),
-                      child: child,
+    return GradientBackground(
+      child: Row(
+        children: [
+          if (!ResponsiveWidget.isSmallScreen(context)) const SideMenu(),
+          Expanded(
+            child: Scaffold(
+              key: scaffoldKey,
+              appBar: topNavigationBar(context, scaffoldKey),
+              drawer: const SideMenu(),
+              body: LayoutBuilder(
+                builder: (context, constraints) {
+                  return ToastificationWrapper(
+                    child: ResponsiveWidget(
+                      largeScreen: LargeScreen(child: child),
+                      smallScreen: Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 0),
+                        child: child,
+                      ),
                     ),
-                  ),
-                );
-              },
+                  );
+                },
+              ),
             ),
-          ),
-        )
-      ],
+          )
+        ],
+      ),
     );
   }
 }

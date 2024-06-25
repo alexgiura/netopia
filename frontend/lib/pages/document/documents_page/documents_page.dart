@@ -5,7 +5,7 @@ import 'package:erp_frontend_v2/widgets/custom_search_bar.dart';
 import 'package:erp_frontend_v2/widgets/custom_tab_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import '../../../helpers/responsiveness.dart';
+import '../../../utils/responsiveness.dart';
 import '../../../routing/router.dart';
 import 'widgets/documents_data_table.dart';
 

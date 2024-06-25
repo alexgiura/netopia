@@ -5,7 +5,7 @@ import 'package:erp_frontend_v2/pages/item/widgets/item_units_data_table.dart';
 import 'package:erp_frontend_v2/widgets/buttons/primary_button.dart';
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
-import '../../helpers/responsiveness.dart';
+import '../../utils/responsiveness.dart';
 
 class ItemUnitsPage extends StatefulWidget {
   const ItemUnitsPage({super.key});
@@ -23,14 +23,14 @@ class _ItemUnitsPageState extends State<ItemUnitsPage> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      color: CustomColor.white,
       padding: EdgeInsets.only(
         left: ResponsiveWidget.isSmallScreen(context) ? 0 : 24,
         right: ResponsiveWidget.isSmallScreen(context) ? 0 : 24,
-        top: ResponsiveWidget.isSmallScreen(context) ? 56 : 32,
+        top: ResponsiveWidget.isSmallScreen(context) ? 24 : 32,
         bottom: ResponsiveWidget.isSmallScreen(context) ? 0 : 24,
       ),
       child: Column(
+        mainAxisSize: MainAxisSize.min,
         children: [
           Row(
             children: [
@@ -40,7 +40,7 @@ class _ItemUnitsPageState extends State<ItemUnitsPage> {
               ),
               const Spacer(),
               PrimaryButton(
-                text: 'Adauga',
+                text: 'add'.tr(context),
                 icon: Icons.add,
                 onPressed: () {
                   showDialog(
@@ -55,8 +55,8 @@ class _ItemUnitsPageState extends State<ItemUnitsPage> {
               ),
             ],
           ),
-          const Gap(32),
-          const Expanded(
+          const Gap(24),
+          const Flexible(
             child: ItemUnitsDataTable(),
           )
         ],

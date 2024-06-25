@@ -1,161 +1,165 @@
+import 'package:erp_frontend_v2/models/app_localizations.dart';
 import 'package:erp_frontend_v2/models/item/item_category_model.dart';
-import 'package:erp_frontend_v2/widgets/custom_checkbox.dart';
+import 'package:erp_frontend_v2/models/item/um_model.dart';
+import 'package:erp_frontend_v2/utils/util_widgets.dart';
+import 'package:erp_frontend_v2/widgets/buttons/primary_button.dart';
+import 'package:erp_frontend_v2/widgets/buttons/secondary_button.dart';
+import 'package:erp_frontend_v2/widgets/custom_text_field_1.dart';
+import 'package:erp_frontend_v2/widgets/custom_toggle.dart';
+import 'package:erp_frontend_v2/widgets/dialog_widgets/custom_toast.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:gap/gap.dart';
 import '../../../constants/style.dart';
 import '../../../providers/item_provider.dart';
-import '../../../widgets/custom_text_field.dart';
 import '../../../services/item.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class ItemCategoryDetailsPopup extends ConsumerStatefulWidget {
-  const ItemCategoryDetailsPopup(
-      {super.key, this.itemCategory, required this.onSave});
-  final ItemCategory? itemCategory;
-  final void Function(ItemCategory) onSave;
+class ItemCategoryPopup extends ConsumerStatefulWidget {
+  const ItemCategoryPopup({super.key, this.category});
+  final ItemCategory? category;
+
   @override
-  ConsumerState<ItemCategoryDetailsPopup> createState() =>
-      _ItemCategoryDetailsPopupState();
+  ConsumerState<ItemCategoryPopup> createState() => _ItemCategoryPopupState();
 }
 
-class _ItemCategoryDetailsPopupState
-    extends ConsumerState<ItemCategoryDetailsPopup>
+class _ItemCategoryPopupState extends ConsumerState<ItemCategoryPopup>
     with SingleTickerProviderStateMixin {
-  // FormKey for validation
-  final GlobalKey<CustomTextFieldState> nameFormKey =
-      GlobalKey<CustomTextFieldState>();
+  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 
-  late ItemCategory _itemCategory;
+  ItemCategory _category = ItemCategory.empty();
+
   bool validateOnSave = false;
   bool formIsValid = true;
-  bool _isLoading = false;
-  String umId = '';
+
+  String categoryId = '';
 
   @override
   void initState() {
     super.initState();
 
-    _itemCategory = widget.itemCategory ?? ItemCategory.empty();
-  }
-
-  Future<void> _saveItemCategory(ItemCategory itemCategory) async {
-    setState(() {
-      _isLoading = true;
-    });
-
-    try {
-      final itemService = ItemService();
-      final String result =
-          await itemService.saveItemCategory(itemCategory: itemCategory);
-
-      setState(() {
-        _isLoading = false;
-      });
-
-      if (result == 'success') {
-        widget.onSave(itemCategory);
-        ref.refresh(itemCategoryProvider);
-        if (context.mounted) {
-          // showSnackBar(
-          //     context: context,
-          //     backgroundColor: Colors.green,
-          //     text: 'Categoria a fost salvata!',
-          //     style: const TextStyle(fontSize: 16));
-          // Navigator.of(context).pop();
-        }
-      }
-    } catch (error) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(error.toString()),
-          behavior: SnackBarBehavior.floating, // Move SnackBar to top
-          backgroundColor: Colors.red, // Change background color
-        ),
-      );
-      setState(() {
-        _isLoading = false;
-      });
-    }
+    _category = widget.category ?? ItemCategory.empty();
   }
 
   @override
   Widget build(BuildContext context) {
-    return AlertDialog(
-      backgroundColor: CustomColor.white,
-      titlePadding: EdgeInsets.all(16),
-      contentPadding: EdgeInsets.all(0),
-      title: _itemCategory.isEmpty()
-          ? const Text('Adauga Categorie')
-          : const Text('Editeaza Categorie', style: CustomStyle.titleText),
-      content: Container(
-        color: CustomColor.white,
-        //height: 600,
-        width: 400,
-        child: SingleChildScrollView(
-          child: Padding(
-            padding: EdgeInsets.symmetric(horizontal: 16),
+    return Dialog(
+      child: SizedBox(
+        width: 450,
+        child: Padding(
+          padding: const EdgeInsets.all(24.0),
+          child: Form(
+            key: _formKey,
             child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
               children: [
-                const SizedBox(
-                  height: 8,
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    widget.category != null
+                        ? Text(
+                            'edit_item_category'.tr(context),
+                            style: CustomStyle.bold24(),
+                          )
+                        : Text(
+                            'add_item_category'.tr(context),
+                            style: CustomStyle.bold24(),
+                          ),
+                    const Spacer(),
+                    InkWell(
+                      child: const Icon(
+                        Icons.close,
+                        size: 24,
+                      ),
+                      onTap: () {
+                        Navigator.of(context).pop();
+                      },
+                    ),
+                  ],
                 ),
-                CustomTextField(
-                  key: nameFormKey,
-                  labelText: "Denumire *",
-                  hintText: null,
-                  initialValue: _itemCategory.name,
-                  onValueChanged: (String value) {
-                    _itemCategory.name = value;
+                Gap(24),
+                CustomTextField1(
+                  initialValue: _category.name,
+                  validator: (value) {
+                    if (value!.isEmpty) {
+                      return 'error_required_field'.tr(context);
+                    }
+                    return null;
                   },
-                  errorText: "Camp obligatoriu",
+                  keyboardType: TextInputType.name,
+                  labelText: 'name'.tr(context),
+                  onValueChanged: (value) {
+                    _category.name = value;
+                  },
+                  required: true,
                 ),
-                const SizedBox(
-                  height: 16,
+                Gap(16),
+                CustomToggle(
+                  title: 'active'.tr(context),
+                  subtitle: 'measurement_unit_activ_description'.tr(context),
+                  initialValue: _category.isActive,
+                  onChanged: (value) {
+                    _category.isActive = value;
+                  },
                 ),
-                CustomCheckbox(
-                    value: _itemCategory.isActive,
-                    labelText: "Activ",
-                    onChanged: (value) {
-                      setState(() {
-                        _itemCategory.isActive = value;
-                      });
-                    }),
-                const SizedBox(
-                  height: 16,
+                Gap(16),
+                CustomToggle(
+                  title: 'final_product'.tr(context),
+                  subtitle:
+                      'item_category_final_product_description'.tr(context),
+                  initialValue: _category.generatePn,
+                  onChanged: (value) {
+                    _category.generatePn = value;
+                  },
                 ),
-                CustomCheckbox(
-                    value: _itemCategory.generatePn!,
-                    labelText: "Produs Finit",
-                    onChanged: (value) {
-                      setState(() {
-                        _itemCategory.generatePn = value;
-                      });
-                    }),
-                const SizedBox(
-                  height: 32,
+                Gap(40),
+                Row(
+                  mainAxisSize: MainAxisSize.max,
+                  children: [
+                    Expanded(
+                      child: SecondaryButton(
+                        text: 'close'.tr(context),
+                        onPressed: () {
+                          Navigator.of(context).pop();
+                        },
+                      ),
+                    ),
+                    const Gap(16),
+                    Expanded(
+                      child: PrimaryButton(
+                        text: 'save'.tr(context),
+                        onPressed: () async {
+                          if (_formKey.currentState!.validate()) {
+                            try {
+                              await ItemService()
+                                  .saveItemCategory(itemCategory: _category);
+
+                              ref
+                                  .read(itemCategoryProvider.notifier)
+                                  .refreshItemCategories();
+                              Navigator.of(context).pop();
+                              showToast(
+                                  _category.id == null
+                                      ? 'suceess_add_category'.tr(context)
+                                      : 'suceess_edit_category'.tr(context),
+                                  ToastType.success);
+                            } catch (e) {
+                              Navigator.of(context).pop();
+                              showToast('error'.tr(context), ToastType.error);
+                            }
+                          }
+                        },
+                      ),
+                    ),
+                  ],
                 ),
               ],
             ),
           ),
         ),
       ),
-      actions: <Widget>[
-        TextButton(
-          onPressed: () {
-            if (nameFormKey.currentState!.valid()) {
-              _saveItemCategory(_itemCategory).then((value) => {
-                    Navigator.of(context).pop() // Close the popup
-                  });
-            }
-          },
-          child: Text('Save'),
-        ),
-        TextButton(
-          onPressed: () {
-            Navigator.of(context).pop(); // Close the popup
-          },
-          child: Text('Close'),
-        ),
-      ],
     );
   }
 }

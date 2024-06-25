@@ -71,5 +71,5 @@ extend type Query {
 extend type Mutation {
     saveItem(input: ItemInput!): String
     saveUm(input: UmInput!): Um
-    saveItemCategory(input: ItemCategoryInput!): String
+    saveItemCategory(input: ItemCategoryInput!): ItemCategory
 }

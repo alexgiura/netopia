@@ -2,13 +2,13 @@ class ItemCategory {
   int? id;
   String name;
   bool isActive;
-  bool? generatePn;
+  bool generatePn;
 
   ItemCategory({
     required this.id,
     required this.name,
     required this.isActive,
-    this.generatePn,
+    required this.generatePn,
   });
 
   ItemCategory.empty()
@@ -26,7 +26,16 @@ class ItemCategory {
       id: json['id'],
       name: json['name'],
       isActive: json['is_active'],
-      generatePn: json.containsKey('generate_pn') ? json['generate_pn'] : null,
+      generatePn: json['generate_pn'],
     );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'name': name,
+      'is_active': isActive,
+      'generate_pn': generatePn,
+    };
   }
 }

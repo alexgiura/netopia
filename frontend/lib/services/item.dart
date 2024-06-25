@@ -156,18 +156,13 @@ class ItemService {
     }
   }
 
-  Future<String> saveItemCategory({
+  Future<ItemCategory> saveItemCategory({
     required ItemCategory itemCategory,
   }) async {
     final QueryOptions options = QueryOptions(
       document: gql(mutations.saveItemCategory),
       variables: <String, dynamic>{
-        "input": {
-          "id": itemCategory.id,
-          "name": itemCategory.name,
-          "is_active": itemCategory.isActive,
-          "generate_pn": itemCategory.generatePn,
-        }
+        "input": itemCategory.toJson(),
       },
       fetchPolicy: FetchPolicy.noCache,
     );
@@ -177,13 +172,12 @@ class ItemService {
     if (result.hasException) {
       throw Exception(result.exception.toString());
     }
-    final dynamic data = result.data!;
+    final dynamic data = result.data!['saveItemCategory'];
 
     if (data != null) {
-      final String response = data['saveItemCategory'];
-      return response;
+      return ItemCategory.fromJson(data);
     } else {
-      throw Exception('Invalid form data.');
+      throw Exception('Invalid data');
     }
   }
 }
