@@ -33,9 +33,15 @@ RUN chown -R flutteruser: /var/lib/apt/lists /var/cache/apt/archives
 
 USER flutteruser
 
+# Switch to root temporarily to install dependencies
+USER root
+
 RUN apt-get update
 RUN apt-get install -y bash curl file git unzip xz-utils zip libglu1-mesa
 RUN apt-get clean
+
+# Switch back to non-root user
+USER flutteruser
 
 # Clone the flutter repo
 RUN git clone https://github.com/flutter/flutter.git /usr/local/flutter
