@@ -28,8 +28,9 @@ FROM ubuntu:20.04 AS builder
 # Set up non-root user
 RUN groupadd -r flutteruser && useradd -r -g flutteruser flutteruser
 
-# Give flutteruser permissions for apt
-RUN chown -R flutteruser: /var/lib/apt/lists /var/cache/apt/archives
+# Give flutteruser permissions for apt and flutter directory
+RUN mkdir -p /usr/local/flutter && \
+    chown -R flutteruser: /usr/local/flutter /var/lib/apt/lists /var/cache/apt/archives
 
 USER flutteruser
 
