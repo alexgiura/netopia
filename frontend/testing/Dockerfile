@@ -30,7 +30,8 @@ RUN groupadd -r flutteruser && useradd -r -g flutteruser flutteruser
 
 # Give flutteruser permissions for apt and flutter directory
 RUN mkdir -p /usr/local/flutter && \
-    chown -R flutteruser: /usr/local/flutter /var/lib/apt/lists /var/cache/apt/archives
+    chown -R flutteruser: /usr/local/flutter /home/flutteruser /var/lib/apt/lists /var/cache/apt/archives
+
 
 USER flutteruser
 
