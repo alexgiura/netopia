@@ -25,6 +25,10 @@
 # Stage 1 - Install dependencies and build the app
 FROM ubuntu:20.04 AS builder
 
+# Set up non-root user
+RUN groupadd -r flutteruser && useradd -r -g flutteruser flutteruser
+USER flutteruser
+
 RUN apt-get update
 RUN apt-get install -y bash curl file git unzip xz-utils zip libglu1-mesa
 RUN apt-get clean
