@@ -1,30 +1,64 @@
-## Static configuration
-[entryPoints]
-  [entryPoints.web]
-    address = ":80"
-	[entryPoints.web.http.redirections.entryPoint]
-     to = "websecure"
-      scheme = "https"
+# ## Static configuration
+# [entryPoints]
+#   [entryPoints.web]
+#     address = ":80"
+# 	[entryPoints.web.http.redirections.entryPoint]
+#      to = "websecure"
+#       scheme = "https"
 	  
-  [entryPoints.websecure]
-    address = ":443"
+#   [entryPoints.websecure]
+#     address = ":443"
 
-#[certificatesResolvers.lets-encrypt.acme]
-#  email = "lilian.pletosu@neobytesolutions.com"
-#  storage = "acme.json"
-#  [certificatesResolvers.lets-encrypt.acme.tlsChallenge]
+# #[certificatesResolvers.lets-encrypt.acme]
+# #  email = "lilian.pletosu@neobytesolutions.com"
+# #  storage = "acme.json"
+# #  [certificatesResolvers.lets-encrypt.acme.tlsChallenge]
 
-[providers.docker]
-  watch = true
-  network = "traff"
-  exposedByDefault=false
+# [providers.docker]
+#   watch = true
+#   network = "traff"
+#   exposedByDefault=false
 
-[api]
-  dashboard=true
-  insecure=true
+# [api]
+#   dashboard=true
+#   insecure=true
   
-#[providers.file]
-#  filename = "traefik_dynamic.toml"
+# #[providers.file]
+# #  filename = "traefik_dynamic.toml"
 
-[pilot]
-  token = "823d8328-6079-4871-9aa8-bb155db992d6"
+# [pilot]
+#   token = "823d8328-6079-4871-9aa8-bb155db992d6"
+
+
+# Enable Traefik dashboard (optional)
+api = { dashboard = true }
+
+# Define entry points
+[entryPoints]
+  web = { address = ":80" }
+  websecure = { address = ":443" }
+
+# Configure Docker provider
+[providers.docker]
+  exposedByDefault = false
+
+# Configure certificate resolver for HTTPS
+# [certificatesResolvers.myresolver]
+#   acme = {
+#     email = "your-email@example.com"
+#     storage = "/etc/traefik/acme.json"  # Adjust path if using volumes
+#     tlsChallenge = "http-validation"
+#   }
+
+# Define routers for handling traffic
+[[routers.flutter-app-testing]]
+  entryPoints = ["web"]
+  service = "flutter-app-testing"  # Replace with actual service name
+  rule = "HostRegexp('dev.optimanage.ro')"
+  middlewares = ["ACME@myresolver"]
+
+[[routers.flutter-app-live]]
+  entryPoints = ["web"]
+  service = "flutter-app-live"  # Replace with actual service name
+  rule = "HostRegexp('optimanage.ro')"
+  middlewares = ["ACME@myresolver"]
