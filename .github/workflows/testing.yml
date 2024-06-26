@@ -32,12 +32,17 @@ jobs:
     - name: Push Docker image
       run: docker push liliancik098/flutter_testing:latest
 
-    - name: Setup SSH Key
-      run: |
+  deploy:
+    runs-on: ubuntu-latest
+    needs: build
+    
+    steps:
+      - name: Setup SSH Key
+        run: |
           mkdir -p ~/.ssh
           echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
           chmod 600 ~/.ssh/id_rsa
           ssh-keyscan 159.223.234.127 >> ~/.ssh/known_hosts
 
-    - name: Deploy to Server
-      run: ssh -i ~/.ssh/id_rsa ubuntu@159.223.234.127 "docker pull liliancik098/flutter_testing:latest && docker compose -f erp-insiders/backend/docker-compose.yml up -d erp-api-dev erp-frontend-dev"
+      - name: Deploy to Server
+        run: ssh -i ~/.ssh/id_rsa ubuntu@159.223.234.127 "docker pull liliancik098/flutter_testing:latest && docker compose -f erp-insiders/backend/docker-compose.yml up -d erp-app-dev erp-frontend-dev"
