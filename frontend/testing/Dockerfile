@@ -66,7 +66,7 @@ WORKDIR /app/frontend
 RUN ls -la # Debug: List what's in /app to ensure files are copied
 RUN flutter pub get
 RUN flutter build web --web-renderer canvaskit
-RUN ls -la /app/build/web # Add this line to verify build output
+RUN ls -la /app/frontend/build/web # Add this line to verify build output
 
 # Stage 2 - Create the run-time image
 FROM nginx:stable-alpine AS runner
