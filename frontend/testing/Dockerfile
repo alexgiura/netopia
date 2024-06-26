@@ -1,28 +1,20 @@
 # FROM ubuntu:latest
-
 # # Install dependencies
 # RUN apt-get update && apt-get install -y curl git unzip xz-utils zip libglu1-mesa
-
 # # Install Flutter
 # RUN git clone https://github.com/flutter/flutter.git /usr/local/flutter
-
 # ENV PATH="/usr/local/flutter/bin:/usr/local/flutter/bin/cache/dart-sdk/bin:${PATH}"
-
 # # Verify Flutter installation
 # RUN flutter doctor
-
 # WORKDIR /usr/src/app
-
 # COPY . .
-
 # RUN flutter pub get
 # RUN flutter build web
-
 # EXPOSE 8081
 # CMD ["flutter", "run", "-d", "web-server", "--web-port", "8081"]
-
-
 # Stage 1 - Install dependencies and build the app
+
+
 FROM ubuntu:20.04 AS builder
 
 # Install sudo
@@ -60,6 +52,7 @@ RUN flutter config --enable-web
 # Copy files to container and build
 # The /app directory is already created and owned by flutteruser
 COPY . /app
+
 # Ensure flutteruser owns all copied files
 RUN sudo chown -R flutteruser:flutteruser /app
 WORKDIR /app/frontend
@@ -70,6 +63,5 @@ RUN ls -la /app/frontend/build/web # Add this line to verify build output
 
 # Stage 2 - Create the run-time image
 FROM nginx:stable-alpine AS runner
-
 COPY frontend/default.conf /etc/nginx/conf.d
 COPY --from=builder /app/frontend/build/web /usr/share/nginx/html
