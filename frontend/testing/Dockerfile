@@ -61,6 +61,7 @@ RUN flutter config --enable-web
 # The /app directory is already created and owned by flutteruser
 COPY . /app
 WORKDIR /app
+RUN ls -la # Debug: List what's in /app to ensure files are copied
 RUN flutter pub get
 RUN flutter build web --web-renderer canvaskit
 
