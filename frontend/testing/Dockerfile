@@ -40,6 +40,9 @@ RUN mkdir -p /usr/local/flutter && chown -R flutteruser:flutteruser /usr/local/f
 # Install dependencies as root
 RUN apt-get install -y bash curl file git unzip xz-utils zip libglu1-mesa && apt-get clean
 
+# Create the app directory and give flutteruser ownership
+RUN mkdir /app && chown flutteruser:flutteruser /app
+
 # Switch to flutteruser
 USER flutteruser
 
@@ -55,7 +58,7 @@ RUN flutter upgrade
 RUN flutter config --enable-web
 
 # Copy files to container and build
-RUN mkdir /app
+# The /app directory is already created and owned by flutteruser
 COPY . /app
 WORKDIR /app
 RUN flutter pub get
