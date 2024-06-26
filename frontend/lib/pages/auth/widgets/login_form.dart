@@ -206,6 +206,7 @@ class _LoginFormState extends ConsumerState<LoginForm> {
                     onChanged: (val) => setState(() => rememberMe = val),
                   ),
                   TertiaryButton(
+                    underline: true,
                     text: 'forgot_password'.tr(context),
                     onPressed: () {},
                   ),
