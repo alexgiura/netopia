@@ -25,42 +25,33 @@
 # Stage 1 - Install dependencies and build the app
 FROM ubuntu:20.04 AS builder
 
-# Set up non-root user
-RUN groupadd -r flutteruser && useradd -r -g flutteruser flutteruser
+# Install sudo
+RUN apt-get update && apt-get install -y sudo
 
-# Give flutteruser permissions for apt and flutter directory
-RUN mkdir -p /usr/local/flutter && \
-    chown -R flutteruser: /usr/local/flutter /home/flutteruser /var/lib/apt/lists /var/cache/apt/archives
+# Set up non-root user with sudo access
+RUN groupadd -r flutteruser && useradd -r -g flutteruser -G sudo flutteruser && \
+    echo "flutteruser ALL=(ALL) NOPASSWD: ALL" > /etc/sudoers.d/flutteruser && \
+    chmod 0440 /etc/sudoers.d/flutteruser
 
+# Give flutteruser ownership of the flutter directory
+RUN mkdir -p /usr/local/flutter && chown -R flutteruser:flutteruser /usr/local/flutter
 
-USER flutteruser
+# Install dependencies as root
+RUN apt-get install -y bash curl file git unzip xz-utils zip libglu1-mesa && apt-get clean
 
-# Switch to root temporarily to install dependencies
-USER root
-
-RUN apt-get update
-RUN apt-get install -y bash curl file git unzip xz-utils zip libglu1-mesa
-RUN apt-get clean
-
-# Switch back to non-root user
+# Switch to flutteruser
 USER flutteruser
 
 # Clone the flutter repo
 RUN git clone https://github.com/flutter/flutter.git /usr/local/flutter
 
 # Set flutter path
-# RUN /usr/local/flutter/bin/flutter doctor -v
 ENV PATH="/usr/local/flutter/bin:/usr/local/flutter/bin/cache/dart-sdk/bin:${PATH}"
 
-# Change stable channel
+# Perform flutter actions with flutteruser, using sudo if necessary
 RUN flutter channel beta
-
-# Enable web capabilities
-RUN flutter config --enable-web
 RUN flutter upgrade
-RUN flutter pub global activate webdev
-
-# RUN flutter doctor -v
+RUN flutter config --enable-web
 
 # Copy files to container and build
 RUN mkdir /app
