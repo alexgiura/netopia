@@ -28,13 +28,14 @@ FROM ubuntu:20.04 AS builder
 # Install sudo
 RUN apt-get update && apt-get install -y sudo
 
-# Set up non-root user with sudo access
-RUN groupadd -r flutteruser && useradd -r -g flutteruser -G sudo flutteruser && \
+# Set up non-root user with sudo access and create a home directory
+RUN groupadd -r flutteruser && \
+    useradd -m -r -g flutteruser -G sudo flutteruser && \
     echo "flutteruser ALL=(ALL) NOPASSWD: ALL" > /etc/sudoers.d/flutteruser && \
     chmod 0440 /etc/sudoers.d/flutteruser
 
-# Give flutteruser ownership of the flutter directory
-RUN mkdir -p /usr/local/flutter && chown -R flutteruser:flutteruser /usr/local/flutter
+# Give flutteruser ownership of the flutter directory and their home directory
+RUN mkdir -p /usr/local/flutter && chown -R flutteruser:flutteruser /usr/local/flutter /home/flutteruser
 
 # Install dependencies as root
 RUN apt-get install -y bash curl file git unzip xz-utils zip libglu1-mesa && apt-get clean
@@ -64,5 +65,4 @@ RUN flutter build web --web-renderer canvaskit
 FROM nginx:stable-alpine AS runner
 
 COPY frontend/default.conf /etc/nginx/conf.d
-# COPY package.json /usr/share/nginx/html
 COPY --from=builder /app/build/web /usr/share/nginx/html
