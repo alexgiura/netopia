@@ -17,13 +17,13 @@ jobs:
       with:
         flutter-version: '3.22.2'
 
-    - name: Install dependencies
-      run: flutter pub get
+    - name: Navigate to frontend
+      run: |
+        cd frontend
+        flutter pub get
+        flutter build web --release --web-renderer canvaskit
 
-    - name: Build web
-      run: flutter build web --release --web-renderer canvaskit
-
-    - name: Build Docker image
+    - name: Build Docker image for frontend
       run: docker build -t liliancik098/flutter_testing:latest -f frontend/testing/Dockerfile .
 
     - name: Log in to Docker Hub
@@ -32,12 +32,7 @@ jobs:
     - name: Push Docker image
       run: docker push liliancik098/flutter_testing:latest
 
-    - name: Setup SSH Key
-      run: |
-          mkdir -p ~/.ssh
-          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
-          chmod 600 ~/.ssh/id_rsa
-          ssh-keyscan 159.223.234.127 >> ~/.ssh/known_hosts
-
     - name: Deploy to Server
-      run: ssh -i ~/.ssh/id_rsa ubuntu@159.223.234.127 "docker pull liliancik098/flutter_testing:latest && docker compose -f erp-insiders/backend/docker-compose.yml up -d erp-api-dev erp-frontend-dev"
+      run: ssh ubuntu@159.223.234.127 "docker pull liliancik098/flutter_testing:latest && docker-compose -f backend/docker-compose.yml up -d erp-api-dev erp-frontend-dev"
+      env:
+        SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
