@@ -44,5 +44,8 @@ jobs:
           chmod 600 ~/.ssh/id_rsa
           ssh-keyscan 159.223.234.127 >> ~/.ssh/known_hosts
 
+      - name: Stop and Remove Specific Containers
+        run: ssh -i ~/.ssh/id_rsa ubuntu@159.223.234.127 "docker compose -f erp-insiders/backend/docker-compose.yml stop erp-app-dev erp-frontend-dev && docker compose -f erp-insiders/backend/docker-compose.yml rm -f erp-app-dev erp-frontend-dev"
+
       - name: Deploy to Server
         run: ssh -i ~/.ssh/id_rsa ubuntu@159.223.234.127 "docker pull liliancik098/flutter_testing:latest && docker compose -f erp-insiders/backend/docker-compose.yml up -d erp-app-dev erp-frontend-dev"
