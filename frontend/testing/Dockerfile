@@ -72,4 +72,4 @@ RUN ls -la /app/frontend/build/web # Add this line to verify build output
 FROM nginx:stable-alpine AS runner
 
 COPY frontend/default.conf /etc/nginx/conf.d
-COPY --from=builder /app/build/web /usr/share/nginx/html
+COPY --from=builder /app/frontend/build/web /usr/share/nginx/html
