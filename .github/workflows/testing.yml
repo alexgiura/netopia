@@ -19,6 +19,10 @@ jobs:
 
     - name: Install dependencies
       run: flutter pub get
+      working-directory: flutter-app
+      env:
+        FLUTTER_ROOT: /opt/hostedtoolcache/flutter/3.22.2-stable/x64
+        PUB_CACHE: /opt/hostedtoolcache/flutter/3.22.2-stable/x64/.pub-cache
 
     - name: Build web
       run: flutter build web --release --web-renderer canvaskit
@@ -34,7 +38,6 @@ jobs:
 
   deploy:
     runs-on: ubuntu-latest
-    needs: build
     steps:
       - name: Setup SSH Key
         run: |
