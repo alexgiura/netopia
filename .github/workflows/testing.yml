@@ -17,14 +17,11 @@ jobs:
       with:
         flutter-version: '3.22.2'
 
-    - name: Navigate to frontend
+    - name: Navigate to frontend and build web
       run: |
         cd frontend
         flutter pub get
         flutter build web --release --web-renderer canvaskit
-
-    - name: Build web
-      run: flutter build web --release --web-renderer canvaskit
 
     - name: Build Docker image
       run: docker build -t liliancik098/flutter_testing:latest -f frontend/testing/Dockerfile .
