@@ -65,9 +65,10 @@ services:
 
   erp-frontend-dev:
     container_name: "erp-frontend-dev"
+    image: liliancik098/flutter_testing:latest
     build:
       context: ../frontend
-      dockerfile: Dockerfile
+      dockerfile: frontend/Dockerfile
       args:
           - BRANCH=dev
     labels:
