@@ -75,4 +75,4 @@ jobs:
 
       - name: Deploy to Server
         run: |
-          ssh -i ~/.ssh/id_rsa ubuntu@159.223.234.127 "cd erp-insiders/backend && git stash && git checkout dev && git pull && docker compose up -d --build erp-api-dev erp-frontend-dev --remove-orphans"
+          ssh -i ~/.ssh/id_rsa ubuntu@159.223.234.127 "cd erp-insiders/backend && git stash && git checkout dev && git pull -f && docker compose up -d --build erp-api-dev erp-frontend-dev --remove-orphans"
