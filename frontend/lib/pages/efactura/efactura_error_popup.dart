@@ -270,7 +270,9 @@ class _EfacturaInfoPopupState extends State<EfacturaErrorPopup> {
                   Expanded(
                     child: SecondaryButton(
                       text: 'back'.tr(context),
-                      onPressed: () {},
+                      onPressed: () {
+                        Navigator.of(context).pop();
+                      },
                     ),
                   ),
                   const Gap(16),

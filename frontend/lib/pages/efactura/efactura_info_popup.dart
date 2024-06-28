@@ -85,6 +85,10 @@ class _EfacturaInfoPopupState extends State<EfacturaInfoPopup> {
                 onChanged: (value) {
                   setState(() {
                     _value1 = value;
+
+                    if (_showError == true) {
+                      _showError = !(_value1 && _value2);
+                    }
                   });
                 },
                 title: 'spv_access'.tr(context),
@@ -96,6 +100,9 @@ class _EfacturaInfoPopupState extends State<EfacturaInfoPopup> {
                 onChanged: (value) {
                   setState(() {
                     _value2 = value;
+                    if (_showError == true) {
+                      _showError = !(_value1 && _value2);
+                    }
                   });
                 },
                 title: 'cert_inserted_activated'.tr(context),
@@ -113,7 +120,9 @@ class _EfacturaInfoPopupState extends State<EfacturaInfoPopup> {
                   Expanded(
                     child: SecondaryButton(
                       text: 'back'.tr(context),
-                      onPressed: () {},
+                      onPressed: () {
+                        Navigator.of(context).pop();
+                      },
                     ),
                   ),
                   Gap(16),

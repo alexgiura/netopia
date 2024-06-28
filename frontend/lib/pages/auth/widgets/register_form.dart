@@ -118,7 +118,7 @@ class _RegisterFormState extends ConsumerState<RegisterForm> {
               primaryButtonAction: () {
                 widget.changeForm();
               },
-              secondaryButtonText: 'cancel'.tr(context),
+              secondaryButtonText: 'close'.tr(context),
               secondaryButtonAction: () {
                 Navigator.of(context).pop();
               },
@@ -655,9 +655,6 @@ class _RegisterFormState extends ConsumerState<RegisterForm> {
             style: CustomStyle.submitBlackButton,
             text:
                 currentStep == 3 ? 'save'.tr(context) : 'continue'.tr(context),
-            // onPressed: () {
-            //   _nextFormStep(currentStep);
-            // },
             asyncOnPressed: () async {
               await _nextFormStep(currentStep);
             },
