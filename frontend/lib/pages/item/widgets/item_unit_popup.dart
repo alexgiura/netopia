@@ -109,9 +109,9 @@ class _ItemUnitPopupState extends ConsumerState<ItemUnitPopup>
                     linkText: 'here'.tr(context),
                     url: Uri.parse(
                         "https://happyweb.ro//public/uploads/e-factura-unitati-masura.xlsx"),
-                    textStyle: CustomStyle.labelSemibold12(
-                        color: CustomColor.slate_400),
-                    linkStyle: CustomStyle.labelSemibold12(
+                    textStyle:
+                        CustomStyle.semibold12(color: CustomColor.slate_400),
+                    linkStyle: CustomStyle.semibold12(
                         color: CustomColor.textPrimary, isUnderline: true),
                   ),
                   onValueChanged: (value) {

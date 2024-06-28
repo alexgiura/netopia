@@ -1,7 +1,11 @@
 import 'package:erp_frontend_v2/models/app_localizations.dart';
+import 'package:erp_frontend_v2/models/item/item_filter_model.dart';
+import 'package:erp_frontend_v2/models/item/item_model.dart';
 import 'package:erp_frontend_v2/models/partner/partner_model.dart';
 import 'package:erp_frontend_v2/models/partner/partner_type_model.dart';
 import 'package:erp_frontend_v2/models/static_model.dart';
+import 'package:erp_frontend_v2/pages/item/item_details_page.dart';
+import 'package:erp_frontend_v2/providers/item_provider.dart';
 import 'package:erp_frontend_v2/providers/partner_provider.dart';
 import 'package:erp_frontend_v2/widgets/buttons/edit_button.dart';
 import 'package:erp_frontend_v2/widgets/custom_activ_status.dart';
@@ -12,32 +16,26 @@ import 'package:erp_frontend_v2/widgets/custom_tab_bar.dart';
 import 'package:erp_frontend_v2/widgets/filters/drop_down_filter/drop_down_filter.dart';
 import 'package:flutter/material.dart';
 import 'package:data_table_2/data_table_2.dart';
-import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:gap/gap.dart';
 import '../../../constants/style.dart';
 
-import '../partner_details_page.dart';
-
-class PartnerPageDataTable extends ConsumerStatefulWidget {
-  const PartnerPageDataTable({
+class ItemsPageDataTable extends ConsumerStatefulWidget {
+  const ItemsPageDataTable({
     super.key,
   });
-  // final List<Partner>? data;
 
   @override
-  ConsumerState<PartnerPageDataTable> createState() =>
-      _PartnerPageDataTableState();
+  ConsumerState<ItemsPageDataTable> createState() => _ItemsPageDataTableState();
 }
 
-class _PartnerPageDataTableState extends ConsumerState<PartnerPageDataTable>
+class _ItemsPageDataTableState extends ConsumerState<ItemsPageDataTable>
     with SingleTickerProviderStateMixin {
-  String selectedHid = '';
   late TabController _tabController;
   List<Partner> filteredData = [];
   String? _searchText;
-  List<bool> _selectStatus = [];
-  List<String> _selectedTypes = [];
+  final List<bool> _selectStatus = [];
+  ItemFilter _itemFilter = ItemFilter.empty();
 
   @override
   void initState() {
@@ -79,12 +77,12 @@ class _PartnerPageDataTableState extends ConsumerState<PartnerPageDataTable>
 
   @override
   Widget build(BuildContext context) {
-    final partnerState = ref.watch(partnerProvider);
+    final itemState = ref.watch(itemProvider);
 
-    return partnerState.when(
+    return itemState.when(
       skipLoadingOnReload: true,
       skipLoadingOnRefresh: true,
-      data: (documentList) {
+      data: (itemList) {
         return Container(
           padding: const EdgeInsets.all(16),
           decoration: CustomStyle.customContainerDecoration(),
@@ -94,10 +92,10 @@ class _PartnerPageDataTableState extends ConsumerState<PartnerPageDataTable>
             children: [
               CustomTabBar(
                 tabController: _tabController,
-                tabs: const [
-                  Tab(text: 'Activi'),
-                  Tab(text: 'Inactivi'),
-                  Tab(text: 'Toti'),
+                tabs: [
+                  Tab(text: 'activ'.tr(context)),
+                  Tab(text: 'inactiv'.tr(context)),
+                  Tab(text: 'all'.tr(context)),
                 ],
               ),
               const Gap(24),
@@ -106,7 +104,7 @@ class _PartnerPageDataTableState extends ConsumerState<PartnerPageDataTable>
                   Container(
                     width: MediaQuery.of(context).size.width / 4,
                     child: CustomSearchBar(
-                      hintText: 'partner_hint_search'.tr(context),
+                      hintText: 'item_hint_search'.tr(context),
                       initialValue: _searchText,
                       onValueChanged: (value) {
                         setState(() {
@@ -117,23 +115,24 @@ class _PartnerPageDataTableState extends ConsumerState<PartnerPageDataTable>
                   ),
                   const Gap(8),
                   DropDownFilter(
-                      labelText: 'partner_type'.tr(context),
+                      labelText: 'item_type'.tr(context),
                       enableSearch: false,
                       onValueChanged: (selectedList) {
-                        setState(() {
-                          _selectedTypes = selectedList
-                              .map((partner) => partner.name)
-                              .toList();
-                        });
+                        _itemFilter.categoryList = selectedList
+                            .map((category) => category.id!)
+                            .toList();
+                        ref
+                            .read(itemProvider.notifier)
+                            .updateFilter(_itemFilter);
                       },
-                      staticData: PartnerType.partnerTypes),
+                      provider: itemCategoryProvider),
                   IconButton(
                     icon: const Icon(
                       Icons.refresh_rounded,
                       color: CustomColor.textPrimary,
                     ),
                     onPressed: () {
-                      ref.read(partnerProvider.notifier).refreshPartners();
+                      ref.read(itemProvider.notifier).refreshItems();
                     },
                   ),
                   const Spacer(),
@@ -144,7 +143,7 @@ class _PartnerPageDataTableState extends ConsumerState<PartnerPageDataTable>
               Flexible(
                 child: CustomDataTable(
                   columns: getColumns(context),
-                  rows: getRows(documentList),
+                  rows: getRows(itemList),
                 ),
               ),
             ],
@@ -162,38 +161,35 @@ class _PartnerPageDataTableState extends ConsumerState<PartnerPageDataTable>
     );
   }
 
-  List<DataRow2> getRows(List<Partner> data) {
-    List<Partner> filteredData = data.where((row) {
+  List<DataRow2> getRows(List<Item> data) {
+    List<Item> filteredData = data.where((row) {
       bool statusMatch =
           _selectStatus.isEmpty || _selectStatus.contains(row.isActive);
-
-      bool typeMatch =
-          _selectedTypes.isEmpty || _selectedTypes.contains(row.type);
 
       bool searchTextMatch = _searchText == null ||
           _searchText!.isEmpty ||
           row.name.toLowerCase().contains(_searchText!.toLowerCase()) ||
-          (row.vatNumber?.toLowerCase() ?? '')
-              .contains(_searchText!.toLowerCase());
+          (row.code?.toLowerCase() ?? '').contains(_searchText!.toLowerCase());
 
-      return statusMatch && typeMatch && searchTextMatch;
+      return statusMatch && searchTextMatch;
     }).toList();
 
     return filteredData.asMap().entries.map((row) {
-      Partner partner = row.value;
+      Item item = row.value;
 
       return DataRow2(
         cells: [
-          DataCell(Text(partner.name, style: CustomStyle.semibold14())),
-          DataCell(Text(partner.type, style: CustomStyle.semibold14())),
+          DataCell(Text(item.code ?? '', style: CustomStyle.semibold14())),
+          DataCell(Text(item.name, style: CustomStyle.semibold14())),
+          DataCell(Text(item.um.name, style: CustomStyle.semibold14())),
           DataCell(
-              Text(partner.vatNumber ?? '', style: CustomStyle.semibold14())),
-          DataCell(Text(partner.registrationNumber ?? '',
-              style: CustomStyle.semibold14())),
+            Text(item.category != null ? row.value.category!.name : '',
+                style: CustomStyle.semibold14()),
+          ),
           DataCell(Container(
             alignment: Alignment.center,
             child: CustomActiveStatus(
-              isActive: partner.isActive,
+              isActive: item.isActive,
             ),
           )),
           DataCell(Container(
@@ -203,8 +199,8 @@ class _PartnerPageDataTableState extends ConsumerState<PartnerPageDataTable>
                 showDialog(
                   context: context,
                   builder: (BuildContext context) {
-                    return PartnerDetailsPopup(
-                      partner: partner,
+                    return ItemDetailsPopup(
+                      item: item,
                     );
                   },
                 );
@@ -221,6 +217,13 @@ List<DataColumn2> getColumns(BuildContext context) {
   return [
     DataColumn2(
       label: Text(
+        'code'.tr(context),
+        style: CustomStyle.semibold16(color: CustomColor.greenGray),
+      ),
+      size: ColumnSize.L,
+    ),
+    DataColumn2(
+      label: Text(
         'name'.tr(context),
         style: CustomStyle.semibold16(color: CustomColor.greenGray),
       ),
@@ -228,21 +231,14 @@ List<DataColumn2> getColumns(BuildContext context) {
     ),
     DataColumn2(
       label: Text(
-        'partner_type'.tr(context),
+        'um'.tr(context),
         style: CustomStyle.semibold16(color: CustomColor.greenGray),
       ),
-      size: ColumnSize.M,
+      size: ColumnSize.L,
     ),
     DataColumn2(
       label: Text(
-        'vat_personal_number'.tr(context),
-        style: CustomStyle.semibold16(color: CustomColor.greenGray),
-      ),
-      size: ColumnSize.M,
-    ),
-    DataColumn2(
-      label: Text(
-        'registration_number'.tr(context),
+        'category'.tr(context),
         style: CustomStyle.semibold16(color: CustomColor.greenGray),
       ),
       size: ColumnSize.M,

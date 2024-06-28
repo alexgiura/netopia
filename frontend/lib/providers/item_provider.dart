@@ -33,7 +33,6 @@ class ItemProvider extends StateNotifier<AsyncValue<List<Item>>> {
   ItemFilter itemFilter = ItemFilter.empty();
 
   Future<void> fetchItems() async {
-    state = const AsyncValue.loading();
     try {
       final itemList = await ItemService().getItems(itemFilter: itemFilter);
       state = AsyncValue.data(itemList);

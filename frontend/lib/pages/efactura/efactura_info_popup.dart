@@ -74,7 +74,7 @@ class _EfacturaInfoPopupState extends State<EfacturaInfoPopup> {
                   Expanded(
                     child: Text(
                       'ensure_conditions'.tr(context),
-                      style: CustomStyle.buttonMedium14(),
+                      style: CustomStyle.medium14(),
                     ),
                   ),
                 ],
@@ -111,7 +111,7 @@ class _EfacturaInfoPopupState extends State<EfacturaInfoPopup> {
               Gap(8),
               Text(
                 _showError ? 'err_ensure_conditions'.tr(context) : '',
-                style: CustomStyle.labelSemibold12(color: CustomColor.error),
+                style: CustomStyle.semibold12(color: CustomColor.error),
               ),
               Gap(32),
               Row(

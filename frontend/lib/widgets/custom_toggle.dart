@@ -188,7 +188,7 @@ class _CustomToggleState extends State<CustomToggle> {
         if (widget.subtitle != null) ...[
           Text(
             widget.subtitle!,
-            style: CustomStyle.labelSemibold12(color: CustomColor.slate_400),
+            style: CustomStyle.semibold12(color: CustomColor.slate_400),
           ),
         ],
       ],

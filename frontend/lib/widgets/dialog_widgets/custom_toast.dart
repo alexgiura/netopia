@@ -11,9 +11,7 @@ void showToast(String text, ToastType type) {
     builder: (BuildContext context, ToastificationItem holder) {
       return IntrinsicWidth(
         child: Container(
-          decoration: CustomStyle.customContainerDecoration(
-            borderRadius: BorderRadius.circular(8),
-          ),
+          decoration: CustomStyle.customContainerDecoration(),
           height: 40,
           child: ClipRRect(
             borderRadius: BorderRadius.circular(8),
@@ -45,7 +43,7 @@ void showToast(String text, ToastType type) {
                 Flexible(
                   child: Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 16),
-                      child: Text(text, style: CustomStyle.labelSemibold14())),
+                      child: Text(text, style: CustomStyle.semibold14())),
                 ),
               ],
             ),

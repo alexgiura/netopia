@@ -94,7 +94,7 @@ class _EfacturaInfoPopupState extends State<EfacturaErrorPopup> {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text('token_not_activated'.tr(context),
-                                    style: CustomStyle.buttonMedium14())
+                                    style: CustomStyle.medium14())
                               ],
                             ),
                           )
@@ -119,7 +119,7 @@ class _EfacturaInfoPopupState extends State<EfacturaErrorPopup> {
                               children: [
                                 Text(
                                   'token_not_confirmed_anaf'.tr(context),
-                                  style: CustomStyle.buttonMedium14(),
+                                  style: CustomStyle.medium14(),
                                 )
                               ],
                             ),
@@ -146,7 +146,7 @@ class _EfacturaInfoPopupState extends State<EfacturaErrorPopup> {
                                 Text(
                                     'cert_not_selected_or_pin_incorrect'
                                         .tr(context),
-                                    style: CustomStyle.buttonMedium14())
+                                    style: CustomStyle.medium14())
                               ],
                             ),
                           )
@@ -187,8 +187,8 @@ class _EfacturaInfoPopupState extends State<EfacturaErrorPopup> {
                             height: 20,
                             width: 20,
                             child: Center(
-                                child: Text(' 1.',
-                                    style: CustomStyle.buttonMedium14())),
+                                child:
+                                    Text(' 1.', style: CustomStyle.medium14())),
                           ),
                           const Gap(4),
                           Expanded(
@@ -197,7 +197,7 @@ class _EfacturaInfoPopupState extends State<EfacturaErrorPopup> {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text('close_browser_windows'.tr(context),
-                                    style: CustomStyle.buttonMedium14())
+                                    style: CustomStyle.medium14())
                               ],
                             ),
                           )
@@ -213,8 +213,8 @@ class _EfacturaInfoPopupState extends State<EfacturaErrorPopup> {
                             height: 20,
                             width: 20,
                             child: Center(
-                                child: Text(' 2.',
-                                    style: CustomStyle.buttonMedium14())),
+                                child:
+                                    Text(' 2.', style: CustomStyle.medium14())),
                           ),
                           const Gap(4),
                           Expanded(
@@ -224,7 +224,7 @@ class _EfacturaInfoPopupState extends State<EfacturaErrorPopup> {
                               children: [
                                 Text(
                                   'reopen_browser_incognito'.tr(context),
-                                  style: CustomStyle.buttonMedium14(),
+                                  style: CustomStyle.medium14(),
                                 )
                               ],
                             ),
@@ -241,8 +241,8 @@ class _EfacturaInfoPopupState extends State<EfacturaErrorPopup> {
                             height: 20,
                             width: 20,
                             child: Center(
-                                child: Text(' 3.',
-                                    style: CustomStyle.buttonMedium14())),
+                                child:
+                                    Text(' 3.', style: CustomStyle.medium14())),
                           ),
                           const Gap(4),
                           Expanded(
@@ -251,7 +251,7 @@ class _EfacturaInfoPopupState extends State<EfacturaErrorPopup> {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text('retry_authorization_process'.tr(context),
-                                    style: CustomStyle.buttonMedium14())
+                                    style: CustomStyle.medium14())
                               ],
                             ),
                           )

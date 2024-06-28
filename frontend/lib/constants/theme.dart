@@ -11,8 +11,16 @@ ThemeData customTheme(BuildContext context) {
     useMaterial3: false,
     textTheme:
         // GoogleFonts.grechenFuemenTextTheme(Theme.of(context).textTheme),
+
         GoogleFonts.wixMadeforDisplayTextTheme(Theme.of(context).textTheme),
     // canvasColor: CustomColor.white,
+
+    tabBarTheme: TabBarTheme(
+      labelStyle:
+          GoogleFonts.wixMadeforDisplay(textStyle: CustomStyle.regular16()),
+      unselectedLabelStyle: GoogleFonts.wixMadeforDisplay(
+          textStyle: CustomStyle.regular16(color: CustomColor.slate_400)),
+    ),
     pageTransitionsTheme: PageTransitionsTheme(builders: {
       TargetPlatform.iOS: const FadeUpwardsPageTransitionsBuilder(),
       TargetPlatform.android: const FadeUpwardsPageTransitionsBuilder(),

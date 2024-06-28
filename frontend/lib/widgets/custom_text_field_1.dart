@@ -192,7 +192,7 @@ class CustomTextField1State extends State<CustomTextField1> {
                         ? widget.helperText
                         : Text(
                             _errorText!,
-                            style: CustomStyle.labelSemibold12(
+                            style: CustomStyle.semibold12(
                                 color: CustomColor.error),
                           ),
                   ),

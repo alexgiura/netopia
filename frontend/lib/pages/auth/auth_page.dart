@@ -66,7 +66,8 @@ class _AuthPageState extends ConsumerState<AuthPage> {
           Flexible(
             flex: context.deviceWidth < customScreenSize ? 3 : 4,
             child: Container(
-                decoration: CustomStyle.customStyledContainerDecorationShadow,
+                decoration: CustomStyle.customContainerDecoration(
+                    borderRadius: 32, boxShadow: true),
                 padding: const EdgeInsets.all(30),
                 child: _login
                     ? LoginForm(
@@ -106,7 +107,8 @@ class _AuthPageState extends ConsumerState<AuthPage> {
           Flexible(
             flex: context.deviceWidth < customScreenSize ? 4 : 3,
             child: Container(
-                decoration: CustomStyle.customStyledContainerDecorationShadow,
+                decoration: CustomStyle.customContainerDecoration(
+                    borderRadius: 32, boxShadow: true),
                 child: _rightPart()),
           )
         ],
@@ -116,7 +118,8 @@ class _AuthPageState extends ConsumerState<AuthPage> {
 
   Widget _rightPart() {
     return Container(
-        decoration: CustomStyle.customStyledContainerDecorationShadow,
+        decoration: CustomStyle.customContainerDecoration(
+            borderRadius: 32, boxShadow: true),
         padding: const EdgeInsets.all(30),
         child: _login
             ? LoginForm(
@@ -156,7 +159,8 @@ class _AuthPageState extends ConsumerState<AuthPage> {
         ),
         Gap(context.height05),
         Container(
-          decoration: CustomStyle.customStyledContainerDecorationShadow,
+          decoration: CustomStyle.customContainerDecoration(
+              borderRadius: 32, boxShadow: true),
           width: double.infinity,
           padding: const EdgeInsets.all(0),
           child: ClipRRect(

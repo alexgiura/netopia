@@ -8,7 +8,7 @@ class Item {
   String? id;
   String? code;
   String name;
-  bool? isActive;
+  bool isActive;
   bool? isStock;
   Um um;
   Vat vat;

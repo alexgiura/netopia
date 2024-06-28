@@ -8,7 +8,9 @@ query getItems($input: GetItemsInput!){
         is_stock,
         um{
             id,
-            name
+            name,
+            code,
+            is_active
         },
         vat{
             id,
@@ -20,7 +22,6 @@ query getItems($input: GetItemsInput!){
             name,
             is_active,
             generate_pn
-            
         }
         
     }

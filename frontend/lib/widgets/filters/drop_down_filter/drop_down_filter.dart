@@ -2,7 +2,6 @@ import 'package:erp_frontend_v2/constants/sizes.dart';
 import 'package:erp_frontend_v2/constants/style.dart';
 import 'package:erp_frontend_v2/widgets/buttons/primary_button.dart';
 import 'package:erp_frontend_v2/widgets/buttons/secondary_button.dart';
-import 'package:erp_frontend_v2/widgets/custom_divider.dart';
 import 'package:erp_frontend_v2/widgets/custom_text_field.dart';
 import 'package:erp_frontend_v2/widgets/filters/drop_down_filter/widgets/filtered_list_widget.dart';
 import 'package:flutter/material.dart';
@@ -44,39 +43,20 @@ class _DropDownFilterState<T> extends ConsumerState<DropDownFilter<T>> {
     super.initState();
   }
 
-  TextSpan formatDisplayText() {
-    if (checkedItems.isEmpty) {
-      return TextSpan(
-        children: [
-          TextSpan(
-              text: '${widget.labelText}:  ', style: CustomStyle.labelText),
-          TextSpan(text: 'All', style: CustomStyle.bodyTextBold)
-        ],
-      );
-    } else {
-      final firstPartnerName = (checkedItems.first as dynamic).name;
-      final additionalCount = checkedItems.length - 1;
+  Widget formatDisplayText() {
+    String valueText =
+        checkedItems.isEmpty ? 'All' : (checkedItems.first as dynamic).name;
+    int additionalCount = checkedItems.length - 1;
 
-      return TextSpan(
-        children: [
-          TextSpan(
-            text: '${widget.labelText}:  ',
-            style: CustomStyle
-                .bodyTextBold, // Your defined text style for "Partner:"
-          ),
-          TextSpan(
-            text: '$firstPartnerName',
-            style: CustomStyle
-                .labelText, // Your defined text style for partner name
-          ),
-          if (additionalCount > 0)
-            TextSpan(
-              text: ', +$additionalCount',
-              style: CustomStyle.labelText, // Your defined text style for "+2"
-            ),
-        ],
-      );
-    }
+    return Row(
+      children: [
+        Text('${widget.labelText}:  ',
+            style: CustomStyle.regular14(color: CustomColor.greenGray)),
+        Text(valueText, style: CustomStyle.semibold14()),
+        if (additionalCount > 0)
+          Text(', +$additionalCount', style: CustomStyle.semibold14()),
+      ],
+    );
   }
 
   @override
@@ -94,13 +74,11 @@ class _DropDownFilterState<T> extends ConsumerState<DropDownFilter<T>> {
           padding: const EdgeInsets.fromLTRB(16, 0, 8, 0),
           height: CustomSize.filterHeight,
           //color: CustomColor.white,
-          decoration: CustomStyle.customContainerDecorationNoShadow,
+          decoration: CustomStyle.customContainerDecoration(border: true),
           child: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-              RichText(
-                text: displayText,
-              ),
+              formatDisplayText(),
               const SizedBox(
                 width: 8,
               ),
@@ -238,7 +216,7 @@ class _DropDownFilterState<T> extends ConsumerState<DropDownFilter<T>> {
                                 checkedItems.clear();
                                 filteredListKey.currentState
                                     ?.updateCheckedItems(checkedItems);
-                                // widget.onValueChanged(checkedItems);
+                                hideOverlay();
                               });
                             },
                           ),

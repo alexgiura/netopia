@@ -66,8 +66,8 @@ class _PrimaryButtonState extends State<PrimaryButton> {
                 if (widget.icon != null) const SizedBox(width: 8),
                 Text(
                   widget.text,
-                  style: CustomStyle.buttonSemibold14(
-                      color: CustomColor.textSecondary),
+                  style:
+                      CustomStyle.semibold14(color: CustomColor.textSecondary),
                 ),
               ],
             ),
