@@ -28,11 +28,13 @@
 FROM golang:latest AS builder
 
 # Setează directorul de lucru în interiorul containerului.
-WORKDIR /app
 
 # Copiază fișierele go.mod și go.sum în directorul de lucru.
 RUN ls -la  # Listăm fișierele din directorul curent
+WORKDIR /app/backend
 COPY go.mod go.sum ./
+WORKDIR /app
+
 
 # Download toate dependențele. Dependențele vor fi cache-uite dacă fișierele go.mod și go.sum nu s-au schimbat de la ultimul build.
 RUN go mod download
