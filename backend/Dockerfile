@@ -31,22 +31,23 @@ FROM golang:latest AS builder
 WORKDIR /app
 
 # Copiază fișierele go.mod și go.sum în directorul de lucru.
-COPY backend/go.mod backend/go.sum ./backend/
-
-# Navighează în directorul backend.
-WORKDIR /app/backend
+COPY backend/go.mod backend/go.sum ./
 
 # Download toate dependențele. Dependențele vor fi cache-uite dacă fișierele go.mod și go.sum nu s-au schimbat de la ultimul build.
 RUN go mod download
 
-# Copiază întregul cod sursă în directorul de lucru din interiorul containerului.
-COPY backend/ /app/backend
+RUN ls -la /app
 
-# Navighează înapoi la directorul de bază al aplicației.
-WORKDIR /app
+# Copiază întregul cod sursă în directorul de lucru din interiorul containerului.
+COPY backend/ .
+
+RUN ls -la /app
+RUN ls -la /app/app
+RUN ls -la /app/app/main
+
 
 # Construiește aplicația Go.
-RUN go build -o erp-api backend/app/main/app.go
+RUN go build -o erp-api app/main/app.go
 
 # Folosește o imagine mai mică pentru runtime.
 FROM alpine:latest
@@ -62,3 +63,4 @@ EXPOSE 8080
 
 # Rulează aplicația.
 CMD ["./erp-api"]
+
