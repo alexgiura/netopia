@@ -47,7 +47,7 @@ RUN ls -la /app/app/main
 
 
 # Construiește aplicația Go.
-RUN go build -o erp-api app/main/app.go
+RUN go build -o erp-backend-dev app/main/app.go
 
 # Folosește o imagine mai mică pentru runtime.
 FROM alpine:latest
@@ -56,11 +56,11 @@ FROM alpine:latest
 WORKDIR /root/
 
 # Copiază binarul construit din stagiul de build.
-COPY --from=builder /app/erp-api .
+COPY --from=builder /app/erp-backend-dev .
 
 # Expune portul pe care va rula API-ul tău.
 EXPOSE 8080
 
 # Rulează aplicația.
-CMD ["./erp-api"]
+CMD ["./erp-backend-dev"]
 
