@@ -1,4 +1,5 @@
 import 'package:erp_frontend_v2/constants/style.dart';
+import 'package:erp_frontend_v2/models/app_localizations.dart';
 import 'package:erp_frontend_v2/widgets/buttons/primary_button.dart';
 import 'package:erp_frontend_v2/widgets/custom_header_widget.dart';
 import 'package:erp_frontend_v2/widgets/custom_search_bar.dart';
@@ -26,7 +27,7 @@ class DocumentsPage extends StatefulWidget {
 class _DocumentsPageState extends State<DocumentsPage>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
-  String? _searchText;
+
   String? _status;
 
   @override
@@ -45,12 +46,11 @@ class _DocumentsPageState extends State<DocumentsPage>
   @override
   Widget build(BuildContext context) {
     return Container(
-      color: CustomColor.white,
       padding: EdgeInsets.only(
-        left: ResponsiveWidget.isSmallScreen(context) ? 16 : 24,
-        right: ResponsiveWidget.isSmallScreen(context) ? 16 : 24,
-        top: ResponsiveWidget.isSmallScreen(context) ? 32 : 32,
-        bottom: ResponsiveWidget.isSmallScreen(context) ? 16 : 24,
+        left: ResponsiveWidget.isSmallScreen(context) ? 0 : 24,
+        right: ResponsiveWidget.isSmallScreen(context) ? 0 : 24,
+        top: ResponsiveWidget.isSmallScreen(context) ? 24 : 32,
+        bottom: ResponsiveWidget.isSmallScreen(context) ? 0 : 24,
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -62,57 +62,28 @@ class _DocumentsPageState extends State<DocumentsPage>
                 title: widget.documentTitle,
                 subtitle: widget.documentSubtitle,
               )),
-
-              //const Spacer(),
-
-              // Adjust the spacing between the buttons
-              Expanded(
-                child: Row(
-                  children: [
-                    Expanded(
-                      child: CustomSearchBar(
-                        hintText: "Cauta dupa serie sau numar document",
-                        onValueChanged: (value) {
-                          setState(() {
-                            _searchText = value;
-                          });
-                        },
-                      ),
-                    ),
-                    const SizedBox(width: 8),
-                    PrimaryButton(
-                      text: 'Adauga',
-                      icon: Icons.add,
-                      onPressed: () {
-                        final routeName = getDetailsRouteNameByDocumentType(
-                            widget.documentTypeId);
-                        context.goNamed(
-                          routeName,
-                          pathParameters: {'id1': '0'},
-                        );
-                      },
-                    ),
-                  ],
-                ),
+              const Spacer(),
+              PrimaryButton(
+                text: 'add'.tr(context),
+                icon: Icons.add,
+                onPressed: () {
+                  final routeName =
+                      getDetailsRouteNameByDocumentType(widget.documentTypeId);
+                  context.goNamed(
+                    routeName,
+                    pathParameters: {'id1': '0'},
+                  );
+                },
               ),
             ],
           ),
-          const SizedBox(height: 36),
-          CustomTabBar(
-            tabController: _tabController,
-            tabs: const [
-              Tab(text: 'Toate'),
-              Tab(text: 'Valid'),
-              Tab(text: 'Anulat'),
-            ],
-          ),
-          const SizedBox(height: 36),
-          Expanded(
-              child: DocumentsDataTable(
-            documentTypeId: widget.documentTypeId,
-            searchText: _searchText,
-            status: _status,
-          ))
+          const SizedBox(height: 16),
+          Flexible(
+            child: DocumentsDataTable(
+              documentTypeId: widget.documentTypeId,
+              status: _status,
+            ),
+          )
         ],
       ),
     );

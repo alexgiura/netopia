@@ -21,7 +21,7 @@ class _SelectColumnsState extends State<SelectColumns> {
           padding: const EdgeInsets.fromLTRB(0, 0, 16, 0),
           height: CustomSize.filterHeight,
           //color: CustomColor.white,
-          decoration: CustomStyle.customContainerDecorationNoShadow,
+          decoration: CustomStyle.customContainerDecoration(border: true),
           child: Row(
             mainAxisSize: MainAxisSize.min,
             children: [

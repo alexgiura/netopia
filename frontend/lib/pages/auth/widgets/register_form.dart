@@ -118,7 +118,7 @@ class _RegisterFormState extends ConsumerState<RegisterForm> {
               primaryButtonAction: () {
                 widget.changeForm();
               },
-              secondaryButtonText: 'cancel'.tr(context),
+              secondaryButtonText: 'close'.tr(context),
               secondaryButtonAction: () {
                 Navigator.of(context).pop();
               },
@@ -596,7 +596,7 @@ class _RegisterFormState extends ConsumerState<RegisterForm> {
             onTap: () => ref.read(currentStepRegister.notifier).state++,
             child: Text(
               'input_data_manually'.tr(context),
-              style: CustomStyle.labelSemibold14(isUnderline: true),
+              style: CustomStyle.semibold14(isUnderline: true),
             ),
           ),
         ],
@@ -626,7 +626,7 @@ class _RegisterFormState extends ConsumerState<RegisterForm> {
         InkWell(
           onTap: widget.changeForm,
           child: Text('back_to_login'.tr(context),
-              style: CustomStyle.labelSemibold16(
+              style: CustomStyle.semibold16(
                   color: CustomColor.textPrimary, isUnderline: true)),
         ),
       ],
@@ -655,9 +655,6 @@ class _RegisterFormState extends ConsumerState<RegisterForm> {
             style: CustomStyle.submitBlackButton,
             text:
                 currentStep == 3 ? 'save'.tr(context) : 'continue'.tr(context),
-            // onPressed: () {
-            //   _nextFormStep(currentStep);
-            // },
             asyncOnPressed: () async {
               await _nextFormStep(currentStep);
             },

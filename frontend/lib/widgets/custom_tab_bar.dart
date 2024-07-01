@@ -14,31 +14,25 @@ class CustomTabBar extends StatelessWidget {
         height: 36,
         padding:
             const EdgeInsets.only(top: 0.0, right: 0.0, left: 0.0, bottom: 0.0),
-        decoration: const BoxDecoration(
-          color: Colors.transparent,
-          // border: Border(
-          //   bottom: BorderSide(color: CustomColor.light, width: 0.5),
-          // ),
-        ),
         child: Align(
           alignment: Alignment.centerLeft,
-          child: TabBar(
-              labelPadding: EdgeInsets.symmetric(horizontal: 16),
-              isScrollable: true,
-              controller: tabController,
-              indicatorSize: TabBarIndicatorSize.tab,
-              unselectedLabelStyle: CustomStyle.bodyTextMedium,
-              labelStyle: CustomStyle.bodyTextMedium,
-              labelColor: CustomColor.active,
-              //indicatorColor: CustomColor.active,
-              unselectedLabelColor: CustomColor.medium,
-              indicator: UnderlineTabIndicator(
-                borderSide: BorderSide(
-                  width: 2.0,
-                  color: CustomColor.active,
+          child: Theme(
+            data: Theme.of(context),
+            child: TabBar(
+                labelPadding: const EdgeInsets.symmetric(horizontal: 16),
+                isScrollable: true,
+                controller: tabController,
+                indicatorSize: TabBarIndicatorSize.tab,
+                labelColor: CustomColor.textPrimary,
+                unselectedLabelColor: CustomColor.slate_400,
+                indicator: const UnderlineTabIndicator(
+                  borderSide: BorderSide(
+                    width: 2.0,
+                    color: CustomColor.textPrimary,
+                  ),
                 ),
-              ),
-              tabs: tabs),
+                tabs: tabs),
+          ),
         ),
       ),
     );

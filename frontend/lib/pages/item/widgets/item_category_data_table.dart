@@ -37,7 +37,7 @@ class _ItemCategoryDataTableState extends ConsumerState<ItemCategoryDataTable> {
       DataColumn2(
         label: Text(
           'name'.tr(context),
-          style: CustomStyle.labelSemibold16(color: CustomColor.greenGray),
+          style: CustomStyle.semibold16(color: CustomColor.greenGray),
         ),
         size: ColumnSize.L,
       ),
@@ -46,8 +46,7 @@ class _ItemCategoryDataTableState extends ConsumerState<ItemCategoryDataTable> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Text('final_product'.tr(context),
-                style:
-                    CustomStyle.labelSemibold16(color: CustomColor.greenGray)),
+                style: CustomStyle.semibold16(color: CustomColor.greenGray)),
             const SizedBox(width: 4),
             Tooltip(
               message: 'auto_generate_production_report'.tr(context),
@@ -66,8 +65,7 @@ class _ItemCategoryDataTableState extends ConsumerState<ItemCategoryDataTable> {
               alignment: Alignment.center,
               child: Text(
                 'active'.tr(context),
-                style:
-                    CustomStyle.labelSemibold16(color: CustomColor.greenGray),
+                style: CustomStyle.semibold16(color: CustomColor.greenGray),
               )),
           size: ColumnSize.L),
       DataColumn2(
@@ -75,8 +73,7 @@ class _ItemCategoryDataTableState extends ConsumerState<ItemCategoryDataTable> {
               alignment: Alignment.center,
               child: Text(
                 'edit'.tr(context),
-                style:
-                    CustomStyle.labelSemibold16(color: CustomColor.greenGray),
+                style: CustomStyle.semibold16(color: CustomColor.greenGray),
               )),
           fixedWidth: 100),
     ];
@@ -112,7 +109,7 @@ class _ItemCategoryDataTableState extends ConsumerState<ItemCategoryDataTable> {
               DataCell(
                 Text(
                   category.name,
-                  style: CustomStyle.labelSemibold14(),
+                  style: CustomStyle.semibold14(),
                 ),
               ),
               DataCell(Container(

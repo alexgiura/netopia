@@ -21,8 +21,9 @@ class CustomCheckboxListTile extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       decoration: value
-          ? CustomStyle.customBorderContainerDecoration()
-          : CustomStyle.customContainerDecoration(),
+          ? CustomStyle.customContainerDecoration(
+              border: true, boxShadow: true, isSelected: true)
+          : CustomStyle.customContainerDecoration(boxShadow: true),
       child: InkWell(
         onTap: () {
           onChanged(!value);

@@ -36,14 +36,14 @@ class _ItemUnitsDataTableState extends ConsumerState<ItemUnitsDataTable> {
       DataColumn2(
         label: Text(
           'name'.tr(context),
-          style: CustomStyle.labelSemibold16(color: CustomColor.greenGray),
+          style: CustomStyle.semibold16(color: CustomColor.greenGray),
         ),
         size: ColumnSize.L,
       ),
       DataColumn2(
         label: Text(
           'efactura_code'.tr(context),
-          style: CustomStyle.labelSemibold16(color: CustomColor.greenGray),
+          style: CustomStyle.semibold16(color: CustomColor.greenGray),
         ),
         size: ColumnSize.L,
       ),
@@ -52,8 +52,7 @@ class _ItemUnitsDataTableState extends ConsumerState<ItemUnitsDataTable> {
               alignment: Alignment.center,
               child: Text(
                 'active'.tr(context),
-                style:
-                    CustomStyle.labelSemibold16(color: CustomColor.greenGray),
+                style: CustomStyle.semibold16(color: CustomColor.greenGray),
               )),
           size: ColumnSize.L),
       DataColumn2(
@@ -61,8 +60,7 @@ class _ItemUnitsDataTableState extends ConsumerState<ItemUnitsDataTable> {
               alignment: Alignment.center,
               child: Text(
                 'edit'.tr(context),
-                style:
-                    CustomStyle.labelSemibold16(color: CustomColor.greenGray),
+                style: CustomStyle.semibold16(color: CustomColor.greenGray),
               )),
           fixedWidth: 100),
     ];
@@ -98,12 +96,12 @@ class _ItemUnitsDataTableState extends ConsumerState<ItemUnitsDataTable> {
               DataCell(
                 Text(
                   um.name,
-                  style: CustomStyle.labelSemibold14(),
+                  style: CustomStyle.semibold14(),
                 ),
               ),
               DataCell(Text(
                 um.code,
-                style: CustomStyle.labelSemibold14(),
+                style: CustomStyle.semibold14(),
               )),
               DataCell(Container(
                 alignment: Alignment.center,

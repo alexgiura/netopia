@@ -1,5 +1,6 @@
 import 'package:erp_frontend_v2/constants/sizes.dart';
 import 'package:erp_frontend_v2/constants/style.dart';
+import 'package:erp_frontend_v2/models/app_localizations.dart';
 import 'package:erp_frontend_v2/widgets/buttons/primary_button.dart';
 import 'package:erp_frontend_v2/widgets/buttons/secondary_button.dart';
 import 'package:erp_frontend_v2/widgets/custom_calendar.dart';
@@ -58,94 +59,79 @@ class _DateIntervalPickerFilterState<T>
     // }
   }
 
-  TextSpan formatDisplayText() {
+  Widget formatDisplayText() {
     final today = DateTime.now();
 
     final startOfThisWeek = today.subtract(Duration(days: today.weekday - 1));
-    final endOfThisWeek = startOfThisWeek.add(Duration(days: 6));
+    final endOfThisWeek = startOfThisWeek.add(const Duration(days: 6));
     final startOfThisMonth = DateTime(today.year, today.month);
     final endOfThisMonth = DateTime(today.year, today.month + 1, 0);
     final startOfThisYear = DateTime(today.year);
     final endOfThisYear = DateTime(today.year, 12, 31);
 
-    String dateText = '';
+    String dateText = 'All'; // Default text if no date range is selected
 
-    if (_rangeDatePickerValue.isEmpty || _rangeDatePickerValue[0] == null) {
-      dateText = 'All';
-    } else if (_rangeDatePickerValue.length == 1) {
-      // Single date selected
-      if (DateUtils.isSameDay(_rangeDatePickerValue[0]!, today)) {
-        dateText = 'Astăzi';
-      } else {
-        dateText = _formatDate(_rangeDatePickerValue[0]);
-      }
-    } else if (_rangeDatePickerValue.length == 2) {
-      if (DateUtils.isSameDay(_rangeDatePickerValue[0]!, today) &&
-          DateUtils.isSameDay(_rangeDatePickerValue[1]!, today)) {
-        dateText = 'Astăzi';
-      } else if (DateUtils.isSameDay(
-              _rangeDatePickerValue[0]!, startOfThisWeek) &&
-          DateUtils.isSameDay(_rangeDatePickerValue[1]!, endOfThisWeek)) {
-        dateText = 'Săptămâna curentă';
-      } else if (DateUtils.isSameDay(
-              _rangeDatePickerValue[0]!, startOfThisMonth) &&
-          DateUtils.isSameDay(_rangeDatePickerValue[1]!, endOfThisMonth)) {
-        dateText = 'Luna curentă';
-      } else if (DateUtils.isSameDay(
-              _rangeDatePickerValue[0]!, startOfThisYear) &&
-          DateUtils.isSameDay(_rangeDatePickerValue[1]!, endOfThisYear)) {
-        dateText = 'Anul curent';
-      } else if (DateUtils.isSameDay(
-          _rangeDatePickerValue[0]!, _rangeDatePickerValue[1]!)) {
-        dateText = _formatDate(_rangeDatePickerValue[0]);
-      } else {
-        final startDate = _formatDate(_rangeDatePickerValue[0]);
-        final endDate = _formatDate(_rangeDatePickerValue[1]);
-        dateText = '$startDate - $endDate';
+    if (_rangeDatePickerValue.isNotEmpty && _rangeDatePickerValue[0] != null) {
+      if (_rangeDatePickerValue.length == 1 ||
+          (_rangeDatePickerValue.length == 2 &&
+              _rangeDatePickerValue[0] == _rangeDatePickerValue[1])) {
+        // Display as a single day format when only one date is selected or both dates are the same
+        dateText = DateUtils.isSameDay(_rangeDatePickerValue[0]!, today)
+            ? 'Astăzi'
+            : _formatDate(_rangeDatePickerValue[0]);
+      } else if (_rangeDatePickerValue.length == 2) {
+        // Display date range
+        if (DateUtils.isSameDay(_rangeDatePickerValue[0]!, today) &&
+            DateUtils.isSameDay(_rangeDatePickerValue[1]!, today)) {
+          dateText = 'Astăzi';
+        } else if (DateUtils.isSameDay(
+                _rangeDatePickerValue[0]!, startOfThisWeek) &&
+            DateUtils.isSameDay(_rangeDatePickerValue[1]!, endOfThisWeek)) {
+          dateText = 'Săptămâna curentă';
+        } else if (DateUtils.isSameDay(
+                _rangeDatePickerValue[0]!, startOfThisMonth) &&
+            DateUtils.isSameDay(_rangeDatePickerValue[1]!, endOfThisMonth)) {
+          dateText = 'Luna curentă';
+        } else if (DateUtils.isSameDay(
+                _rangeDatePickerValue[0]!, startOfThisYear) &&
+            DateUtils.isSameDay(_rangeDatePickerValue[1]!, endOfThisYear)) {
+          dateText = 'Anul curent';
+        } else {
+          final startDate = _formatDate(_rangeDatePickerValue[0]);
+          final endDate = _formatDate(_rangeDatePickerValue[1]);
+          dateText = '$startDate - $endDate';
+        }
       }
     }
 
-    return TextSpan(
+    return Row(
       children: [
-        const TextSpan(
-          text: 'Date:  ',
-          style: CustomStyle.labelText,
-        ),
-        TextSpan(
-          text: dateText,
-          style: CustomStyle.bodyTextBold,
-        ),
+        Text('${'date'.tr(context)}:  ',
+            style: CustomStyle.regular14(color: CustomColor.greenGray)),
+        Text(dateText, style: CustomStyle.semibold14()),
       ],
     );
   }
 
   String _formatDate(DateTime? date) {
     if (date == null) return '';
-    return DateFormat('d MMM').format(date); // Adjust date format as needed
+    return DateFormat('d MMM').format(date);
   }
 
   @override
   Widget build(BuildContext context) {
-    // Watching the provider
-
-    final displayText = formatDisplayText();
     return CompositedTransformTarget(
       link: layerLink,
       child: InkWell(
         child: Container(
           padding: const EdgeInsets.fromLTRB(16, 0, 8, 0),
           height: CustomSize.filterHeight,
-          //color: CustomColor.white,
-          decoration: CustomStyle.customContainerDecorationNoShadow,
+          decoration: CustomStyle.customContainerDecoration(border: true),
           child: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-              RichText(
-                text: displayText,
-              ),
-              const SizedBox(
-                width: 8,
-              ),
+              formatDisplayText(),
+              const SizedBox(width: 8),
               const Icon(
                 Icons.expand_more_rounded,
                 color: CustomColor.medium,
@@ -234,7 +220,7 @@ class _DateIntervalPickerFilterState<T>
               children: [
                 Container(
                   child: Padding(
-                    padding: EdgeInsets.all(16),
+                    padding: const EdgeInsets.all(16),
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.start,
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -249,7 +235,8 @@ class _DateIntervalPickerFilterState<T>
                           final today = DateTime.now();
                           final startOfWeek =
                               today.subtract(Duration(days: today.weekday - 1));
-                          final endOfWeek = startOfWeek.add(Duration(days: 6));
+                          final endOfWeek =
+                              startOfWeek.add(const Duration(days: 6));
                           _updateDateRange([startOfWeek, endOfWeek]);
                           hideOverlay();
                         }),
@@ -289,7 +276,7 @@ class _DateIntervalPickerFilterState<T>
                           // });
                         },
                       ),
-                      Divider(
+                      const Divider(
                         height: 1,
                       ),
                       Padding(
@@ -297,7 +284,7 @@ class _DateIntervalPickerFilterState<T>
                         child: Row(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Spacer(),
+                            const Spacer(),
                             Expanded(
                               child: SecondaryButton(
                                 text: 'Cancel',

@@ -74,11 +74,9 @@ class SearchDropDownState<T> extends ConsumerState<SearchDropDown<T>> {
               child: Container(
                 padding: const EdgeInsets.fromLTRB(16, 0, 8, 0),
                 height: CustomSize.textFormFieldHeight,
-                decoration: widget.enabled
-                    ? _showError == false
-                        ? CustomStyle.customContainerDecorationNoShadow
-                        : CustomStyle.customErrorContainerDecoration
-                    : CustomStyle.customInactiveContainerDecoration,
+                decoration: _showError == false
+                    ? CustomStyle.customContainerDecoration(border: true)
+                    : CustomStyle.customContainerDecoration(isError: true),
                 child: Row(
                   mainAxisSize: MainAxisSize.max,
                   children: [

@@ -122,9 +122,22 @@
     "vat_personal_number": "CUI/CNP",
     "registration_number": "Nr.Reg.Com.",
     "partners": "Parteneri",
-    "partner_hint_search": "Caută după denumire, CUI/CNP"
-
-
-
+    "partner_hint_search": "Caută după denumire, CUI/CNP",
+    "valid": "Valide",
+    "canceled": "Anulate", 
+    "document_hint_search": "Caută după serie, număr",
+    "partner": "Partener",
+    "date": "Dată",
+    "series": "Serie",
+    "number": "Număr",
+    "status": "Stare doc",
+    "items": "Produse",
+    "item_hint_search": "Caută după cod, denumire",
+    "item_type": "Tip produs",
+    "um": "UM",
+    "category": "Categorie",
+    "activ": "Activ",
+    "inactiv": "Inactiv",
+    "all": "Tot"
 
 }

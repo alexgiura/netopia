@@ -19,8 +19,7 @@ class SecondaryButton extends StatelessWidget {
       return OutlinedButton.icon(
         style: buttonStyle ?? CustomStyle.secondaryElevatedButtonStyle,
         label: Text(text,
-            style:
-                CustomStyle.buttonSemibold14(color: CustomColor.textPrimary)),
+            style: CustomStyle.semibold14(color: CustomColor.textPrimary)),
         icon: Icon(icon),
         onPressed: onPressed,
       );
@@ -29,8 +28,7 @@ class SecondaryButton extends StatelessWidget {
         style: buttonStyle ?? CustomStyle.secondaryElevatedButtonStyle,
         onPressed: onPressed,
         child: Text(text,
-            style:
-                CustomStyle.buttonSemibold14(color: CustomColor.textPrimary)),
+            style: CustomStyle.semibold14(color: CustomColor.textPrimary)),
       );
     }
   }

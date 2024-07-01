@@ -38,7 +38,7 @@ class CustomColor {
   static const green = Color(0xff2D8E26);
   static const greenGray = Color(0xff7B897F);
 
-  static const darkGreen = Color(0xff083F031F);
+  static const darkGreen = Color(0xff083F03);
   static const slate_50 = Color(0xffF8FAFC);
   static const slate_100 = Color(0xffF1F5F9);
   static const slate_200 = Color(0xffE2E8F0);
@@ -50,11 +50,6 @@ class CustomColor {
   static const slate_800 = Color(0xff1E293B);
   static const slate_900 = Color(0xff0F172A);
 }
-//from other project
-// const light = Color(0xFFF7F8FC);
-// const lightGrey = Color(0xFFA4A6B3);
-// const dark = Color(0xFF363740);
-// const active = Color(0xFF3C19C0);
 
 class CustomStyle {
   // Text styles
@@ -100,7 +95,7 @@ class CustomStyle {
   );
 
   static TextStyle errorText =
-      CustomStyle.labelSemibold12(color: CustomColor.redErrorRequired);
+      CustomStyle.semibold12(color: CustomColor.redErrorRequired);
 
   static const TextStyle primaryButtonText = TextStyle(
     fontSize: 16,
@@ -114,9 +109,9 @@ class CustomStyle {
     fontWeight: FontWeight.normal,
   );
 
-  static TextStyle tertiaryButtonText = CustomStyle.buttonSemibold14();
+  static TextStyle tertiaryButtonText = CustomStyle.semibold14();
   static TextStyle tertiaryButtonTextUnderline =
-      CustomStyle.buttonSemibold14(isUnderline: true);
+      CustomStyle.semibold14(isUnderline: true);
 
   //-----------------New text styles from figma design--------------------------//
   static TextStyle regular64({Color color = CustomColor.textPrimary}) {
@@ -124,14 +119,6 @@ class CustomStyle {
       fontSize: 64,
       color: color,
       fontWeight: FontWeight.w400,
-    );
-  }
-
-  static TextStyle bold64({Color color = CustomColor.textPrimary}) {
-    return TextStyle(
-      fontSize: 64,
-      color: color,
-      fontWeight: FontWeight.w700,
     );
   }
 
@@ -143,27 +130,11 @@ class CustomStyle {
     );
   }
 
-  static TextStyle bold48({Color color = CustomColor.textPrimary}) {
-    return TextStyle(
-      fontSize: 48,
-      color: color,
-      fontWeight: FontWeight.w700,
-    );
-  }
-
   static TextStyle regular32({Color color = CustomColor.textPrimary}) {
     return TextStyle(
       fontSize: 32,
       color: color,
       fontWeight: FontWeight.w400,
-    );
-  }
-
-  static TextStyle bold32({Color color = CustomColor.textPrimary}) {
-    return TextStyle(
-      fontSize: 32,
-      color: color,
-      fontWeight: FontWeight.w700,
     );
   }
 
@@ -175,33 +146,41 @@ class CustomStyle {
     );
   }
 
-  static TextStyle bold24({Color color = CustomColor.textPrimary}) {
+  static TextStyle regular16({Color color = CustomColor.textPrimary}) {
     return TextStyle(
-      fontSize: 24,
+      fontSize: 16,
       color: color,
-      fontWeight: FontWeight.w700,
+      fontWeight: FontWeight.w400,
     );
   }
 
-  static TextStyle medium12({Color color = CustomColor.textPrimary}) {
-    return TextStyle(
-      fontSize: 12,
-      color: color,
-      fontWeight: FontWeight.w500,
-    );
-  }
-
-  static TextStyle medium14({Color color = CustomColor.textPrimary}) {
+  static TextStyle regular14({Color color = CustomColor.textPrimary}) {
     return TextStyle(
       fontSize: 14,
       color: color,
-      fontWeight: FontWeight.w500,
+      fontWeight: FontWeight.w400,
     );
   }
 
-  static TextStyle medium16({Color color = CustomColor.textPrimary}) {
+  static TextStyle regular12({Color color = CustomColor.textPrimary}) {
     return TextStyle(
-      fontSize: 16,
+      fontSize: 12,
+      color: color,
+      fontWeight: FontWeight.w400,
+    );
+  }
+
+  static TextStyle regular10({Color color = CustomColor.textPrimary}) {
+    return TextStyle(
+      fontSize: 10,
+      color: color,
+      fontWeight: FontWeight.w400,
+    );
+  }
+
+  static TextStyle medium40({Color color = CustomColor.textPrimary}) {
+    return TextStyle(
+      fontSize: 40,
       color: color,
       fontWeight: FontWeight.w500,
     );
@@ -215,11 +194,97 @@ class CustomStyle {
     );
   }
 
-  static TextStyle medium40({Color color = CustomColor.textPrimary}) {
+  static TextStyle medium16({Color color = CustomColor.textPrimary}) {
     return TextStyle(
-      fontSize: 40,
+      fontSize: 16,
       color: color,
       fontWeight: FontWeight.w500,
+    );
+  }
+
+  static TextStyle medium14({Color color = CustomColor.textPrimary}) {
+    return TextStyle(
+      fontSize: 14,
+      color: color,
+      fontWeight: FontWeight.w500,
+    );
+  }
+
+  static TextStyle medium12({Color color = CustomColor.textPrimary}) {
+    return TextStyle(
+      fontSize: 12,
+      color: color,
+      fontWeight: FontWeight.w500,
+    );
+  }
+
+  static TextStyle semibold16(
+      {Color color = CustomColor.textPrimary, bool? isUnderline}) {
+    return TextStyle(
+      fontSize: 16,
+      color: color,
+      decoration: isUnderline == true ? TextDecoration.underline : null,
+      fontWeight: FontWeight.w600,
+    );
+  }
+
+  static TextStyle semibold14(
+      {Color color = CustomColor.textPrimary, bool? isUnderline}) {
+    return TextStyle(
+      fontSize: 14,
+      color: color,
+      decoration: isUnderline == true ? TextDecoration.underline : null,
+      fontWeight: FontWeight.w600,
+    );
+  }
+
+  static TextStyle semibold12(
+      {Color color = CustomColor.textPrimary, bool? isUnderline}) {
+    return TextStyle(
+      fontSize: 12,
+      color: color,
+      decoration: isUnderline == true ? TextDecoration.underline : null,
+      fontWeight: FontWeight.w600,
+    );
+  }
+
+  static TextStyle semibold10({Color color = CustomColor.textPrimary}) {
+    return TextStyle(
+      fontSize: 10,
+      color: color,
+      fontWeight: FontWeight.w600,
+    );
+  }
+
+  static TextStyle bold64({Color color = CustomColor.textPrimary}) {
+    return TextStyle(
+      fontSize: 64,
+      color: color,
+      fontWeight: FontWeight.w700,
+    );
+  }
+
+  static TextStyle bold48({Color color = CustomColor.textPrimary}) {
+    return TextStyle(
+      fontSize: 48,
+      color: color,
+      fontWeight: FontWeight.w700,
+    );
+  }
+
+  static TextStyle bold32({Color color = CustomColor.textPrimary}) {
+    return TextStyle(
+      fontSize: 32,
+      color: color,
+      fontWeight: FontWeight.w700,
+    );
+  }
+
+  static TextStyle bold24({Color color = CustomColor.textPrimary}) {
+    return TextStyle(
+      fontSize: 24,
+      color: color,
+      fontWeight: FontWeight.w700,
     );
   }
 
@@ -231,29 +296,11 @@ class CustomStyle {
     );
   }
 
-  //paragraph
-
-  static TextStyle regular16({Color color = CustomColor.textPrimary}) {
-    return TextStyle(
-      fontSize: 16,
-      color: color,
-      fontWeight: FontWeight.w400,
-    );
-  }
-
   static TextStyle bold16({Color color = CustomColor.textPrimary}) {
     return TextStyle(
       fontSize: 16,
       color: color,
       fontWeight: FontWeight.w700,
-    );
-  }
-
-  static TextStyle regular14({Color color = CustomColor.textPrimary}) {
-    return TextStyle(
-      fontSize: 14,
-      color: color,
-      fontWeight: FontWeight.w400,
     );
   }
 
@@ -265,14 +312,6 @@ class CustomStyle {
     );
   }
 
-  static TextStyle regular12({Color color = CustomColor.textPrimary}) {
-    return TextStyle(
-      fontSize: 12,
-      color: color,
-      fontWeight: FontWeight.w400,
-    );
-  }
-
   static TextStyle bold12({Color color = CustomColor.textPrimary}) {
     return TextStyle(
       fontSize: 12,
@@ -281,111 +320,11 @@ class CustomStyle {
     );
   }
 
-  static TextStyle regular10({Color color = CustomColor.textPrimary}) {
-    return TextStyle(
-      fontSize: 10,
-      color: color,
-      fontWeight: FontWeight.w400,
-    );
-  }
-
   static TextStyle bold10({Color color = CustomColor.textPrimary}) {
     return TextStyle(
       fontSize: 10,
       color: color,
       fontWeight: FontWeight.w700,
-    );
-  }
-
-  //button text styles
-
-  static TextStyle buttonMedium14({Color color = CustomColor.textPrimary}) {
-    return TextStyle(
-      fontSize: 14,
-      color: color,
-      fontWeight: FontWeight.w500,
-    );
-  }
-
-  static TextStyle buttonSemibold14(
-      {Color color = CustomColor.textPrimary, bool? isUnderline}) {
-    return TextStyle(
-      fontSize: 14,
-      color: color,
-      decoration: isUnderline == true ? TextDecoration.underline : null,
-      fontWeight: FontWeight.w600,
-    );
-  }
-
-  static TextStyle buttonMedium12({Color color = CustomColor.textPrimary}) {
-    return TextStyle(
-      fontSize: 12,
-      color: color,
-      fontWeight: FontWeight.w500,
-    );
-  }
-
-  static TextStyle buttonSemibold12({Color color = CustomColor.textPrimary}) {
-    return TextStyle(
-      fontSize: 12,
-      color: color,
-      fontWeight: FontWeight.w600,
-    );
-  }
-
-  static TextStyle buttonMedium10({Color color = CustomColor.textPrimary}) {
-    return TextStyle(
-      fontSize: 10,
-      color: color,
-      fontWeight: FontWeight.w500,
-    );
-  }
-
-  static TextStyle buttonSemibold10({Color color = CustomColor.textPrimary}) {
-    return TextStyle(
-      fontSize: 10,
-      color: color,
-      fontWeight: FontWeight.w600,
-    );
-  }
-
-  //label
-
-  static TextStyle labelSemibold16(
-      {Color color = CustomColor.textPrimary, bool? isUnderline}) {
-    return TextStyle(
-      fontSize: 16,
-      color: color,
-      decoration: isUnderline == true ? TextDecoration.underline : null,
-      fontWeight: FontWeight.w600,
-    );
-  }
-
-  static TextStyle labelSemibold14(
-      {Color color = CustomColor.textPrimary, bool? isUnderline}) {
-    return TextStyle(
-      fontSize: 14,
-      color: color,
-      decoration: isUnderline == true ? TextDecoration.underline : null,
-      fontWeight: FontWeight.w600,
-    );
-  }
-
-  static TextStyle labelSemibold12(
-      {Color color = CustomColor.textPrimary, bool? isUnderline}) {
-    return TextStyle(
-      fontSize: 12,
-      color: color,
-      decoration: isUnderline == true ? TextDecoration.underline : null,
-      fontWeight: FontWeight.w600,
-    );
-  }
-
-  static TextStyle labelSemibold10({Color color = CustomColor.textPrimary}) {
-    return TextStyle(
-      fontSize: 10,
-      color: color,
-      fontWeight: FontWeight.w600,
     );
   }
 
@@ -512,7 +451,7 @@ class CustomStyle {
       borderRadius: BorderRadius.circular(15),
     )),
     textStyle: MaterialStateProperty.all(
-      CustomStyle.buttonSemibold14(
+      CustomStyle.semibold14(
         color: CustomColor.textPrimary,
       ),
     ),
@@ -521,82 +460,37 @@ class CustomStyle {
   );
 
   // Container decoration
-  static BoxDecoration customContainerDecoration({BorderRadius? borderRadius}) {
+  static BoxDecoration customContainerDecoration({
+    double? borderRadius,
+    bool border = false,
+    bool boxShadow = false,
+    bool isSelected = false,
+    bool isError = false,
+  }) {
     return BoxDecoration(
       color: CustomColor.bgSecondary,
-      borderRadius: borderRadius ?? BorderRadius.circular(12),
-      boxShadow: [
-        BoxShadow(
-            offset: const Offset(0, 6),
-            color: CustomColor.darkGreen.withOpacity(0.12),
-            blurRadius: 16)
-      ],
+      borderRadius: borderRadius != null
+          ? BorderRadius.circular(borderRadius)
+          : customBorderRadius,
+      border: isError
+          ? Border.all(color: CustomColor.error)
+          : border
+              ? Border.all(
+                  color: isSelected
+                      ? CustomColor.textPrimary
+                      : CustomColor.slate_300)
+              : Border.all(color: Colors.transparent),
+      boxShadow: boxShadow
+          ? [
+              BoxShadow(
+                  offset: const Offset(0, 6),
+                  color: CustomColor.darkGreen.withOpacity(0.12),
+                  blurRadius: 16)
+            ]
+          : null,
     );
   }
-
-  static BoxDecoration customBorderContainerDecoration(
-      {BorderRadius? borderRadius}) {
-    return BoxDecoration(
-      color: CustomColor.bgSecondary,
-      borderRadius: borderRadius ?? BorderRadius.circular(12),
-      border: Border.all(color: CustomColor.textPrimary),
-      boxShadow: [
-        BoxShadow(
-          color: Colors.black.withOpacity(0.1),
-          spreadRadius: 20,
-          blurRadius: 40,
-          offset: const Offset(0, 35), // changes position of shadow
-        )
-      ],
-    );
-  }
-
-  // Container decoration
-  static BoxDecoration customErrorContainerDecoration = BoxDecoration(
-    color: CustomColor.white,
-    borderRadius: CustomStyle.customBorderRadius,
-    border: Border.all(color: Colors.red, width: 1.0),
-    boxShadow: [
-      BoxShadow(
-          offset: const Offset(0, 6),
-          color: CustomColor.medium.withOpacity(.1),
-          blurRadius: 12)
-    ],
-  );
-
-  // Container decoration
-  static BoxDecoration customInactiveContainerDecoration = BoxDecoration(
-    color: CustomColor.lightest,
-    borderRadius: CustomStyle.customBorderRadius,
-    border: Border.all(
-      color: CustomColor.light, // Use Colors.light color for the border
-      width: 0.5, // Border width
-    ),
-  );
-
-  static BoxDecoration customStyledContainerDecorationShadow = BoxDecoration(
-    color: CustomColor.bgSecondary,
-    boxShadow: [
-      BoxShadow(
-        color: Colors.black.withOpacity(0.1),
-        spreadRadius: 20,
-        blurRadius: 40,
-        offset: const Offset(0, 35), // changes position of shadow
-      )
-    ],
-    borderRadius: BorderRadius.circular(28),
-  );
-
-  // Container decoration
-  static BoxDecoration customContainerDecorationNoShadow = BoxDecoration(
-    color: CustomColor.white,
-    borderRadius: CustomStyle.customBorderRadius,
-    border: Border.all(
-      color: CustomColor.light, // Use Colors.light color for the border
-      width: 0.5, // Border width
-    ),
-  );
 
 // Border Radius
-  static BorderRadius customBorderRadius = BorderRadius.circular(6);
+  static BorderRadius customBorderRadius = BorderRadius.circular(8);
 }

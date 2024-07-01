@@ -27,7 +27,7 @@ class _StepIndicatorState extends ConsumerState<StepIndicator> {
           children: [
             Text(
               '${widget.currentStep} din ${widget.totalSteps} etape',
-              style: CustomStyle.labelSemibold12(color: CustomColor.slate_500),
+              style: CustomStyle.semibold12(color: CustomColor.slate_500),
             ),
             Container(
               width: double.maxFinite,
