@@ -9,6 +9,7 @@ services:
   erp-backend-dev:
     container_name: "erp-backend-dev"
     image: neobytesolutions/erp-backend:dev
+    restart: always
     build:
       context: .
       dockerfile: Dockerfile
@@ -66,6 +67,7 @@ services:
   erp-frontend-dev:
     container_name: "erp-frontend-dev"
     image: neobytesolutions/erp-frontend:dev
+    restart: unless-stopped
     build:
       context: ../frontend
       dockerfile: frontend/Dockerfile
