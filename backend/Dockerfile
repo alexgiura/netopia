@@ -31,6 +31,7 @@ FROM golang:latest AS builder
 WORKDIR /app
 
 # Copiază fișierele go.mod și go.sum în directorul de lucru.
+RUN ls -la  # Listăm fișierele din directorul curent
 COPY go.mod go.sum ./
 
 # Download toate dependențele. Dependențele vor fi cache-uite dacă fișierele go.mod și go.sum nu s-au schimbat de la ultimul build.
