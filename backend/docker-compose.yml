@@ -9,7 +9,7 @@ services:
   erp-backend-dev:
     container_name: "erp-backend-dev"
     image: neobytesolutions/erp-backend:dev
-    restart: always
+    restart: unless-stopped
     build:
       context: .
       dockerfile: Dockerfile
