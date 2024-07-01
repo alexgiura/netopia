@@ -7,6 +7,8 @@ WORKDIR /app
 # Copy go.mod and go.sum files to the working directory.
 COPY backend/go.mod backend/go.sum ./
 
+RUN ls -la 
+
 # Download all dependencies. Dependencies will be cached if the go.mod and go.sum files have not changed since the last build.
 RUN go mod download
 
