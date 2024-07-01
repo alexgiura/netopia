@@ -6,15 +6,15 @@ networks:
     external: true
 
 services:
-  erp-app-dev:
-    container_name: "erp-api-dev"
+  erp-backend-dev:
+    container_name: "erp-backend-dev"
+    image: neobytesolutions/erp-backend:dev
     build:
       context: .
       dockerfile: Dockerfile
-    image: erp-api:dev
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.erp-api-dev.rule=Host(`dev-api.optimanage.ro`)"
+      - "traefik.http.routers.erp-backend-dev.rule=Host(`dev-api.optimanage.ro`)"
       - "traefik.port=80"
       - "traefik.docker.network=traff"
 
@@ -65,7 +65,7 @@ services:
 
   erp-frontend-dev:
     container_name: "erp-frontend-dev"
-    image: liliancik098/flutter_testing:latest
+    image: neobytesolutions/erp-frontend:dev
     build:
       context: ../frontend
       dockerfile: frontend/Dockerfile
