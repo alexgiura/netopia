@@ -56,17 +56,17 @@ String? validateEmail(BuildContext context, String email) {
   return null; // Email is valid
 }
 
-String? validateCompanyCif(String v) {
+String? validateCompanyCif(BuildContext context, String v) {
   String cif = v.toUpperCase();
   cif = cif.indexOf('RO') > -1 ? cif.substring(2) : cif;
   cif = cif.replaceAll(RegExp(r'\s'), '');
 
   if (cif.length < 2 || cif.length > 10) {
-    return 'Lungimea corectă fără RO, este între 2 și 10 caractere!';
+    return 'wrong_company_cui'.tr(context);
   }
 
   if (int.tryParse(cif) == null) {
-    return 'Nu este număr!';
+    return 'wrong_company_cui'.tr(context);
   }
 
   const testKey = '753217532';
@@ -91,7 +91,7 @@ String? validateCompanyCif(String v) {
   }
 
   if (controlNumber != calculatedControlNumber) {
-    return 'CIF invalid!';
+    return 'wrong_company_cui'.tr(context);
   }
   return null;
 }

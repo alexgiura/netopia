@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:gap/gap.dart';
 
@@ -77,7 +78,15 @@ class CustomTextField1State extends State<CustomTextField1> {
       children: [
         if (widget.labelText != null)
           widget.required
-              ? Text('${widget.labelText!} *')
+              ? Row(
+                  children: [
+                    Text(widget.labelText!),
+                    Text(
+                      ' *',
+                      style: CustomStyle.errorText,
+                    ),
+                  ],
+                )
               : Text(widget.labelText!),
         if (widget.labelText != null) const Gap(8.0),
         Column(

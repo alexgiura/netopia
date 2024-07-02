@@ -130,7 +130,6 @@ class _RegisterFormState extends ConsumerState<RegisterForm> {
       //popup
       print('An unexpected error occurred: $e');
     }
-
     return null;
   }
 
@@ -222,14 +221,14 @@ class _RegisterFormState extends ConsumerState<RegisterForm> {
           return 'error_required_field'.tr(context);
         } else {
           if (errorCompanyTaxId) {
-            return 'code_validation_failed'.tr(context);
+            return 'wrong_company_vat_number'.tr(context);
           }
-          return validateCompanyCif(value);
+          return validateCompanyCif(context, value);
         }
       },
       borderVisible: true,
       keyboardType: TextInputType.emailAddress,
-      labelText: 'company_cui'.tr(context),
+      labelText: 'company_vat_number'.tr(context),
       hintText: 'RO12345678',
       onValueChanged: (value) {
         companyTaxIdController.text = value;
@@ -289,11 +288,11 @@ class _RegisterFormState extends ConsumerState<RegisterForm> {
                           if (errorCompanyTaxId) {
                             return 'code_validation_failed'.tr(context);
                           }
-                          return validateCompanyCif(value);
+                          return validateCompanyCif(context, value);
                         }
                       },
                       keyboardType: TextInputType.name,
-                      labelText: 'cui'.tr(context),
+                      labelText: 'vat_number'.tr(context),
                       hintText: 'RO12345678',
                       onValueChanged: (value) {
                         ref
@@ -357,6 +356,9 @@ class _RegisterFormState extends ConsumerState<RegisterForm> {
                         if (value!.isEmpty) {
                           return 'error_required_field'.tr(context);
                         }
+                        if (RegExp(r'^[0-9]').hasMatch(value)) {
+                          return 'state_format_error'.tr(context);
+                        }
                         return null;
                       },
                       keyboardType: TextInputType.name,
@@ -378,6 +380,10 @@ class _RegisterFormState extends ConsumerState<RegisterForm> {
                       validator: (value) {
                         if (value!.isEmpty) {
                           return 'error_required_field'.tr(context);
+                        }
+                        // if value start with number return error
+                        if (RegExp(r'^[0-9]').hasMatch(value)) {
+                          return 'locality_format_error'.tr(context);
                         }
                         return null;
                       },
@@ -462,7 +468,8 @@ class _RegisterFormState extends ConsumerState<RegisterForm> {
                     return 'error_password'.tr(context);
                   } else {
                     if (passwordController.text !=
-                        passwordConfirmationController.text) {
+                            passwordConfirmationController.text &&
+                        passwordConfirmationController.text.isNotEmpty) {
                       return 'error_password_confirmation_match'.tr(context);
                     }
                     return validatePassword(context, value);
@@ -523,7 +530,7 @@ class _RegisterFormState extends ConsumerState<RegisterForm> {
         custom_user.User? result = await _saveUser(ref.read(userProvider));
         if (result != null) {
           boxUser.put('user', result);
-          if (mounted) {
+          if (context.mounted) {
             context.go(overviewPageRoute);
           }
         }
@@ -561,7 +568,7 @@ class _RegisterFormState extends ConsumerState<RegisterForm> {
         ),
         if (currentStep == 1)
           Text(
-            'input_cui_code_and_we_automaticaly_fill_the_rest'.tr(context),
+            'input_vat_number_and_we_automaticaly_fill_the_rest'.tr(context),
             style: CustomStyle.regular16(color: CustomColor.slate_500),
           )
         else if (currentStep == 2)
