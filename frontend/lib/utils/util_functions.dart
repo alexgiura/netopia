@@ -62,11 +62,11 @@ String? validateCompanyCif(BuildContext context, String v) {
   cif = cif.replaceAll(RegExp(r'\s'), '');
 
   if (cif.length < 2 || cif.length > 10) {
-    return 'wrong_company_cui'.tr(context);
+    return 'wrong_company_vat_number'.tr(context);
   }
 
   if (int.tryParse(cif) == null) {
-    return 'wrong_company_cui'.tr(context);
+    return 'wrong_company_vat_number'.tr(context);
   }
 
   const testKey = '753217532';
@@ -91,7 +91,7 @@ String? validateCompanyCif(BuildContext context, String v) {
   }
 
   if (controlNumber != calculatedControlNumber) {
-    return 'wrong_company_cui'.tr(context);
+    return 'wrong_company_vat_number'.tr(context);
   }
   return null;
 }

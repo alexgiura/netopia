@@ -227,7 +227,7 @@ class _RegisterFormState extends ConsumerState<RegisterForm> {
         }
       },
       borderVisible: true,
-      keyboardType: TextInputType.emailAddress,
+      keyboardType: TextInputType.text,
       labelText: 'company_vat_number'.tr(context),
       hintText: 'RO12345678',
       onValueChanged: (value) {

@@ -148,6 +148,9 @@
     "activ": "Activ",
     "inactiv": "Inactiv",
     "all": "Tot",
+    "resend": "Retrimite",
+    "send": "Trimite",
+    "processed": "Procesat"
     "suceess_add_item": "Produsul a fost adăugat cu succes!",
     "suceess_edit_item": "Produsul a fost modificat cu succes!",
     "edit_item": "Editează Produs",
@@ -174,10 +177,4 @@
     "iban": "IBAN",
     "suceess_add_partner": "Partenerul a fost adăugată cu succes!",
     "suceess_edit_partner": "Partenerul a fost modificată cu succes!"
-   
-
-    
-
-    
-
 }

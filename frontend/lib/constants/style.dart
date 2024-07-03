@@ -458,11 +458,6 @@ class CustomStyle {
     shape: MaterialStateProperty.all(RoundedRectangleBorder(
       borderRadius: BorderRadius.circular(15),
     )),
-    textStyle: MaterialStateProperty.all(
-      CustomStyle.semibold14(
-        color: CustomColor.textPrimary,
-      ),
-    ),
     iconSize: MaterialStateProperty.all(18),
     iconColor: MaterialStateProperty.all(CustomColor.white),
   );
