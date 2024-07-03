@@ -1,3 +1,5 @@
+import 'dart:js_interop';
+
 import 'package:graphql_flutter/graphql_flutter.dart';
 import '../graphql/graphql_client.dart';
 import '../graphql/queries/partner.dart' as queries;
@@ -74,7 +76,7 @@ class PartnerService {
           "id": partner.id,
           "code": partner.code,
           "name": partner.name,
-          "type": partner.type,
+          "type": partner.type.toString(),
           "tax_id": partner.vatNumber,
           "company_number": partner.registrationNumber,
           "personal_number": partner.individualNumber,

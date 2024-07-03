@@ -1,11 +1,38 @@
 class PartnerType {
-  final String name;
+  String name;
 
-  const PartnerType(this.name);
+  PartnerType({
+    required this.name,
+  });
 
-  static const PartnerType company = PartnerType('Persoana Juridica');
-  static const PartnerType individual = PartnerType('Persoana Fizica');
+  PartnerType.empty() : name = '';
+
+  bool isEmpty() {
+    return name.isEmpty;
+  }
+
+  factory PartnerType.fromJson(Map<String, dynamic> json) {
+    return PartnerType(
+      name: json['type'],
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'type': name,
+    };
+  }
+
+  static PartnerType company = PartnerType(
+    name: 'Persoana Juridica',
+  );
+
+  static PartnerType individual = PartnerType(
+    name: 'Persoana Fizica',
+  );
+
   static List<PartnerType> get partnerTypes => [company, individual];
+
   @override
   String toString() {
     return name;

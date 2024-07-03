@@ -113,3 +113,29 @@ final itemUnitsProvider =
     StateNotifierProvider<ItemUnitsProvider, AsyncValue<List<Um>>>((ref) {
   return ItemUnitsProvider();
 });
+
+class ItemVatProvider extends StateNotifier<AsyncValue<List<Vat>>> {
+  ItemVatProvider() : super(const AsyncValue.loading()) {
+    fetchItemVat(); // Optionally start fetching documents on initialization
+  }
+
+  Future<void> fetchItemVat() async {
+    state = const AsyncValue.loading();
+    try {
+      final itemVatList = await ItemService().getVatList();
+      ;
+      state = AsyncValue.data(itemVatList);
+    } catch (e) {
+      //state = AsyncValue.error(e);
+    }
+  }
+
+  void refreshItemVat() {
+    fetchItemVat();
+  }
+}
+
+final itemVatProvider =
+    StateNotifierProvider<ItemVatProvider, AsyncValue<List<Vat>>>((ref) {
+  return ItemVatProvider();
+});

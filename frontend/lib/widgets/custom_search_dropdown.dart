@@ -1,9 +1,13 @@
 import 'package:erp_frontend_v2/constants/sizes.dart';
 import 'package:erp_frontend_v2/constants/style.dart';
+import 'package:erp_frontend_v2/models/app_localizations.dart';
 import 'package:erp_frontend_v2/widgets/custom_search_bar.dart';
+import 'package:erp_frontend_v2/widgets/custom_text_field.dart';
+import 'package:erp_frontend_v2/widgets/custom_text_field_1.dart';
 import 'package:erp_frontend_v2/widgets/filters/drop_down_filter/widgets/filtered_list_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:gap/gap.dart';
 
 class SearchDropDown<T> extends ConsumerStatefulWidget {
   const SearchDropDown({
@@ -15,25 +19,29 @@ class SearchDropDown<T> extends ConsumerStatefulWidget {
     this.hintText,
     this.errorText,
     this.initialValue,
+    this.validator,
+    this.required = false,
   });
   final String? labelText;
   final Function(T) onValueChanged;
-  final ProviderListenable<AsyncValue<List<T>>>? provider;
+  final StateNotifierProvider<StateNotifier<AsyncValue<List<T>>>,
+      AsyncValue<List<T>>>? provider;
   final String? hintText;
   final String? errorText;
   final T? initialValue;
   final bool enabled;
+  final String? Function(String?)? validator;
+  final bool required;
 
   @override
   ConsumerState<SearchDropDown<T>> createState() => SearchDropDownState<T>();
 }
 
 class SearchDropDownState<T> extends ConsumerState<SearchDropDown<T>> {
+  final TextEditingController _textController = TextEditingController();
   List<T> dataList = [];
   List<T> filteredDataList = [];
-
-  // List<T> checkedItems = [];
-  T? selectedItem;
+  T? lastInitialValue;
 
   GlobalKey<FilteredListWidgetState> filteredListKey = GlobalKey();
 
@@ -43,80 +51,149 @@ class SearchDropDownState<T> extends ConsumerState<SearchDropDown<T>> {
   final layerLink = LayerLink(); // I use to attach dropdown to textField
 
   bool _showError = false;
+  String? _errorText = '';
 
   @override
   void initState() {
     super.initState();
     if (widget.initialValue != null) {
-      selectedItem = widget.initialValue;
+      _textController.text = (widget.initialValue as dynamic).name;
     }
-    //ref.invalidate(widget.provider);
   }
 
   @override
   Widget build(BuildContext context) {
     final asyncDataList = ref.watch(widget.provider!);
 
-    return Container(
-      color: CustomColor.white,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          widget.labelText != null
-              ? Text(widget.labelText!, style: CustomStyle.labelText)
-              : const SizedBox.shrink(),
-          widget.labelText != null
-              ? const SizedBox(height: 4)
-              : const SizedBox.shrink(),
-          CompositedTransformTarget(
-            link: layerLink,
-            child: InkWell(
-              child: Container(
-                padding: const EdgeInsets.fromLTRB(16, 0, 8, 0),
-                height: CustomSize.textFormFieldHeight,
-                decoration: _showError == false
-                    ? CustomStyle.customContainerDecoration(border: true)
-                    : CustomStyle.customContainerDecoration(isError: true),
-                child: Row(
-                  mainAxisSize: MainAxisSize.max,
+    if (widget.initialValue != null) {
+      if (widget.initialValue != lastInitialValue) {
+        lastInitialValue = widget.initialValue;
+        _textController.text = (widget.initialValue as dynamic).name;
+      }
+    }
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        if (widget.labelText != null)
+          widget.required
+              ? Row(
                   children: [
-                    Text(selectedItem != null
-                        ? (selectedItem as dynamic).name
-                        : ''),
-                    const Spacer(),
-                    const Icon(
-                      Icons.expand_more_rounded,
-                      color: CustomColor.medium,
-                      size: 20,
+                    Text(
+                      widget.labelText!,
+                      style: CustomStyle.regular16(),
+                    ),
+                    Text(
+                      ' *',
+                      style: CustomStyle.regular16(color: CustomColor.error),
                     ),
                   ],
+                )
+              : Text('${widget.labelText!} (${'optional'.tr(context)})',
+                  style: CustomStyle.regular16()),
+        if (widget.labelText != null) const Gap(8.0),
+        CompositedTransformTarget(
+          link: layerLink,
+          child: Stack(
+            children: [
+              TextFormField(
+                controller: _textController,
+                validator: (value) {
+                  String? validatorError = widget.validator?.call(value);
+                  if (validatorError != null) {
+                    WidgetsBinding.instance.addPostFrameCallback((_) {
+                      setState(() {
+                        _showError = true;
+                        _errorText = validatorError;
+                      });
+                    });
+                  } else {
+                    WidgetsBinding.instance.addPostFrameCallback((_) {
+                      setState(() {
+                        _showError = false;
+                        _errorText = '';
+                      });
+                    });
+                  }
+                  return validatorError;
+                },
+                autovalidateMode: AutovalidateMode.onUserInteraction,
+                decoration: InputDecoration(
+                  errorStyle: const TextStyle(
+                    color: Colors.transparent,
+                    fontSize: 0,
+                  ),
+
+                  isCollapsed: true,
+                  prefixText: '    ',
+                  alignLabelWithHint: true,
+                  floatingLabelBehavior: FloatingLabelBehavior.never,
+
+                  contentPadding: const EdgeInsets.fromLTRB(0, 12, 16, 12),
+                  errorBorder: OutlineInputBorder(
+                    borderRadius: CustomStyle.customBorderRadius,
+                    borderSide: const BorderSide(color: CustomColor.error),
+                  ),
+                  focusedErrorBorder: OutlineInputBorder(
+                    borderRadius: CustomStyle.customBorderRadius,
+                    borderSide: const BorderSide(color: CustomColor.error),
+                  ),
+                  enabledBorder: OutlineInputBorder(
+                    borderSide: BorderSide(
+                      color: isOverlayVisible == true
+                          ? CustomColor.textPrimary
+                          : CustomColor.slate_300,
+                    ),
+                    borderRadius: CustomStyle.customBorderRadius,
+                  ),
+                  suffixIcon: const Icon(
+                    Icons.expand_more_rounded,
+                    color: CustomColor.slate_500,
+                  ),
+
+                  hintText: widget.hintText,
+                  hintStyle:
+                      CustomStyle.regular14(color: CustomColor.slate_500),
+
+                  prefixIconConstraints:
+                      BoxConstraints.tight(const Size(10, 60)),
+
+                  errorMaxLines:
+                      1, // ajustați numărul maxim de linii pentru mesajele de eroare
                 ),
               ),
-              onTap: () {
-                asyncDataList.when(
-                  data: (List<T> data) {
-                    dataList = data;
-                    filteredDataList = dataList;
-                    if (widget.enabled != false) {
-                      showOverlay();
-                    }
+              Positioned.fill(
+                child: InkWell(
+                  highlightColor: Colors.transparent,
+                  onTap: () {
+                    asyncDataList.when(
+                      data: (List<T> data) {
+                        dataList = data;
+                        filteredDataList = dataList;
+                        if (widget.enabled != false) {
+                          showOverlay();
+                        }
+                      },
+                      loading: () {},
+                      error: (error, stack) {},
+                    );
                   },
-                  loading: () {},
-                  error: (error, stack) {},
-                );
-              },
-            ),
+                  child: Container(
+                    color: Colors.transparent,
+                  ),
+                ),
+              ),
+            ],
           ),
-          // Error message
-          Padding(
-            padding: const EdgeInsets.only(top: 4),
-            child: Text(
-              _showError ? widget.errorText! : '',
-              style: CustomStyle.errorText,
-            ),
-          )
-        ],
-      ),
+        ),
+        Padding(
+          padding: const EdgeInsets.only(top: 2),
+          child: Text(
+            _errorText!,
+            style: CustomStyle.semibold12(color: CustomColor.error),
+          ),
+        ),
+      ],
     );
   }
 
@@ -174,7 +251,7 @@ class SearchDropDownState<T> extends ConsumerState<SearchDropDown<T>> {
                             children: [
                               Expanded(
                                   child: CustomSearchBar(
-                                hintText: 'Cauta Partener',
+                                hintText: 'Cauta',
                                 onValueChanged: (value) {
                                   List<T> newFilteredDataList =
                                       dataList.where((item) {
@@ -203,7 +280,7 @@ class SearchDropDownState<T> extends ConsumerState<SearchDropDown<T>> {
                       checkedItems: null,
                       onItemChanged: (bool newValue, T item) {
                         setState(() {
-                          selectedItem = item;
+                          _textController.text = (item as dynamic).name;
                           hideOverlay();
                           widget.onValueChanged(item);
                           _showError = false;
@@ -229,23 +306,23 @@ class SearchDropDownState<T> extends ConsumerState<SearchDropDown<T>> {
     showOverlay();
   }
 
-  bool valid() {
-    if (selectedItem == null) {
-      setState(() {
-        _showError = true;
-      });
-      return false;
-    }
-    return true;
-  }
-
-  //dispose
-  @override
-  void dispose() {
-    if (entry != null) {
-      entry?.remove();
-      entry = null;
-    }
-    super.dispose();
-  }
+  // bool valid() {
+  //   if (selectedItem == null) {
+  //     setState(() {
+  //       _showError = true;
+  //     });
+  //     return false;
+  //   }
+  //   return true;
 }
+
+  // //dispose
+  // @override
+  // void dispose() {
+  //   if (entry != null) {
+  //     entry?.remove();
+  //     entry = null;
+  //   }
+  //   super.dispose();
+  // }
+// }

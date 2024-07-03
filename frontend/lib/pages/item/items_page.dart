@@ -1,7 +1,7 @@
 import 'package:erp_frontend_v2/constants/style.dart';
 import 'package:erp_frontend_v2/models/app_localizations.dart';
+import 'package:erp_frontend_v2/pages/item/item_details_page.dart';
 import 'package:erp_frontend_v2/pages/item/widgets/items_page_data_table.dart';
-import 'package:erp_frontend_v2/pages/partner/partner_details_page.dart';
 import 'package:erp_frontend_v2/pages/partner/widgets/partner_page_data_table.dart';
 import 'package:erp_frontend_v2/widgets/buttons/primary_button.dart';
 import 'package:flutter/material.dart';
@@ -40,8 +40,8 @@ class _PartnersPageState extends State<ItemsPage> {
                   showDialog(
                     context: context,
                     builder: (BuildContext context) {
-                      return const PartnerDetailsPopup(
-                        partner: null,
+                      return const ItemDetailsPopup(
+                        item: null,
                       );
                     },
                   );

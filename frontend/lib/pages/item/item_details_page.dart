@@ -1,6 +1,15 @@
+import 'package:erp_frontend_v2/models/app_localizations.dart';
+import 'package:erp_frontend_v2/utils/extensions.dart';
+import 'package:erp_frontend_v2/widgets/buttons/primary_button.dart';
+import 'package:erp_frontend_v2/widgets/buttons/secondary_button.dart';
 import 'package:erp_frontend_v2/widgets/custom_checkbox.dart';
+import 'package:erp_frontend_v2/widgets/not_used_widgets/custom_search_dropdown.dart';
 import 'package:erp_frontend_v2/widgets/custom_search_dropdown.dart';
+import 'package:erp_frontend_v2/widgets/custom_text_field_1.dart';
+import 'package:erp_frontend_v2/widgets/custom_toggle.dart';
+import 'package:erp_frontend_v2/widgets/dialog_widgets/custom_toast.dart';
 import 'package:flutter/material.dart';
+import 'package:gap/gap.dart';
 
 import '../../constants/style.dart';
 import '../../models/item/item_model.dart';
@@ -13,232 +22,210 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 class ItemDetailsPopup extends ConsumerStatefulWidget {
   const ItemDetailsPopup({super.key, this.item});
   final Item? item;
-  // final void Function(Item) onSave;
+
   @override
   ConsumerState<ItemDetailsPopup> createState() => _ItemDetailsPopupState();
 }
 
-class _ItemDetailsPopupState extends ConsumerState<ItemDetailsPopup>
-    with SingleTickerProviderStateMixin {
-  // Tab
-  late TabController _tabController;
+class _ItemDetailsPopupState extends ConsumerState<ItemDetailsPopup> {
+  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 
-  // FormKey for validation
-  final GlobalKey<CustomTextFieldState> nameFormKey =
-      GlobalKey<CustomTextFieldState>();
-  final GlobalKey<SearchDropDownState> umFormKey =
-      GlobalKey<SearchDropDownState>();
-  final GlobalKey<SearchDropDownState> vatFormKey =
-      GlobalKey<SearchDropDownState>();
-
-  final TextEditingController _textController = TextEditingController();
-
-  late Item _item;
-  bool validateOnSave = false;
-  bool formIsValid = true;
-  bool _isLoading = false;
-  String umId = '';
+  Item _item = Item.empty();
 
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(initialIndex: 0, length: 1, vsync: this);
+
     _item = widget.item ?? Item.empty();
   }
 
   @override
-  void dispose() {
-    _tabController.dispose();
-    super.dispose();
-  }
-
-  // // Validation logic function
-  // bool _isValid(String value) {
-  //   if (value.isEmpty) {
-  //     formIsValid = false;
-  //     return false;
-  //   }
-  //   return true;
-  // }
-
-  Future<void> _saveItem(Item item) async {
-    setState(() {
-      _isLoading = true;
-    });
-
-    try {
-      final itemService = ItemService();
-      final String result = await itemService.saveItem(item: item);
-
-      setState(() {
-        _isLoading = false;
-      });
-
-      if (result == 'success') {
-        //upate item provier
-        ref.read(itemProvider.notifier).refreshItems();
-
-        if (context.mounted) {
-          showSnackBar(
-              context, 'Produsul a fost salvat!', SnackBarType.success);
-          Navigator.of(context).pop();
-        }
-      }
-    } catch (error) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(error.toString()),
-          behavior: SnackBarBehavior.floating, // Move SnackBar to top
-          backgroundColor: Colors.red, // Change background color
-        ),
-      );
-      setState(() {
-        _isLoading = false;
-      });
-    }
-  }
-
-  @override
   Widget build(BuildContext context) {
-    return AlertDialog(
-      backgroundColor: CustomColor.white,
-      titlePadding: EdgeInsets.all(16),
-      contentPadding: EdgeInsets.all(0),
-      title: _item.isEmpty()
-          ? const Text('Adauga Produs')
-          : const Text('Editeaza Produs', style: CustomStyle.titleText),
-      content: Container(
-        color: CustomColor.white,
-        //height: 600,
-        width: 400,
-        child: SingleChildScrollView(
-          child: Padding(
-            padding: EdgeInsets.symmetric(horizontal: 16),
+    return Dialog(
+      child: SizedBox(
+        width: 450,
+        child: Padding(
+          padding: const EdgeInsets.all(24.0),
+          child: Form(
+            key: _formKey,
             child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
               children: [
-                const SizedBox(
-                  height: 8,
+                Row(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    widget.item != null
+                        ? Text(
+                            'edit_item'.tr(context),
+                            style: CustomStyle.bold24(),
+                          )
+                        : Text(
+                            'add_item'.tr(context),
+                            style: CustomStyle.bold24(),
+                          ),
+                    const Spacer(),
+                    InkWell(
+                      child: const Icon(
+                        Icons.close,
+                        size: 24,
+                      ),
+                      onTap: () {
+                        Navigator.of(context).pop();
+                      },
+                    ),
+                  ],
                 ),
-                CustomTextField(
-                  labelText: "Cod (optional)",
-                  hintText: null,
+                Gap(24),
+                CustomTextField1(
                   initialValue: _item.code,
+                  keyboardType: TextInputType.name,
+                  labelText: 'code'.tr(context),
+                  hintText: 'item_code'.tr(context),
                   onValueChanged: (String value) {
                     _item.code = value;
                   },
                 ),
-                const SizedBox(
-                  height: 8,
-                ),
-                CustomTextField(
-                  key: nameFormKey,
-                  labelText: "Denumire *",
-                  hintText: null,
+                Gap(4),
+                CustomTextField1(
                   initialValue: _item.name,
-                  //textController: _textController,
+                  validator: (value) {
+                    if (value!.isEmpty) {
+                      return 'error_required_field'.tr(context);
+                    }
+                    return null;
+                  },
+                  keyboardType: TextInputType.name,
+                  labelText: 'name'.tr(context),
+                  hintText: 'item_name'.tr(context),
                   onValueChanged: (String value) {
                     _item.name = value;
                   },
-                  errorText: "Camp obligatoriu",
+                  required: true,
                 ),
-                const SizedBox(
-                  height: 8,
+                Gap(4),
+                Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Flexible(
+                      child: SearchDropDown(
+                        initialValue: _item.um,
+                        validator: (value) {
+                          if (value!.isEmpty) {
+                            return 'error_required_field'.tr(context);
+                          }
+                          return null;
+                        },
+                        labelText: 'um'.tr(context),
+                        hintText: 'select_um'.tr(context),
+                        onValueChanged: (value) {
+                          _item.um = value;
+                        },
+                        provider: itemUnitsProvider,
+                        required: true,
+                      ),
+                    ),
+                    Gap(context.width01),
+                    Flexible(
+                      child: SearchDropDown(
+                        initialValue: _item.vat,
+                        validator: (value) {
+                          if (value!.isEmpty) {
+                            return 'error_required_field'.tr(context);
+                          }
+                          return null;
+                        },
+                        labelText: 'vat'.tr(context),
+                        hintText: 'select_vat'.tr(context),
+                        onValueChanged: (value) {
+                          _item.vat = value;
+                        },
+                        provider: itemVatProvider,
+                        required: true,
+                      ),
+                    ),
+                  ],
                 ),
+                Gap(4),
                 SearchDropDown(
-                  key: umFormKey,
-                  labelText: 'UM *',
-                  onValueChanged: (value) {
-                    setState(
-                      () {
-                        _item.um = value;
-                      },
-                    );
+                  initialValue: _item.category,
+                  validator: (value) {
+                    if (value!.isEmpty) {
+                      return 'error_required_field'.tr(context);
+                    }
+                    return null;
                   },
-                  provider: umProvider,
-                  errorText: "Camp obligatoriu",
-                ),
-                const SizedBox(
-                  height: 8,
-                ),
-                SearchDropDown(
-                  key: vatFormKey,
-                  labelText: 'TVA *',
+                  labelText: 'category'.tr(context),
+                  hintText: 'select_category'.tr(context),
                   onValueChanged: (value) {
-                    setState(
-                      () {
-                        _item.vat = value;
-                      },
-                    );
-                  },
-                  provider: vatProvider,
-                  errorText: "Camp obligatoriu",
-                ),
-                const SizedBox(
-                  height: 8,
-                ),
-                SearchDropDown(
-                  labelText: 'Clasificare (optional)',
-                  onValueChanged: (value) {
-                    setState(
-                      () {
-                        _item.category = value;
-                      },
-                    );
+                    _item.category = value;
                   },
                   provider: itemCategoryProvider,
                 ),
-                const SizedBox(
-                  height: 8,
+                Gap(16),
+                CustomToggle(
+                  title: 'active'.tr(context),
+                  subtitle: 'item_activ_description'.tr(context),
+                  initialValue: _item.isActive,
+                  onChanged: (value) {
+                    _item.isActive = value;
+                  },
                 ),
+                Gap(16),
+                CustomToggle(
+                  title: 'is_stock'.tr(context),
+                  subtitle: 'item_stock_description'.tr(context),
+                  initialValue: _item.isStock ?? false,
+                  onChanged: (value) {
+                    _item.isStock = value;
+                  },
+                ),
+                Gap(40),
                 Row(
+                  mainAxisSize: MainAxisSize.max,
                   children: [
-                    CustomCheckbox(
-                        value: _item.isActive ?? false,
-                        labelText: "Activ",
-                        onChanged: (value) {
-                          setState(() {
-                            _item.isActive = value;
-                          });
-                        }),
-                    const SizedBox(
-                      width: 16,
+                    Expanded(
+                      child: SecondaryButton(
+                        text: 'close'.tr(context),
+                        onPressed: () {
+                          Navigator.of(context).pop();
+                        },
+                      ),
                     ),
-                    CustomCheckbox(
-                        value: _item.isStock ?? false,
-                        labelText: "Stocabil",
-                        onChanged: (value) {
-                          setState(() {
-                            _item.isStock = value;
-                          });
-                        }),
+                    const Gap(16),
+                    Expanded(
+                      child: PrimaryButton(
+                        text: 'save'.tr(context),
+                        onPressed: () async {
+                          if (_formKey.currentState!.validate()) {
+                            try {
+                              await ItemService().saveItem(item: _item);
+
+                              ref.read(itemProvider.notifier).refreshItems();
+                              Navigator.of(context).pop();
+                              showToast(
+                                  _item.id == null
+                                      ? 'suceess_add_item'.tr(context)
+                                      : 'suceess_edit_item'.tr(context),
+                                  ToastType.success);
+                            } catch (e) {
+                              Navigator.of(context).pop();
+                              showToast('error'.tr(context), ToastType.error);
+                            }
+                            // }
+                          }
+                        },
+                      ),
+                    ),
                   ],
-                ),
-                const SizedBox(
-                  height: 32,
                 ),
               ],
             ),
           ),
         ),
       ),
-      actions: <Widget>[
-        TextButton(
-          onPressed: () {
-            if (nameFormKey.currentState!.valid() &&
-                umFormKey.currentState!.valid() &&
-                vatFormKey.currentState!.valid()) {
-              _saveItem(_item);
-            }
-          },
-          child: Text('Save'),
-        ),
-        TextButton(
-          onPressed: () {
-            Navigator.of(context).pop(); // Close the popup
-          },
-          child: Text('Close'),
-        ),
-      ],
     );
   }
 }

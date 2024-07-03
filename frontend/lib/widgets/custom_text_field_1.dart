@@ -1,3 +1,4 @@
+import 'package:erp_frontend_v2/models/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
@@ -13,8 +14,9 @@ class CustomTextField1 extends StatefulWidget {
     this.helperText,
     this.onValueChanged,
     this.initialValue,
-    this.readOnly,
+    this.readOnly = false,
     this.prefixWidget,
+    this.sufixWidget,
     this.borderVisible,
     this.obscureText,
     this.hideErrortext,
@@ -28,9 +30,10 @@ class CustomTextField1 extends StatefulWidget {
   final String? hintText;
   final Widget? helperText;
   final Widget? prefixWidget;
+  final Widget? sufixWidget;
   final Function(String)? onValueChanged;
   final String? initialValue;
-  final bool? readOnly;
+  final bool readOnly;
   final bool? borderVisible;
   final bool? obscureText;
   final bool? hideErrortext;
@@ -80,19 +83,26 @@ class CustomTextField1State extends State<CustomTextField1> {
           widget.required
               ? Row(
                   children: [
-                    Text(widget.labelText!),
+                    Text(
+                      widget.labelText!,
+                      style: CustomStyle.regular16(),
+                    ),
                     Text(
                       ' *',
-                      style: CustomStyle.errorText,
+                      style: CustomStyle.regular16(color: CustomColor.error),
                     ),
                   ],
                 )
-              : Text(widget.labelText!),
+              : Text('${widget.labelText!} (${'optional'.tr(context)})',
+                  style: CustomStyle.regular16()),
+
         if (widget.labelText != null) const Gap(8.0),
         Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             TextFormField(
+              showCursor: widget.readOnly == true ? false : true,
+              readOnly: widget.readOnly,
               keyboardType: widget.keyboardType,
               controller: _textController,
               validator: (value) {
@@ -152,7 +162,7 @@ class CustomTextField1State extends State<CustomTextField1> {
                           });
                         },
                       )
-                    : null,
+                    : widget.sufixWidget,
                 contentPadding:
                     // 0 padding from left compansate with prefixText: otherwise error text is not allign on the left
                     const EdgeInsets.fromLTRB(0, 12, 16, 12),

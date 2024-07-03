@@ -2,16 +2,21 @@ import 'package:erp_frontend_v2/constants/style.dart';
 import 'package:erp_frontend_v2/utils/extensions.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:gap/gap.dart';
 
 class StepIndicator extends ConsumerStatefulWidget {
   const StepIndicator({
     required this.totalSteps,
     required this.currentStep,
+    this.stepTitle,
+    this.stepSubTitle,
     super.key,
   });
 
-  final totalSteps;
-  final currentStep;
+  final int totalSteps;
+  final int currentStep;
+  final List<String>? stepTitle;
+  final List<String>? stepSubTitle;
 
   @override
   ConsumerState<ConsumerStatefulWidget> createState() => _StepIndicatorState();
@@ -26,7 +31,7 @@ class _StepIndicatorState extends ConsumerState<StepIndicator> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              '${widget.currentStep} din ${widget.totalSteps} etape',
+              '${widget.currentStep + 1} din ${widget.totalSteps} etape',
               style: CustomStyle.semibold12(color: CustomColor.slate_500),
             ),
             Container(
@@ -41,7 +46,7 @@ class _StepIndicatorState extends ConsumerState<StepIndicator> {
                 child: AnimatedContainer(
                   duration: const Duration(milliseconds: 300),
                   width: constraints.maxWidth *
-                      (widget.currentStep /
+                      ((widget.currentStep + 1) /
                           widget
                               .totalSteps), // here is the change in width based on the current step and total steps
                   height: double.infinity,
@@ -51,7 +56,22 @@ class _StepIndicatorState extends ConsumerState<StepIndicator> {
                   ),
                 ),
               ),
-            )
+            ),
+            if (widget.stepTitle != null &&
+                widget.stepTitle!.length == widget.totalSteps)
+              Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Gap(16),
+                  Text(widget.stepTitle![widget.currentStep],
+                      style: CustomStyle.medium32()),
+                  if (widget.stepSubTitle != null &&
+                      widget.stepSubTitle!.length == widget.totalSteps)
+                    Text(widget.stepSubTitle![widget.currentStep],
+                        style: CustomStyle.regular16(
+                            color: CustomColor.slate_500)),
+                ],
+              )
           ],
         );
       },

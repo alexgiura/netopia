@@ -14,12 +14,14 @@ class CustomRadioButton extends StatefulWidget {
     required this.options,
     required this.onChanged,
     required this.groupValue,
+    this.initialValue,
     this.errorText,
     this.direction,
     this.validator,
   }) : super(key: key);
   final String text;
   final List<String> options;
+  final bool? initialValue;
   final void Function(String? value) onChanged;
   final String groupValue;
   final String? errorText;

@@ -1,3 +1,4 @@
+import 'package:erp_frontend_v2/models/app_localizations.dart';
 import 'package:erp_frontend_v2/models/document/document_transaction_model.dart';
 import 'package:erp_frontend_v2/pages/document/document_add_item/document_add_item_popup.dart';
 import 'package:erp_frontend_v2/pages/document/document_details_page/widgets/document_details_data_table.dart';
@@ -9,6 +10,8 @@ import 'package:erp_frontend_v2/routing/router.dart';
 import 'package:erp_frontend_v2/widgets/buttons/primary_button.dart';
 import 'package:erp_frontend_v2/widgets/buttons/tertiary_button.dart';
 import 'package:erp_frontend_v2/widgets/custom_header_widget.dart';
+import 'package:erp_frontend_v2/widgets/custom_text_field_1.dart';
+import 'package:erp_frontend_v2/widgets/not_used_widgets/custom_search_dropdown.dart';
 import 'package:erp_frontend_v2/widgets/custom_search_dropdown.dart';
 import 'package:erp_frontend_v2/widgets/custom_text_field.dart';
 import 'package:erp_frontend_v2/widgets/dialog_widgets/custom_error_dialog.dart';
@@ -47,8 +50,6 @@ class _DocumentDetailsPageState extends ConsumerState<DocumentDetailsPage> {
 //
   final TextEditingController textController1 = TextEditingController();
 
-  final GlobalKey<SearchDropDownState> formKey1 =
-      GlobalKey<SearchDropDownState>();
   final GlobalKey<CustomTextFieldState> formKey2 =
       GlobalKey<CustomTextFieldState>();
 
@@ -259,8 +260,7 @@ class _DocumentDetailsPageState extends ConsumerState<DocumentDetailsPage> {
                     child: ElevatedButton.icon(
                       style: CustomStyle.activeButton,
                       onPressed: () {
-                        if (formKey2.currentState!.valid() &&
-                            formKey1.currentState!.valid()) {
+                        if (formKey2.currentState!.valid()) {
                           _saveDocument(_document);
                         }
                       },
@@ -326,33 +326,32 @@ class _DocumentDetailsPageState extends ConsumerState<DocumentDetailsPage> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Expanded(
-                      child: CustomTextField(
+                      child: CustomTextField1(
                         key: formKey2,
                         labelText: "Număr",
                         hintText: "Număr document",
                         initialValue: _document.number,
-                        enabled: _hId == '0',
                         onValueChanged: (String value) {
-                          setState(() {
-                            _document.number = value;
-                          });
+                          _document.number = value;
                         },
-                        errorText: "Camp obligatoriu",
+                        validator: (value) {
+                          if (value!.isEmpty) {
+                            return 'error_required_field'.tr(context);
+                          }
+                          return null;
+                        },
                       ),
                     ),
                     const SizedBox(
                       width: 16,
                     ),
                     Expanded(
-                      child: CustomTextField(
+                      child: CustomTextField1(
                           labelText: "Serie (Opțional)",
                           hintText: "Serie document",
                           initialValue: _document.series,
-                          enabled: _hId == '0',
                           onValueChanged: (String value) {
-                            setState(() {
-                              _document.series = value;
-                            });
+                            _document.series = value;
                           }),
                     ),
                     const SizedBox(
@@ -380,7 +379,6 @@ class _DocumentDetailsPageState extends ConsumerState<DocumentDetailsPage> {
                   children: [
                     Expanded(
                       child: SearchDropDown(
-                        key: formKey1,
                         initialValue: _document.partner,
                         labelText: 'Partener',
                         onValueChanged: (value) {
@@ -397,15 +395,12 @@ class _DocumentDetailsPageState extends ConsumerState<DocumentDetailsPage> {
                       width: 16,
                     ),
                     Expanded(
-                      child: CustomTextField(
+                      child: CustomTextField1(
                           labelText: "Observații (Opțional)",
                           hintText: "",
                           initialValue: _document.notes,
-                          enabled: _hId == '0',
                           onValueChanged: (String value) {
-                            setState(() {
-                              _document.notes = value;
-                            });
+                            _document.notes = value;
                           }),
                     ),
                   ],
@@ -444,28 +439,27 @@ class _DocumentDetailsPageState extends ConsumerState<DocumentDetailsPage> {
                           text: 'Generează',
                           icon: Icons.download_rounded,
                           onPressed: () {
-                            formKey1.currentState!.valid() == true
-                                ? showDialog(
-                                    context: context,
-                                    builder: (BuildContext context) {
-                                      return DocumentGeneratePopup(
-                                        partnerId: _document.partner!.id!,
-                                        date: _document.date,
-                                        filteredTransactionList:
-                                            filteredTransactionList,
-                                        onSave: (itemList, transactionId) {
-                                          setState(
-                                            () {
-                                              _document.documentItems
-                                                  .addAll(itemList);
-                                              _transactionId = transactionId;
-                                            },
-                                          );
-                                        },
-                                      );
-                                    },
-                                  )
-                                : {};
+                            //form key validator was removed
+                            showDialog(
+                              context: context,
+                              builder: (BuildContext context) {
+                                return DocumentGeneratePopup(
+                                  partnerId: _document.partner!.id!,
+                                  date: _document.date,
+                                  filteredTransactionList:
+                                      filteredTransactionList,
+                                  onSave: (itemList, transactionId) {
+                                    setState(
+                                      () {
+                                        _document.documentItems
+                                            .addAll(itemList);
+                                        _transactionId = transactionId;
+                                      },
+                                    );
+                                  },
+                                );
+                              },
+                            );
                           },
                         )
                       : const SizedBox.shrink(),

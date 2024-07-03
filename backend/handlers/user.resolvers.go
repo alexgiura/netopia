@@ -33,13 +33,13 @@ func (r *mutationResolver) CreateNewAccount(ctx context.Context, input model.Use
 		transaction := r.DBProvider.WithTx(tx)
 
 		// Check if company exists
-		company, err := r._GetMyCompany(ctx)
-		if err != nil {
-			return err
-		}
-		if company != nil {
-			return _err.Error(ctx, "Account already exists", "AccountAlreadyExists")
-		}
+		//company, err := r._GetMyCompany(ctx)
+		//if err != nil {
+		//	return err
+		//}
+		//if company != nil {
+		//	return _err.Error(ctx, "Account already exists", "AccountAlreadyExists")
+		//}
 
 		// Save User
 		userRow, err := transaction.SaveUser(ctx, db.SaveUserParams{

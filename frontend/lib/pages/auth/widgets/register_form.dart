@@ -30,7 +30,7 @@ class RegisterForm extends ConsumerStatefulWidget {
   ConsumerState<ConsumerStatefulWidget> createState() => _RegisterFormState();
 }
 
-final currentStepRegister = StateProvider<int>((ref) => 1);
+final currentStepRegister = StateProvider<int>((ref) => 0);
 
 class _RegisterFormState extends ConsumerState<RegisterForm> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
@@ -161,17 +161,17 @@ class _RegisterFormState extends ConsumerState<RegisterForm> {
         Flexible(child: _formBody(currentStep)),
         Gap(context.height02),
         _formNavigation(currentStep),
-        if (currentStep == 1) Gap(context.height02),
-        if (currentStep == 1) _formOptions(context, currentStep),
-        if (currentStep == 1) Gap(context.height05),
-        if (currentStep == 1) FittedBox(child: _bottomForm(context)),
+        if (currentStep == 0) Gap(context.height02),
+        if (currentStep == 0) _formOptions(context, currentStep),
+        if (currentStep == 0) Gap(context.height05),
+        if (currentStep == 0) FittedBox(child: _bottomForm(context)),
       ],
     );
   }
 
   Widget _formBody(int currentStep) {
     return IndexedStack(
-      index: currentStep - 1,
+      index: currentStep,
       children: [
         _firstStep(),
         _secondStep(),
@@ -181,17 +181,17 @@ class _RegisterFormState extends ConsumerState<RegisterForm> {
   }
 
   Future<void> _nextFormStep(int currentStep) async {
-    if (currentStep == 1) {
+    if (currentStep == 0) {
       await _submitFirstStep();
-    } else if (currentStep == 2) {
+    } else if (currentStep == 1) {
       await _submitSecondStep();
-    } else if (currentStep == 3) {
+    } else if (currentStep == 2) {
       await _submitThirdStep();
     }
   }
 
   void _backFormStep(int currentStep) {
-    if (currentStep > 1) {
+    if (currentStep > 0) {
       ref.read(currentStepRegister.notifier).state--;
       _formsPageViewController.previousPage(
         duration: const Duration(milliseconds: 300),
@@ -644,24 +644,24 @@ class _RegisterFormState extends ConsumerState<RegisterForm> {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        if (currentStep != 1)
+        if (currentStep != 0)
           Expanded(
             child: SecondaryButton(
               buttonStyle: CustomStyle.secondaryElevatedButtonStyle,
               text: 'back'.tr(context),
               onPressed: () {
-                if (currentStep > 1) {
+                if (currentStep > 0) {
                   _backFormStep(currentStep);
                 }
               },
             ),
           ),
-        if (currentStep != 1) Gap(context.width01),
+        if (currentStep != 0) Gap(context.width01),
         Expanded(
           child: PrimaryButton(
             style: CustomStyle.submitBlackButton,
             text:
-                currentStep == 3 ? 'save'.tr(context) : 'continue'.tr(context),
+                currentStep == 2 ? 'save'.tr(context) : 'continue'.tr(context),
             asyncOnPressed: () async {
               await _nextFormStep(currentStep);
             },

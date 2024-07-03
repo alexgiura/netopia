@@ -1,7 +1,7 @@
 import 'package:erp_frontend_v2/providers/partner_provider.dart';
 import 'package:erp_frontend_v2/widgets/custom_data_table.dart';
 import 'package:erp_frontend_v2/widgets/not_used_widgets/custom_document_drop_down.dart';
-import 'package:erp_frontend_v2/widgets/custom_search_dropdown.dart';
+import 'package:erp_frontend_v2/widgets/not_used_widgets/custom_search_dropdown.dart';
 import 'package:flutter/material.dart';
 import 'package:data_table_2/data_table_2.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';

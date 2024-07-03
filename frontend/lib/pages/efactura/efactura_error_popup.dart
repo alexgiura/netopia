@@ -1,5 +1,6 @@
 import 'package:erp_frontend_v2/constants/style.dart';
 import 'package:erp_frontend_v2/models/app_localizations.dart';
+import 'package:erp_frontend_v2/pages/efactura/efactura_info_popup.dart';
 import 'package:erp_frontend_v2/widgets/buttons/primary_button.dart';
 import 'package:erp_frontend_v2/widgets/buttons/secondary_button.dart';
 import 'package:flutter/material.dart';
@@ -279,7 +280,15 @@ class _EfacturaInfoPopupState extends State<EfacturaErrorPopup> {
                   Expanded(
                     child: PrimaryButton(
                       text: 'retry'.tr(context),
-                      onPressed: () {},
+                      onPressed: () {
+                        Navigator.of(context).pop();
+                        showDialog(
+                          context: context,
+                          builder: (BuildContext context) {
+                            return const EfacturaInfoPopup();
+                          },
+                        );
+                      },
                     ),
                   ),
                 ],

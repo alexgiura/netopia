@@ -1,235 +1,452 @@
-import 'package:erp_frontend_v2/constants/style.dart';
+import 'package:erp_frontend_v2/models/app_localizations.dart';
+import 'package:erp_frontend_v2/models/company/company_model.dart';
+import 'package:erp_frontend_v2/models/partner/partner_model.dart';
 import 'package:erp_frontend_v2/models/partner/partner_type_model.dart';
+import 'package:erp_frontend_v2/pages/auth/widgets/step_indicator.dart';
 import 'package:erp_frontend_v2/providers/partner_provider.dart';
+import 'package:erp_frontend_v2/services/company.dart';
+import 'package:erp_frontend_v2/services/partner.dart';
+import 'package:erp_frontend_v2/utils/extensions.dart';
+import 'package:erp_frontend_v2/widgets/buttons/primary_button.dart';
+import 'package:erp_frontend_v2/widgets/buttons/secondary_button.dart';
 import 'package:erp_frontend_v2/widgets/custom_checkbox.dart';
-import 'package:erp_frontend_v2/widgets/custom_dropdown.dart';
-import 'package:erp_frontend_v2/widgets/custom_tab_bar.dart';
+import 'package:erp_frontend_v2/widgets/custom_radio_button.dart';
+import 'package:erp_frontend_v2/widgets/not_used_widgets/custom_search_dropdown.dart';
+import 'package:erp_frontend_v2/widgets/custom_search_dropdown.dart';
+import 'package:erp_frontend_v2/widgets/custom_text_field_1.dart';
+import 'package:erp_frontend_v2/widgets/custom_toggle.dart';
+import 'package:erp_frontend_v2/widgets/dialog_widgets/custom_toast.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../models/partner/partner_model.dart';
+import 'package:gap/gap.dart';
+
+import '../../constants/style.dart';
+import '../../models/item/item_model.dart';
+import '../../providers/item_provider.dart';
 import '../../utils/customSnackBar.dart';
 import '../../widgets/custom_text_field.dart';
-import '../../services/partner.dart';
+import '../../services/item.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class PartnerDetailsPopup extends ConsumerStatefulWidget {
-  const PartnerDetailsPopup({super.key, required this.partner});
+  const PartnerDetailsPopup({super.key, this.partner});
   final Partner? partner;
-  // final void Function(Partner) onSave;
+
   @override
   ConsumerState<PartnerDetailsPopup> createState() =>
       _PartnerDetailsPopupState();
 }
 
-class _PartnerDetailsPopupState extends ConsumerState<PartnerDetailsPopup>
-    with SingleTickerProviderStateMixin {
-  // SlidingSegmented
-  String _currentSelection = 'company';
+class _PartnerDetailsPopupState extends ConsumerState<PartnerDetailsPopup> {
+  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 
-  // FormKey for validation
-  final GlobalKey<CustomTextFieldState> nameFormKey =
-      GlobalKey<CustomTextFieldState>();
-  final GlobalKey<CustomTextFieldState> taxIdFormKey =
-      GlobalKey<CustomTextFieldState>();
+  Partner _partner = Partner.empty();
 
-  // Tab
-  late TabController _tabController;
+  bool errorCompanyTaxId = false;
 
-  // Partner
-  late Partner _partner;
+  int currentStep = 0;
+  bool _isLoading = false;
 
   @override
   void initState() {
     super.initState();
 
     _partner = widget.partner ?? Partner.empty();
-    if (_partner.isEmpty()) {
-      _partner.type = PartnerType.company.name!;
-    }
-
-    _tabController = TabController(vsync: this, length: 2);
   }
 
-  @override
-  void dispose() {
-    _tabController.dispose();
-    super.dispose();
-  }
-
-  Future<void> _savePartner(Partner partner) async {
+  Future<Company?> _getCompanyByTaxId(String taxId) async {
     try {
-      final personService = PartnerService();
-      final String result = await personService.savePartner(partner: partner);
+      setState(() {
+        _isLoading = true;
+      });
 
-      if (result == 'success') {
-        // Refresh partnerProvider
-        ref.read(partnerProvider.notifier).refreshPartners();
+      final companyService = CompanyService();
 
+      Company? result = await companyService.getCompanyByTaxId(taxId);
+
+      if (result != null) {
         if (context.mounted) {
-          showSnackBar(
-              context, 'Partner saved successfully!', SnackBarType.success);
-          Navigator.of(context).pop();
+          setState(() {
+            errorCompanyTaxId = false;
+            _isLoading = false;
+          });
         }
+        return result;
+      } else {
+        if (context.mounted) {
+          setState(() {
+            errorCompanyTaxId = true;
+            _isLoading = false;
+          });
+        }
+
+        return null;
       }
     } catch (error) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(error.toString()),
-          behavior: SnackBarBehavior.floating, // Move SnackBar to top
-          backgroundColor: Colors.red, // Change background color
-        ),
-      );
+      if (error.toString().contains('InvalidTaxId')) {
+        setState(() {
+          errorCompanyTaxId = true;
+          _isLoading = false;
+        });
+      }
+
+      return null;
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    return AlertDialog(
-      backgroundColor: CustomColor.white,
-      scrollable: true,
-      title: _partner.isEmpty()
-          ? const Text('Adauga Partener')
-          : const Text('Editeaza Partener', style: CustomStyle.titleText),
-      content: Container(
-        width: 400,
-        //height: 600,
-        child: Column(
-          children: [
-            const SizedBox(
-              height: 8,
-            ),
-            Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-              CustomDropdown(
-                labelText: 'Tip Partener *',
-                hintText: '',
-                initialValue: PartnerType.company,
-                onValueChanged: (value) {
-                  setState(() {
-                    _partner.type = value.name!;
-                  });
-                },
-                dataList: PartnerType.partnerTypes,
-              ),
-              const SizedBox(
-                height: 16,
-              ),
-              CustomTextField(
-                labelText: "Cod (optional)",
-                hintText: null,
-                initialValue: _partner.code,
-                onValueChanged: (String value) {
-                  _partner.code = value;
-                },
-              ),
-              const SizedBox(
-                height: 16,
-              ),
-              CustomTextField(
-                key: nameFormKey,
-                labelText: "Denumire *",
-                hintText: null,
-                initialValue: _partner.name,
-                onValueChanged: (String value) {
-                  _partner.name = value;
-                },
-                errorText: "Camp obligatoriu",
-              ),
-              const SizedBox(
-                height: 16,
-              ),
-              CustomTextField(
-                key: taxIdFormKey,
-                labelText: "CIF / CNP *",
-                hintText: null,
-                initialValue: _partner.vatNumber,
-                onValueChanged: (String value) {
-                  setState(() {
-                    _partner.vatNumber = value;
-                  });
-                },
-                errorText: "Camp obligatoriu",
-              ),
-              Visibility(
-                visible: _currentSelection == 'company',
-                child: const SizedBox(
-                  height: 16,
-                ),
-              ),
-              CustomTextField(
-                labelText: "Nr.Reg.Com. (optional)",
-                hintText: null,
-                initialValue: _partner.registrationNumber,
-                enabled: _partner.type == PartnerType.company.name,
-                onValueChanged: (String value) {
-                  setState(() {
-                    _partner.registrationNumber = value;
-                  });
-                },
-              ),
-              const SizedBox(
-                height: 16,
-              ),
-              CustomCheckbox(
-                  value: _partner.isActive,
-                  labelText: "Activ",
-                  onChanged: (value) {
-                    setState(() {
-                      _partner.isActive = value;
-                    });
-                  }),
-              const SizedBox(
-                height: 32,
-              ),
-              CustomTabBar(
-                tabController: _tabController,
-                tabs: const [
-                  Tab(
-                    text: 'Adresa',
+    List<String> titleList = [
+      'generic_details'.tr(context),
+      'partner_address'.tr(context),
+      'bank_account'.tr(context)
+    ];
+    List _forms = [_firstStep(), _secondStep(), _thirdStep()];
+    return Dialog(
+      child: SizedBox(
+        width: 500,
+        child: Padding(
+          padding: const EdgeInsets.all(24.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisAlignment: MainAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Row(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  widget.partner != null
+                      ? Text(
+                          'edit_partner'.tr(context),
+                          style: CustomStyle.bold24(),
+                        )
+                      : Text(
+                          'add_partner'.tr(context),
+                          style: CustomStyle.bold24(),
+                        ),
+                  const Spacer(),
+                  InkWell(
+                    child: const Icon(
+                      Icons.close,
+                      size: 24,
+                    ),
+                    onTap: () {
+                      Navigator.of(context).pop();
+                    },
                   ),
-                  Tab(text: 'Cont bancar'),
                 ],
               ),
-              SizedBox(
-                height: 100,
-                child: TabBarView(
-                  controller: _tabController,
-                  children: const <Widget>[
-                    Center(
-                      child: Text("Tab1"),
-                    ),
-                    Center(
-                      child: Text("Tab2"),
-                    ),
-                  ],
-                ),
+              Gap(24),
+              StepIndicator(
+                totalSteps: _forms.length,
+                currentStep: currentStep,
+                stepTitle: titleList,
               ),
-            ]),
+              Gap(24),
+              Flexible(child: _formBody()),
+              Gap(40),
+              _formNavigation(currentStep),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
 
-            //
+  Widget _formBody() {
+    return IndexedStack(
+      index: currentStep,
+      children: [
+        _firstStep(),
+        _secondStep(),
+        _thirdStep(),
+      ],
+    );
+  }
+
+  Future<void> _nextFormStep() async {
+    if (currentStep == 0) {
+      await _submitFirstStep();
+    } else if (currentStep == 1) {
+      await _submitSecondStep();
+    } else if (currentStep == 2) {
+      await _submitThirdStep();
+    }
+  }
+
+  void _backFormStep() {
+    if (currentStep > 0) {
+      setState(() {
+        currentStep--;
+      });
+    }
+  }
+
+  Widget _firstStep() {
+    return SingleChildScrollView(
+      child: Form(
+        key: _formKey,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisAlignment: MainAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            CustomTextField1(
+              initialValue: _partner.vatNumber,
+              validator: (value) {
+                if (value!.isEmpty) {
+                  return 'error_required_field'.tr(context);
+                }
+                return null;
+              },
+              keyboardType: TextInputType.name,
+              labelText: 'vat_personal_number'.tr(context),
+              hintText: 'vat_personal_number_hint'.tr(context),
+              sufixWidget: _isLoading
+                  ? const SizedBox(
+                      height: 20,
+                      width: 20,
+                      child: Padding(
+                        padding: EdgeInsets.all(12),
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2,
+                          valueColor: AlwaysStoppedAnimation<Color>(
+                              CustomColor.textPrimary),
+                        ),
+                      ),
+                    )
+                  : IconButton(
+                      splashColor: Colors.transparent,
+                      highlightColor: Colors.transparent,
+                      onPressed: () async {
+                        Company? company =
+                            await _getCompanyByTaxId(_partner.vatNumber ?? '');
+                        if (company != null && !errorCompanyTaxId) {
+                          setState(() {
+                            _partner.type = PartnerType.company;
+                            _partner.name = company.name;
+                            _partner.vatNumber = company.vatNumber;
+                            _partner.vat = company.vat;
+                            _partner.registrationNumber =
+                                company.registrationNumber;
+                            _partner.address = company.address;
+                          });
+                        }
+                      },
+                      icon: Icon(Icons.cloud_download_outlined),
+                      color: CustomColor.textPrimary,
+                    ),
+              onValueChanged: (String value) {
+                _partner.vatNumber = value;
+              },
+              required: true,
+            ),
+            Flexible(
+              child: SearchDropDown(
+                initialValue: _partner.type,
+                validator: (value) {
+                  if (value!.isEmpty) {
+                    return 'error_required_field'.tr(context);
+                  }
+                  return null;
+                },
+                labelText: 'partner_type'.tr(context),
+                hintText: 'partner_type_hint'.tr(context),
+                onValueChanged: (value) {
+                  _partner.type = value;
+                },
+                provider: partnerTypeProvider,
+                required: true,
+              ),
+            ),
+            CustomTextField1(
+              initialValue: _partner.name,
+              validator: (value) {
+                if (value!.isEmpty) {
+                  return 'error_required_field'.tr(context);
+                }
+                return null;
+              },
+              keyboardType: TextInputType.name,
+              labelText: 'name'.tr(context),
+              hintText: 'partner_name'.tr(context),
+              onValueChanged: (String value) {
+                _partner.name = value;
+              },
+              required: true,
+            ),
+            CustomTextField1(
+              initialValue: _partner.code,
+              keyboardType: TextInputType.name,
+              labelText: 'code'.tr(context),
+              hintText: 'partner_code'.tr(context),
+              onValueChanged: (String value) {
+                _partner.code = value;
+              },
+            ),
+            CustomTextField1(
+              initialValue: _partner.registrationNumber,
+              keyboardType: TextInputType.name,
+              labelText: 'registration_number'.tr(context),
+              hintText: 'registration_number_hint'.tr(context),
+              onValueChanged: (String value) {
+                _partner.registrationNumber = value;
+              },
+            ),
+            Gap(4),
+            CustomRadioButton(
+              errorText: 'error_vat_payer'.tr(context),
+              text: "pay_TVA".tr(context),
+              direction: Axis.horizontal,
+              textStyle: CustomStyle.regular16(),
+              groupValue: _partner.vat.toString(),
+              options: const ['yes', 'no'],
+              validator: (p0) {
+                // if (p0 == null || vatPayerController.text.isEmpty) {
+                //   return 'error_vat_payer'.tr(context);
+                // }
+                // return null;
+              },
+              onChanged: (value) {
+                if (value == 'yes')
+                  _partner.vat = true;
+                else
+                  _partner.vat = false;
+              },
+            )
           ],
         ),
       ),
-      actions: <Widget>[
-        TextButton(
-          onPressed: () {
-            if (nameFormKey.currentState!.valid()) {
-              if (_partner.type == PartnerType.company.name) {
-                if (taxIdFormKey.currentState!.valid()) {
-                  _savePartner(_partner);
-                }
-              } else if (_partner.type == PartnerType.individual.name) {
-                _savePartner(_partner);
-              }
-            }
-          },
-          child: const Text('Save'),
+    );
+  }
+
+  Future<void> _submitFirstStep() async {
+    if (_formKey.currentState!.validate()) {
+      setState(() {
+        currentStep++;
+      });
+    }
+  }
+
+  Widget _secondStep() {
+    return SingleChildScrollView(
+      child: Form(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisAlignment: MainAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            CustomTextField1(
+              initialValue: _partner.address?.address,
+              keyboardType: TextInputType.name,
+              labelText: 'address'.tr(context),
+              hintText: 'address_hint'.tr(context),
+              onValueChanged: (String value) {
+                _partner.address?.address = value;
+              },
+            ),
+            Gap(4),
+            CustomTextField1(
+              initialValue: _partner.address?.countyCode,
+              keyboardType: TextInputType.name,
+              labelText: 'state'.tr(context),
+              hintText: 'state_hint'.tr(context),
+              onValueChanged: (String value) {
+                _partner.address?.countyCode = value;
+              },
+            ),
+            Gap(4),
+            CustomTextField1(
+              initialValue: _partner.address?.locality,
+              keyboardType: TextInputType.name,
+              labelText: 'locality'.tr(context),
+              hintText: 'locality_hint'.tr(context),
+              onValueChanged: (String value) {
+                _partner.address?.locality = value;
+              },
+            ),
+          ],
         ),
-        TextButton(
-          onPressed: () {
-            Navigator.of(context).pop(); // Close the popup
-          },
-          child: const Text('Close'),
+      ),
+    );
+  }
+
+  Future<void> _submitSecondStep() async {
+    setState(() {
+      currentStep++;
+    });
+  }
+
+  Widget _thirdStep() {
+    return SingleChildScrollView(
+      child: Form(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisAlignment: MainAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            CustomTextField1(
+              keyboardType: TextInputType.name,
+              labelText: 'bank'.tr(context),
+              onValueChanged: (String value) {
+                _partner.code = value;
+              },
+            ),
+            Gap(4),
+            CustomTextField1(
+              keyboardType: TextInputType.name,
+              labelText: 'iban'.tr(context),
+              onValueChanged: (String value) {
+                _partner.name = value;
+              },
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Future<void> _submitThirdStep() async {
+    try {
+      await PartnerService().savePartner(partner: _partner);
+
+      ref.read(partnerProvider.notifier).refreshPartners();
+      Navigator.of(context).pop();
+      showToast(
+          _partner.id == null
+              ? 'suceess_add_partner'.tr(context)
+              : 'suceess_edit_partner'.tr(context),
+          ToastType.success);
+    } catch (e) {
+      Navigator.of(context).pop();
+      showToast('error'.tr(context), ToastType.error);
+    }
+  }
+
+  Widget _formNavigation(int currentStep) {
+    return Row(
+      mainAxisSize: MainAxisSize.max,
+      children: [
+        Expanded(
+          child: SecondaryButton(
+            text: currentStep != 0 ? 'back'.tr(context) : 'close'.tr(context),
+            onPressed: () {
+              currentStep != 0 ? _backFormStep() : Navigator.of(context).pop();
+            },
+          ),
+        ),
+        const Gap(16),
+        Expanded(
+          child: PrimaryButton(
+            text:
+                currentStep == 2 ? 'save'.tr(context) : 'continue'.tr(context),
+            asyncOnPressed: () async {
+              await _nextFormStep();
+            },
+          ),
         ),
       ],
     );
   }
+  //
 }

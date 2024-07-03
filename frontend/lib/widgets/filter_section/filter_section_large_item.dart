@@ -1,6 +1,7 @@
 import 'package:erp_frontend_v2/constants/style.dart';
 import 'package:erp_frontend_v2/models/item/item_category_model.dart';
 import 'package:erp_frontend_v2/providers/item_provider.dart';
+import 'package:erp_frontend_v2/widgets/not_used_widgets/custom_search_dropdown.dart';
 import 'package:erp_frontend_v2/widgets/custom_search_dropdown.dart';
 import 'package:erp_frontend_v2/widgets/custom_text_field.dart';
 import 'package:flutter/material.dart';

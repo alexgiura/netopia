@@ -186,6 +186,14 @@ class CustomStyle {
     );
   }
 
+  static TextStyle medium32({Color color = CustomColor.textPrimary}) {
+    return TextStyle(
+      fontSize: 32,
+      color: color,
+      fontWeight: FontWeight.w500,
+    );
+  }
+
   static TextStyle medium20({Color color = CustomColor.textPrimary}) {
     return TextStyle(
       fontSize: 20,
@@ -463,6 +471,7 @@ class CustomStyle {
   static BoxDecoration customContainerDecoration({
     double? borderRadius,
     bool border = false,
+    double borderWidth = 1.00,
     bool boxShadow = false,
     bool isSelected = false,
     bool isError = false,
@@ -473,13 +482,14 @@ class CustomStyle {
           ? BorderRadius.circular(borderRadius)
           : customBorderRadius,
       border: isError
-          ? Border.all(color: CustomColor.error)
+          ? Border.all(color: CustomColor.error, width: borderWidth)
           : border
               ? Border.all(
                   color: isSelected
                       ? CustomColor.textPrimary
-                      : CustomColor.slate_300)
-              : Border.all(color: Colors.transparent),
+                      : CustomColor.slate_300,
+                  width: borderWidth)
+              : Border.all(color: Colors.transparent, width: borderWidth),
       boxShadow: boxShadow
           ? [
               BoxShadow(
