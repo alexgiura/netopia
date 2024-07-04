@@ -93,10 +93,10 @@ class _PartnerPageDataTableState extends ConsumerState<PartnerPageDataTable>
             children: [
               CustomTabBar(
                 tabController: _tabController,
-                tabs: const [
-                  Tab(text: 'Activi'),
-                  Tab(text: 'Inactivi'),
-                  Tab(text: 'Toti'),
+                tabs: [
+                  Tab(text: 'activ_masculin'.tr(context)),
+                  Tab(text: 'inactiv_masculin'.tr(context)),
+                  Tab(text: 'all_masculin'.tr(context)),
                 ],
               ),
               const Gap(24),
@@ -231,21 +231,21 @@ List<DataColumn2> getColumns(BuildContext context) {
         'partner_type'.tr(context),
         style: CustomStyle.semibold16(color: CustomColor.greenGray),
       ),
-      size: ColumnSize.M,
+      size: ColumnSize.L,
     ),
     DataColumn2(
       label: Text(
         'vat_personal_number'.tr(context),
         style: CustomStyle.semibold16(color: CustomColor.greenGray),
       ),
-      size: ColumnSize.M,
+      size: ColumnSize.S,
     ),
     DataColumn2(
       label: Text(
         'registration_number'.tr(context),
         style: CustomStyle.semibold16(color: CustomColor.greenGray),
       ),
-      size: ColumnSize.M,
+      size: ColumnSize.S,
     ),
     DataColumn2(
       label: Container(
@@ -254,13 +254,13 @@ List<DataColumn2> getColumns(BuildContext context) {
             'active'.tr(context), // Assuming 'tr' is a method for translations
             style: CustomStyle.semibold16(color: CustomColor.greenGray),
           )),
-      size: ColumnSize.L,
+      size: ColumnSize.S,
     ),
     DataColumn2(
         label: Container(
             alignment: Alignment.center,
             child: Text(
-              'edit'.tr(context),
+              'details'.tr(context),
               style: CustomStyle.semibold16(color: CustomColor.greenGray),
             )),
         fixedWidth: 100),

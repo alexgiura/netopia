@@ -17,13 +17,10 @@ class DocumentItemsDataTable extends ConsumerStatefulWidget {
       this.readOnly,
       this.noPrice});
   final List<DocumentItem>? data;
-  // final int documentTypeId;
+
   final bool? readOnly;
   final void Function(List<DocumentItem>) onUpdate;
   final bool? noPrice;
-  // final Widget? generateButton;
-  // final Partner partner;
-  // final String date;
 
   @override
   ConsumerState<DocumentItemsDataTable> createState() =>

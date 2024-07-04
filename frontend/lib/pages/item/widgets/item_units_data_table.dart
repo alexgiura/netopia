@@ -54,12 +54,12 @@ class _ItemUnitsDataTableState extends ConsumerState<ItemUnitsDataTable> {
                 'active'.tr(context),
                 style: CustomStyle.semibold16(color: CustomColor.greenGray),
               )),
-          size: ColumnSize.L),
+          size: ColumnSize.M),
       DataColumn2(
           label: Container(
               alignment: Alignment.center,
               child: Text(
-                'edit'.tr(context),
+                'details'.tr(context),
                 style: CustomStyle.semibold16(color: CustomColor.greenGray),
               )),
           fixedWidth: 100),

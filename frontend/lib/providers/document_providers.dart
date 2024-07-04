@@ -20,13 +20,12 @@ final deleteDocumentProvider =
 
 class DocumentProvider extends StateNotifier<AsyncValue<List<Document>>> {
   DocumentProvider() : super(const AsyncValue.loading()) {
-    fetchDocuments(); // Optionally start fetching documents on initialization
+    fetchDocuments();
   }
 
   DocumentFilter _documentFilter = DocumentFilter.empty();
 
   Future<void> fetchDocuments() async {
-    // state = const AsyncValue.loading();
     try {
       final documentList =
           await DocumentService().getDocuments(documentFilter: _documentFilter);

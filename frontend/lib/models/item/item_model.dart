@@ -9,7 +9,7 @@ class Item {
   String? code;
   String name;
   bool isActive;
-  bool? isStock;
+  bool isStock;
   Um um;
   Vat vat;
   ItemCategory? category;

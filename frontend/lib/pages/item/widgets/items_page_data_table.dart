@@ -93,9 +93,9 @@ class _ItemsPageDataTableState extends ConsumerState<ItemsPageDataTable>
               CustomTabBar(
                 tabController: _tabController,
                 tabs: [
-                  Tab(text: 'activ'.tr(context)),
-                  Tab(text: 'inactiv'.tr(context)),
-                  Tab(text: 'all'.tr(context)),
+                  Tab(text: 'activ_feminin'.tr(context)),
+                  Tab(text: 'inactiv_feminin'.tr(context)),
+                  Tab(text: 'all_feminin'.tr(context)),
                 ],
               ),
               const Gap(24),
@@ -194,6 +194,12 @@ class _ItemsPageDataTableState extends ConsumerState<ItemsPageDataTable>
           )),
           DataCell(Container(
             alignment: Alignment.center,
+            child: CustomActiveStatus(
+              isActive: item.isStock,
+            ),
+          )),
+          DataCell(Container(
+            alignment: Alignment.center,
             child: CustomEditButton(
               onTap: () {
                 showDialog(
@@ -220,7 +226,7 @@ List<DataColumn2> getColumns(BuildContext context) {
         'code'.tr(context),
         style: CustomStyle.semibold16(color: CustomColor.greenGray),
       ),
-      size: ColumnSize.L,
+      size: ColumnSize.S,
     ),
     DataColumn2(
       label: Text(
@@ -234,29 +240,38 @@ List<DataColumn2> getColumns(BuildContext context) {
         'um'.tr(context),
         style: CustomStyle.semibold16(color: CustomColor.greenGray),
       ),
-      size: ColumnSize.L,
+      size: ColumnSize.S,
     ),
     DataColumn2(
       label: Text(
         'category'.tr(context),
         style: CustomStyle.semibold16(color: CustomColor.greenGray),
       ),
-      size: ColumnSize.M,
+      size: ColumnSize.S,
     ),
     DataColumn2(
       label: Container(
           alignment: Alignment.center,
           child: Text(
-            'active'.tr(context), // Assuming 'tr' is a method for translations
+            'active'.tr(context),
             style: CustomStyle.semibold16(color: CustomColor.greenGray),
           )),
-      size: ColumnSize.L,
+      size: ColumnSize.S,
+    ),
+    DataColumn2(
+      label: Container(
+          alignment: Alignment.center,
+          child: Text(
+            'is_stock'.tr(context),
+            style: CustomStyle.semibold16(color: CustomColor.greenGray),
+          )),
+      size: ColumnSize.S,
     ),
     DataColumn2(
         label: Container(
             alignment: Alignment.center,
             child: Text(
-              'edit'.tr(context),
+              'details'.tr(context),
               style: CustomStyle.semibold16(color: CustomColor.greenGray),
             )),
         fixedWidth: 100),

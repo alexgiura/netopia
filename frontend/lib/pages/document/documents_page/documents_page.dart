@@ -81,7 +81,6 @@ class _DocumentsPageState extends State<DocumentsPage>
           Flexible(
             child: DocumentsDataTable(
               documentTypeId: widget.documentTypeId,
-              status: _status,
             ),
           )
         ],

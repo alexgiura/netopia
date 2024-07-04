@@ -58,7 +58,7 @@ class _ItemCategoryDataTableState extends ConsumerState<ItemCategoryDataTable> {
             ),
           ],
         ),
-        size: ColumnSize.L,
+        size: ColumnSize.S,
       ),
       DataColumn2(
           label: Container(
@@ -67,12 +67,12 @@ class _ItemCategoryDataTableState extends ConsumerState<ItemCategoryDataTable> {
                 'active'.tr(context),
                 style: CustomStyle.semibold16(color: CustomColor.greenGray),
               )),
-          size: ColumnSize.L),
+          size: ColumnSize.S),
       DataColumn2(
           label: Container(
               alignment: Alignment.center,
               child: Text(
-                'edit'.tr(context),
+                'details'.tr(context),
                 style: CustomStyle.semibold16(color: CustomColor.greenGray),
               )),
           fixedWidth: 100),
