@@ -20,7 +20,7 @@ values ($1,$2,$3)
 RETURNING
  id::text,
     email::text,
-    phone_number::text;
+    COALESCE(phone_number, '')::text as phone_number;
 
 -- name: UpdateUser :one
 Update core.users

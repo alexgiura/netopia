@@ -1,6 +1,6 @@
 const String getCompany = r'''
-query getCompany{
-    getCompany{
+query getCompany($taxId: String){
+    getCompany(taxId: $taxId){    
         name,
         vat_number,
         vat,

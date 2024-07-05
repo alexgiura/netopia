@@ -1,7 +1,7 @@
 CREATE TABLE IF NOT EXISTS core.company(
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     name TEXT NOT NULL,
-    vat_number VARCHAR(20) NOT NULL,
+    vat_number VARCHAR(20) NOT NULL UNIQUE,
     vat BOOL NOT NULL,
     registration_number VARCHAR(20) NULL,
     address TEXT NOT NULL,

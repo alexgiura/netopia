@@ -1,15 +1,16 @@
 import 'dart:js_util';
 import 'dart:typed_data';
+import 'package:erp_frontend_v2/boxes.dart';
 import 'package:erp_frontend_v2/models/company/company_model.dart';
 import 'package:erp_frontend_v2/models/document/document_model.dart' as doc;
 import 'package:erp_frontend_v2/models/partner/partner_model.dart';
+import 'package:erp_frontend_v2/models/user/user.dart';
+import 'package:erp_frontend_v2/services/company.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:pdf/widgets.dart';
-
-import '../providers/company_provider.dart';
 import '../utils.dart';
 import 'pdf_helpers.dart';
 
@@ -18,7 +19,8 @@ class PdfDocument {
       doc.Document document, WidgetRef ref) async {
     final pdf = Document();
 
-    final _company = await ref.read(companyProvider.future);
+    var user = boxUser.get('user') as User;
+    final _company = await CompanyService().getCompany(user.id);
 
     if (document.documentType.id == 2) {
       pdf.addPage(MultiPage(

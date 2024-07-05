@@ -4,9 +4,12 @@ import 'package:graphql_flutter/graphql_flutter.dart';
 import '../graphql/queries/company.dart' as queries;
 
 class CompanyService {
-  Future<Company> getCompany() async {
+  Future<Company?> getCompany(String? taxId) async {
     final QueryOptions options = QueryOptions(
       document: gql(queries.getCompany),
+      variables: <String, dynamic>{
+        "taxId": taxId,
+      },
     );
 
     final QueryResult result = await graphQLClient.value.query(options);
@@ -21,7 +24,7 @@ class CompanyService {
 
       return company;
     } else {
-      throw Exception('Invalid company data.');
+      return null;
     }
   }
 

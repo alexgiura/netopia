@@ -48,6 +48,7 @@ func (r *mutationResolver) CreateNewAccount(ctx context.Context, input model.Use
 			PhoneNumber: util.NullableStr(input.PhoneNumber),
 		})
 		if err != nil {
+			log.Println(err)
 			err, ok := err.(*pgconn.PgError)
 			if ok && err.Code == _err.Codes_Duplicate_Key {
 				return _err.Error(ctx, "Email address already exists", "UserAlreadyExists")

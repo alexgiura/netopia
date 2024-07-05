@@ -45,10 +45,12 @@ class UserService {
     }
 
     final dynamic userData = result.data!['createNewAccount'];
+
     if (userData != null) {
       final User user = User.fromJson(userData);
       return user;
     } else {
+      print("is null");
       return null;
     }
   }

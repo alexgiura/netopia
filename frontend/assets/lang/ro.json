@@ -96,6 +96,8 @@
     "unexpected-error": "An unexpected error occurred",
     "email_already_registered_title": "E-mail deja înregistrat!",
     "email_already_registered_subtitle": "Adresa de e-mail introdusă este deja înregistrată. Dacă ai deja un cont, te rugăm să te întorci la Login.",
+    "vat_number_already_registered_title": "CUI deja înregistrat !",
+    "vat_number_already_registered_subtitle": "O companie cu acest CUI este deja înregistrată. Dacă această companie îți aparține, te rugăm să te întorci la pagina de Login.",
     "back_to_Login": "Înapoi la Login",
     "cancel": "Cancel",
     "measurement_units": "Unități de Măsură",

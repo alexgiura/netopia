@@ -15,6 +15,7 @@ import 'package:erp_frontend_v2/widgets/buttons/secondary_button.dart';
 import 'package:erp_frontend_v2/widgets/custom_radio_button.dart';
 import 'package:erp_frontend_v2/widgets/custom_text_field.dart';
 import 'package:erp_frontend_v2/widgets/custom_text_field_1.dart';
+import 'package:erp_frontend_v2/widgets/dialog_widgets/custom_toast.dart';
 import 'package:erp_frontend_v2/widgets/dialog_widgets/warning_dialog.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -30,8 +31,6 @@ class RegisterForm extends ConsumerStatefulWidget {
   ConsumerState<ConsumerStatefulWidget> createState() => _RegisterFormState();
 }
 
-final currentStepRegister = StateProvider<int>((ref) => 0);
-
 class _RegisterFormState extends ConsumerState<RegisterForm> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   final GlobalKey<FormState> _formKey2 = GlobalKey<FormState>();
@@ -39,16 +38,15 @@ class _RegisterFormState extends ConsumerState<RegisterForm> {
       GlobalKey<CustomTextFieldState>();
   final companyTaxIdController = TextEditingController();
   bool errorCompanyTaxId = false;
+
   final passwordController = TextEditingController();
   final passwordConfirmationController = TextEditingController();
 
   final vatPayerController = TextEditingController();
 
   bool rememberMe = false;
-  String errorText = 'error';
 
-  final _formsPageViewController = PageController();
-  List _forms = [];
+  int currentStep = 0;
 
   @override
   void initState() {
@@ -61,9 +59,23 @@ class _RegisterFormState extends ConsumerState<RegisterForm> {
       custom_user.User? result = await userService.saveUser(user);
       return result;
     } catch (error) {
-      //popup
-      print(error);
-      return null;
+      if (error.toString().contains('Email address already exists')) {
+        WarningCustomDialog(
+          title: 'email_already_registered_title'.tr(context),
+          subtitle: 'email_already_registered_subtitle'.tr(context),
+          primaryButtonText: 'back_to_Login'.tr(context),
+          primaryButtonAction: () {
+            widget.changeForm();
+            Navigator.of(context).pop();
+          },
+          secondaryButtonText: 'close'.tr(context),
+          secondaryButtonAction: () {
+            Navigator.of(context).pop();
+          },
+        );
+      } else {
+        showToast('error'.tr(context), ToastType.error);
+      }
     }
   }
 
@@ -96,80 +108,27 @@ class _RegisterFormState extends ConsumerState<RegisterForm> {
     }
   }
 
-  Future<String?> _createUserWithEmailAndPassword(
-      String email, String password) async {
-    try {
-      final credential =
-          await FirebaseAuth.instance.createUserWithEmailAndPassword(
-        email: email,
-        password: password,
-      );
-
-      return credential.user?.uid;
-    } on FirebaseAuthException catch (e) {
-      if (e.code == 'email-already-in-use') {
-        showDialog(
-          context: context,
-          builder: (BuildContext context) {
-            return WarningCustomDialog(
-              title: 'email_already_registered_title'.tr(context),
-              subtitle: 'email_already_registered_subtitle'.tr(context),
-              primaryButtonText: 'back_to_Login'.tr(context),
-              primaryButtonAction: () {
-                widget.changeForm();
-              },
-              secondaryButtonText: 'close'.tr(context),
-              secondaryButtonAction: () {
-                Navigator.of(context).pop();
-              },
-            );
-          },
-        );
-      }
-    } catch (e) {
-      //popup
-      print('An unexpected error occurred: $e');
-    }
-    return null;
-  }
-
   @override
   Widget build(BuildContext context) {
-    _forms = [
-      PopScope(
-        child: _firstStep(),
-        onPopInvoked: (didPop) => Future.sync(onWillPop),
-      ),
-      PopScope(
-        child: _secondStep(),
-        onPopInvoked: (didPop) => Future.sync(onWillPop),
-      ),
-      PopScope(
-        child: _thirdStep(),
-        onPopInvoked: (didPop) => Future.sync(onWillPop),
-      )
-    ];
-
-    final currentStep = ref.watch(currentStepRegister);
-    // final currentUser = ref.watch(userProvider);
+    List _forms = [_firstStep(), _secondStep(), _thirdStep()];
 
     return Column(
       mainAxisSize: MainAxisSize.max,
       children: [
-        _formHeader(context, currentStep),
+        _formHeader(context, _forms),
         Gap(context.height02),
-        Flexible(child: _formBody(currentStep)),
+        Flexible(child: _formBody()),
         Gap(context.height02),
         _formNavigation(currentStep),
         if (currentStep == 0) Gap(context.height02),
-        if (currentStep == 0) _formOptions(context, currentStep),
+        if (currentStep == 0) _formOptions(context),
         if (currentStep == 0) Gap(context.height05),
         if (currentStep == 0) FittedBox(child: _bottomForm(context)),
       ],
     );
   }
 
-  Widget _formBody(int currentStep) {
+  Widget _formBody() {
     return IndexedStack(
       index: currentStep,
       children: [
@@ -180,7 +139,7 @@ class _RegisterFormState extends ConsumerState<RegisterForm> {
     );
   }
 
-  Future<void> _nextFormStep(int currentStep) async {
+  Future<void> _nextFormStep() async {
     if (currentStep == 0) {
       await _submitFirstStep();
     } else if (currentStep == 1) {
@@ -190,26 +149,12 @@ class _RegisterFormState extends ConsumerState<RegisterForm> {
     }
   }
 
-  void _backFormStep(int currentStep) {
+  void _backFormStep() {
     if (currentStep > 0) {
-      ref.read(currentStepRegister.notifier).state--;
-      _formsPageViewController.previousPage(
-        duration: const Duration(milliseconds: 300),
-        curve: Curves.ease,
-      );
+      setState(() {
+        currentStep--;
+      });
     }
-  }
-
-  bool onWillPop() {
-    if (_formsPageViewController.page!.round() ==
-        _formsPageViewController.initialPage) return true;
-
-    _formsPageViewController.previousPage(
-      duration: const Duration(milliseconds: 300),
-      curve: Curves.ease,
-    );
-
-    return false;
   }
 
   // First Step
@@ -243,7 +188,11 @@ class _RegisterFormState extends ConsumerState<RegisterForm> {
       Company? company = await _getCompanyByTaxId(companyTaxIdController.text);
       if (company != null && !errorCompanyTaxId) {
         ref.read(userProvider.notifier).updateUserField('company', company);
-        ref.read(currentStepRegister.notifier).state++;
+        if (mounted) {
+          setState(() {
+            currentStep++;
+          });
+        }
       }
     }
   }
@@ -267,7 +216,6 @@ class _RegisterFormState extends ConsumerState<RegisterForm> {
                 keyboardType: TextInputType.name,
                 labelText: 'company_name'.tr(context),
                 hintText: 'company_name'.tr(context),
-                // errorText: 'error_company_name'.tr(context),
                 onValueChanged: (value) {
                   ref
                       .read(userProvider.notifier)
@@ -428,7 +376,39 @@ class _RegisterFormState extends ConsumerState<RegisterForm> {
 
   Future<void> _submitSecondStep() async {
     if (_formKey.currentState!.validate()) {
-      ref.read(currentStepRegister.notifier).state++;
+      try {
+        final company = await CompanyService().getCompany(
+          ref.read(userProvider).company?.vatNumber,
+        );
+        if (company == null) {
+          if (mounted) {
+            setState(() {
+              currentStep++;
+            });
+          }
+        } else {
+          showDialog(
+            context: context,
+            builder: (BuildContext context) {
+              return WarningCustomDialog(
+                title: 'vat_number_already_registered_title'.tr(context),
+                subtitle: 'vat_number_already_registered_subtitle'.tr(context),
+                primaryButtonText: 'back_to_Login'.tr(context),
+                primaryButtonAction: () {
+                  widget.changeForm();
+                  Navigator.of(context).pop();
+                },
+                secondaryButtonText: 'close'.tr(context),
+                secondaryButtonAction: () {
+                  Navigator.of(context).pop();
+                },
+              );
+            },
+          );
+        }
+      } catch (error) {
+        showToast('error'.tr(context), ToastType.error);
+      }
     }
   }
 
@@ -480,9 +460,7 @@ class _RegisterFormState extends ConsumerState<RegisterForm> {
                 hintText: 'password_placeholder'.tr(context),
                 obscureText: true,
                 onValueChanged: (value) {
-                  setState(() {
-                    passwordController.text = value;
-                  });
+                  passwordController.text = value;
                 },
                 required: true,
               ),
@@ -503,9 +481,7 @@ class _RegisterFormState extends ConsumerState<RegisterForm> {
                 hintText: 'password_confirmation_placeholder'.tr(context),
                 obscureText: true,
                 onValueChanged: (value) {
-                  setState(() {
-                    passwordConfirmationController.text = value;
-                  });
+                  passwordConfirmationController.text = value;
                 },
                 required: true,
               ),
@@ -518,27 +494,62 @@ class _RegisterFormState extends ConsumerState<RegisterForm> {
 
   Future<void> _submitThirdStep() async {
     if (_formKey.currentState!.validate()) {
-      // Create Firebase user
-      String? userId = await _createUserWithEmailAndPassword(
-          ref.read(userProvider).email!, passwordController.text);
-      if (userId != null) {
-        ref.read(userProvider.notifier).updateUserField('id', userId);
-        // Trebuie updatat din radio button
-        ref.read(userProvider.notifier).updateUserField('company.vat', true);
+      try {
+        final credential =
+            await FirebaseAuth.instance.createUserWithEmailAndPassword(
+          email: ref.read(userProvider).email!,
+          password: passwordController.text,
+        );
 
-        // Save user in DB
-        custom_user.User? result = await _saveUser(ref.read(userProvider));
-        if (result != null) {
-          boxUser.put('user', result);
-          if (context.mounted) {
-            context.go(overviewPageRoute);
+        if (credential.user != null) {
+          ref
+              .read(userProvider.notifier)
+              .updateUserField('id', credential.user!.uid);
+          final updatedUser = ref.read(userProvider);
+
+          try {
+            // Save user in DB
+            custom_user.User? result = await _saveUser(updatedUser);
+            if (result != null) {
+              boxUser.put('user', result);
+              if (context.mounted) {
+                context.go(overviewPageRoute);
+              }
+            } else {
+              await credential.user!.delete();
+            }
+          } catch (e) {
+            await credential.user!.delete();
           }
+        }
+      } on FirebaseAuthException catch (e) {
+        if (e.code == 'email-already-in-use') {
+          showDialog(
+            context: context,
+            builder: (BuildContext context) {
+              return WarningCustomDialog(
+                title: 'email_already_registered_title'.tr(context),
+                subtitle: 'email_already_registered_subtitle'.tr(context),
+                primaryButtonText: 'back_to_Login'.tr(context),
+                primaryButtonAction: () {
+                  widget.changeForm();
+                  Navigator.of(context).pop();
+                },
+                secondaryButtonText: 'close'.tr(context),
+                secondaryButtonAction: () {
+                  Navigator.of(context).pop();
+                },
+              );
+            },
+          );
+        } else {
+          showToast('error'.tr(context), ToastType.error);
         }
       }
     }
   }
 
-  Column _formHeader(BuildContext context, int currentStep) {
+  Column _formHeader(BuildContext context, List<dynamic> forms) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -558,7 +569,7 @@ class _RegisterFormState extends ConsumerState<RegisterForm> {
         ),
         Gap(context.height02),
         StepIndicator(
-          totalSteps: _forms.length,
+          totalSteps: forms.length,
           currentStep: currentStep,
         ),
         Gap(context.height02),
@@ -585,7 +596,7 @@ class _RegisterFormState extends ConsumerState<RegisterForm> {
     );
   }
 
-  Widget _formOptions(BuildContext context, int currentStep) {
+  Widget _formOptions(BuildContext context) {
     return FittedBox(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -600,7 +611,9 @@ class _RegisterFormState extends ConsumerState<RegisterForm> {
           ),
           Gap(context.height01 * 0.2),
           InkWell(
-            onTap: () => ref.read(currentStepRegister.notifier).state++,
+            onTap: () => setState(() {
+              currentStep++;
+            }),
             child: Text(
               'input_data_manually'.tr(context),
               style: CustomStyle.semibold14(isUnderline: true),
@@ -651,7 +664,7 @@ class _RegisterFormState extends ConsumerState<RegisterForm> {
               text: 'back'.tr(context),
               onPressed: () {
                 if (currentStep > 0) {
-                  _backFormStep(currentStep);
+                  _backFormStep();
                 }
               },
             ),
@@ -663,7 +676,7 @@ class _RegisterFormState extends ConsumerState<RegisterForm> {
             text:
                 currentStep == 2 ? 'save'.tr(context) : 'continue'.tr(context),
             asyncOnPressed: () async {
-              await _nextFormStep(currentStep);
+              await _nextFormStep();
             },
           ),
         ),

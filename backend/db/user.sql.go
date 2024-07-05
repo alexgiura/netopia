@@ -39,7 +39,7 @@ values ($1,$2,$3)
 RETURNING
  id::text,
     email::text,
-    phone_number::text
+    COALESCE(phone_number, '')::text as phone_number
 `
 
 type SaveUserParams struct {
