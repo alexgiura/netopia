@@ -29,6 +29,7 @@ class CustomColor {
   );
   static const bgPrimary = Color(0xffF2F8F7);
   static const bgSecondary = Color(0xffFDFFFF);
+  static const bgDark = Color(0xff010101);
   static const accentColor = Color(0xffCEFF7B);
   static const accentNeutral = Color(0xffDEE1DB);
   static const textPrimary = Color(0xff010101);
@@ -378,9 +379,27 @@ class CustomStyle {
     ),
   );
 
+  static ButtonStyle ctaButton = ButtonStyle(
+    padding: const WidgetStatePropertyAll(EdgeInsets.symmetric(horizontal: 14)),
+    fixedSize: const WidgetStatePropertyAll(
+        Size.fromHeight(CustomSize.buttonHeight)), // Adjust button height
+    backgroundColor: const WidgetStatePropertyAll(CustomColor.accentColor),
+    shape: WidgetStatePropertyAll(
+      RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12),
+      ),
+    ),
+    shadowColor: WidgetStatePropertyAll(CustomColor.accentColor),
+    textStyle: const WidgetStatePropertyAll(TextStyle(
+      fontSize: 16,
+      color: CustomColor.textPrimary,
+      fontWeight: FontWeight.w600,
+    )),
+  );
+
   static ButtonStyle secondaryButton = ButtonStyle(
       padding: const MaterialStatePropertyAll(
-          EdgeInsets.symmetric(horizontal: 14)), // Adjust horizontal padding
+          EdgeInsets.symmetric(horizontal: 24)), // Adjust horizontal padding
       fixedSize: const MaterialStatePropertyAll(
           Size.fromHeight(CustomSize.buttonHeight)),
       backgroundColor: const MaterialStatePropertyAll(CustomColor.white),

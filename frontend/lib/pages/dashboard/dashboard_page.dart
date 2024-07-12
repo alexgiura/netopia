@@ -18,7 +18,6 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      color: CustomColor.lightest,
       padding: EdgeInsets.only(
         left: ResponsiveWidget.isSmallScreen(context) ? 0 : 24,
         right: ResponsiveWidget.isSmallScreen(context) ? 0 : 24,

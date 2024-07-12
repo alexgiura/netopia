@@ -1,11 +1,12 @@
 //menu data list
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/svg.dart';
 
 List dataList = [
   {
     "id": 1,
     "level": 0,
-    "icon": Icons.home_outlined,
+    "icon": Icons.grid_view_outlined,
     "title": "Dashboard",
     "children": [],
   },
@@ -13,7 +14,7 @@ List dataList = [
   {
     "id": 2,
     "level": 0,
-    "icon": Icons.list_rounded,
+    "icon": Icons.list,
     "title": "Nomenclator",
     "children": [
       {
@@ -43,7 +44,7 @@ List dataList = [
   {
     "id": 7,
     "level": 0,
-    "icon": Icons.login_outlined,
+    "icon": Icons.assignment_return_outlined, // need to flip
     "title": "Intrari",
     "children": [
       {
@@ -68,19 +69,17 @@ List dataList = [
   {
     "id": 11,
     "level": 0,
-    "icon": Icons.logout_outlined,
+    "icon": Icons.assignment_return_outlined,
     "title": "Ieșiri",
     "children": [
       {
         "id": 12,
         "level": 1,
-        "icon": Icons.paypal,
         "title": "Avize Client",
       },
       {
         "id": 13,
         "level": 1,
-        "icon": Icons.credit_card,
         "title": "Facturi Client",
         "subtitle": "Vânzare - Facturi de Vânzare",
       }
@@ -91,7 +90,7 @@ List dataList = [
   {
     "id": 14,
     "level": 0,
-    "icon": Icons.warehouse_outlined,
+    "icon": Icons.folder_open_outlined,
     "title": "Depozit",
     "children": [
       {
@@ -131,7 +130,7 @@ List dataList = [
   {
     "id": 20,
     "level": 0,
-    "icon": Icons.topic_outlined,
+    "icon": Icons.insert_chart_outlined_outlined,
     "title": "Rapoarte",
     "children": [
       {

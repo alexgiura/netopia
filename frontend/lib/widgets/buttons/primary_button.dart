@@ -8,6 +8,9 @@ class PrimaryButton extends StatefulWidget {
   final VoidCallback? onPressed;
   final Future<void> Function()? asyncOnPressed;
 
+  ///Optional font color to be used
+  final Color? fontColor;
+
   const PrimaryButton({
     super.key,
     required this.text,
@@ -15,6 +18,7 @@ class PrimaryButton extends StatefulWidget {
     this.onPressed,
     this.asyncOnPressed,
     this.style,
+    this.fontColor,
   });
 
   @override
@@ -66,8 +70,8 @@ class _PrimaryButtonState extends State<PrimaryButton> {
                 if (widget.icon != null) const SizedBox(width: 8),
                 Text(
                   widget.text,
-                  style:
-                      CustomStyle.semibold14(color: CustomColor.textSecondary),
+                  style: CustomStyle.semibold14(
+                      color: widget.fontColor ?? CustomColor.bgSecondary),
                 ),
               ],
             ),

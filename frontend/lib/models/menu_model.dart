@@ -1,10 +1,13 @@
 //The Menu Model
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
+import 'package:flutter_svg/svg.dart';
 
 class Menu {
   int id = 0;
   int level = 0;
-  IconData? icon = Icons.drive_file_rename_outline;
+  IconData? icon;
   String title = "";
   String? subtitle = "";
   List<Menu> children = [];
