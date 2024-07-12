@@ -42,6 +42,8 @@ query  getDocumentById($documentId: String!) {
     number,
     date,
     notes,
+    deleted,
+    efactura_status,
     partner{
         id,
         code,        
@@ -63,7 +65,9 @@ query  getDocumentById($documentId: String!) {
             is_stock,
             um{
                 id,
-                name
+                name,
+                code,
+                is_active
              },
             vat{
                 id,

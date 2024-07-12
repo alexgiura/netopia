@@ -1,6 +1,8 @@
 import 'package:erp_frontend_v2/constants/style.dart';
 import 'package:erp_frontend_v2/models/app_localizations.dart';
+import 'package:erp_frontend_v2/routing/routes.dart';
 import 'package:erp_frontend_v2/widgets/buttons/primary_button.dart';
+import 'package:erp_frontend_v2/widgets/buttons/tertiary_button.dart';
 import 'package:erp_frontend_v2/widgets/custom_header_widget.dart';
 import 'package:erp_frontend_v2/widgets/custom_search_bar.dart';
 import 'package:erp_frontend_v2/widgets/custom_tab_bar.dart';
@@ -24,23 +26,10 @@ class DocumentsPage extends StatefulWidget {
   State<DocumentsPage> createState() => _DocumentsPageState();
 }
 
-class _DocumentsPageState extends State<DocumentsPage>
-    with SingleTickerProviderStateMixin {
-  late TabController _tabController;
-
-  String? _status;
-
+class _DocumentsPageState extends State<DocumentsPage> {
   @override
   void initState() {
     super.initState();
-
-    _tabController = TabController(length: 3, vsync: this);
-  }
-
-  @override
-  void dispose() {
-    _tabController.dispose();
-    super.dispose();
   }
 
   @override

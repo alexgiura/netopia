@@ -23,7 +23,7 @@ class ItemUnitPopup extends ConsumerStatefulWidget {
 
 class _ItemUnitPopupState extends ConsumerState<ItemUnitPopup>
     with SingleTickerProviderStateMixin {
-  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+  final GlobalKey<FormState> _itemUnitFormKey = GlobalKey<FormState>();
 
   Um _um = Um.empty();
 
@@ -47,7 +47,7 @@ class _ItemUnitPopupState extends ConsumerState<ItemUnitPopup>
         child: Padding(
           padding: const EdgeInsets.all(24.0),
           child: Form(
-            key: _formKey,
+            key: _itemUnitFormKey,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisAlignment: MainAxisAlignment.start,
@@ -145,7 +145,7 @@ class _ItemUnitPopupState extends ConsumerState<ItemUnitPopup>
                       child: PrimaryButton(
                         text: 'save'.tr(context),
                         onPressed: () async {
-                          if (_formKey.currentState!.validate()) {
+                          if (_itemUnitFormKey.currentState!.validate()) {
                             try {
                               await ItemService().saveUm(um: _um);
 

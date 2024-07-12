@@ -1,3 +1,4 @@
+import 'package:erp_frontend_v2/models/app_localizations.dart';
 import 'package:erp_frontend_v2/providers/partner_provider.dart';
 import 'package:erp_frontend_v2/widgets/custom_data_table.dart';
 import 'package:erp_frontend_v2/widgets/not_used_widgets/custom_document_drop_down.dart';
@@ -5,22 +6,26 @@ import 'package:erp_frontend_v2/widgets/not_used_widgets/custom_search_dropdown.
 import 'package:flutter/material.dart';
 import 'package:data_table_2/data_table_2.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:gap/gap.dart';
+import 'package:graphql_flutter/graphql_flutter.dart';
 import '../../../../constants/style.dart';
 import '../../../../models/document/document_model.dart';
 import '../../../../widgets/custom_text_field_double.dart';
 
 class DocumentItemsDataTable extends ConsumerStatefulWidget {
-  const DocumentItemsDataTable(
-      {super.key,
-      required this.data,
-      required this.onUpdate,
-      this.readOnly,
-      this.noPrice});
+  const DocumentItemsDataTable({
+    super.key,
+    required this.data,
+    required this.onUpdate,
+    required this.documentTypeId,
+    this.readOnly,
+  });
   final List<DocumentItem>? data;
 
   final bool? readOnly;
   final void Function(List<DocumentItem>) onUpdate;
-  final bool? noPrice;
+
+  final int documentTypeId;
 
   @override
   ConsumerState<DocumentItemsDataTable> createState() =>
@@ -67,69 +72,108 @@ class _DocumentItemsDataTableState
 
   List<DataColumn2> getColumns() {
     List<DataColumn2> _columns = [
-      // const DataColumn2(
-      //   label: Text('Cod'),
-      //   size: ColumnSize.S,
-      // ),
-      const DataColumn2(
-        label: Text('Denumire'),
+      DataColumn2(
+        label: Text(
+          'name'.tr(context),
+          style: CustomStyle.semibold16(color: CustomColor.greenGray),
+        ),
         size: ColumnSize.L,
       ),
-      const DataColumn2(
-        label: Text('Cantitate'),
+      DataColumn2(
+          label: Text(
+            'quantity'.tr(context),
+            style: CustomStyle.semibold16(color: CustomColor.greenGray),
+          ),
+          size: ColumnSize.S,
+          numeric: true),
+      DataColumn2(
+        label: Container(
+          alignment: Alignment.centerRight,
+          child: Text(
+            'um'.tr(context),
+            style: CustomStyle.semibold16(color: CustomColor.greenGray),
+          ),
+        ),
         size: ColumnSize.S,
       ),
-      const DataColumn2(
-        label: Text('UM'),
-        size: ColumnSize.S,
-      ),
-      if (widget.noPrice != true) ...[
+      if ([1, 2].contains(widget.documentTypeId)) ...[
         DataColumn2(
-          label: Text('Pret'),
-          size: ColumnSize.S,
-        ),
-        const DataColumn2(
-          label: Text('VAT'),
-          size: ColumnSize.S,
-        ),
-        const DataColumn2(
-          label: Text('Valoare Neta'),
-          size: ColumnSize.M,
-        ),
-        const DataColumn2(
-          label: Text('Valoare TVA'),
-          size: ColumnSize.M,
-        ),
-        const DataColumn2(
-          label: Text('Valoare Total'),
-          size: ColumnSize.M,
-        ),
+            label: Text(
+              'unit_price'.tr(context),
+              style: CustomStyle.semibold16(color: CustomColor.greenGray),
+            ),
+            size: ColumnSize.S,
+            numeric: true),
+        DataColumn2(
+            label: Container(
+              alignment: Alignment.centerRight,
+              child: Text(
+                'vat_rate'.tr(context),
+                style: CustomStyle.semibold16(color: CustomColor.greenGray),
+              ),
+            ),
+            size: ColumnSize.S,
+            numeric: true),
+        DataColumn2(
+            label: Text(
+              'net_value'.tr(context),
+              style: CustomStyle.semibold16(color: CustomColor.greenGray),
+            ),
+            size: ColumnSize.S,
+            numeric: true),
+        DataColumn2(
+            label: Text(
+              'vat_value'.tr(context),
+              style: CustomStyle.semibold16(color: CustomColor.greenGray),
+            ),
+            size: ColumnSize.S,
+            numeric: true),
+        DataColumn2(
+            label: Text(
+              'gross_value'.tr(context),
+              style: CustomStyle.semibold16(color: CustomColor.greenGray),
+            ),
+            size: ColumnSize.S,
+            numeric: true),
       ],
-      const DataColumn2(
-        label: Text('Sterge'),
-        fixedWidth: 100,
+      DataColumn2(
+        label: Visibility(
+          visible: widget.readOnly != true,
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              const Spacer(),
+              Container(
+                width: 52,
+                alignment: Alignment.centerRight, // Align header to the right
+                child: Text(
+                  'Sterge',
+                  style: CustomStyle.semibold16(color: CustomColor.greenGray),
+                ),
+              ),
+            ],
+          ),
+        ),
+        size: ColumnSize.S,
       ),
     ];
-    // Hide Actions column if readOnly==true
-    if (widget.readOnly == true) {
-      _columns.last = const DataColumn2(
-        label: Text('Actions'),
-        fixedWidth: 0,
-      );
-    }
+
     return _columns;
   }
 
   List<DataRow2> getRows(List<DocumentItem> data) {
+    double sumNet = data.fold(0.0, (sum, item) => sum + (item.amountNet ?? 0));
+    double sumVat = data.fold(0.0, (sum, item) => sum + (item.amountVat ?? 0));
+    double sumGross =
+        data.fold(0.0, (sum, item) => sum + (item.amountGross ?? 0));
     List<DataRow2> rows = data.asMap().entries.map((row) {
       int index = row.key;
-
+      DocumentItem documentItem = row.value;
       List<DataCell> cells = [
-        // DataCell(Text(row.value.code ?? '')),
-        DataCell(Text(row.value.item.name)),
+        DataCell(Text(documentItem.item.name, style: CustomStyle.semibold14())),
         DataCell(
           CustomTextFieldFloat(
-            initialValue: row.value.quantity,
+            initialValue: documentItem.quantity,
             onValueChanged: (double value) {
               data[index].quantity = value;
               updateDocumentItemAmount(index);
@@ -138,12 +182,15 @@ class _DocumentItemsDataTableState
             readonly: widget.readOnly,
           ),
         ),
-        DataCell(Text(row.value.item.um.name)),
-
-        if (widget.noPrice != true) ...[
+        DataCell(Container(
+            alignment: Alignment.centerRight,
+            child: Text(documentItem.item.um.name,
+                style: CustomStyle.semibold14()))),
+        if ([1, 2].contains(widget.documentTypeId)) ...[
           DataCell(
             CustomTextFieldFloat(
-              initialValue: row.value.price != null ? row.value.price! : 0.00,
+              initialValue:
+                  documentItem.price != null ? documentItem.price! : 0.00,
               onValueChanged: (double value) {
                 data[index].price = value;
                 updateDocumentItemAmount(index);
@@ -152,56 +199,55 @@ class _DocumentItemsDataTableState
               readonly: widget.readOnly,
             ),
           ),
-          DataCell(Text(row.value.item.vat.name)),
-          DataCell(
-            CustomTextFieldFloat(
-              initialValue:
-                  row.value.amountNet != null ? row.value.amountNet! : 0.00,
-              onValueChanged: (double value) {
-                data[index].amountNet = value;
-                widget.onUpdate(data);
-              },
-              readonly: true,
-            ),
-          ),
-          DataCell(
-            CustomTextFieldFloat(
-              initialValue:
-                  row.value.amountVat != null ? row.value.amountVat! : 0.00,
-              onValueChanged: (double value) {
-                data[index].amountVat = value;
-                widget.onUpdate(data);
-              },
-              readonly: true,
-            ),
-          ),
-          DataCell(
-            CustomTextFieldFloat(
-              initialValue:
-                  row.value.amountGross != null ? row.value.amountGross! : 0.00,
-              onValueChanged: (double value) {
-                data[index].amountGross = value;
-                updateDocumentItemPrice(index);
-                widget.onUpdate(data);
-              },
-              readonly: widget.readOnly,
-            ),
-          ),
+          DataCell(Container(
+              alignment: Alignment.centerRight,
+              child: Text(documentItem.item.vat.name,
+                  style: CustomStyle.semibold14()))),
+          DataCell(Container(
+              alignment: Alignment.centerRight,
+              child: Text(
+                  documentItem.amountNet != null
+                      ? documentItem.amountNet.toString()
+                      : '0.00',
+                  style: CustomStyle.semibold14()))),
+          DataCell(Container(
+              alignment: Alignment.centerRight,
+              child: Text(
+                  documentItem.amountVat != null
+                      ? documentItem.amountVat.toString()
+                      : '0.00',
+                  style: CustomStyle.semibold14()))),
+          DataCell(Container(
+              alignment: Alignment.centerRight,
+              child: Text(
+                  documentItem.amountGross != null
+                      ? documentItem.amountGross.toString()
+                      : '0.00',
+                  style: CustomStyle.semibold14()))),
         ],
-
         DataCell(
           Visibility(
             visible: widget.readOnly != true,
-            child: IconButton(
-              hoverColor: CustomColor.lightest,
-              splashRadius: 22,
-              icon: const Icon(Icons.delete_outlined, color: Colors.red),
-              onPressed: () {
-                setState(() {
-                  widget.data!.remove(data[index]);
-                  widget.onUpdate(data);
-                });
-              },
+            child: Row(
+              children: [
+                Spacer(),
+                Container(
+                  width: 52,
+                  alignment: Alignment.center, // Keep data cell centered
+                  child: IconButton(
+                    hoverColor: CustomColor.lightest,
+                    splashRadius: 22,
+                    icon: const Icon(Icons.delete_outline_rounded,
+                        color: CustomColor.error),
+                    onPressed: () {
+                      setState(() {
+                        widget.data!.remove(data[index]);
+                        widget.onUpdate(data);
+                      });
+                    },
+                  ),
+                ),
+              ],
             ),
           ),
         ),
@@ -212,31 +258,60 @@ class _DocumentItemsDataTableState
       );
     }).toList();
 
-    // // Define the empty cells for the empty row
-    // List<DataCell> emptyCells = List.generate(getColumns().length, (index) {
-    //   if (index == 0) {
-    //     // Assuming 'Denumire' is at index 1
-    //     // Return a DataCell containing your custom widget for 'Denumire' column
-    //     return DataCell(DocumentSearchDropDown(
-    //       // Ensure this key is unique or managed properly if it's reused
-    //       //initialValue: _document.partner,
+    // Add subtotal row
+    if ([1, 2].contains(widget.documentTypeId)) {
+      DataRow2 subtotalRow = DataRow2(cells: [
+        DataCell(Text('')),
+        DataCell(Text('')),
+        DataCell(Text('')),
+        DataCell(Text('')),
+        DataCell(Text('')),
+        DataCell(Container(
+          alignment: Alignment.bottomRight,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: [
+              Text('subtotal'.tr(context),
+                  style: CustomStyle.semibold16(color: CustomColor.greenGray)),
+              Gap(4),
+              Text('${sumNet.toStringAsFixed(2)} RON',
+                  style: CustomStyle.semibold14()),
+            ],
+          ),
+        )),
+        DataCell(Container(
+          alignment: Alignment.bottomRight,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: [
+              Text('total_vat'.tr(context),
+                  style: CustomStyle.semibold16(color: CustomColor.greenGray)),
+              Gap(4),
+              Text('${sumVat.toStringAsFixed(2)} RON',
+                  style: CustomStyle.semibold14()),
+            ],
+          ),
+        )),
+        DataCell(Container(
+          alignment: Alignment.centerRight,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: [
+              Text('total'.tr(context), style: CustomStyle.bold16()),
+              Gap(4),
+              Text('${sumGross.toStringAsFixed(2)} RON',
+                  style: CustomStyle.semibold14()),
+            ],
+          ),
+        )),
+        DataCell(Text('')),
+      ]);
 
-    //       onValueChanged: (value) {
-    //         //
-    //       },
-    //       provider: partnerProvider,
-    //     ));
-    //   } else {
-    //     // Return an empty DataCell for other columns
-    //     return DataCell(Text(''));
-    //   }
-    // });
-
-    // // Create the empty row using the defined empty cells
-    // DataRow2 emptyRow = DataRow2(cells: emptyCells);
-
-    // // Append the empty row to your rows list
-    // rows.add(emptyRow);
+      rows.add(subtotalRow);
+    }
 
     return rows;
   }

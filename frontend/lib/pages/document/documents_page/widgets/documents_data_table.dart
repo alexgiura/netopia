@@ -9,6 +9,7 @@ import 'package:erp_frontend_v2/widgets/buttons/primary_button.dart';
 import 'package:erp_frontend_v2/widgets/custom_data_table.dart';
 import 'package:erp_frontend_v2/widgets/custom_search_bar.dart';
 import 'package:erp_frontend_v2/widgets/custom_tab_bar.dart';
+import 'package:erp_frontend_v2/widgets/custom_tab_controller.dart';
 import 'package:erp_frontend_v2/widgets/filters/date_interval_picker/date_picker_widget.dart';
 import 'package:erp_frontend_v2/widgets/filters/drop_down_filter/drop_down_filter.dart';
 import 'package:erp_frontend_v2/widgets/filters/sort_widget.dart';
@@ -34,40 +35,11 @@ class _DocumentsDataTableState extends ConsumerState<DocumentsDataTable>
   DocumentFilter _documentFilter = DocumentFilter.empty();
   String? _searchText;
 
-// For status tab
-  late TabController _tabController;
   List<bool> _selectStatus = [];
 
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 3, vsync: this);
-    _selectStatus.add(true);
-    _tabController.addListener(() {
-      int selectedIndex = _tabController.index;
-      // Check if the index is already being processed
-      if (_tabController.indexIsChanging) {
-        return;
-      }
-      setState(() {
-        _selectStatus.clear();
-        switch (selectedIndex) {
-          case 0:
-            // 'Activ' tab is selected
-            _selectStatus.add(true);
-            break;
-          case 1:
-            // 'Inactiv' tab is selected
-            _selectStatus.add(false);
-            break;
-          case 2:
-            // 'All' tab is selected
-            _selectStatus.add(true);
-            _selectStatus.add(false);
-            break;
-        }
-      });
-    });
 
     DateTime now = DateTime.now();
     int currentDayOfWeek = now.weekday;
@@ -101,13 +73,17 @@ class _DocumentsDataTableState extends ConsumerState<DocumentsDataTable>
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisSize: MainAxisSize.min,
             children: [
-              CustomTabBar(
-                tabController: _tabController,
+              CustomTabControllerWidget(
                 tabs: [
-                  Tab(text: 'activ_feminin'.tr(context)),
-                  Tab(text: 'inactiv_feminin'.tr(context)),
-                  Tab(text: 'all_feminin'.tr(context)),
+                  Text('activ_feminin'.tr(context)),
+                  Text('inactiv_feminin'.tr(context)),
+                  Text('all_feminin'.tr(context)),
                 ],
+                onStatusChanged: (value) {
+                  setState(() {
+                    _selectStatus = value;
+                  });
+                },
               ),
               const Gap(24),
               Row(
@@ -176,9 +152,7 @@ class _DocumentsDataTableState extends ConsumerState<DocumentsDataTable>
         );
       },
       loading: () {
-        return const Center(
-          child: CircularProgressIndicator(),
-        );
+        return CircularProgressIndicator();
       },
       error: (error, stackTrace) {
         return Text("Error: $error");

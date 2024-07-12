@@ -28,7 +28,7 @@ class ItemDetailsPopup extends ConsumerStatefulWidget {
 }
 
 class _ItemDetailsPopupState extends ConsumerState<ItemDetailsPopup> {
-  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+  final GlobalKey<FormState> _itemFormKey = GlobalKey<FormState>();
 
   Item _item = Item.empty();
 
@@ -47,7 +47,7 @@ class _ItemDetailsPopupState extends ConsumerState<ItemDetailsPopup> {
         child: Padding(
           padding: const EdgeInsets.all(24.0),
           child: Form(
-            key: _formKey,
+            key: _itemFormKey,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisAlignment: MainAxisAlignment.start,
@@ -199,7 +199,7 @@ class _ItemDetailsPopupState extends ConsumerState<ItemDetailsPopup> {
                       child: PrimaryButton(
                         text: 'save'.tr(context),
                         onPressed: () async {
-                          if (_formKey.currentState!.validate()) {
+                          if (_itemFormKey.currentState!.validate()) {
                             try {
                               await ItemService().saveItem(item: _item);
 

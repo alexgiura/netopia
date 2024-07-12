@@ -57,7 +57,7 @@ class _DatePickerWidgetState extends State<DatePickerWidget> {
           widget.labelText,
           style: CustomStyle.labelText,
         ),
-        const SizedBox(height: 4),
+        const SizedBox(height: 8),
         InkWell(
           onTap: widget.enabled
               ? () {

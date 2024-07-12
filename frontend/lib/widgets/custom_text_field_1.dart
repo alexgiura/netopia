@@ -95,7 +95,6 @@ class CustomTextField1State extends State<CustomTextField1> {
                 )
               : Text('${widget.labelText!} (${'optional'.tr(context)})',
                   style: CustomStyle.regular16()),
-
         if (widget.labelText != null) const Gap(8.0),
         Column(
           crossAxisAlignment: CrossAxisAlignment.start,

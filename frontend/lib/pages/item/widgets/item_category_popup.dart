@@ -25,7 +25,7 @@ class ItemCategoryPopup extends ConsumerStatefulWidget {
 
 class _ItemCategoryPopupState extends ConsumerState<ItemCategoryPopup>
     with SingleTickerProviderStateMixin {
-  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+  final GlobalKey<FormState> _itemCategoryFormKey = GlobalKey<FormState>();
 
   ItemCategory _category = ItemCategory.empty();
 
@@ -49,7 +49,7 @@ class _ItemCategoryPopupState extends ConsumerState<ItemCategoryPopup>
         child: Padding(
           padding: const EdgeInsets.all(24.0),
           child: Form(
-            key: _formKey,
+            key: _itemCategoryFormKey,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisAlignment: MainAxisAlignment.start,
@@ -131,7 +131,7 @@ class _ItemCategoryPopupState extends ConsumerState<ItemCategoryPopup>
                       child: PrimaryButton(
                         text: 'save'.tr(context),
                         onPressed: () async {
-                          if (_formKey.currentState!.validate()) {
+                          if (_itemCategoryFormKey.currentState!.validate()) {
                             try {
                               await ItemService()
                                   .saveItemCategory(itemCategory: _category);

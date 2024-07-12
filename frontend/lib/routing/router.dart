@@ -20,7 +20,6 @@ import '../pages/document/documents_page/documents_page.dart';
 import '../pages/partner/partners_page.dart';
 import '../pages/production/production_recipes_page.dart';
 import '../pdf/pdf_viewer.dart';
-import '../pages/test_page.dart';
 import 'routes.dart';
 
 //final _rootNavigatorKey = GlobalKey<NavigatorState>();
@@ -88,13 +87,13 @@ final GoRouter router = GoRouter(
             },
           ),
 
-          // Test route
-          GoRoute(
-            path: testRoute,
-            builder: (BuildContext context, GoRouterState state) {
-              return const TestPage();
-            },
-          ),
+          // // Test route
+          // GoRoute(
+          //   path: testRoute,
+          //   builder: (BuildContext context, GoRouterState state) {
+          //     return const TestPage();
+          //   },
+          // ),
 
           //Client
           // Client Delivery Note Route

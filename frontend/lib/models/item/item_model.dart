@@ -41,14 +41,14 @@ class Item {
   factory Item.fromJson(Map<String, dynamic> json) {
     return Item(
         id: json['id'],
-        code: json.containsKey('code') ? json['code'] : null,
+        code: json['code'],
         name: json['name'],
-        isActive: json.containsKey('is_active') ? json['is_active'] : null,
-        isStock: json.containsKey('is_stock') ? json['is_stock'] : null,
+        isActive: json['is_active'],
+        isStock: json['is_stock'],
         um: Um.fromJson(json['um']),
         vat: Vat.fromJson(json['vat']),
-        category: json['category'] == null
-            ? null
-            : ItemCategory.fromJson(json['category']));
+        category: json.containsKey('category')
+            ? ItemCategory.fromJson(json['category'])
+            : null);
   }
 }

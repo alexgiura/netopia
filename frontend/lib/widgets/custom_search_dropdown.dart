@@ -305,24 +305,4 @@ class SearchDropDownState<T> extends ConsumerState<SearchDropDown<T>> {
     entry?.remove();
     showOverlay();
   }
-
-  // bool valid() {
-  //   if (selectedItem == null) {
-  //     setState(() {
-  //       _showError = true;
-  //     });
-  //     return false;
-  //   }
-  //   return true;
 }
-
-  // //dispose
-  // @override
-  // void dispose() {
-  //   if (entry != null) {
-  //     entry?.remove();
-  //     entry = null;
-  //   }
-  //   super.dispose();
-  // }
-// }

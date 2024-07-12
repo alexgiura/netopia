@@ -26,12 +26,13 @@ class DocumentProvider extends StateNotifier<AsyncValue<List<Document>>> {
   DocumentFilter _documentFilter = DocumentFilter.empty();
 
   Future<void> fetchDocuments() async {
+    state = const AsyncValue.loading();
     try {
       final documentList =
           await DocumentService().getDocuments(documentFilter: _documentFilter);
       state = AsyncValue.data(documentList);
-    } catch (e) {
-      //state = AsyncValue.error(e);
+    } catch (e, stackTrace) {
+      state = AsyncValue.error(e, stackTrace);
     }
   }
 

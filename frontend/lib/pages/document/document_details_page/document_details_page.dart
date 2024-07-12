@@ -1,12 +1,13 @@
 import 'package:erp_frontend_v2/models/app_localizations.dart';
 import 'package:erp_frontend_v2/models/document/document_transaction_model.dart';
-import 'package:erp_frontend_v2/pages/document/document_add_item/document_add_item_popup.dart';
+import 'package:erp_frontend_v2/pages/document/document_add_item/add_item_popup.dart';
 import 'package:erp_frontend_v2/pages/document/document_details_page/widgets/document_details_data_table.dart';
 import 'package:erp_frontend_v2/pages/document/document_details_page/widgets/document_details_production_note_data_table.dart';
 import 'package:erp_frontend_v2/pages/document/document_generate_popup/document_generate_popup.dart';
 import 'package:erp_frontend_v2/providers/document_providers.dart';
 import 'package:erp_frontend_v2/providers/document_transaction_provider.dart';
 import 'package:erp_frontend_v2/routing/router.dart';
+import 'package:erp_frontend_v2/routing/routes.dart';
 import 'package:erp_frontend_v2/widgets/buttons/primary_button.dart';
 import 'package:erp_frontend_v2/widgets/buttons/tertiary_button.dart';
 import 'package:erp_frontend_v2/widgets/custom_header_widget.dart';
@@ -18,6 +19,7 @@ import 'package:erp_frontend_v2/widgets/custom_text_field.dart';
 import 'package:erp_frontend_v2/widgets/dialog_widgets/custom_error_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:gap/gap.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import '../../../pdf/pdf_document.dart';
@@ -48,11 +50,7 @@ class DocumentDetailsPage extends ConsumerStatefulWidget {
 }
 
 class _DocumentDetailsPageState extends ConsumerState<DocumentDetailsPage> {
-//
-  final TextEditingController textController1 = TextEditingController();
-
-  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
-//
+  final GlobalKey<FormState> _documentDetailsFormKey = GlobalKey<FormState>();
 
   String _hId = '0';
 
@@ -72,22 +70,6 @@ class _DocumentDetailsPageState extends ConsumerState<DocumentDetailsPage> {
       _document.documentType.id = widget.documentTypeId;
       _document.date = DateFormat('yyyy-MM-dd').format(DateTime.now());
     }
-  }
-
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-
-    // // Extracting 'hId' from the current route
-    // final uri = Uri.parse(GoRouter.of(context).location);
-    // final newHId = uri.pathSegments.isNotEmpty ? uri.pathSegments.last : null;
-
-    // // Check if the 'hId' has changed and if so, update the state
-    // if (newHId != null && newHId != _hId) {
-    //   setState(() {
-    //     _hId = newHId;
-    //   });
-    // }
   }
 
   Future<void> _fetchDocument() async {
@@ -133,23 +115,16 @@ class _DocumentDetailsPageState extends ConsumerState<DocumentDetailsPage> {
             pathParameters: {'id1': result},
           );
 
-          showToast('Documentul a fost salvat cu success!', ToastType.success);
+          showToast('success_save_document'.tr(context), ToastType.success);
           setState(() {
             _hId = result;
           });
         }
       }
     } catch (error) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(error.toString()),
-          behavior: SnackBarBehavior.floating, // Move SnackBar to top
-          backgroundColor: Colors.red, // Change background color
-        ),
-      );
+      showToast('error'.tr(context), ToastType.error);
       setState(() {
         _actionLoading = false;
-        //validateOnSave = false;
       });
     }
   }
@@ -160,7 +135,7 @@ class _DocumentDetailsPageState extends ConsumerState<DocumentDetailsPage> {
     });
     try {
       final documentService = DocumentService();
-      final String result2 = await documentService.deleteDocument(
+      final String result = await documentService.deleteDocument(
           hId: hId, deleteGenerated: deleteGenerated);
 
       if (!mounted) return; // Check if the widget is still in the widget tree
@@ -169,21 +144,14 @@ class _DocumentDetailsPageState extends ConsumerState<DocumentDetailsPage> {
         _actionLoading = false;
       });
 
-      if (result2.isNotEmpty) {
-        showSnackBar(
-            context, 'Document deleted successfully!', SnackBarType.success);
+      if (result.isNotEmpty) {
+        showToast('success_cancel_document'.tr(context), ToastType.success);
 
         ref.read(documentProvider.notifier).refreshDocuments();
         Navigator.of(context).pop();
       }
     } catch (error) {
-      if (!mounted) return; // Check again after the async gap
-
-      showErrorDialog(context, error.toString(), () {
-        if (mounted) {
-          _deleteDocument(_hId.toString(), true);
-        }
-      });
+      showToast('error'.tr(context), ToastType.error);
 
       setState(() {
         _actionLoading = false;
@@ -204,354 +172,353 @@ class _DocumentDetailsPageState extends ConsumerState<DocumentDetailsPage> {
         : [];
 
     return Container(
-      color: CustomColor.white,
       padding: EdgeInsets.only(
         left: ResponsiveWidget.isSmallScreen(context) ? 0 : 24,
         right: ResponsiveWidget.isSmallScreen(context) ? 0 : 24,
-        top: ResponsiveWidget.isSmallScreen(context) ? 56 : 32,
+        top: ResponsiveWidget.isSmallScreen(context) ? 24 : 32,
         bottom: ResponsiveWidget.isSmallScreen(context) ? 0 : 24,
       ),
-      child: _initLoading
-          ? const Center(child: CircularProgressIndicator())
-          : Stack(
-              children: [
-                // Main content (always visible)
-                _buildPageContent(width, filteredTransactionList),
-
-                // Loading overlay (visible when _isLoading is true)
-                if (_actionLoading)
-                  const Positioned.fill(
-                    child: Center(
-                      child: CircularProgressIndicator(),
-                    ),
-                  ),
-              ],
-            ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          _buildTitle(),
+          const SizedBox(height: 16),
+          if (_hId == '0') ...[
+            _buildDocumentHeader(),
+            Gap(32),
+          ],
+          _buildDocumentDetails()
+        ],
+      ),
     );
   }
 
-  Widget _buildPageContent(
-      double width, List<DocumentTransaction> filteredTransactionList) {
-    // Calculating the sums
-    double sumNet = _document.documentItems
-        .fold(0.0, (sum, item) => sum + (item.amountNet ?? 0));
-    double sumVat = _document.documentItems
-        .fold(0.0, (sum, item) => sum + (item.amountVat ?? 0));
-    double sumGross = _document.documentItems
-        .fold(0.0, (sum, item) => sum + (item.amountGross ?? 0));
+  Widget _buildTitle() {
+    return Row(
+      children: [
+        CustomHeader(
+          title: widget.pageTitle,
+          hasBackIcon: true,
+        ),
+        const Spacer(),
+        _hId == '0'
+            ? PrimaryButton(
+                text: 'save'.tr(context),
+                icon: Icons.save,
+                onPressed: () {
+                  if (_documentDetailsFormKey.currentState!.validate()) {
+                    _saveDocument(_document);
+                  }
+                },
+              )
+            : Row(
+                children: [
+                  PrimaryButton(
+                    text: 'export'.tr(context),
+                    icon: Icons.file_download_outlined,
+                    onPressed: () async {
+                      await PdfDocument.generate(_document, ref).then((value) {
+                        final blob = html.Blob([value], 'application/pdf');
+                        final url = html.Url.createObjectUrlFromBlob(blob);
 
-    return Form(
-      key: _formKey,
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Row(
-            children: [
-              CustomHeader(
-                title: widget.pageTitle,
-                hasBackIcon: true,
+                        html.window.open(url, '_blank');
+                      });
+                    },
+                    style: CustomStyle.neutralButton,
+                  ),
+                  const SizedBox(width: 16),
+                  PrimaryButton(
+                    text: 'cancel'.tr(context),
+                    icon: Icons.delete_outline_rounded,
+                    onPressed: () {
+                      if (_documentDetailsFormKey.currentState!.validate()) {
+                        _saveDocument(_document);
+                      }
+                    },
+                    style: CustomStyle.negativeButton,
+                  )
+                ],
               ),
-              const Spacer(),
-              _hId == '0'
-                  ? SizedBox(
-                      height: 35,
-                      child: ElevatedButton.icon(
-                        style: CustomStyle.activeButton,
-                        onPressed: () {
-                          if (_formKey.currentState!.validate()) {
-                            _saveDocument(_document);
-                          }
-                        },
-                        icon: const Icon(
-                          Icons.save,
-                          color: CustomColor.white,
-                        ),
-                        label: const Text(
-                          'Salveaza',
-                          style: CustomStyle.primaryButtonText,
-                        ),
-                      ),
-                    )
-                  : Row(
-                      children: [
-                        SizedBox(
-                          height: 35,
-                          child: ElevatedButton.icon(
-                            style: CustomStyle.activeButton,
-                            onPressed: () async {
-                              await PdfDocument.generate(_document, ref)
-                                  .then((value) {
-                                final blob =
-                                    html.Blob([value], 'application/pdf');
-                                final url =
-                                    html.Url.createObjectUrlFromBlob(blob);
+      ],
+    );
+  }
 
-                                html.window.open(url, '_blank');
-                              });
-                            },
-                            icon: const Icon(Icons.print),
-                            label: const Text('Printeaza'),
-                          ),
+  Widget _buildDocumentHeader() {
+    return Container(
+      padding: const EdgeInsets.fromLTRB(24, 24, 24, 16),
+      decoration: CustomStyle.customContainerDecoration(border: true),
+      child: Form(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          mainAxisAlignment: MainAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'document_details'.tr(context),
+              style: CustomStyle.medium20(),
+            ),
+            Gap(24),
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Expanded(
+                  child: Padding(
+                    padding: const EdgeInsets.only(right: 16),
+                    child: CustomTextField1(
+                      labelText: 'number'.tr(context),
+                      hintText: 'document_number_hint'.tr(context),
+                      initialValue: _document.number,
+                      onValueChanged: (String value) {
+                        _document.number = value;
+                      },
+                      validator: (value) {
+                        if (value!.isEmpty) {
+                          return 'error_required_field'.tr(context);
+                        }
+                        return null;
+                      },
+                      required: true,
+                    ),
+                  ),
+                ),
+                Expanded(
+                  child: Padding(
+                    padding: const EdgeInsets.only(right: 16),
+                    child: CustomTextField1(
+                        labelText: 'series'.tr(context),
+                        hintText: 'document_series_hint'.tr(context),
+                        initialValue: _document.series,
+                        onValueChanged: (String value) {
+                          _document.series = value;
+                        }),
+                  ),
+                ),
+                Expanded(
+                  child: DatePickerWidget(
+                    initialValue:
+                        DateTime.tryParse(_document.date) ?? DateTime.now(),
+                    labelText: 'date'.tr(context),
+                    onDateChanged: (DateTime value) {
+                      _document.date = DateFormat('yyyy-MM-dd').format(value);
+                    },
+                    enabled: _hId == '0',
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(
+              height: 8,
+            ),
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Expanded(
+                  child: Padding(
+                    padding: const EdgeInsets.only(right: 16),
+                    child: SearchDropDown(
+                      initialValue: _document.partner,
+                      labelText: 'partner'.tr(context),
+                      validator: (value) {
+                        if (value!.isEmpty) {
+                          return 'error_required_field'.tr(context);
+                        }
+                        return null;
+                      },
+                      onValueChanged: (value) {
+                        setState(() {
+                          _document.partner = value;
+                        });
+                      },
+                      provider: partnerProvider,
+                      required: true,
+                    ),
+                  ),
+                ),
+                Expanded(
+                  flex: 2,
+                  child: CustomTextField1(
+                      labelText: 'notes'.tr(context),
+                      initialValue: _document.notes,
+                      onValueChanged: (String value) {
+                        _document.notes = value;
+                      }),
+                ),
+              ],
+            )
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildDocumentDetails() {
+    return Container(
+      padding: const EdgeInsets.fromLTRB(24, 24, 24, 16),
+      decoration: CustomStyle.customContainerDecoration(border: true),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          _hId == '0'
+              ? Row(
+                  children: [
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'included_products'.tr(context),
+                          style: CustomStyle.medium20(),
                         ),
-                        const SizedBox(width: 16),
-                        Visibility(
-                          visible: true,
-                          child: SizedBox(
-                            height: 35,
-                            child: ElevatedButton.icon(
-                              style: CustomStyle.negativeButton,
-                              onPressed: () {
-                                _deleteDocument(_hId.toString(), false);
-                              },
-                              icon: const Icon(Icons.clear),
-                              label: const Text('Anuleaza'),
-                            ),
-                          ),
+                        Text(
+                          'included_products_description'.tr(context),
+                          style: CustomStyle.regular14(
+                              color: CustomColor.greenGray),
                         ),
                       ],
                     ),
-            ],
-          ),
-          const SizedBox(height: 48),
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Expanded(
-                  child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Expanded(
-                        child: CustomTextField1(
-                          labelText: "Număr",
-                          hintText: "Număr document",
-                          initialValue: _document.number,
-                          onValueChanged: (String value) {
-                            _document.number = value;
-                          },
-                          validator: (value) {
-                            if (value!.isEmpty) {
-                              return 'error_required_field'.tr(context);
-                            }
-                            return null;
-                          },
-                        ),
-                      ),
-                      const SizedBox(
-                        width: 16,
-                      ),
-                      Expanded(
-                        child: CustomTextField1(
-                            validator: (p0) {},
-                            labelText: "Serie (Opțional)",
-                            hintText: "Serie document",
-                            initialValue: _document.series,
-                            onValueChanged: (String value) {
-                              _document.series = value;
-                            }),
-                      ),
-                      const SizedBox(
-                        width: 16,
-                      ),
-                      Expanded(
-                        child: DatePickerWidget(
-                          initialValue: DateTime.tryParse(_document.date) ??
-                              DateTime.now(),
-                          labelText: 'Dată',
-                          onDateChanged: (DateTime value) {
-                            _document.date =
-                                DateFormat('yyyy-MM-dd').format(value);
-                          },
-                          enabled: _hId == '0',
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(
-                    height: 8,
-                  ),
-                  Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Expanded(
-                        child: SearchDropDown(
-                          initialValue: _document.partner,
-                          labelText: 'Partener',
-                          onValueChanged: (value) {
-                            setState(() {
-                              _document.partner = value;
-                            });
-                          },
-                          provider: partnerProvider,
-                          errorText: "Camp obligatoriu",
-                          enabled: _hId == '0',
-                        ),
-                      ),
-                      const SizedBox(
-                        width: 16,
-                      ),
-                      Expanded(
-                        child: CustomTextField1(
-                            validator: (p0) {},
-                            labelText: "Observații (Opțional)",
-                            hintText: "",
-                            initialValue: _document.notes,
-                            onValueChanged: (String value) {
-                              _document.notes = value;
-                            }),
-                      ),
-                    ],
-                  )
-                ],
-              )),
-            ],
-          ),
-          const SizedBox(
-            height: 16,
-          ),
-          _hId == '0' && _document.documentType.id != 8
-              ? Row(
-                  children: [
-                    TertiaryButton(
-                      text: 'Adaugă Produs',
-                      icon: Icons.add,
-                      onPressed: () {
-                        showDialog(
-                          context: context,
-                          builder: (BuildContext context) {
-                            return AddItemPopup(
-                              onSave: (newItem) {
-                                setState(() {
-                                  _document.documentItems.add(newItem);
-                                });
-                              },
-                            );
-                          },
-                        );
-                      },
-                    ),
                     const Spacer(),
-                    filteredTransactionList.length > 0
-                        ? PrimaryButton(
-                            text: 'Generează',
-                            icon: Icons.download_rounded,
-                            onPressed: () {
-                              //form key validator was removed
-                              showDialog(
-                                context: context,
-                                builder: (BuildContext context) {
-                                  return DocumentGeneratePopup(
-                                    partnerId: _document.partner!.id!,
-                                    date: _document.date,
-                                    filteredTransactionList:
-                                        filteredTransactionList,
-                                    onSave: (itemList, transactionId) {
-                                      setState(
-                                        () {
-                                          _document.documentItems
-                                              .addAll(itemList);
-                                          _transactionId = transactionId;
-                                        },
-                                      );
-                                    },
-                                  );
+                    if (_document.documentItems.isNotEmpty &&
+                        _document.hId == '0')
+                      PrimaryButton(
+                        text: 'add'.tr(context),
+                        icon: Icons.add,
+                        onPressed: () {
+                          showDialog(
+                            context: context,
+                            builder: (BuildContext context) {
+                              return AddItemPopup(
+                                callback: (documentItems) {
+                                  setState(() {
+                                    _document.documentItems
+                                        .addAll(documentItems);
+                                  });
                                 },
                               );
                             },
-                          )
-                        : const SizedBox.shrink(),
+                          );
+                        },
+                      ),
                   ],
                 )
-              : const SizedBox.shrink(),
-          const SizedBox(
-            height: 8,
-          ),
-          Expanded(
-              child: (_document.documentType.id == 1 ||
-                      _document.documentType.id == 2)
-                  ? DocumentItemsDataTable(
-                      data: _document.documentItems,
-                      readOnly: _hId != '0',
-                      onUpdate: (updatedItems) {
-                        setState(() {
-                          _document.documentItems = updatedItems;
-                        });
-                      },
-                    )
-                  : _document.documentType.id == 8
-                      ? DocumentItemsProductionNote(
-                          data: _document.documentItems,
-                          documentTypeId: widget.documentTypeId,
-                          onUpdate: (updatedItems) {
-                            _document.documentItems = updatedItems;
-                          },
-                          // partner: _document.partner!,
-                          date: _document.date,
-                        )
-                      : DocumentItemsDataTable(
-                          data: _document.documentItems,
-                          readOnly: _hId != '0',
-                          onUpdate: (updatedItems) {
-                            _document.documentItems = updatedItems;
-                          },
-                          noPrice: true,
-                        )),
-          (_document.documentType.id == 1 || _document.documentType.id == 2)
-              ? Padding(
-                  padding: const EdgeInsets.only(top: 16),
+              : Padding(
+                  padding: const EdgeInsets.fromLTRB(16, 0, 16, 24),
                   child: Row(
-                    mainAxisAlignment: MainAxisAlignment
-                        .end, // Aligns the container to the right
+                    crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
+                      Text(
+                        _document.series ?? '',
+                        style: CustomStyle.bold32(),
+                      ),
+                      Gap(16),
+                      Text(
+                        '#',
+                        style:
+                            CustomStyle.medium32(color: CustomColor.greenGray),
+                      ),
+                      Text(
+                        _document.number,
+                        style:
+                            CustomStyle.medium32(color: CustomColor.greenGray),
+                      ),
+                      Gap(16),
                       Container(
-                        width: width / 4,
-                        padding: const EdgeInsets.fromLTRB(
-                            24, 16, 24, 16), // Padding inside the container
-                        decoration: CustomStyle.customContainerDecoration(),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                const Text('Subtotal:',
-                                    style: CustomStyle.bodyText),
-                                Text('${sumNet.toStringAsFixed(2)} RON',
-                                    style: CustomStyle.bodyText),
-                              ],
-                            ),
-                            const SizedBox(height: 8),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                const Text('Total TVA:',
-                                    style: CustomStyle.bodyText),
-                                Text('${sumVat.toStringAsFixed(2)} RON',
-                                    style: CustomStyle.bodyText),
-                              ],
-                            ),
-                            const SizedBox(height: 4),
-                            const Divider(),
-                            const SizedBox(height: 4),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                const Text('Total:',
-                                    style: CustomStyle.bodyTextBold),
-                                Text('${sumGross.toStringAsFixed(2)} RON',
-                                    style: CustomStyle.bodyTextBold),
-                              ],
-                            ),
-                          ],
+                        alignment: Alignment.center,
+                        child: Container(
+                          height: 28,
+                          width: 70,
+                          decoration: BoxDecoration(
+                            color: _document.isDeleted == true
+                                ? CustomColor.error.withOpacity(0.1)
+                                : CustomColor.green.withOpacity(0.1),
+                            borderRadius: BorderRadius.circular(50),
+                          ),
+                          child: Center(
+                            child: Text(
+                                _document.isDeleted == true
+                                    ? 'canceled_masculin'.tr(context)
+                                    : 'valid_masculin'.tr(context),
+                                style: _document.isDeleted == true
+                                    ? CustomStyle.semibold14(
+                                        color: CustomColor.error)
+                                    : CustomStyle.semibold14(
+                                        color: CustomColor.green)),
+                          ),
                         ),
                       ),
+                      Spacer(),
+                      Column(
+                        mainAxisSize: MainAxisSize.min,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'Partener:',
+                            style: CustomStyle.regular14(
+                                color: CustomColor.greenGray),
+                          ),
+                          Text(
+                            _document.partner!.name,
+                            style: CustomStyle.bold16(),
+                          ),
+                        ],
+                      ),
+                      Gap(40),
+                      Column(
+                        mainAxisSize: MainAxisSize.min,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'Data document:',
+                            style: CustomStyle.regular14(
+                                color: CustomColor.greenGray),
+                          ),
+                          Text(
+                            _document.date,
+                            style: CustomStyle.bold16(),
+                          ),
+                        ],
+                      )
                     ],
                   ),
-                )
-              : const SizedBox.shrink()
+                ),
+          Gap(24),
+          if (_document.documentItems.isEmpty && _hId == '0')
+            PrimaryButton(
+              text: 'add'.tr(context),
+              icon: Icons.add,
+              onPressed: () {
+                showDialog(
+                  context: context,
+                  builder: (BuildContext context) {
+                    return AddItemPopup(
+                      callback: (documentItems) {
+                        setState(() {
+                          _document.documentItems.addAll(documentItems);
+                        });
+                      },
+                    );
+                  },
+                );
+              },
+            ),
+          if (_document.documentItems.isNotEmpty)
+            (_document.documentType.id == 8)
+                ? DocumentItemsProductionNote(
+                    data: _document.documentItems,
+                    documentTypeId: widget.documentTypeId,
+                    onUpdate: (updatedItems) {
+                      _document.documentItems = updatedItems;
+                    },
+                    date: _document.date,
+                  )
+                : DocumentItemsDataTable(
+                    documentTypeId: _document.documentType.id,
+                    data: _document.documentItems,
+                    readOnly: _hId != '0',
+                    onUpdate: (updatedItems) {
+                      setState(() {
+                        _document.documentItems = updatedItems;
+                      });
+                    },
+                  )
         ],
       ),
     );

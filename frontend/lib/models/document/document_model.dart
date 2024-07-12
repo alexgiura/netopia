@@ -47,8 +47,10 @@ class Document {
   }
 
   factory Document.fromJson(Map<String, dynamic> json) {
-    final List<dynamic>? itemsJson = json['document_items'];
-    final List<DocumentItem> items = itemsJson != null
+    final List<dynamic>? itemsJson =
+        json.containsKey('document_items') ? json['document_items'] : null;
+
+    final List<DocumentItem> documentItems = itemsJson != null
         ? itemsJson.map((item) => DocumentItem.fromJson(item)).toList()
         : [];
 
@@ -63,7 +65,7 @@ class Document {
       notes: json.containsKey('notes') ? json['notes'] : null,
       isDeleted: json['deleted'],
       efacturaStatus: json['efactura_status'],
-      documentItems: items,
+      documentItems: documentItems,
     );
   }
 }

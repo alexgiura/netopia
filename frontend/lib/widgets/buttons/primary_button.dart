@@ -37,8 +37,12 @@ class _PrimaryButtonState extends State<PrimaryButton> {
       try {
         await widget.asyncOnPressed!.call();
       } finally {
-        setState(() {
-          _isLoading = false;
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (mounted) {
+            setState(() {
+              _isLoading = false;
+            });
+          }
         });
       }
     } else if (widget.onPressed != null) {
@@ -71,7 +75,11 @@ class _PrimaryButtonState extends State<PrimaryButton> {
                 Text(
                   widget.text,
                   style: CustomStyle.semibold14(
-                      color: widget.fontColor ?? CustomColor.bgSecondary),
+                      color: widget.style == CustomStyle.negativeButton
+                          ? CustomColor.error
+                          : widget.style == CustomStyle.neutralButton
+                              ? CustomColor.textPrimary
+                              : CustomColor.textSecondary),
                 ),
               ],
             ),

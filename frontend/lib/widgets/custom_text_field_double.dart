@@ -1,3 +1,4 @@
+import 'package:erp_frontend_v2/constants/style.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
@@ -75,13 +76,18 @@ class _CustomTextFieldFloatState extends State<CustomTextFieldFloat> {
 
     return TapRegion(
       child: TextFormField(
+        style: CustomStyle.semibold14(),
         readOnly: widget.readonly ?? false,
         focusNode: _focus,
+        textAlign: TextAlign.right,
         textDirection: TextDirection.ltr,
         controller: _controller,
         keyboardType: const TextInputType.numberWithOptions(decimal: true),
-        decoration:
-            const InputDecoration(border: InputBorder.none, hintText: '0.00'),
+        decoration: InputDecoration(
+          border: InputBorder.none,
+          hintText: '0.00',
+          hintStyle: CustomStyle.semibold14(color: CustomColor.greenGray),
+        ),
         inputFormatters: <TextInputFormatter>[
           FilteringTextInputFormatter.allow(RegExp(
               r'^-?(\d+)?\.?\d{0,' + widget.maxDecimalNumber.toString() + '}'))

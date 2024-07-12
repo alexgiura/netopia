@@ -31,7 +31,7 @@ class CustomDataTable extends StatelessWidget {
                 isVerticalScrollBarVisible: false,
                 showCheckboxColumn: false,
                 dividerThickness: 0.5,
-                showBottomBorder: true,
+                showBottomBorder: false,
                 dataRowHeight: dataRowHeight,
                 headingRowHeight: headingRowHeight,
                 horizontalMargin: 16,

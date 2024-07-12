@@ -227,6 +227,16 @@ class CustomStyle {
     );
   }
 
+  static TextStyle semibold20(
+      {Color color = CustomColor.textPrimary, bool? isUnderline}) {
+    return TextStyle(
+      fontSize: 20,
+      color: color,
+      decoration: isUnderline == true ? TextDecoration.underline : null,
+      fontWeight: FontWeight.w600,
+    );
+  }
+
   static TextStyle semibold16(
       {Color color = CustomColor.textPrimary, bool? isUnderline}) {
     return TextStyle(
@@ -436,23 +446,41 @@ class CustomStyle {
   );
 
   // Button Style
-  static ButtonStyle negativeButton = ButtonStyle(
-      backgroundColor: const MaterialStatePropertyAll(Colors.red),
-      shape: MaterialStateProperty.all<RoundedRectangleBorder>(
-          RoundedRectangleBorder(
-        borderRadius: CustomStyle.customBorderRadius,
-      )));
 
   static ButtonStyle submitBlackButton = ButtonStyle(
-    padding: MaterialStateProperty.all(
+    padding: WidgetStateProperty.all(
         const EdgeInsets.symmetric(horizontal: 14, vertical: 20)),
-    backgroundColor: MaterialStateProperty.all(CustomColor.textPrimary),
-    shape: MaterialStateProperty.all(RoundedRectangleBorder(
+    backgroundColor: WidgetStateProperty.all(CustomColor.textPrimary),
+    shape: WidgetStateProperty.all(RoundedRectangleBorder(
       borderRadius: BorderRadius.circular(15),
     )),
-    foregroundColor: MaterialStateProperty.all(CustomColor.textSecondary),
-    iconSize: MaterialStateProperty.all(18),
-    iconColor: MaterialStateProperty.all(CustomColor.white),
+    foregroundColor: WidgetStateProperty.all(CustomColor.textSecondary),
+    iconSize: WidgetStateProperty.all(18),
+    iconColor: WidgetStateProperty.all(CustomColor.white),
+  );
+
+  static ButtonStyle negativeButton = ButtonStyle(
+    padding: WidgetStateProperty.all(
+        const EdgeInsets.symmetric(horizontal: 14, vertical: 20)),
+    backgroundColor: WidgetStateProperty.all(CustomColor.accentNeutral),
+    shape: WidgetStateProperty.all(RoundedRectangleBorder(
+      borderRadius: BorderRadius.circular(15),
+    )),
+    foregroundColor: WidgetStateProperty.all(CustomColor.error),
+    iconSize: WidgetStateProperty.all(18),
+    iconColor: WidgetStateProperty.all(CustomColor.error),
+  );
+
+  static ButtonStyle neutralButton = ButtonStyle(
+    padding: WidgetStateProperty.all(
+        const EdgeInsets.symmetric(horizontal: 14, vertical: 20)),
+    backgroundColor: WidgetStateProperty.all(CustomColor.accentNeutral),
+    shape: WidgetStateProperty.all(RoundedRectangleBorder(
+      borderRadius: BorderRadius.circular(15),
+    )),
+    foregroundColor: WidgetStateProperty.all(CustomColor.textPrimary),
+    iconSize: WidgetStateProperty.all(18),
+    iconColor: WidgetStateProperty.all(CustomColor.textPrimary),
   );
 
   static ButtonStyle secondaryElevatedButtonStyle = ButtonStyle(

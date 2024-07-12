@@ -37,7 +37,7 @@ class PartnerDetailsPopup extends ConsumerStatefulWidget {
 }
 
 class _PartnerDetailsPopupState extends ConsumerState<PartnerDetailsPopup> {
-  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+  final GlobalKey<FormState> _partnerFormKey = GlobalKey<FormState>();
 
   Partner _partner = Partner.empty();
 
@@ -185,7 +185,7 @@ class _PartnerDetailsPopupState extends ConsumerState<PartnerDetailsPopup> {
   Widget _firstStep() {
     return SingleChildScrollView(
       child: Form(
-        key: _formKey,
+        key: _partnerFormKey,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisAlignment: MainAxisAlignment.start,
@@ -321,7 +321,7 @@ class _PartnerDetailsPopupState extends ConsumerState<PartnerDetailsPopup> {
   }
 
   Future<void> _submitFirstStep() async {
-    if (_formKey.currentState!.validate()) {
+    if (_partnerFormKey.currentState!.validate()) {
       setState(() {
         currentStep++;
       });

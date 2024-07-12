@@ -18,6 +18,22 @@ class DocumentFilter {
         startDate = DateTime.now(),
         endDate = DateTime.now(),
         partnerList = [];
+
+  DocumentFilter copyWith({
+    int? documentTypeId,
+    DateTime? startDate,
+    DateTime? endDate,
+    String? status,
+    List<String>? partnerList,
+  }) {
+    return DocumentFilter(
+      documentTypeId: documentTypeId ?? this.documentTypeId,
+      startDate: startDate ?? this.startDate,
+      endDate: endDate ?? this.endDate,
+      status: status ?? this.status,
+      partnerList: partnerList ?? this.partnerList,
+    );
+  }
 }
 
 // class DocumentFilter2 {

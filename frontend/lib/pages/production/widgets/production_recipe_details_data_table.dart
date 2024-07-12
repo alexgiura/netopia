@@ -1,7 +1,7 @@
 import 'package:data_table_2/data_table_2.dart';
 import 'package:erp_frontend_v2/constants/style.dart';
 import 'package:erp_frontend_v2/models/document/document_model.dart';
-import 'package:erp_frontend_v2/pages/document/document_add_item/document_add_item_popup.dart';
+import 'package:erp_frontend_v2/pages/document/document_add_item/add_item_popup.dart';
 import 'package:erp_frontend_v2/widgets/custom_data_table.dart';
 import 'package:erp_frontend_v2/widgets/custom_text_field_double.dart';
 import 'package:flutter/material.dart';
@@ -48,10 +48,12 @@ class _RecipeDetailsDataTableState extends State<RecipeDetailsDataTable> {
                           context: context,
                           builder: (BuildContext context) {
                             return AddItemPopup(
-                              onSave: (newItem) {
+                              callback: (documentItems) {
                                 setState(() {
-                                  newItem.itemTypePn = widget.itemType;
-                                  widget.data!.add(newItem);
+                                  documentItems.forEach((item) {
+                                    item.itemTypePn = widget.itemType;
+                                  });
+                                  widget.data!.addAll(documentItems);
                                   widget.onUpdate(widget.data!);
                                 });
                               },
