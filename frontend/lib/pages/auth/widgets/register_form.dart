@@ -562,7 +562,7 @@ class _RegisterFormState extends ConsumerState<RegisterForm> {
                 color: CustomColor.slate_500,
                 width: 30,
               ),
-              Text('welcome_back'.tr(context),
+              Text('welcome'.tr(context),
                   style: CustomStyle.regular24(color: CustomColor.slate_500)),
             ],
           ),
@@ -577,12 +577,12 @@ class _RegisterFormState extends ConsumerState<RegisterForm> {
           child: Text('data_of_your_company'.tr(context),
               style: CustomStyle.regular32()),
         ),
-        if (currentStep == 1)
+        if (currentStep == 0)
           Text(
             'input_vat_number_and_we_automaticaly_fill_the_rest'.tr(context),
             style: CustomStyle.regular16(color: CustomColor.slate_500),
           )
-        else if (currentStep == 2)
+        else if (currentStep == 1)
           Text(
             'checking_dates_and_edit_if_need'.tr(context),
             style: CustomStyle.regular16(color: CustomColor.slate_500),
