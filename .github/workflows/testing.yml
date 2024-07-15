@@ -6,6 +6,15 @@ on:
       - dev
 
 jobs:
+
+  notification-start:
+    runs-on: ubuntu-latest
+
+    steps:
+     - name: Notificate on slack about build was started
+       run: |
+         curl -X POST --data-urlencode "payload={\"channel\": \"#erp-insiders\", \"username\": \"Github\", \"text\": \" A build has started. The service will be unavailable until the next notification.\", \"icon_emoji\": \":ghost:\"}" ${{ secrets.WEBHOOK_URL }}"
+  
   build-backend:
     runs-on: ubuntu-latest
 
