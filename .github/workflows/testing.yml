@@ -13,7 +13,7 @@ jobs:
     steps:
      - name: Notificate on slack about build was started
        run: |
-         curl -X POST --data-urlencode "payload={\"channel\": \"#erp-insiders\", \"username\": \"Github\", \"text\": \" A build has started. The service will be unavailable until the next notification.\", \"icon_emoji\": \":ghost:\"}" echo ${{ secrets.WEBHOOK_URL }}"
+        curl -X POST --data-urlencode 'payload={"channel": "#erp-insiders", "username": "Github", "text": "A build has started. The service will be unavailable until the next notification.", "icon_emoji": ":ghost:"}' https://hooks.slack.com/services/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
   
   build-backend:
     runs-on: ubuntu-latest
