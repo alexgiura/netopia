@@ -86,6 +86,5 @@ jobs:
     steps:
      - name: Notificate on slack about build success
        run: |
-         curl -X POST --data-urlencode "payload={\"channel\": \"#erp-insiders\", \"username\": \"Github\", \"text\": \"Build completed successfully!\", \"icon_emoji\": \":ghost:\"}" echo ${{ secrets.WEBHOOK_URL }}"
-         
+        curl -X POST --data-urlencode 'payload={"channel": "#erp-insiders", "username": "Github", "text": "Build completed successfully!", "icon_emoji": ":ghost:"}' https://hooks.slack.com/services/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         
   
