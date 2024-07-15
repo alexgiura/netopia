@@ -66,7 +66,7 @@ jobs:
           ssh-keyscan 159.223.234.127 >> ~/.ssh/known_hosts
 
       - name: Connect to server and stop and remove Specific Containers
-        run: ssh -i ~/.ssh/id_rsa ubuntu@159.223.234.127 "ls -la && docker compose -f erp-insiders/backend/docker-compose.yml stop erp-backend-dev erp-frontend-dev && docker compose -f erp-insiders/backend/docker-compose.yml rm -f erp-backend-dev erp-frontend-dev && docker image prune -a && y &&  docker system prune -a && y"
+        run: ssh -i ~/.ssh/id_rsa ubuntu@159.223.234.127 "ls -la && docker compose -f erp-insiders/backend/docker-compose.yml stop erp-backend-dev erp-frontend-dev && docker compose -f erp-insiders/backend/docker-compose.yml rm -f erp-backend-dev erp-frontend-dev"
       
       - name: Deploy to Server
         run: ssh -i ~/.ssh/id_rsa ubuntu@159.223.234.127 "docker pull neobytesolutions/erp-backend:dev && docker pull neobytesolutions/erp-frontend:dev && docker compose -f erp-insiders/backend/docker-compose.yml up -d erp-backend-dev erp-frontend-dev --remove-orphans"
