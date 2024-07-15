@@ -158,7 +158,7 @@ class _ItemDetailsPopupState extends ConsumerState<ItemDetailsPopup> {
                     return null;
                   },
                   labelText: 'category'.tr(context),
-                  hintText: 'select_category'.tr(context),
+                  hintText: 'select_item_category'.tr(context),
                   onValueChanged: (value) {
                     _item.category = value;
                   },

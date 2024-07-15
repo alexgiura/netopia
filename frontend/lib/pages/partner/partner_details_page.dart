@@ -388,6 +388,7 @@ class _PartnerDetailsPopupState extends ConsumerState<PartnerDetailsPopup> {
             CustomTextField1(
               keyboardType: TextInputType.name,
               labelText: 'bank'.tr(context),
+              hintText: 'bank_hint'.tr(context),
               onValueChanged: (String value) {
                 _partner.code = value;
               },
@@ -396,6 +397,7 @@ class _PartnerDetailsPopupState extends ConsumerState<PartnerDetailsPopup> {
             CustomTextField1(
               keyboardType: TextInputType.name,
               labelText: 'iban'.tr(context),
+              hintText: 'iban_hint'.tr(context),
               onValueChanged: (String value) {
                 _partner.name = value;
               },
