@@ -208,7 +208,8 @@
     "export": "Exportă",
     "print": "Printează",
     "success_save_document": "Documentul a fost salvat cu success",
-    "success_cancel_document": "Documentul a fost anulat cu success"
-   
-
+    "success_cancel_document": "Documentul a fost anulat cu success",
+    "emit_eInvoice": "Emite e-Factura!",
+    "authotize_SPV_access__for_emit_eInvoice": "Autorizează accesul în S.P.V. pentru emiterea e-Facturilor",
+    "authorize_access": "Autorizează"
 }

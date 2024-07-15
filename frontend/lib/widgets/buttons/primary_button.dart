@@ -79,7 +79,7 @@ class _PrimaryButtonState extends State<PrimaryButton> {
                           ? CustomColor.error
                           : widget.style == CustomStyle.neutralButton
                               ? CustomColor.textPrimary
-                              : CustomColor.textSecondary),
+                              : widget.fontColor ?? CustomColor.textSecondary),
                 ),
               ],
             ),

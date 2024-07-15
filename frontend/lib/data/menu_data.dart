@@ -90,7 +90,7 @@ List dataList = [
   {
     "id": 14,
     "level": 0,
-    "icon": Icons.folder_open_outlined,
+    "icon": Icons.warehouse_outlined,
     "title": "Depozit",
     "children": [
       {

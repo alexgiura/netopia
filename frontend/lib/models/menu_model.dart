@@ -11,6 +11,7 @@ class Menu {
   String title = "";
   String? subtitle = "";
   List<Menu> children = [];
+  bool? selected = false;
   //default constructor
   Menu(this.id, this.level, this.icon, this.title, this.children);
 
@@ -27,6 +28,9 @@ class Menu {
     //icon
     if (json["icon"] != null) {
       icon = json["icon"];
+    }
+    if (json["selected"] != null) {
+      selected = json["selected"];
     }
     //title
     title = json['title'];

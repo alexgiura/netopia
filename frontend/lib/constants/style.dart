@@ -390,21 +390,16 @@ class CustomStyle {
   );
 
   static ButtonStyle ctaButton = ButtonStyle(
-    padding: const WidgetStatePropertyAll(EdgeInsets.symmetric(horizontal: 14)),
-    fixedSize: const WidgetStatePropertyAll(
-        Size.fromHeight(CustomSize.buttonHeight)), // Adjust button height
-    backgroundColor: const WidgetStatePropertyAll(CustomColor.accentColor),
-    shape: WidgetStatePropertyAll(
-      RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
-      ),
+    padding:
+        WidgetStateProperty.all(const EdgeInsets.symmetric(horizontal: 14)),
+    fixedSize:
+        WidgetStateProperty.all(const Size.fromHeight(CustomSize.buttonHeight)),
+    backgroundColor: WidgetStateProperty.all(CustomColor.accentColor),
+    shape: WidgetStateProperty.all(
+      RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
     ),
-    shadowColor: WidgetStatePropertyAll(CustomColor.accentColor),
-    textStyle: const WidgetStatePropertyAll(TextStyle(
-      fontSize: 16,
-      color: CustomColor.textPrimary,
-      fontWeight: FontWeight.w600,
-    )),
+    shadowColor: WidgetStateProperty.all(CustomColor.accentColor),
+    textStyle: WidgetStateProperty.all(CustomStyle.semibold16()),
   );
 
   static ButtonStyle secondaryButton = ButtonStyle(

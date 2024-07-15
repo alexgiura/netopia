@@ -1,5 +1,6 @@
 import 'dart:js_interop';
 import 'dart:js_interop_unsafe';
+import 'dart:math';
 
 import 'package:erp_frontend_v2/constants/style.dart';
 import 'package:erp_frontend_v2/routing/routes.dart';
