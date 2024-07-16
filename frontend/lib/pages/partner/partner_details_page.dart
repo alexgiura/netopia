@@ -421,7 +421,7 @@ class _PartnerDetailsPopupState extends ConsumerState<PartnerDetailsPopup> {
           ToastType.success);
     } catch (e) {
       Navigator.of(context).pop();
-      showToast('error'.tr(context), ToastType.error);
+      showToast('error_try_again'.tr(context), ToastType.error);
     }
   }
 

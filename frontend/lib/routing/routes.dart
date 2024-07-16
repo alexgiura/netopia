@@ -22,7 +22,7 @@ const partnersPageName = "Partners";
 const partnersRoute = "/partners";
 
 const testPageName = "Test";
-const testRoute = "/test";
+const testRoute = "test";
 
 //Document details
 const documentDetailsPageName = "Document Details";

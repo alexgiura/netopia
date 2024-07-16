@@ -20,31 +20,20 @@ class CustomDataTable extends StatelessWidget {
   Widget build(BuildContext context) {
     const dataRowHeight = 56.0;
     const headingRowHeight = 56.0;
-    return SingleChildScrollView(
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Container(
-            height: rows.length * dataRowHeight + headingRowHeight,
-            child: DataTable2(
-                isHorizontalScrollBarVisible: false,
-                isVerticalScrollBarVisible: false,
-                showCheckboxColumn: false,
-                dividerThickness: 0.5,
-                showBottomBorder: false,
-                dataRowHeight: dataRowHeight,
-                headingRowHeight: headingRowHeight,
-                horizontalMargin: 16,
-                columnSpacing: 0,
-                columns: columns,
-                rows: rows),
-          ),
-          if (showTotals == true &&
-              totalsConfig != null &&
-              totalsConfig!.isNotEmpty)
-            _buildTotalsRow(calculateTotals(columns, rows, totalsConfig!)),
-        ],
-      ),
+    return Container(
+      height: rows.length * dataRowHeight + headingRowHeight,
+      child: DataTable2(
+          isHorizontalScrollBarVisible: false,
+          isVerticalScrollBarVisible: false,
+          showCheckboxColumn: false,
+          dividerThickness: 0.5,
+          showBottomBorder: false,
+          dataRowHeight: dataRowHeight,
+          headingRowHeight: headingRowHeight,
+          horizontalMargin: 16,
+          columnSpacing: 0,
+          columns: columns,
+          rows: rows),
     );
   }
 

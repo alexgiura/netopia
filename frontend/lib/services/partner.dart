@@ -13,14 +13,6 @@ class PartnerService {
   }) async {
     final QueryOptions options = QueryOptions(
       document: gql(queries.getPartners),
-//       variables: <String, dynamic>{
-//         "input": {
-//           "code": '',
-//           "name": null,
-//           "type": null,
-//           "tax_id": null,
-//         }
-//       },
       fetchPolicy: FetchPolicy.noCache,
     );
 
@@ -29,7 +21,7 @@ class PartnerService {
     if (result.hasException) {
       throw Exception(result.exception.toString());
     }
-    // await Future.delayed(Duration(seconds: 2));
+
     final dynamic partnerData = result.data!['getPartners'];
     if (partnerData != null && partnerData is List<dynamic>) {
       final List<Partner> partners =

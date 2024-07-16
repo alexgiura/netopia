@@ -5,7 +5,7 @@ import '../item/um_model.dart';
 import '../item/vat_model.dart';
 
 class Document {
-  String hId;
+  String? hId;
   DocumentType documentType;
   String? series;
   String number;
@@ -19,7 +19,7 @@ class Document {
   List<DocumentItem> documentItems;
 
   Document(
-      {required this.hId,
+      {this.hId,
       required this.documentType,
       required this.series,
       required this.number,
@@ -32,7 +32,7 @@ class Document {
       this.efacturaStatus});
 
   Document.empty()
-      : hId = '',
+      : hId = null,
         documentType = DocumentType.empty(),
         series = null,
         number = '',
@@ -43,7 +43,7 @@ class Document {
         documentItems = [];
 
   bool isEmpty() {
-    return hId.isEmpty;
+    return hId == null || hId!.isEmpty;
   }
 
   factory Document.fromJson(Map<String, dynamic> json) {

@@ -8,7 +8,7 @@ class PrimaryButton extends StatefulWidget {
   final VoidCallback? onPressed;
   final Future<void> Function()? asyncOnPressed;
 
-  ///Optional font color to be used
+  /// Optional font color to be used
   final Color? fontColor;
 
   const PrimaryButton({
@@ -27,6 +27,7 @@ class PrimaryButton extends StatefulWidget {
 
 class _PrimaryButtonState extends State<PrimaryButton> {
   bool _isLoading = false;
+  double? _buttonWidth;
 
   void _handlePressed() async {
     if (widget.asyncOnPressed != null) {
@@ -52,27 +53,39 @@ class _PrimaryButtonState extends State<PrimaryButton> {
 
   @override
   Widget build(BuildContext context) {
-    return ElevatedButton(
-      style: widget.style ?? CustomStyle.submitBlackButton,
-      onPressed: _isLoading ? null : _handlePressed,
-      child: _isLoading
-          ? const Center(
-              child: SizedBox(
-                height: 18,
-                width: 18,
-                child: CircularProgressIndicator(
-                  strokeWidth: 2,
-                  valueColor:
-                      AlwaysStoppedAnimation<Color>(CustomColor.textSecondary),
-                ),
-              ),
-            )
-          : Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                if (widget.icon != null) Icon(widget.icon),
-                if (widget.icon != null) const SizedBox(width: 8),
-                Text(
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        if (_buttonWidth == null && !_isLoading) {
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            setState(() {
+              _buttonWidth = context.size?.width;
+            });
+          });
+        }
+
+        return SizedBox(
+          width: _isLoading ? _buttonWidth : null,
+          child: ElevatedButton(
+            style: widget.style ?? CustomStyle.submitBlackButton,
+            onPressed: _isLoading ? null : _handlePressed,
+            child: _isLoading
+                ? const Center(
+                    child: SizedBox(
+                      height: 18,
+                      width: 18,
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2,
+                        valueColor: AlwaysStoppedAnimation<Color>(
+                            CustomColor.textSecondary),
+                      ),
+                    ),
+                  )
+                : Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      if (widget.icon != null) Icon(widget.icon),
+                      if (widget.icon != null) const SizedBox(width: 8),
+                      Text(
                   widget.text,
                   style: CustomStyle.semibold14(
                       color: widget.style == CustomStyle.negativeButton
@@ -81,8 +94,11 @@ class _PrimaryButtonState extends State<PrimaryButton> {
                               ? CustomColor.textPrimary
                               : widget.fontColor ?? CustomColor.textSecondary),
                 ),
-              ],
-            ),
+                    ],
+                  ),
+          ),
+        );
+      },
     );
   }
 }

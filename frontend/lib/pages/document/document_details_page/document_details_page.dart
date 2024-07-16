@@ -13,10 +13,11 @@ import 'package:erp_frontend_v2/widgets/buttons/tertiary_button.dart';
 import 'package:erp_frontend_v2/widgets/custom_header_widget.dart';
 import 'package:erp_frontend_v2/widgets/custom_text_field_1.dart';
 import 'package:erp_frontend_v2/widgets/dialog_widgets/custom_toast.dart';
+import 'package:erp_frontend_v2/widgets/dialog_widgets/warning_dialog.dart';
 import 'package:erp_frontend_v2/widgets/not_used_widgets/custom_search_dropdown.dart';
 import 'package:erp_frontend_v2/widgets/custom_search_dropdown.dart';
 import 'package:erp_frontend_v2/widgets/custom_text_field.dart';
-import 'package:erp_frontend_v2/widgets/dialog_widgets/custom_error_dialog.dart';
+import 'package:erp_frontend_v2/widgets/not_used_widgets/custom_error_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:gap/gap.dart';
@@ -52,118 +53,126 @@ class DocumentDetailsPage extends ConsumerStatefulWidget {
 class _DocumentDetailsPageState extends ConsumerState<DocumentDetailsPage> {
   final GlobalKey<FormState> _documentDetailsFormKey = GlobalKey<FormState>();
 
-  String _hId = '0';
+  // String? _hId = '0';
 
-  bool _initLoading = false;
-  bool _actionLoading = false;
+  bool _isLoading = false;
   Document _document = Document.empty();
   int _transactionId = 0;
 
   @override
   void initState() {
     super.initState();
-
-    _hId = widget.hId;
-    if (_hId != '0') {
-      _fetchDocument();
-    } else {
+    if (widget.hId == '0') {
       _document.documentType.id = widget.documentTypeId;
       _document.date = DateFormat('yyyy-MM-dd').format(DateTime.now());
+    } else {
+      _fetchDocument(widget.hId);
     }
   }
 
-  Future<void> _fetchDocument() async {
+  Future<void> _fetchDocument(documentId) async {
     setState(() {
-      _initLoading = true;
+      _isLoading = true;
     });
     try {
       final documentService = DocumentService();
 
-      final document = await documentService.getDocumentById(documentId: _hId);
+      final document =
+          await documentService.getDocumentById(documentId: documentId);
 
       setState(() {
         _document = document;
-        _initLoading = false;
+        _isLoading = false;
       });
     } catch (error) {
       setState(() {
-        _initLoading = false;
+        _isLoading = true;
       });
     }
   }
 
   Future<void> _saveDocument(Document doc) async {
-    setState(() {
-      _actionLoading = true;
-    });
-
     try {
       final documentService = DocumentService();
-      final String result = await documentService.saveDocument(
-          document: doc, transactionId: _transactionId);
 
-      setState(() {
-        _actionLoading = false;
-      });
+      final saveFuture = documentService.saveDocument(
+        document: doc,
+        transactionId: _transactionId,
+      );
+      final delayFuture = Future.delayed(const Duration(seconds: 1));
 
-      if (result.isNotEmpty) {
-        if (context.mounted) {
-          final routeName =
-              getDetailsRouteNameByDocumentType(widget.documentTypeId);
-          context.goNamed(
-            routeName,
-            pathParameters: {'id1': result},
-          );
+      final result = await Future.wait([saveFuture, delayFuture])
+          .then((results) => results[0] as Document);
 
-          showToast('success_save_document'.tr(context), ToastType.success);
-          setState(() {
-            _hId = result;
-          });
-        }
+      if (context.mounted) {
+        final routeName =
+            getDetailsRouteNameByDocumentType(widget.documentTypeId);
+        context.goNamed(
+          routeName,
+          pathParameters: {'id1': result.hId!},
+        );
+        setState(() {
+          _document = result;
+        });
+
+        showToast('success_save_document'.tr(context), ToastType.success);
       }
     } catch (error) {
-      showToast('error'.tr(context), ToastType.error);
-      setState(() {
-        _actionLoading = false;
-      });
+      showToast('error_try_again'.tr(context), ToastType.error);
     }
   }
 
   Future<void> _deleteDocument(String hId, bool deleteGenerated) async {
-    setState(() {
-      _actionLoading = true;
-    });
     try {
       final documentService = DocumentService();
-      final String result = await documentService.deleteDocument(
-          hId: hId, deleteGenerated: deleteGenerated);
+      final deleteFuture = documentService.deleteDocument(
+        hId: hId,
+        deleteGenerated: deleteGenerated,
+      );
+      final delayFuture = Future.delayed(const Duration(seconds: 1));
 
-      if (!mounted) return; // Check if the widget is still in the widget tree
+      final result = await Future.wait([deleteFuture, delayFuture])
+          .then((results) => results[0] as String);
 
-      setState(() {
-        _actionLoading = false;
-      });
+      if (context.mounted) {
+        if (result.isNotEmpty) {
+          ref.read(documentProvider.notifier).refreshDocuments();
+          if (Navigator.canPop(context)) {
+            Navigator.pop(context);
+          }
 
-      if (result.isNotEmpty) {
-        showToast('success_cancel_document'.tr(context), ToastType.success);
-
-        ref.read(documentProvider.notifier).refreshDocuments();
-        Navigator.of(context).pop();
+          showToast('success_cancel_document'.tr(context), ToastType.success);
+        }
       }
     } catch (error) {
-      showToast('error'.tr(context), ToastType.error);
-
-      setState(() {
-        _actionLoading = false;
-      });
+      if (context.mounted) {
+        showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return WarningCustomDialog(
+              title: 'error'.tr(context),
+              subtitle: error.toString(),
+              primaryButtonText: 'cancel_all'.tr(context),
+              primaryButtonAction: () async {
+                await _deleteDocument(_document.hId!, true);
+                if (Navigator.canPop(context)) {
+                  Navigator.of(context).pop();
+                }
+              },
+              secondaryButtonText: 'close'.tr(context),
+              secondaryButtonAction: () {
+                Navigator.of(context).pop();
+              },
+            );
+          },
+        );
+      }
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    double width = MediaQuery.of(context).size.width;
-
-    List<DocumentTransaction> filteredTransactionList = _hId == '0'
+    List<DocumentTransaction> filteredTransactionList = widget.hId == '0'
         ? (ref.watch(documentTransactionProvider).value ?? [])
             .where((transaction) {
             return transaction.documentTypeDestinationId ==
@@ -180,14 +189,27 @@ class _DocumentDetailsPageState extends ConsumerState<DocumentDetailsPage> {
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisSize: MainAxisSize.min,
         children: [
           _buildTitle(),
           const SizedBox(height: 16),
-          if (_hId == '0') ...[
-            _buildDocumentHeader(),
-            Gap(32),
-          ],
-          _buildDocumentDetails()
+          _isLoading == true
+              ? const Expanded(
+                  child: Center(child: CircularProgressIndicator()))
+              : Flexible(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      if (_document.hId == null) ...[
+                        _buildNewDocumentForm(),
+                        Gap(32),
+                      ],
+                      _document.hId == null
+                          ? _buildNewDocumentDetails()
+                          : _buildDocumentDetails()
+                    ],
+                  ),
+                ),
         ],
       ),
     );
@@ -201,53 +223,73 @@ class _DocumentDetailsPageState extends ConsumerState<DocumentDetailsPage> {
           hasBackIcon: true,
         ),
         const Spacer(),
-        _hId == '0'
-            ? PrimaryButton(
-                text: 'save'.tr(context),
-                icon: Icons.save,
-                onPressed: () {
-                  if (_documentDetailsFormKey.currentState!.validate()) {
-                    _saveDocument(_document);
-                  }
-                },
-              )
-            : Row(
-                children: [
-                  PrimaryButton(
-                    text: 'export'.tr(context),
-                    icon: Icons.file_download_outlined,
-                    onPressed: () async {
-                      await PdfDocument.generate(_document, ref).then((value) {
-                        final blob = html.Blob([value], 'application/pdf');
-                        final url = html.Url.createObjectUrlFromBlob(blob);
+        if (_document.isDeleted != true)
+          _document.hId == null
+              ? PrimaryButton(
+                  text: 'save'.tr(context),
+                  icon: Icons.save,
+                  asyncOnPressed: () async {
+                    if (_documentDetailsFormKey.currentState!.validate()) {
+                      await _saveDocument(_document);
+                    }
+                  },
+                )
+              : Row(
+                  children: [
+                    if ([2, 4, 5].contains(_document.documentType.id))
+                      PrimaryButton(
+                        text: 'export'.tr(context),
+                        icon: Icons.file_download_outlined,
+                        onPressed: () async {
+                          await PdfDocument.generate(_document, ref)
+                              .then((value) {
+                            final blob = html.Blob([value], 'application/pdf');
+                            final url = html.Url.createObjectUrlFromBlob(blob);
 
-                        html.window.open(url, '_blank');
-                      });
-                    },
-                    style: CustomStyle.neutralButton,
-                  ),
-                  const SizedBox(width: 16),
-                  PrimaryButton(
-                    text: 'cancel'.tr(context),
-                    icon: Icons.delete_outline_rounded,
-                    onPressed: () {
-                      if (_documentDetailsFormKey.currentState!.validate()) {
-                        _saveDocument(_document);
-                      }
-                    },
-                    style: CustomStyle.negativeButton,
-                  )
-                ],
-              ),
+                            html.window.open(url, '_blank');
+                          });
+                        },
+                        style: CustomStyle.neutralButton,
+                      ),
+                    const SizedBox(width: 16),
+                    PrimaryButton(
+                      text: 'cancel'.tr(context),
+                      icon: Icons.delete_outline_rounded,
+                      asyncOnPressed: () async {
+                        showDialog(
+                          context: context,
+                          builder: (BuildContext context) {
+                            return WarningCustomDialog(
+                              title: 'cancel_confirmation'.tr(context),
+                              subtitle:
+                                  'cancel_confirmation_description'.tr(context),
+                              primaryButtonText: 'cancel'.tr(context),
+                              asyncPrimaryButtonAction: () async {
+                                await _deleteDocument(_document.hId!, false);
+                                Navigator.of(context).pop();
+                              },
+                              secondaryButtonText: 'close'.tr(context),
+                              secondaryButtonAction: () {
+                                Navigator.of(context).pop();
+                              },
+                            );
+                          },
+                        );
+                      },
+                      style: CustomStyle.negativeButton,
+                    )
+                  ],
+                ),
       ],
     );
   }
 
-  Widget _buildDocumentHeader() {
+  Widget _buildNewDocumentForm() {
     return Container(
       padding: const EdgeInsets.fromLTRB(24, 24, 24, 16),
       decoration: CustomStyle.customContainerDecoration(border: true),
       child: Form(
+        key: _documentDetailsFormKey,
         child: Column(
           mainAxisSize: MainAxisSize.min,
           mainAxisAlignment: MainAxisAlignment.start,
@@ -301,7 +343,7 @@ class _DocumentDetailsPageState extends ConsumerState<DocumentDetailsPage> {
                     onDateChanged: (DateTime value) {
                       _document.date = DateFormat('yyyy-MM-dd').format(value);
                     },
-                    enabled: _hId == '0',
+                    enabled: _document.hId == null,
                   ),
                 ),
               ],
@@ -351,175 +393,214 @@ class _DocumentDetailsPageState extends ConsumerState<DocumentDetailsPage> {
     );
   }
 
-  Widget _buildDocumentDetails() {
-    return Container(
-      padding: const EdgeInsets.fromLTRB(24, 24, 24, 16),
-      decoration: CustomStyle.customContainerDecoration(border: true),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          _hId == '0'
-              ? Row(
+  Widget _buildNewDocumentDetails() {
+    return Flexible(
+      child: Container(
+        padding: const EdgeInsets.fromLTRB(24, 24, 24, 16),
+        decoration: CustomStyle.customContainerDecoration(border: true),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Row(
+              children: [
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          'included_products'.tr(context),
-                          style: CustomStyle.medium20(),
-                        ),
-                        Text(
-                          'included_products_description'.tr(context),
-                          style: CustomStyle.regular14(
-                              color: CustomColor.greenGray),
-                        ),
-                      ],
+                    Text(
+                      'included_products'.tr(context),
+                      style: CustomStyle.medium20(),
                     ),
-                    const Spacer(),
-                    if (_document.documentItems.isNotEmpty &&
-                        _document.hId == '0')
-                      PrimaryButton(
-                        text: 'add'.tr(context),
-                        icon: Icons.add,
-                        onPressed: () {
-                          showDialog(
-                            context: context,
-                            builder: (BuildContext context) {
-                              return AddItemPopup(
-                                callback: (documentItems) {
-                                  setState(() {
-                                    _document.documentItems
-                                        .addAll(documentItems);
-                                  });
-                                },
-                              );
+                    Text(
+                      'included_products_description'.tr(context),
+                      style:
+                          CustomStyle.regular14(color: CustomColor.greenGray),
+                    ),
+                  ],
+                ),
+                const Spacer(),
+                if (_document.documentItems.isNotEmpty)
+                  PrimaryButton(
+                    text: 'add'.tr(context),
+                    icon: Icons.add,
+                    onPressed: () {
+                      showDialog(
+                        context: context,
+                        builder: (BuildContext context) {
+                          return AddItemPopup(
+                            callback: (documentItems) {
+                              setState(() {
+                                _document.documentItems.addAll(documentItems);
+                              });
                             },
                           );
                         },
+                      );
+                    },
+                  ),
+              ],
+            ),
+            Gap(24),
+            if (_document.documentItems.isEmpty && _document.hId == null)
+              PrimaryButton(
+                text: 'add'.tr(context),
+                icon: Icons.add,
+                onPressed: () {
+                  showDialog(
+                    context: context,
+                    builder: (BuildContext context) {
+                      return AddItemPopup(
+                        callback: (documentItems) {
+                          setState(() {
+                            _document.documentItems.addAll(documentItems);
+                          });
+                        },
+                      );
+                    },
+                  );
+                },
+              ),
+            if (_document.documentItems.isNotEmpty)
+              Expanded(
+                child: DocumentItemsDataTable(
+                  documentTypeId: _document.documentType.id,
+                  data: _document.documentItems,
+                  readOnly: _document.hId != null,
+                  onUpdate: (updatedItems) {
+                    setState(() {
+                      _document.documentItems = updatedItems;
+                    });
+                  },
+                ),
+              )
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildDocumentDetails() {
+    return Flexible(
+      child: Container(
+        padding: const EdgeInsets.fromLTRB(24, 24, 24, 16),
+        decoration: CustomStyle.customContainerDecoration(border: true),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 0, 16, 24),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Text(
+                    _document.series ?? '',
+                    style: CustomStyle.bold32(),
+                  ),
+                  Gap(16),
+                  Text(
+                    '#',
+                    style: CustomStyle.medium32(color: CustomColor.greenGray),
+                  ),
+                  Text(
+                    _document.number,
+                    style: CustomStyle.medium32(color: CustomColor.greenGray),
+                  ),
+                  Gap(16),
+                  Container(
+                    alignment: Alignment.center,
+                    child: Container(
+                      height: 28,
+                      width: 70,
+                      decoration: BoxDecoration(
+                        color: _document.isDeleted == true
+                            ? CustomColor.error.withOpacity(0.1)
+                            : CustomColor.green.withOpacity(0.1),
+                        borderRadius: BorderRadius.circular(50),
                       ),
-                  ],
-                )
-              : Padding(
-                  padding: const EdgeInsets.fromLTRB(16, 0, 16, 24),
-                  child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.center,
+                      child: Center(
+                        child: Text(
+                            _document.isDeleted == true
+                                ? 'canceled_masculin'.tr(context)
+                                : 'valid_masculin'.tr(context),
+                            style: _document.isDeleted == true
+                                ? CustomStyle.semibold14(
+                                    color: CustomColor.error)
+                                : CustomStyle.semibold14(
+                                    color: CustomColor.green)),
+                      ),
+                    ),
+                  ),
+                  Spacer(),
+                  Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        _document.series ?? '',
-                        style: CustomStyle.bold32(),
-                      ),
-                      Gap(16),
-                      Text(
-                        '#',
+                        '${'partner'.tr(context)}:',
                         style:
-                            CustomStyle.medium32(color: CustomColor.greenGray),
+                            CustomStyle.regular14(color: CustomColor.greenGray),
                       ),
                       Text(
-                        _document.number,
-                        style:
-                            CustomStyle.medium32(color: CustomColor.greenGray),
+                        _document.partner!.name,
+                        style: CustomStyle.bold16(),
                       ),
-                      Gap(16),
-                      Container(
-                        alignment: Alignment.center,
-                        child: Container(
-                          height: 28,
-                          width: 70,
-                          decoration: BoxDecoration(
-                            color: _document.isDeleted == true
-                                ? CustomColor.error.withOpacity(0.1)
-                                : CustomColor.green.withOpacity(0.1),
-                            borderRadius: BorderRadius.circular(50),
-                          ),
-                          child: Center(
-                            child: Text(
-                                _document.isDeleted == true
-                                    ? 'canceled_masculin'.tr(context)
-                                    : 'valid_masculin'.tr(context),
-                                style: _document.isDeleted == true
-                                    ? CustomStyle.semibold14(
-                                        color: CustomColor.error)
-                                    : CustomStyle.semibold14(
-                                        color: CustomColor.green)),
-                          ),
-                        ),
-                      ),
-                      Spacer(),
-                      Column(
-                        mainAxisSize: MainAxisSize.min,
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            'Partener:',
-                            style: CustomStyle.regular14(
-                                color: CustomColor.greenGray),
-                          ),
-                          Text(
-                            _document.partner!.name,
-                            style: CustomStyle.bold16(),
-                          ),
-                        ],
-                      ),
-                      Gap(40),
-                      Column(
-                        mainAxisSize: MainAxisSize.min,
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            'Data document:',
-                            style: CustomStyle.regular14(
-                                color: CustomColor.greenGray),
-                          ),
-                          Text(
-                            _document.date,
-                            style: CustomStyle.bold16(),
-                          ),
-                        ],
-                      )
                     ],
                   ),
-                ),
-          Gap(24),
-          if (_document.documentItems.isEmpty && _hId == '0')
-            PrimaryButton(
-              text: 'add'.tr(context),
-              icon: Icons.add,
-              onPressed: () {
-                showDialog(
-                  context: context,
-                  builder: (BuildContext context) {
-                    return AddItemPopup(
-                      callback: (documentItems) {
-                        setState(() {
-                          _document.documentItems.addAll(documentItems);
-                        });
-                      },
-                    );
-                  },
-                );
-              },
+                  Gap(40),
+                  Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        '${'document_date'.tr(context)}:',
+                        style:
+                            CustomStyle.regular14(color: CustomColor.greenGray),
+                      ),
+                      Text(
+                        _document.date,
+                        style: CustomStyle.bold16(),
+                      ),
+                    ],
+                  )
+                ],
+              ),
             ),
-          if (_document.documentItems.isNotEmpty)
-            (_document.documentType.id == 8)
-                ? DocumentItemsProductionNote(
-                    data: _document.documentItems,
-                    documentTypeId: widget.documentTypeId,
-                    onUpdate: (updatedItems) {
+            Gap(24),
+            if (_document.documentItems.isEmpty && _document.hId == null)
+              PrimaryButton(
+                text: 'add'.tr(context),
+                icon: Icons.add,
+                onPressed: () {
+                  showDialog(
+                    context: context,
+                    builder: (BuildContext context) {
+                      return AddItemPopup(
+                        callback: (documentItems) {
+                          setState(() {
+                            _document.documentItems.addAll(documentItems);
+                          });
+                        },
+                      );
+                    },
+                  );
+                },
+              ),
+            if (_document.documentItems.isNotEmpty)
+              Flexible(
+                child: DocumentItemsDataTable(
+                  documentTypeId: _document.documentType.id,
+                  data: _document.documentItems,
+                  readOnly: _document.hId != null,
+                  onUpdate: (updatedItems) {
+                    setState(() {
                       _document.documentItems = updatedItems;
-                    },
-                    date: _document.date,
-                  )
-                : DocumentItemsDataTable(
-                    documentTypeId: _document.documentType.id,
-                    data: _document.documentItems,
-                    readOnly: _hId != '0',
-                    onUpdate: (updatedItems) {
-                      setState(() {
-                        _document.documentItems = updatedItems;
-                      });
-                    },
-                  )
-        ],
+                    });
+                  },
+                ),
+              )
+          ],
+        ),
       ),
     );
   }

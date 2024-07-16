@@ -1,5 +1,8 @@
+import 'dart:math';
+
 import 'package:erp_frontend_v2/models/app_localizations.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 
 String formatNumber(double value) {
   if ((value * 1000) % 10 != 0) {
@@ -95,3 +98,15 @@ String? validateCompanyCif(BuildContext context, String v) {
   }
   return null;
 }
+
+String truncateToDecimals(double? number, [int decimals = 2]) {
+  if (number == null) {
+    return 0.toStringAsFixed(decimals);
+  }
+  double factor = pow(10, decimals).toDouble();
+  double truncated = (number * factor).truncateToDouble() / factor;
+  return truncated.toStringAsFixed(decimals);
+}
+
+formatPrice(double? price) => ' ${truncateToDecimals(price, 2)} RON';
+formatDate(DateTime date) => DateFormat.yMd().format(date);

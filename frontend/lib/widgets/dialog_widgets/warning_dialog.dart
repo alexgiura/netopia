@@ -8,7 +8,9 @@ class WarningCustomDialog extends StatelessWidget {
   final String title;
   final String subtitle;
   final String primaryButtonText;
-  final VoidCallback primaryButtonAction;
+  final VoidCallback? primaryButtonAction;
+  final Future<void> Function()? asyncPrimaryButtonAction;
+
   final String secondaryButtonText;
   final VoidCallback secondaryButtonAction;
 
@@ -17,7 +19,8 @@ class WarningCustomDialog extends StatelessWidget {
     required this.title,
     required this.subtitle,
     required this.primaryButtonText,
-    required this.primaryButtonAction,
+    this.primaryButtonAction,
+    this.asyncPrimaryButtonAction,
     required this.secondaryButtonText,
     required this.secondaryButtonAction,
   }) : super(key: key);
@@ -73,6 +76,7 @@ class WarningCustomDialog extends StatelessWidget {
                 Gap(24),
                 Expanded(
                   child: PrimaryButton(
+                    asyncOnPressed: asyncPrimaryButtonAction,
                     text: primaryButtonText,
                     onPressed: primaryButtonAction,
                   ),

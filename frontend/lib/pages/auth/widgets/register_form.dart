@@ -74,7 +74,7 @@ class _RegisterFormState extends ConsumerState<RegisterForm> {
           },
         );
       } else {
-        showToast('error'.tr(context), ToastType.error);
+        showToast('error_try_again'.tr(context), ToastType.error);
       }
     }
   }
@@ -407,7 +407,7 @@ class _RegisterFormState extends ConsumerState<RegisterForm> {
           );
         }
       } catch (error) {
-        showToast('error'.tr(context), ToastType.error);
+        showToast('error_try_again'.tr(context), ToastType.error);
       }
     }
   }
@@ -543,7 +543,7 @@ class _RegisterFormState extends ConsumerState<RegisterForm> {
             },
           );
         } else {
-          showToast('error'.tr(context), ToastType.error);
+          showToast('error_try_again'.tr(context), ToastType.error);
         }
       }
     }

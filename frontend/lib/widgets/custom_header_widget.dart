@@ -5,22 +5,10 @@ class CustomHeader extends StatelessWidget {
   final String title;
   final String? subtitle;
 
-  // final IconData firstIcon;
-  // final List<IconData>? secondIconList;
-  // final void Function()? firstIconAction;
-  // final List<void Function()>? secondIconActionList;
-
   final bool? hasBackIcon;
 
   const CustomHeader(
-      {super.key,
-      required this.title,
-      this.subtitle,
-      // this.firstIcon = Icons.chevron_left_rounded,
-      // this.secondIconList,
-      // this.secondIconActionList,
-      // this.firstIconAction,
-      this.hasBackIcon});
+      {super.key, required this.title, this.subtitle, this.hasBackIcon});
 
   @override
   Widget build(BuildContext context) {

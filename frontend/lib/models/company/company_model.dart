@@ -28,7 +28,7 @@ class Company {
         name = '',
         vat = null,
         vatNumber = '',
-        registrationNumber = null,
+        registrationNumber = '',
         address = Address.empty();
 
   // bankName = null,

@@ -1,5 +1,6 @@
 import 'package:erp_frontend_v2/models/app_localizations.dart';
 import 'package:erp_frontend_v2/providers/partner_provider.dart';
+import 'package:erp_frontend_v2/utils/util_functions.dart';
 import 'package:erp_frontend_v2/widgets/custom_data_table.dart';
 import 'package:erp_frontend_v2/widgets/not_used_widgets/custom_document_drop_down.dart';
 import 'package:erp_frontend_v2/widgets/not_used_widgets/custom_search_dropdown.dart';
@@ -36,38 +37,55 @@ class _DocumentItemsDataTableState
     extends ConsumerState<DocumentItemsDataTable> {
   void updateDocumentItemAmount(int index) {
     setState(() {
-      widget.data![index].amountNet =
-          widget.data![index].quantity * widget.data![index].price!;
+      final double price = widget.data![index].price ?? 0.0;
 
-      widget.data![index].amountVat = widget.data![index].amountNet! *
-          widget.data![index].item.vat.percent /
-          100;
+      // Calculate amountNet with 4 decimal places
+      widget.data![index].amountNet = double.parse(
+        (widget.data![index].quantity * price).toStringAsFixed(4),
+      );
 
-      widget.data![index].amountGross =
-          widget.data![index].amountNet! + widget.data![index].amountVat!;
+      // Calculate amountVat with 4 decimal places
+      widget.data![index].amountVat = double.parse(
+        (widget.data![index].amountNet! *
+                widget.data![index].item.vat.percent /
+                100)
+            .toStringAsFixed(4),
+      );
+
+      // Calculate amountGross with 4 decimal places
+      widget.data![index].amountGross = double.parse(
+        (widget.data![index].amountNet! + widget.data![index].amountVat!)
+            .toStringAsFixed(4),
+      );
     });
   }
 
   void updateDocumentItemPrice(int index) {
     setState(() {
-      widget.data![index].amountNet = (widget.data![index].amountGross! * 100) /
-          (100 + widget.data![index].item.vat.percent);
+      // Calculate amountNet with 4 decimal places
+      widget.data![index].amountNet = double.parse(
+        ((widget.data![index].amountGross! * 100) /
+                (100 + widget.data![index].item.vat.percent))
+            .toStringAsFixed(4),
+      );
 
-      widget.data![index].amountVat =
-          widget.data![index].amountGross! - widget.data![index].amountNet!;
+      // Calculate amountVat with 4 decimal places
+      widget.data![index].amountVat = double.parse(
+        (widget.data![index].amountGross! - widget.data![index].amountNet!)
+            .toStringAsFixed(4),
+      );
 
-      widget.data![index].price =
-          widget.data![index].amountNet! / widget.data![index].quantity;
+      // Calculate price with 4 decimal places
+      widget.data![index].price = double.parse(
+        (widget.data![index].amountNet! / widget.data![index].quantity)
+            .toStringAsFixed(4),
+      );
     });
   }
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      decoration: CustomStyle.customContainerDecoration(),
-      child:
-          CustomDataTable(columns: getColumns(), rows: getRows(widget.data!)),
-    );
+    return CustomDataTable(columns: getColumns(), rows: getRows(widget.data!));
   }
 
   List<DataColumn2> getColumns() {
@@ -136,10 +154,9 @@ class _DocumentItemsDataTableState
             size: ColumnSize.S,
             numeric: true),
       ],
-      DataColumn2(
-        label: Visibility(
-          visible: widget.readOnly != true,
-          child: Row(
+      if (widget.readOnly != true)
+        DataColumn2(
+          label: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               const Spacer(),
@@ -153,19 +170,21 @@ class _DocumentItemsDataTableState
               ),
             ],
           ),
+          size: ColumnSize.S,
         ),
-        size: ColumnSize.S,
-      ),
     ];
 
     return _columns;
   }
 
   List<DataRow2> getRows(List<DocumentItem> data) {
-    double sumNet = data.fold(0.0, (sum, item) => sum + (item.amountNet ?? 0));
-    double sumVat = data.fold(0.0, (sum, item) => sum + (item.amountVat ?? 0));
+    double sumNet =
+        data.fold(0.0, (sum, item) => sum + (item.amountNet ?? 0.0));
+    double sumVat =
+        data.fold(0.0, (sum, item) => sum + (item.amountVat ?? 0.0));
     double sumGross =
-        data.fold(0.0, (sum, item) => sum + (item.amountGross ?? 0));
+        data.fold(0.0, (sum, item) => sum + (item.amountGross ?? 0.0));
+
     List<DataRow2> rows = data.asMap().entries.map((row) {
       int index = row.key;
       DocumentItem documentItem = row.value;
@@ -205,35 +224,37 @@ class _DocumentItemsDataTableState
                   style: CustomStyle.semibold14()))),
           DataCell(Container(
               alignment: Alignment.centerRight,
-              child: Text(
-                  documentItem.amountNet != null
-                      ? documentItem.amountNet.toString()
-                      : '0.00',
+              child: Text(truncateToDecimals(documentItem.amountNet, 2),
                   style: CustomStyle.semibold14()))),
           DataCell(Container(
               alignment: Alignment.centerRight,
-              child: Text(
-                  documentItem.amountVat != null
-                      ? documentItem.amountVat.toString()
-                      : '0.00',
+              child: Text(truncateToDecimals(documentItem.amountVat, 2),
                   style: CustomStyle.semibold14()))),
-          DataCell(Container(
+          DataCell(
+            Container(
               alignment: Alignment.centerRight,
-              child: Text(
-                  documentItem.amountGross != null
-                      ? documentItem.amountGross.toString()
-                      : '0.00',
-                  style: CustomStyle.semibold14()))),
+              child: CustomTextFieldFloat(
+                initialValue: row.value.amountGross != null
+                    ? row.value.amountGross!
+                    : 0.00,
+                onValueChanged: (double value) {
+                  data[index].amountGross = value;
+                  updateDocumentItemPrice(index);
+                  widget.onUpdate(data);
+                },
+                readonly: widget.readOnly,
+              ),
+            ),
+          ),
         ],
-        DataCell(
-          Visibility(
-            visible: widget.readOnly != true,
-            child: Row(
+        if (widget.readOnly != true)
+          DataCell(
+            Row(
               children: [
                 Spacer(),
                 Container(
                   width: 52,
-                  alignment: Alignment.center, // Keep data cell centered
+                  alignment: Alignment.center,
                   child: IconButton(
                     hoverColor: CustomColor.lightest,
                     splashRadius: 22,
@@ -250,7 +271,6 @@ class _DocumentItemsDataTableState
               ],
             ),
           ),
-        ),
       ];
 
       return DataRow2(
@@ -275,7 +295,7 @@ class _DocumentItemsDataTableState
               Text('subtotal'.tr(context),
                   style: CustomStyle.semibold16(color: CustomColor.greenGray)),
               Gap(4),
-              Text('${sumNet.toStringAsFixed(2)} RON',
+              Text('${truncateToDecimals(sumNet, 2)} RON',
                   style: CustomStyle.semibold14()),
             ],
           ),
@@ -289,25 +309,25 @@ class _DocumentItemsDataTableState
               Text('total_vat'.tr(context),
                   style: CustomStyle.semibold16(color: CustomColor.greenGray)),
               Gap(4),
-              Text('${sumVat.toStringAsFixed(2)} RON',
+              Text('${truncateToDecimals(sumVat, 2)} RON',
                   style: CustomStyle.semibold14()),
             ],
           ),
         )),
         DataCell(Container(
-          alignment: Alignment.centerRight,
+          alignment: Alignment.bottomRight,
           child: Column(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [
               Text('total'.tr(context), style: CustomStyle.bold16()),
               Gap(4),
-              Text('${sumGross.toStringAsFixed(2)} RON',
+              Text('${truncateToDecimals(sumGross, 2)} RON',
                   style: CustomStyle.semibold14()),
             ],
           ),
         )),
-        DataCell(Text('')),
+        if (widget.readOnly != true) DataCell(Text('')),
       ]);
 
       rows.add(subtotalRow);

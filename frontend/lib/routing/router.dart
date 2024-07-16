@@ -82,18 +82,11 @@ final GoRouter router = GoRouter(
           // Partners route
           GoRoute(
             path: partnersRoute,
+            name: partnersPageName,
             builder: (BuildContext context, GoRouterState state) {
               return const PartnersPage();
             },
           ),
-
-          // // Test route
-          // GoRoute(
-          //   path: testRoute,
-          //   builder: (BuildContext context, GoRouterState state) {
-          //     return const TestPage();
-          //   },
-          // ),
 
           //Client
           // Client Delivery Note Route

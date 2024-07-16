@@ -69,7 +69,7 @@ class DocumentService {
     }
   }
 
-  Future<String> saveDocument({
+  Future<Document> saveDocument({
     required Document document,
     int? transactionId,
   }) async {
@@ -109,13 +109,13 @@ class DocumentService {
     if (result.hasException) {
       throw Exception(result.exception.toString());
     }
-    final dynamic data = result.data!;
+    final dynamic data = result.data!['saveDocument'];
 
     if (data != null) {
-      final String response = data['saveDocument'];
-      return response;
+      final Document doc = Document.fromJson(data);
+      return doc;
     } else {
-      throw Exception('Invalid form data.');
+      throw Exception('Invalid document data.');
     }
   }
 

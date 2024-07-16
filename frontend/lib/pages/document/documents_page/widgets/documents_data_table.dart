@@ -214,7 +214,7 @@ class _DocumentsDataTableState extends ConsumerState<DocumentsDataTable>
                     getDetailsRouteNameByDocumentType(widget.documentTypeId);
                 context.goNamed(
                   routeName,
-                  pathParameters: {'id1': row.value.hId},
+                  pathParameters: {'id1': row.value.hId!},
                 );
               },
             ),

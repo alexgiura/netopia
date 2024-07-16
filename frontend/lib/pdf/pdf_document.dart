@@ -6,12 +6,13 @@ import 'package:erp_frontend_v2/models/document/document_model.dart' as doc;
 import 'package:erp_frontend_v2/models/partner/partner_model.dart';
 import 'package:erp_frontend_v2/models/user/user.dart';
 import 'package:erp_frontend_v2/services/company.dart';
+import 'package:erp_frontend_v2/utils/util_functions.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:pdf/widgets.dart';
-import '../utils.dart';
+
 import 'pdf_helpers.dart';
 
 class PdfDocument {
@@ -19,19 +20,19 @@ class PdfDocument {
       doc.Document document, WidgetRef ref) async {
     final pdf = Document();
 
-    var user = boxUser.get('user') as User;
-    final _company = await CompanyService().getCompany(user.id);
+    User? user = boxUser.get('user') as User?;
+    Company company = user != null ? user.company! : Company.empty();
 
     if (document.documentType.id == 2) {
       pdf.addPage(MultiPage(
         pageFormat: PdfPageFormat.a4.copyWith(
-          marginBottom: 24, // Minimal bottom margin
-          marginLeft: 24, // Minimal left margin
-          marginRight: 24, // Minimal right margin
-          marginTop: 36, // Minimal top margin
+          marginBottom: 24,
+          marginLeft: 24,
+          marginRight: 24,
+          marginTop: 36,
         ),
         build: (context) => [
-          buildHeader(document, _company),
+          buildHeader(document, company),
           SizedBox(height: 1 * PdfPageFormat.cm),
           buildTitle(),
           buildInvoice(document),
@@ -43,8 +44,14 @@ class PdfDocument {
       ));
     } else if (document.documentType.id == 4) {
       pdf.addPage(MultiPage(
+        pageFormat: PdfPageFormat.a4.copyWith(
+          marginBottom: 24,
+          marginLeft: 24,
+          marginRight: 24,
+          marginTop: 36,
+        ),
         build: (context) => [
-          buildHeader(document, _company),
+          buildHeader(document, company),
           SizedBox(height: 1 * PdfPageFormat.cm),
           buildDeliveryNote(document),
           SizedBox(height: 0.5 * PdfPageFormat.cm),
@@ -87,17 +94,9 @@ class PdfDocument {
                   child: Spacer(),
                 ),
               ),
-
-              // Expanded(child: Spacer()),
-              // Expanded(
-              //     child: Container(
-              //   child: buildInvoiceInfo(document),
-              // )),
             ],
           ),
-          //Divider(thickness: 0.2),
           SizedBox(height: 1 * PdfPageFormat.cm),
-          // SizedBox(height: 1 * PdfPageFormat.cm),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -173,9 +172,6 @@ class PdfDocument {
       );
 
   static Widget buildInvoiceInfo(doc.Document document, String? title) {
-    // final formattedData =
-    //     '${document.series} / ${document.number} / ${DateFormat('dd-MM-yyyy').format(DateTime.parse(document.date))}';
-
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -183,18 +179,13 @@ class PdfDocument {
             style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
         SizedBox(height: 4),
         buildText2(
-          title: "Serie si nr.: ",
+          title: "Serie si Nr.: ",
           value: '${document.series} / ${document.number}',
         ),
         buildText2(
           title: "Data: ",
-          value:
-              '${DateFormat('dd-MM-yyyy').format(DateTime.parse(document.date))}',
+          value: DateFormat('dd-MM-yyyy').format(DateTime.parse(document.date)),
         ),
-        // Text(
-        //   formattedData,
-        //   style: TextStyle(fontWeight: FontWeight.normal),
-        // ),
       ],
     );
   }
@@ -204,11 +195,11 @@ class PdfDocument {
         children: [
           buildText2(
             title: "Furnizor: ",
-            value: company != null ? company.name : '',
+            value: company != null ? company.name ?? "" : '',
           ),
           buildText2(
             title: "CUI: ",
-            value: company != null ? company.vatNumber : '',
+            value: company != null ? company.vatNumber ?? '' : '',
           ),
           buildText2(
             title: "Nr. Reg. Com: ",
@@ -216,7 +207,7 @@ class PdfDocument {
           ),
           buildText2(
             title: "Adresa: ",
-            value: company != null ? company.address!.address! : '',
+            value: company != null ? company.address!.address ?? '' : '',
           ),
           // buildText2(
           //   title: "Email: ",
@@ -256,21 +247,18 @@ class PdfDocument {
       'Valoare\n   TVA',
       // 'Total',
     ];
-    // final data = invoice.items.map((item) {
-    //   final total = item.unitPrice * item.quantity * (1 + item.vat);
 
     final data = document.documentItems.isEmpty
         ? <List<String>>[]
         : document.documentItems.map((documentItem) {
             return [
               documentItem.item.name,
-              '${documentItem.quantity.toStringAsFixed(2)}',
+              (truncateToDecimals(documentItem.quantity, 2)),
               documentItem.item.um.name,
-              '${documentItem.price!.toStringAsFixed(2)}',
+              (truncateToDecimals(documentItem.price, 2)),
               documentItem.item.vat.name,
-              '${documentItem.amountNet!.toStringAsFixed(2)}',
-              '${documentItem.amountVat!.toStringAsFixed(2)}',
-              // '${item.amountGross!.toStringAsFixed(2)}',
+              (truncateToDecimals(documentItem.amountNet, 2)),
+              (truncateToDecimals(documentItem.amountVat, 2)),
             ];
           }).toList();
 
@@ -316,7 +304,7 @@ class PdfDocument {
       return [
         documentItem.item.name,
         documentItem.item.um.name,
-        '${documentItem.quantity.toStringAsFixed(2)}',
+        (documentItem.quantity.toStringAsFixed(2)),
       ];
     }).toList();
 
@@ -333,7 +321,7 @@ class PdfDocument {
       cellAlignments: {
         0: Alignment.centerLeft,
         1: Alignment.centerLeft,
-        2: Alignment.centerLeft,
+        2: Alignment.centerRight,
       },
       columnWidths: {
         0: FixedColumnWidth(1.0 / 2.0), // First column gets 1/2
@@ -354,7 +342,7 @@ class PdfDocument {
       return [
         documentItem.item.name,
         documentItem.item.um.name,
-        '${documentItem.quantity.toStringAsFixed(2)}',
+        (documentItem.quantity.toStringAsFixed(2)),
       ];
     }).toList();
 
@@ -382,23 +370,23 @@ class PdfDocument {
   }
 
   static Widget buildTotal(doc.Document document) {
-    final netTotal = document.documentItems!.isEmpty
+    final netTotal = document.documentItems.isEmpty
         ? 0.00
-        : document.documentItems!
-            .map((item) => item.amountNet)
-            .reduce((item1, item2) => item1! + item2!);
+        : document.documentItems
+            .map((item) => item.amountNet ?? 0.0)
+            .reduce((item1, item2) => item1 + item2);
 
-    final vatTotal = document.documentItems!.isEmpty
+    final vatTotal = document.documentItems.isEmpty
         ? 0.00
-        : document.documentItems!
-            .map((item) => item.amountVat)
-            .reduce((item1, item2) => item1! + item2!);
+        : document.documentItems
+            .map((item) => item.amountVat ?? 0.0)
+            .reduce((item1, item2) => item1 + item2);
 
-    final total = document.documentItems!.isEmpty
+    final total = document.documentItems.isEmpty
         ? 0.00
-        : document.documentItems!
-            .map((item) => item.amountGross)
-            .reduce((item1, item2) => item1! + item2!);
+        : document.documentItems
+            .map((item) => item.amountGross ?? 0.0)
+            .reduce((item1, item2) => item1 + item2);
 
     return Container(
       alignment: Alignment.centerRight,
@@ -412,12 +400,12 @@ class PdfDocument {
               children: [
                 buildText(
                   title: 'Subtotal:',
-                  value: Utils.formatPrice(netTotal!),
+                  value: formatPrice(netTotal),
                 ),
                 SizedBox(height: 4),
                 buildText(
                   title: 'TVA:',
-                  value: Utils.formatPrice(vatTotal!),
+                  value: formatPrice(vatTotal),
                 ),
                 Divider(thickness: 0.2),
                 buildText(
@@ -426,7 +414,7 @@ class PdfDocument {
                     fontSize: 11,
                     fontWeight: FontWeight.bold,
                   ),
-                  value: Utils.formatPrice(total!),
+                  value: formatPrice(total),
                 ),
               ],
             ),
@@ -450,23 +438,6 @@ class PdfDocument {
           ),
         ],
       );
-
-  // static buildSimpleText({
-  //   required String title,
-  //   required String value,
-  // }) {
-  //   final style = TextStyle(fontWeight: FontWeight.bold,fontSize: 11);
-
-  //   return Row(
-  //     mainAxisSize: MainAxisSize.min,
-  //     crossAxisAlignment: pw.CrossAxisAlignment.end,
-  //     children: [
-  //       Text(title, style: style),
-  //       SizedBox(width: 2 * PdfPageFormat.mm),
-  //       Text(value),
-  //     ],
-  //   );
-  // }
 
   static buildText({
     required String title,
