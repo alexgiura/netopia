@@ -7,6 +7,33 @@ import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
 
 class CustomRadioButton extends StatefulWidget {
+  /// The text to display above the radio buttons. Example: 'Select an option'
+  final String text;
+
+  /// The options to display as radio buttons. Example: ['Option 1', 'Option 2']
+  final List<String> options;
+
+  /// The initial value of the radio button. If null, no radio button will be selected.
+  final bool? initialValue;
+
+  /// The function to call when the radio button is changed. The value of the selected radio button is passed as a parameter.
+  final void Function(String? value) onChanged;
+
+  /// The value of the currently selected radio button. `groupValue` must be unique for each group of radio buttons.
+  final String groupValue;
+
+  /// The error text to display when the radio button is invalid. If null, the default error text is displayed.
+  final String? errorText;
+
+  /// The direction of the radio buttons. Either horizontal or vertical. If null, the default direction is horizontal.
+  final Axis? direction;
+
+  /// The style of the text above the radio buttons. If null, the default style is used.
+  final TextStyle? textStyle;
+
+  /// The function to validate the radio button. Example: (value) => value == null ? 'This field is required' : null
+  final String? Function(String?)? validator;
+
   const CustomRadioButton({
     Key? key,
     required this.text,
@@ -19,15 +46,6 @@ class CustomRadioButton extends StatefulWidget {
     this.direction,
     this.validator,
   }) : super(key: key);
-  final String text;
-  final List<String> options;
-  final bool? initialValue;
-  final void Function(String? value) onChanged;
-  final String groupValue;
-  final String? errorText;
-  final Axis? direction;
-  final TextStyle? textStyle;
-  final String? Function(String?)? validator;
 
   @override
   State<CustomRadioButton> createState() => _CustomRadioButtonState();

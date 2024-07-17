@@ -299,19 +299,21 @@ class _PartnerDetailsPopupState extends ConsumerState<PartnerDetailsPopup> {
               text: "pay_TVA".tr(context),
               direction: Axis.horizontal,
               textStyle: CustomStyle.regular16(),
-              groupValue: _partner.vat.toString(),
+              // groupValue: _partner.vat != null ? _partner.vat == true ? 'yes' : 'no' : '',
+              groupValue: _partner.vat != null
+                  ? _partner.vat == true
+                      ? 'yes'
+                      : 'no'
+                  : '',
               options: const ['yes', 'no'],
-              validator: (p0) {
-                // if (p0 == null || vatPayerController.text.isEmpty) {
-                //   return 'error_vat_payer'.tr(context);
-                // }
-                // return null;
-              },
               onChanged: (value) {
-                if (value == 'yes')
-                  _partner.vat = true;
-                else
-                  _partner.vat = false;
+                setState(() {
+                  if (value == 'yes')
+                    _partner.vat = true;
+                  else
+                    _partner.vat = false;
+                });
+                print(_partner.vat);
               },
             )
           ],
