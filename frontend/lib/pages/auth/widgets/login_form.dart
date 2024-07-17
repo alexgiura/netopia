@@ -4,12 +4,12 @@ import 'package:erp_frontend_v2/models/app_localizations.dart';
 import 'package:erp_frontend_v2/models/user/user.dart' as custom_user;
 import 'package:erp_frontend_v2/routing/routes.dart';
 import 'package:erp_frontend_v2/services/user.dart';
-import 'package:erp_frontend_v2/utils/customSnackBar.dart';
 import 'package:erp_frontend_v2/utils/extensions.dart';
 import 'package:erp_frontend_v2/widgets/buttons/primary_button.dart';
 import 'package:erp_frontend_v2/widgets/buttons/tertiary_button.dart';
 import 'package:erp_frontend_v2/widgets/custom_checkbox.dart';
 import 'package:erp_frontend_v2/widgets/custom_text_field_1.dart';
+import 'package:erp_frontend_v2/widgets/dialog_widgets/custom_toast.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -36,6 +36,9 @@ class _LoginFormState extends ConsumerState<LoginForm> {
   final passwordController = TextEditingController();
   bool rememberMe = false;
 
+  String? passwordError;
+  String? emailError;
+
   Future<void> _signInWithEmailAndPassword(
       String email, String password) async {
     try {
@@ -58,18 +61,14 @@ class _LoginFormState extends ConsumerState<LoginForm> {
       }
     } on FirebaseAuthException catch (e) {
       if (e.code == 'user-not-found') {
-        showSnackBar(
-            context, 'user-not-found'.tr(context), SnackBarType.warning);
+        emailError = 'user-not-found'.tr(context);
       } else if (e.code == 'wrong-password') {
-        showSnackBar(
-            context, 'wrong-password'.tr(context), SnackBarType.warning);
+        passwordError = 'wrong-password'.tr(context);
       } else if (e.code == 'invalid-credential') {
-        showSnackBar(
-            context, 'invalid-credential'.tr(context), SnackBarType.warning);
+        passwordError = 'invalid-credential'.tr(context);
       }
     } catch (e) {
-      showSnackBar(
-          context, 'unexpected-error'.tr(context), SnackBarType.warning);
+      showToast('unexpected-error'.tr(context), ToastType.warning);
     }
   }
 
@@ -114,6 +113,9 @@ class _LoginFormState extends ConsumerState<LoginForm> {
               if (value!.isEmpty) {
                 return 'error_required_field'.tr(context);
               } else {
+                if (emailError != null) {
+                  return emailError;
+                }
                 return validateEmail(context, value);
               }
             },
@@ -121,6 +123,7 @@ class _LoginFormState extends ConsumerState<LoginForm> {
             labelText: 'email'.tr(context),
             hintText: 'input_email'.tr(context),
             onValueChanged: (value) {
+              emailError = null;
               emailController.text = value;
             },
             required: true,
@@ -134,10 +137,14 @@ class _LoginFormState extends ConsumerState<LoginForm> {
               if (value!.isEmpty) {
                 return 'error_required_field'.tr(context);
               }
+              if (passwordError != null) {
+                return passwordError;
+              }
               return null;
             },
             obscureText: true,
             onValueChanged: (value) {
+              passwordError = null;
               passwordController.text = value;
             },
             required: true,

@@ -1,15 +1,16 @@
 import 'package:erp_frontend_v2/constants/constants.dart';
+import 'package:erp_frontend_v2/models/app_localizations.dart';
 import 'package:erp_frontend_v2/models/recipe/recipe_model.dart';
 import 'package:erp_frontend_v2/pages/production/widgets/production_recipe_details_data_table.dart';
 import 'package:erp_frontend_v2/services/recipe.dart';
 import 'package:erp_frontend_v2/widgets/custom_checkbox.dart';
 import 'package:erp_frontend_v2/widgets/custom_header_widget.dart';
 import 'package:erp_frontend_v2/widgets/custom_text_field.dart';
+import 'package:erp_frontend_v2/widgets/dialog_widgets/custom_toast.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../constants/style.dart';
 import '../../utils/responsiveness.dart';
-import '../../../utils/customSnackBar.dart';
 
 class ProductionRecipeDetailsPage extends ConsumerStatefulWidget {
   final String? id;
@@ -78,7 +79,7 @@ class _ProductionRecipeDetailsPageState
 
       if (result.isNotEmpty) {
         if (context.mounted) {
-          showSnackBar(context, 'Reteta a fost salvata!', SnackBarType.success);
+          showToast('Reteta a fost salvata!', ToastType.success);
           if (widget.refreshCallback != null) {
             widget.refreshCallback!();
           }
@@ -87,13 +88,7 @@ class _ProductionRecipeDetailsPageState
         }
       }
     } catch (error) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(error.toString()),
-          behavior: SnackBarBehavior.floating, // Move SnackBar to top
-          backgroundColor: Colors.red, // Change background color
-        ),
-      );
+      showToast(error.toString(), ToastType.success);
       setState(() {
         _isLoading = false;
         //validateOnSave = false;

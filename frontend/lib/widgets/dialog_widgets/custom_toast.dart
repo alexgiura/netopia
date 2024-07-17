@@ -30,7 +30,7 @@ void showToast(String text, ToastType type) {
                         type == ToastType.error
                             ? Icons.cancel_outlined
                             : type == ToastType.warning
-                                ? Icons.warning_amber_outlined
+                                ? Icons.error_outline_rounded
                                 : Icons.check_circle_outline_rounded,
                         size: 20,
                         color: type == ToastType.error

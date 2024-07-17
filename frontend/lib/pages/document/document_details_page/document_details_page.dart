@@ -29,7 +29,6 @@ import '../../../utils/responsiveness.dart';
 import '../../../models/document/document_model.dart';
 import '../../../providers/partner_provider.dart';
 import '../../../services/document.dart';
-import '../../../utils/customSnackBar.dart';
 import '../../../widgets/custom_date_picker.dart';
 import 'dart:html' as html;
 
