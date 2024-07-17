@@ -88,6 +88,7 @@ class _ItemUnitPopupState extends ConsumerState<ItemUnitPopup>
                   },
                   keyboardType: TextInputType.name,
                   labelText: 'name'.tr(context),
+                  hintText: 'item_unit_name'.tr(context),
                   onValueChanged: (value) {
                     _um.name = value;
                   },
@@ -104,6 +105,7 @@ class _ItemUnitPopupState extends ConsumerState<ItemUnitPopup>
                   },
                   keyboardType: TextInputType.name,
                   labelText: 'efactura_standard_code'.tr(context),
+                  hintText: 'item_unit_code'.tr(context),
                   helperText: buildTextWithLink(
                     text: 'check_measurement_unit_list'.tr(context),
                     linkText: 'here'.tr(context),
