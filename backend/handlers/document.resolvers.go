@@ -69,24 +69,24 @@ func (r *documentResolver) DocumentItems(ctx context.Context, obj *models.Docume
 }
 
 // SaveDocument is the resolver for the saveDocument field.
-func (r *mutationResolver) SaveDocument(ctx context.Context, input model.DocumentInput) (*string, error) {
-	var returnStr string
+func (r *mutationResolver) SaveDocument(ctx context.Context, input model.DocumentInput) (*models.Document, error) {
+	var document *models.Document
 
 	if err := r.DBPool.BeginFunc(ctx, func(tx pgx.Tx) error {
 		transaction := r.DBProvider.WithTx(tx)
 
-		document, err := r._SaveDocument(ctx, transaction, input)
+		var err error
+		document, err = r._SaveDocument(ctx, transaction, input)
 		if err != nil {
 			return err
 		}
 
-		returnStr = document.HId
 		return nil
 	}); err != nil {
 		return nil, err
 	}
 
-	return &returnStr, nil
+	return document, nil
 }
 
 // DeleteDocument is the resolver for the deleteDocument field.

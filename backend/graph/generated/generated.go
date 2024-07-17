@@ -257,7 +257,7 @@ type DocumentResolver interface {
 	DocumentItems(ctx context.Context, obj *models.Document) ([]*models.DocumentItem, error)
 }
 type MutationResolver interface {
-	SaveDocument(ctx context.Context, input model.DocumentInput) (*string, error)
+	SaveDocument(ctx context.Context, input model.DocumentInput) (*models.Document, error)
 	DeleteDocument(ctx context.Context, input model.DeleteDocumentInput) (*string, error)
 	GeneratePNAllDoc(ctx context.Context, start *bool) (*string, error)
 	RegenerateProductionNotes(ctx context.Context, input model.GetDocumentsInput) (*string, error)
@@ -1667,7 +1667,7 @@ extend type Query {
     getCurrencyList:[Currency]
 }
 extend type Mutation {
-    saveDocument(input: DocumentInput!): String
+    saveDocument(input: DocumentInput!): Document
     deleteDocument(input: DeleteDocumentInput!): String
     generatePNAllDoc(start:Boolean): String
     regenerateProductionNotes(input: GetDocumentsInput!):String
@@ -5043,9 +5043,9 @@ func (ec *executionContext) _Mutation_saveDocument(ctx context.Context, field gr
 	if resTmp == nil {
 		return graphql.Null
 	}
-	res := resTmp.(*string)
+	res := resTmp.(*models.Document)
 	fc.Result = res
-	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
+	return ec.marshalODocument2ᚖbackendᚋmodelsᚐDocument(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Mutation_saveDocument(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -5055,7 +5055,31 @@ func (ec *executionContext) fieldContext_Mutation_saveDocument(ctx context.Conte
 		IsMethod:   true,
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
+			switch field.Name {
+			case "h_id":
+				return ec.fieldContext_Document_h_id(ctx, field)
+			case "type":
+				return ec.fieldContext_Document_type(ctx, field)
+			case "series":
+				return ec.fieldContext_Document_series(ctx, field)
+			case "number":
+				return ec.fieldContext_Document_number(ctx, field)
+			case "date":
+				return ec.fieldContext_Document_date(ctx, field)
+			case "due_date":
+				return ec.fieldContext_Document_due_date(ctx, field)
+			case "partner":
+				return ec.fieldContext_Document_partner(ctx, field)
+			case "notes":
+				return ec.fieldContext_Document_notes(ctx, field)
+			case "deleted":
+				return ec.fieldContext_Document_deleted(ctx, field)
+			case "efactura_status":
+				return ec.fieldContext_Document_efactura_status(ctx, field)
+			case "document_items":
+				return ec.fieldContext_Document_document_items(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type Document", field.Name)
 		},
 	}
 	defer func() {

@@ -214,7 +214,7 @@
     "document_date": "Dată document",
     "cancel_all": "Anulează toate",
     "cancel_confirmation": "Confirmare anulare",
-    "cancel_confirmation_description": "Sunteți sigur că doriți să anulati acest document? Această acțiune este ireversibilă."
+    "cancel_confirmation_description": "Sunteți sigur că doriți să anulati acest document? Această acțiune este ireversibilă.",
     "emit_eInvoice": "Emite e-Factura!",
     "authotize_SPV_access__for_emit_eInvoice": "Autorizează accesul în S.P.V. pentru emiterea e-Facturilor",
     "authorize_access": "Autorizează"

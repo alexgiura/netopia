@@ -118,7 +118,7 @@ extend type Query {
     getCurrencyList:[Currency]
 }
 extend type Mutation {
-    saveDocument(input: DocumentInput!): String
+    saveDocument(input: DocumentInput!): Document
     deleteDocument(input: DeleteDocumentInput!): String
     generatePNAllDoc(start:Boolean): String
     regenerateProductionNotes(input: GetDocumentsInput!):String
