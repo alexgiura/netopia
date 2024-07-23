@@ -14,7 +14,9 @@ query getRecipes{
                 is_stock,
                 um{
                     id,
-                    name
+                    name,
+                    code,
+                    is_active
                 },
                 vat{
                     id,
@@ -36,16 +38,28 @@ query  getRecipeById($recipeId: Int!) {
     name,
     is_active,
     document_items{
-        item_id,
-        item_code,
-        item_name,
-        quantity,
-        um{
-            id,
-            name
-        },
-        item_type_pn
-    } 
+            d_id
+            item{           
+                id,
+                code,
+                name,
+                is_active,
+                is_stock,
+                um{
+                    id,
+                    name,
+                    code,
+                    is_active
+                },
+                vat{
+                    id,
+                    name,
+                    percent
+                },
+            }     
+            quantity,
+            item_type_pn
+        }  
    }
 }
 ''';

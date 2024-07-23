@@ -8,6 +8,7 @@ import (
 	"backend/util"
 	"context"
 	"errors"
+	"github.com/jackc/pgconn"
 	"log"
 
 	"github.com/jackc/pgx/v4"
@@ -66,12 +67,8 @@ func (r *Resolver) _getRecipeById(ctx context.Context, transaction *db.Queries, 
 
 	}
 
-	//recipeItems, err2 := r._getRecipeItems(ctx, transaction, recipeId)
-	//if err2 != nil {
-	//	return nil, err2
-	//}
 	return &models.Recipe{
-		Id:       row.ID,
+		ID:       int(row.ID),
 		Name:     row.Name,
 		IsActive: row.IsActive,
 	}, nil
@@ -88,7 +85,16 @@ func (r *Resolver) _insertRecipe(ctx context.Context, input model.SaveRecipeInpu
 		})
 
 		if err != nil {
-			r.Logger.Error("failed to save recipe", zap.Error(err))
+			if pgErr, ok := err.(*pgconn.PgError); ok {
+
+				switch pgErr.Code {
+				case "23505":
+					return _err.Error(ctx, "Recipe already exists", "EntryAlreadyExists")
+				default:
+					return _err.Error(ctx, "Database error occurred", "DatabaseError")
+				}
+			}
+			log.Print("\"message\":Failed to save recipe, "+"\"error\": ", err.Error())
 			return err
 		}
 
@@ -102,7 +108,7 @@ func (r *Resolver) _insertRecipe(ctx context.Context, input model.SaveRecipeInpu
 				ProductionItemType: *item.ItemTypePn,
 			})
 			if err != nil {
-				r.Logger.Error("failed to save recipe details", zap.Error(err))
+				log.Print("\"message\":Failed to save recipe items, "+"\"error\": ", err.Error())
 				return err
 			}
 
@@ -133,7 +139,16 @@ func (r *Resolver) _updateRecipe(ctx context.Context, input model.SaveRecipeInpu
 		})
 
 		if err != nil {
-			r.Logger.Error("failed to update recipe", zap.Error(err))
+			if pgErr, ok := err.(*pgconn.PgError); ok {
+				switch pgErr.Code {
+				case "23505":
+					return _err.Error(ctx, "Recipe already exists", "EntryAlreadyExists")
+				default:
+					return _err.Error(ctx, "Database error occurred", "DatabaseError")
+				}
+			}
+			log.Print("\"message\":Failed to update recipe, "+"\"error\": ", err.Error())
+
 			return err
 		}
 

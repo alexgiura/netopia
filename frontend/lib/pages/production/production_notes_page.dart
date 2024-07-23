@@ -1,5 +1,6 @@
 import 'package:erp_frontend_v2/constants/style.dart';
 import 'package:erp_frontend_v2/models/app_localizations.dart';
+import 'package:erp_frontend_v2/pages/production/widgets/production_notes_data_table.dart';
 import 'package:erp_frontend_v2/routing/routes.dart';
 import 'package:erp_frontend_v2/widgets/buttons/primary_button.dart';
 import 'package:erp_frontend_v2/widgets/buttons/tertiary_button.dart';
@@ -9,23 +10,22 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import '../../../utils/responsiveness.dart';
 import '../../../routing/router.dart';
-import 'widgets/documents_data_table.dart';
 
-class DocumentsPage extends StatefulWidget {
+class ProductionNotesPage extends StatefulWidget {
   final int documentTypeId;
   final String documentTitle;
   final String? documentSubtitle;
-  const DocumentsPage(
+  const ProductionNotesPage(
       {super.key,
       required this.documentTypeId,
       required this.documentTitle,
       this.documentSubtitle});
 
   @override
-  State<DocumentsPage> createState() => _DocumentsPageState();
+  State<ProductionNotesPage> createState() => _ProductionNotesPageState();
 }
 
-class _DocumentsPageState extends State<DocumentsPage> {
+class _ProductionNotesPageState extends State<ProductionNotesPage> {
   @override
   void initState() {
     super.initState();
@@ -67,7 +67,7 @@ class _DocumentsPageState extends State<DocumentsPage> {
           ),
           const SizedBox(height: 16),
           Flexible(
-            child: DocumentsDataTable(
+            child: ProductionNotesDataTable(
               documentTypeId: widget.documentTypeId,
             ),
           )

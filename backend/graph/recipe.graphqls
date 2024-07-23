@@ -1,5 +1,5 @@
 type Recipe{
-    id: String
+    id: Int!
     name: String
     is_active:Boolean
     document_items: [DocumentItem]
@@ -20,5 +20,5 @@ extend type Query {
 }
 
 extend type Mutation {
-    saveRecipe(input: SaveRecipeInput!): String
+    saveRecipe(input: SaveRecipeInput!): Recipe
 }

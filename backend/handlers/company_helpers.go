@@ -17,51 +17,40 @@ import (
 	"time"
 )
 
-func (r *Resolver) _GetCompanyInfo(ctx context.Context, taxID *string) (*models.Company, error) {
-	// Define the API endpoint URL
-	url := "https://webservicesp.anaf.ro/PlatitorTvaRest/api/v8/ws/tva"
+func (r *Resolver) GetCompanyInfo(ctx context.Context, taxID *string) (*models.Company, error) {
+	const baseURL = "https://webservicesp.anaf.ro/PlatitorTvaRest/api/v8/ws/tva"
 	date := time.Now().Format("2006-01-02")
+	requestBody := fmt.Sprintf(`[{"cui": "%s", "data": "%s"}]`, *taxID, date)
 
-	// Prepare request body
-	requestBody := `[
-    {
-        "cui": "` + *taxID + `",
-        "data": "` + date + `"
-    }    
-]`
-	fmt.Println(requestBody)
+	client := &http.Client{Timeout: time.Second * 5}
+	req, err := http.NewRequestWithContext(ctx, http.MethodPost, baseURL, bytes.NewBufferString(requestBody))
+	if err != nil {
+		log.Printf("Failed to create request: %v", err)
+		return nil, err
+	}
+	req.Header.Add("Content-Type", "application/json")
 
-	// Convert the request body to a byte slice
-	requestBodyBytes := []byte(requestBody)
-
-	// Make the HTTP request
-	resp, err := http.Post(url, "application/json", bytes.NewReader(requestBodyBytes))
+	resp, err := client.Do(req)
 	if err != nil {
 		log.Printf("Failed to make HTTP request: %v", err)
 		return nil, err
 	}
 	defer resp.Body.Close()
 
-	// Read response body
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {
 		log.Printf("Failed to read response body: %v", err)
 		return nil, err
 	}
 
-	// Parse API response
 	var apiResp models.ApiResponse
-	err = json.Unmarshal(body, &apiResp)
-	if err != nil {
+	if err := json.Unmarshal(body, &apiResp); err != nil {
 		log.Printf("Failed to unmarshal API response: %v", err)
 		return nil, err
 	}
 
-	// Check if data is found
 	if len(apiResp.Found) > 0 {
-
 		return MapToCompany(apiResp), nil
-
 	}
 
 	return nil, nil

@@ -13,7 +13,6 @@ import 'package:erp_frontend_v2/widgets/custom_tab_bar.dart';
 import 'package:erp_frontend_v2/widgets/filters/drop_down_filter/drop_down_filter.dart';
 import 'package:flutter/material.dart';
 import 'package:data_table_2/data_table_2.dart';
-import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:gap/gap.dart';
 import '../../../constants/style.dart';
@@ -32,7 +31,7 @@ class PartnerPageDataTable extends ConsumerStatefulWidget {
 class _PartnerPageDataTableState extends ConsumerState<PartnerPageDataTable>
     with SingleTickerProviderStateMixin {
   String selectedHid = '';
-  late TabController _tabController;
+
   List<Partner> filteredData = [];
   String? _searchText;
   List<bool> _selectStatus = [];
@@ -41,32 +40,7 @@ class _PartnerPageDataTableState extends ConsumerState<PartnerPageDataTable>
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 3, vsync: this);
-    _allItems();
-    _tabController.addListener(() {
-      int selectedIndex = _tabController.index;
-      // Check if the index is already being processed
-      if (_tabController.indexIsChanging) {
-        return;
-      }
-      setState(() {
-        _selectStatus.clear();
-        switch (selectedIndex) {
-          case 0:
-            // 'All' tab is selected
-            _allItems();
-            break;
-          case 1:
-            // 'Activi' tab is selected
-            _activeItems();
-            break;
-          case 2:
-            // 'Inactiv' tab is selected
-            _inactiveItems();
-            break;
-        }
-      });
-    });
+    _activeItems();
   }
 
   void _allItems() {
@@ -86,16 +60,12 @@ class _PartnerPageDataTableState extends ConsumerState<PartnerPageDataTable>
   void _inactiveItems() {
     setState(() {
       _selectStatus.clear();
+      _selectStatus.clear();
       _selectStatus.add(false);
     });
   }
 
   @override
-  void dispose() {
-    _tabController.dispose();
-    super.dispose();
-  }
-
   @override
   Widget build(BuildContext context) {
     final partnerState = ref.watch(partnerProvider);
@@ -112,12 +82,30 @@ class _PartnerPageDataTableState extends ConsumerState<PartnerPageDataTable>
             mainAxisSize: MainAxisSize.min,
             children: [
               CustomTabBar(
-                tabController: _tabController,
                 tabs: [
-                  Tab(text: 'all_masculin'.tr(context)),
-                  Tab(text: 'activ_masculin'.tr(context)),
-                  Tab(text: 'inactiv_masculin'.tr(context)),
+                  Text('activ_masculin'.tr(context)),
+                  Text('inactiv_masculin'.tr(context)),
+                  Text('all_masculin'.tr(context)),
                 ],
+                onChanged: (value) {
+                  setState(() {
+                    _selectStatus.clear();
+                    switch (value) {
+                      case 0:
+                        // 'Activi' tab is selected
+                        _activeItems();
+                        break;
+                      case 1:
+                        // 'Inactiv' tab is selected
+                        _inactiveItems();
+                        break;
+                      case 2:
+                        // 'All' tab is selected
+                        _allItems();
+                        break;
+                    }
+                  });
+                },
               ),
               const Gap(24),
               Row(

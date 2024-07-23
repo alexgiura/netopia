@@ -1,11 +1,11 @@
 create TABLE IF NOT EXISTS core.recipes(
     id serial PRIMARY KEY UNIQUE,
-    name VARCHAR(50) NOT NULL,
+    name VARCHAR(50) NOT NULL UNIQUE,
     is_active BOOLEAN NOT NULL DEFAULT true
     );
 
 create TABLE IF NOT EXISTS core.recipe_items(
-    id serial PRIMARY KEY UNIQUE,
+    d_id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     recipe_id INTEGER NOT NULL REFERENCES core.recipes(id),
     item_id  UUID NOT NULL REFERENCES core.items(id),
     quantity double precision NOT NULL,

@@ -6,7 +6,7 @@ enum ToastType { success, warning, error }
 
 void showToast(String text, ToastType type) {
   toastification.showCustom(
-    autoCloseDuration: const Duration(seconds: 6),
+    autoCloseDuration: const Duration(seconds: 3),
     alignment: Alignment.topCenter,
     builder: (BuildContext context, ToastificationItem holder) {
       return IntrinsicWidth(

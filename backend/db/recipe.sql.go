@@ -24,22 +24,16 @@ func (q *Queries) DeleteRecipeItems(ctx context.Context, recipeID int32) error {
 
 const getRecipeById = `-- name: GetRecipeById :one
 SELECT
-    id::text,
+    id,
     name,
     is_active
 from core.recipes
 where id=$1
 `
 
-type GetRecipeByIdRow struct {
-	ID       string
-	Name     string
-	IsActive bool
-}
-
-func (q *Queries) GetRecipeById(ctx context.Context, id int32) (GetRecipeByIdRow, error) {
+func (q *Queries) GetRecipeById(ctx context.Context, id int32) (CoreRecipe, error) {
 	row := q.db.QueryRow(ctx, getRecipeById, id)
-	var i GetRecipeByIdRow
+	var i CoreRecipe
 	err := row.Scan(&i.ID, &i.Name, &i.IsActive)
 	return i, err
 }
@@ -76,8 +70,8 @@ func (q *Queries) GetRecipeByItemId(ctx context.Context, id uuid.UUID) ([]CoreRe
 
 const getRecipeItemsByDocumentIds = `-- name: GetRecipeItemsByDocumentIds :many
 SELECT
-    ri.id::text as id,
-    recipe_id::text as recipe_id,
+    ri.d_id as d_id,
+    recipe_id as recipe_id,
     ri.item_id as item_id,
     i.code as item_code,
     i.name as item_name,
@@ -104,8 +98,8 @@ WHERE
 `
 
 type GetRecipeItemsByDocumentIdsRow struct {
-	ID                     string
-	RecipeID               string
+	DID                    uuid.UUID
+	RecipeID               int32
 	ItemID                 uuid.UUID
 	ItemCode               sql.NullString
 	ItemName               string
@@ -131,7 +125,7 @@ func (q *Queries) GetRecipeItemsByDocumentIds(ctx context.Context, dollar_1 []in
 	for rows.Next() {
 		var i GetRecipeItemsByDocumentIdsRow
 		if err := rows.Scan(
-			&i.ID,
+			&i.DID,
 			&i.RecipeID,
 			&i.ItemID,
 			&i.ItemCode,
@@ -218,27 +212,21 @@ func (q *Queries) GetRecipeItemsById(ctx context.Context, recipeID int32) ([]Get
 
 const getRecipes = `-- name: GetRecipes :many
 SELECT
-    id::text,
+    id,
     name,
     is_active
 from core.recipes
 `
 
-type GetRecipesRow struct {
-	ID       string
-	Name     string
-	IsActive bool
-}
-
-func (q *Queries) GetRecipes(ctx context.Context) ([]GetRecipesRow, error) {
+func (q *Queries) GetRecipes(ctx context.Context) ([]CoreRecipe, error) {
 	rows, err := q.db.Query(ctx, getRecipes)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	var items []GetRecipesRow
+	var items []CoreRecipe
 	for rows.Next() {
-		var i GetRecipesRow
+		var i CoreRecipe
 		if err := rows.Scan(&i.ID, &i.Name, &i.IsActive); err != nil {
 			return nil, err
 		}
@@ -270,7 +258,7 @@ func (q *Queries) SaveRecipe(ctx context.Context, arg SaveRecipeParams) (int32, 
 const saveRecipeItems = `-- name: SaveRecipeItems :one
 Insert into core.recipe_items(recipe_id, item_id, quantity, production_item_type)
 VALUES  ($1,$2,$3,$4)
-    RETURNING id
+    RETURNING d_id
 `
 
 type SaveRecipeItemsParams struct {
@@ -280,16 +268,16 @@ type SaveRecipeItemsParams struct {
 	ProductionItemType string
 }
 
-func (q *Queries) SaveRecipeItems(ctx context.Context, arg SaveRecipeItemsParams) (int32, error) {
+func (q *Queries) SaveRecipeItems(ctx context.Context, arg SaveRecipeItemsParams) (uuid.UUID, error) {
 	row := q.db.QueryRow(ctx, saveRecipeItems,
 		arg.RecipeID,
 		arg.ItemID,
 		arg.Quantity,
 		arg.ProductionItemType,
 	)
-	var id int32
-	err := row.Scan(&id)
-	return id, err
+	var d_id uuid.UUID
+	err := row.Scan(&d_id)
+	return d_id, err
 }
 
 const updateRecipe = `-- name: UpdateRecipe :exec

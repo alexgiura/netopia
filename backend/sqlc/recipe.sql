@@ -1,13 +1,13 @@
 -- name: GetRecipes :many
 SELECT
-    id::text,
+    id,
     name,
     is_active
 from core.recipes;
 
 -- name: GetRecipeById :one
 SELECT
-    id::text,
+    id,
     name,
     is_active
 from core.recipes
@@ -33,8 +33,8 @@ where recipe_id=$1;
 
 -- name: GetRecipeItemsByDocumentIds :many
 SELECT
-    ri.id::text as id,
-    recipe_id::text as recipe_id,
+    ri.d_id as d_id,
+    recipe_id as recipe_id,
     ri.item_id as item_id,
     i.code as item_code,
     i.name as item_name,
@@ -59,6 +59,7 @@ from core.recipe_items ri
 WHERE
         recipe_id = ANY($1::int[]);
 
+
 -- name: GetRecipeByItemId :many
 SELECT
     r.id,
@@ -76,7 +77,7 @@ insert into core.recipes(name, is_active) VALUES ($1,$2)
 -- name: SaveRecipeItems :one
 Insert into core.recipe_items(recipe_id, item_id, quantity, production_item_type)
 VALUES  ($1,$2,$3,$4)
-    RETURNING id;
+    RETURNING d_id;
 
 
 -- name: UpdateRecipe :exec

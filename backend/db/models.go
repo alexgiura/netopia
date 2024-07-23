@@ -354,7 +354,7 @@ type CoreRecipe struct {
 }
 
 type CoreRecipeItem struct {
-	ID                 int32
+	DID                uuid.UUID
 	RecipeID           int32
 	ItemID             uuid.UUID
 	Quantity           float64

@@ -37,6 +37,7 @@ func fetchDocumentItemsByRecipeIds(ctx context.Context, dbProvider *db.Queries, 
 	idList, _ := util.StringArrayToInt32Array(ids)
 
 	rows, err := dbProvider.GetRecipeItemsByDocumentIds(ctx, idList)
+
 	if err != nil {
 		log.Print("\"message\": failed to execute DBProvider.GetRecipeItemsByDocumentIds, \"error\": ", err.Error())
 		return nil, _err.Error(ctx, "Failed to load recipe items", "DatabaseError")
@@ -44,9 +45,10 @@ func fetchDocumentItemsByRecipeIds(ctx context.Context, dbProvider *db.Queries, 
 
 	recipeItems := make(map[string][]*models.DocumentItem)
 	for _, row := range rows {
+
 		recipeID := row.RecipeID
 		item := &models.DocumentItem{
-			DId: row.ID,
+			DId: row.DID.String(),
 			Item: models.Item{
 				ID:   row.ItemID.String(),
 				Code: util.StringOrNil(row.ItemCode),
@@ -68,7 +70,7 @@ func fetchDocumentItemsByRecipeIds(ctx context.Context, dbProvider *db.Queries, 
 
 			ItemTypePn: &row.ItemTypePn,
 		}
-		recipeItems[recipeID] = append(recipeItems[recipeID], item)
+		recipeItems[*util.Int32ToString(recipeID)] = append(recipeItems[*util.Int32ToString(recipeID)], item)
 	}
 
 	return recipeItems, nil

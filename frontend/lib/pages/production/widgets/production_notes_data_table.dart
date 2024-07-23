@@ -4,6 +4,7 @@ import 'package:erp_frontend_v2/models/document/documents_filter_model.dart';
 import 'package:erp_frontend_v2/pages/document/documents_page/widgets/eFactura_widget.dart';
 import 'package:erp_frontend_v2/providers/document_providers.dart';
 import 'package:erp_frontend_v2/providers/partner_provider.dart';
+import 'package:erp_frontend_v2/utils/extensions.dart';
 import 'package:erp_frontend_v2/widgets/buttons/edit_button.dart';
 import 'package:erp_frontend_v2/widgets/buttons/primary_button.dart';
 import 'package:erp_frontend_v2/widgets/custom_data_table.dart';
@@ -21,15 +22,17 @@ import '../../../../constants/style.dart';
 import '../../../../routing/router.dart';
 import 'package:go_router/go_router.dart';
 
-class DocumentsDataTable extends ConsumerStatefulWidget {
-  const DocumentsDataTable({super.key, required this.documentTypeId});
+class ProductionNotesDataTable extends ConsumerStatefulWidget {
+  const ProductionNotesDataTable({super.key, required this.documentTypeId});
   final int documentTypeId;
 
   @override
-  ConsumerState<DocumentsDataTable> createState() => _DocumentsDataTableState();
+  ConsumerState<ProductionNotesDataTable> createState() =>
+      _ProductionNotesDataTableState();
 }
 
-class _DocumentsDataTableState extends ConsumerState<DocumentsDataTable>
+class _ProductionNotesDataTableState
+    extends ConsumerState<ProductionNotesDataTable>
     with SingleTickerProviderStateMixin {
   DocumentFilter _documentFilter = DocumentFilter.empty();
   String? _searchText;
@@ -74,9 +77,9 @@ class _DocumentsDataTableState extends ConsumerState<DocumentsDataTable>
             children: [
               CustomTabBar(
                 tabs: [
-                  Text('all_feminin'.tr(context)),
                   Text('valid_feminin'.tr(context)),
-                  Text('canceled'.tr(context)),
+                  Text('canceled_feminin'.tr(context)),
+                  Text('all_feminin'.tr(context)),
                 ],
                 onChanged: (value) {
                   setState(() {
@@ -104,7 +107,7 @@ class _DocumentsDataTableState extends ConsumerState<DocumentsDataTable>
                 mainAxisAlignment: MainAxisAlignment.start,
                 children: [
                   Container(
-                    width: MediaQuery.of(context).size.width / 4,
+                    width: context.deviceWidth / 4,
                     child: CustomSearchBar(
                       hintText: 'document_hint_search'.tr(context),
                       initialValue: _searchText,
@@ -166,7 +169,7 @@ class _DocumentsDataTableState extends ConsumerState<DocumentsDataTable>
         );
       },
       loading: () {
-        return CircularProgressIndicator();
+        return Center(child: CircularProgressIndicator());
       },
       error: (error, stackTrace) {
         return Text("Error: $error");
@@ -191,7 +194,6 @@ class _DocumentsDataTableState extends ConsumerState<DocumentsDataTable>
       Document document = row.value;
       return DataRow2(
         cells: [
-          DataCell(Text(document.series ?? '')),
           DataCell(Text(document.number)),
           DataCell(Text(document.date)),
           DataCell(Text(document.partner!.name)),
@@ -208,7 +210,10 @@ class _DocumentsDataTableState extends ConsumerState<DocumentsDataTable>
                   borderRadius: BorderRadius.circular(50),
                 ),
                 child: Center(
-                  child: Text(document.isDeleted == true ? 'Anulat' : 'Valid',
+                  child: Text(
+                      document.isDeleted == true
+                          ? 'canceled_masculin'.tr(context)
+                          : 'valid_masculin'.tr(context),
                       style: document.isDeleted == true
                           ? CustomStyle.semibold14(color: CustomColor.error)
                           : CustomStyle.semibold14(color: CustomColor.green)),
@@ -241,11 +246,6 @@ class _DocumentsDataTableState extends ConsumerState<DocumentsDataTable>
 
 List<DataColumn2> getColumns(BuildContext context, int documentType) {
   return [
-    DataColumn2(
-      label: Text('series'.tr(context),
-          style: CustomStyle.semibold16(color: CustomColor.greenGray)),
-      size: ColumnSize.M,
-    ),
     DataColumn2(
       label: Text('number'.tr(context),
           style: CustomStyle.semibold16(color: CustomColor.greenGray)),

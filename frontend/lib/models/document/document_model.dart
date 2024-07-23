@@ -117,6 +117,29 @@ class DocumentItem {
           json.containsKey('item_type_pn') ? json['item_type_pn'] : null,
     );
   }
+  DocumentItem copyWith({
+    String? dId,
+    Item? item,
+    double? quantity,
+    double? price,
+    double? amountNet,
+    double? amountVat,
+    double? amountGross,
+    List<String>? generatedDId,
+    String? itemTypePn,
+  }) {
+    return DocumentItem(
+      dId: dId ?? this.dId,
+      item: item ?? this.item,
+      quantity: quantity ?? this.quantity,
+      price: price ?? this.price,
+      amountNet: amountNet ?? this.amountNet,
+      amountVat: amountVat ?? this.amountVat,
+      amountGross: amountGross ?? this.amountGross,
+      generatedDId: generatedDId ?? this.generatedDId,
+      itemTypePn: itemTypePn ?? this.itemTypePn,
+    );
+  }
 }
 
 class DocumentType {

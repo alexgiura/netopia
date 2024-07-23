@@ -9,6 +9,7 @@ import (
 	"backend/graph/generated"
 	"backend/graph/model"
 	"backend/models"
+	"backend/util"
 	"context"
 	"errors"
 	"fmt"
@@ -19,24 +20,24 @@ import (
 )
 
 // SaveRecipe is the resolver for the saveRecipe field.
-func (r *mutationResolver) SaveRecipe(ctx context.Context, input model.SaveRecipeInput) (*string, error) {
+func (r *mutationResolver) SaveRecipe(ctx context.Context, input model.SaveRecipeInput) (*models.Recipe, error) {
 	if input.ID == nil {
-		_, err := r._insertRecipe(ctx, input)
+		recipe, err := r._insertRecipe(ctx, input)
 		if err != nil {
 
 			return nil, err
 		}
-		response := "success"
-		return &response, nil
+
+		return recipe, nil
 
 	} else {
-		_, err := r._updateRecipe(ctx, input)
+		recipe, err := r._updateRecipe(ctx, input)
 		if err != nil {
 
 			return nil, err
 		}
-		response := "success"
-		return &response, nil
+
+		return recipe, nil
 	}
 }
 
@@ -54,7 +55,7 @@ func (r *queryResolver) GetRecipes(ctx context.Context) ([]*models.Recipe, error
 
 	for _, row := range rows {
 		recipe := &models.Recipe{
-			Id:       row.ID,
+			ID:       int(row.ID),
 			Name:     row.Name,
 			IsActive: row.IsActive,
 		}
@@ -94,7 +95,7 @@ func (r *recipeResolver) DocumentItems(ctx context.Context, obj *models.Recipe) 
 		return nil, _err.Error(ctx, "ContextError", "InternalError")
 	}
 
-	resultFuture := loaders.RecipeItemLoader.Load(ctx, dataloader.StringKey(obj.Id))
+	resultFuture := loaders.RecipeItemLoader.Load(ctx, dataloader.StringKey(*util.Int32ToString(int32(obj.ID))))
 	result, err := resultFuture()
 	if err != nil {
 		log.Print("\"message\": Failed to load recipe items using DocumentItemLoader, \"error\": ", err.Error())

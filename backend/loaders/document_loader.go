@@ -24,9 +24,9 @@ func fetchDocumentItems(ctx context.Context, dbProvider *db.Queries, keys datalo
 	results := make([]*dataloader.Result, len(keys))
 	for i, id := range ids {
 		if items, ok := documentItems[id]; ok {
-			results[i] = &dataloader.Result{Data: items} // Ensure items is a slice of DocumentItem
+			results[i] = &dataloader.Result{Data: items}
 		} else {
-			results[i] = &dataloader.Result{Data: []*models.DocumentItem{}} // Use an empty slice instead of nil
+			results[i] = &dataloader.Result{Data: []*models.DocumentItem{}}
 		}
 	}
 

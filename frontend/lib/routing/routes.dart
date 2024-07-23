@@ -84,7 +84,7 @@ const receiptNoteDetailsRoute = ":id1";
 
 //Production
 //Production Note
-const productionNotePageName = "Raporte Productie";
+const productionNotePageName = "Rapoarte Productie";
 const productionNoteRoute = "/production-notes";
 
 const productionNoteDetailsPageName = "Raport Productie";

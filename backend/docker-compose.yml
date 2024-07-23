@@ -31,7 +31,7 @@ services:
       - EFACTURA_CALLBACK_URL=$EFACTURA_CALLBACK_URL
       - EFACTURA_CALLBACK_PATH=$EFACTURA_CALLBACK_PATH
       - EFACTURA_AUTHORIZATION_REDIRECT_URL=$EFACTURA_AUTHORIZATION_REDIRECT_URL
-   
+
     env_file: ./.env
 
   erp-app-live:
@@ -60,7 +60,7 @@ services:
       - EFACTURA_CALLBACK_URL=$EFACTURA_CALLBACK_URL
       - EFACTURA_CALLBACK_PATH=$EFACTURA_CALLBACK_PATH
       - EFACTURA_AUTHORIZATION_REDIRECT_URL=$EFACTURA_AUTHORIZATION_REDIRECT_URL
-   
+
     env_file: ./.env
 
 
@@ -78,7 +78,7 @@ services:
       - "traefik.http.routers.erp-frontend-dev.rule=Host(`dev.optimanage.ro`)"
       - "traefik.port=80"
       - "traefik.docker.network=traff"
-  
+
   erp-frontend-live:
     container_name: "erp-frontend-live"
     build:

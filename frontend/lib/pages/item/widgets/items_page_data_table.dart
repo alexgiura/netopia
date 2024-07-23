@@ -31,7 +31,6 @@ class ItemsPageDataTable extends ConsumerStatefulWidget {
 
 class _ItemsPageDataTableState extends ConsumerState<ItemsPageDataTable>
     with SingleTickerProviderStateMixin {
-  late TabController _tabController;
   List<Partner> filteredData = [];
   String? _searchText;
   final List<bool> _selectStatus = [];
@@ -40,36 +39,12 @@ class _ItemsPageDataTableState extends ConsumerState<ItemsPageDataTable>
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 3, vsync: this);
-    _allItems();
-    _tabController.addListener(() {
-      int selectedIndex = _tabController.index;
-      // Check if the index is already being processed
-      if (_tabController.indexIsChanging) {
-        return;
-      }
-      setState(() {
-        _selectStatus.clear();
-        switch (selectedIndex) {
-          case 0:
-            // 'All' tab is selected
-            _allItems();
-            break;
-          case 1:
-            // 'Activi' tab is selected
-            _activeItems();
-            break;
-          case 2:
-            // 'Inactiv' tab is selected
-            _inactiveItems();
-            break;
-        }
-      });
-    });
+    _activeItems();
   }
 
   void _allItems() {
     setState(() {
+      _selectStatus.clear();
       _selectStatus.add(true);
       _selectStatus.add(false);
     });
@@ -90,12 +65,6 @@ class _ItemsPageDataTableState extends ConsumerState<ItemsPageDataTable>
   }
 
   @override
-  void dispose() {
-    _tabController.dispose();
-    super.dispose();
-  }
-
-  @override
   Widget build(BuildContext context) {
     final itemState = ref.watch(itemProvider);
 
@@ -111,12 +80,29 @@ class _ItemsPageDataTableState extends ConsumerState<ItemsPageDataTable>
             mainAxisSize: MainAxisSize.min,
             children: [
               CustomTabBar(
-                tabController: _tabController,
                 tabs: [
-                  Tab(text: 'all_feminin'.tr(context)),
-                  Tab(text: 'activ_feminin'.tr(context)),
-                  Tab(text: 'inactiv_feminin'.tr(context)),
+                  Text('activ_feminin'.tr(context)),
+                  Text('inactiv_feminin'.tr(context)),
+                  Text('all_feminin'.tr(context)),
                 ],
+                onChanged: (value) {
+                  setState(() {
+                    switch (value) {
+                      case 0:
+                        // 'Activi' tab is selected
+                        _activeItems();
+                        break;
+                      case 1:
+                        // 'Inactiv' tab is selected
+                        _inactiveItems();
+                        break;
+                      case 2:
+                        // 'All' tab is selected
+                        _allItems();
+                        break;
+                    }
+                  });
+                },
               ),
               const Gap(24),
               Row(

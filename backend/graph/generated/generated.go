@@ -215,7 +215,7 @@ type ComplexityRoot struct {
 
 	Recipe struct {
 		DocumentItems func(childComplexity int) int
-		Id            func(childComplexity int) int
+		ID            func(childComplexity int) int
 		IsActive      func(childComplexity int) int
 		Name          func(childComplexity int) int
 	}
@@ -268,7 +268,7 @@ type MutationResolver interface {
 	SaveUm(ctx context.Context, input model.UmInput) (*models.Um, error)
 	SaveItemCategory(ctx context.Context, input model.ItemCategoryInput) (*models.ItemCategory, error)
 	SavePartner(ctx context.Context, input model.PartnerInput) (*string, error)
-	SaveRecipe(ctx context.Context, input model.SaveRecipeInput) (*string, error)
+	SaveRecipe(ctx context.Context, input model.SaveRecipeInput) (*models.Recipe, error)
 	CreateNewAccount(ctx context.Context, input model.UserInput) (*models.User, error)
 }
 type QueryResolver interface {
@@ -1218,11 +1218,11 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		return e.complexity.Recipe.DocumentItems(childComplexity), true
 
 	case "Recipe.id":
-		if e.complexity.Recipe.Id == nil {
+		if e.complexity.Recipe.ID == nil {
 			break
 		}
 
-		return e.complexity.Recipe.Id(childComplexity), true
+		return e.complexity.Recipe.ID(childComplexity), true
 
 	case "Recipe.is_active":
 		if e.complexity.Recipe.IsActive == nil {
@@ -1792,7 +1792,7 @@ extend type Mutation {
 }
 `, BuiltIn: false},
 	{Name: "../recipe.graphqls", Input: `type Recipe{
-    id: String
+    id: Int!
     name: String
     is_active:Boolean
     document_items: [DocumentItem]
@@ -1813,7 +1813,7 @@ extend type Query {
 }
 
 extend type Mutation {
-    saveRecipe(input: SaveRecipeInput!): String
+    saveRecipe(input: SaveRecipeInput!): Recipe
 }`, BuiltIn: false},
 	{Name: "../report.graphqls", Input: `
 #Production Report
@@ -5615,9 +5615,9 @@ func (ec *executionContext) _Mutation_saveRecipe(ctx context.Context, field grap
 	if resTmp == nil {
 		return graphql.Null
 	}
-	res := resTmp.(*string)
+	res := resTmp.(*models.Recipe)
 	fc.Result = res
-	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
+	return ec.marshalORecipe2ᚖbackendᚋmodelsᚐRecipe(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Mutation_saveRecipe(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -5627,7 +5627,17 @@ func (ec *executionContext) fieldContext_Mutation_saveRecipe(ctx context.Context
 		IsMethod:   true,
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_Recipe_id(ctx, field)
+			case "name":
+				return ec.fieldContext_Recipe_name(ctx, field)
+			case "is_active":
+				return ec.fieldContext_Recipe_is_active(ctx, field)
+			case "document_items":
+				return ec.fieldContext_Recipe_document_items(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type Recipe", field.Name)
 		},
 	}
 	defer func() {
@@ -7542,15 +7552,18 @@ func (ec *executionContext) _Recipe_id(ctx context.Context, field graphql.Collec
 	}()
 	resTmp := ec._fieldMiddleware(ctx, obj, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.Id, nil
+		return obj.ID, nil
 	})
 
 	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
 		return graphql.Null
 	}
-	res := resTmp.(string)
+	res := resTmp.(int)
 	fc.Result = res
-	return ec.marshalOString2string(ctx, field.Selections, res)
+	return ec.marshalNInt2int(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Recipe_id(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -7560,7 +7573,7 @@ func (ec *executionContext) fieldContext_Recipe_id(ctx context.Context, field gr
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
+			return nil, errors.New("field of type Int does not have child fields")
 		},
 	}
 	return fc, nil
@@ -12525,6 +12538,9 @@ func (ec *executionContext) _Recipe(ctx context.Context, sel ast.SelectionSet, o
 			out.Values[i] = graphql.MarshalString("Recipe")
 		case "id":
 			out.Values[i] = ec._Recipe_id(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&out.Invalids, 1)
+			}
 		case "name":
 			out.Values[i] = ec._Recipe_name(ctx, field, obj)
 		case "is_active":

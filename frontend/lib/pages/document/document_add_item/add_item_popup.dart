@@ -14,8 +14,9 @@ import 'package:gap/gap.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
 
 class AddItemPopup extends ConsumerWidget {
-  const AddItemPopup({super.key, required this.callback});
+  const AddItemPopup({super.key, required this.callback, this.itemTypePn});
   final void Function(List<DocumentItem>) callback;
+  final String? itemTypePn;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -114,9 +115,9 @@ class AddItemPopup extends ConsumerWidget {
                         onPressed: () async {
                           final documentItems = checkedItems.map((item) {
                             return DocumentItem(
-                              item: item,
-                              quantity: 0.0,
-                            );
+                                item: item,
+                                quantity: 0.0,
+                                itemTypePn: itemTypePn);
                           }).toList();
                           callback(documentItems);
                           Navigator.of(context).pop();

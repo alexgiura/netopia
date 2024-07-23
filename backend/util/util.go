@@ -3,7 +3,6 @@ package util
 import (
 	"database/sql"
 	"encoding/json"
-	"fmt"
 	"net/url"
 	"strconv"
 	"time"
@@ -76,7 +75,7 @@ func StringArrayToInt32Array(strSlice []string) ([]int32, error) {
 	for _, str := range strSlice {
 		num, err := strconv.Atoi(str) // Convert string to int
 		if err != nil {
-			fmt.Println("error aici")
+			print(err)
 			return nil, err // Return error if conversion fails
 		}
 		int32Slice = append(int32Slice, int32(num)) // Convert int to int32 and append

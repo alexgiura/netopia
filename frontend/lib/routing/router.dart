@@ -4,11 +4,13 @@ import 'package:erp_frontend_v2/constants/theme.dart';
 import 'package:erp_frontend_v2/layout.dart';
 import 'package:erp_frontend_v2/pages/auth/auth_page.dart';
 import 'package:erp_frontend_v2/pages/dashboard/dashboard_page.dart';
-import 'package:erp_frontend_v2/pages/document/document_details_page/document_details_page.dart';
+import 'package:erp_frontend_v2/pages/document/document_details/document_details_page.dart';
 import 'package:erp_frontend_v2/pages/item/item_category_page.dart';
 import 'package:erp_frontend_v2/pages/item/item_units_page.dart';
 import 'package:erp_frontend_v2/pages/item/items_page.dart';
-import 'package:erp_frontend_v2/pages/production/production_recipe_details_page.dart';
+import 'package:erp_frontend_v2/pages/production/production_note_details_page.dart';
+import 'package:erp_frontend_v2/pages/production/production_notes_page.dart';
+import 'package:erp_frontend_v2/pages/production/recipe_details_page.dart';
 import 'package:erp_frontend_v2/pages/report/item_stock/item_stock_report_page.dart';
 import 'package:erp_frontend_v2/pages/report/production_note/production_note_report_page.dart';
 import 'package:erp_frontend_v2/pages/report/transaction_available_items/transaction_available_items_report_page.dart';
@@ -18,7 +20,7 @@ import 'package:go_router/go_router.dart';
 import '../models/menu_model.dart';
 import '../pages/document/documents_page/documents_page.dart';
 import '../pages/partner/partners_page.dart';
-import '../pages/production/production_recipes_page.dart';
+import '../pages/production/recipes_page.dart';
 import '../pdf/pdf_viewer.dart';
 import 'routes.dart';
 
@@ -322,7 +324,7 @@ final GoRouter router = GoRouter(
             name: productionNotePageName,
             path: productionNoteRoute,
             builder: (BuildContext context, GoRouterState state) {
-              return const DocumentsPage(
+              return const ProductionNotesPage(
                 documentTypeId: 8,
                 documentTitle: productionNotePageName,
               );
@@ -336,7 +338,7 @@ final GoRouter router = GoRouter(
                   final hId = state.pathParameters['id1'] ?? '';
 
                   return CustomTransitionPage(
-                      child: DocumentDetailsPage(
+                      child: ProductionNoteDetailsPage(
                         hId: hId,
                         documentTypeId: 8,
                         pageTitle: productionNoteDetailsPageName,
@@ -361,14 +363,10 @@ final GoRouter router = GoRouter(
                 name: productionRecipeDetailsPageName,
                 pageBuilder: (context, state) {
                   final id = state.pathParameters['id1'] ?? '';
-                  // Check if `state.extra` is provided, otherwise set `refreshCallback` to null
-                  void Function()? refreshCallback = state.extra != null
-                      ? state.extra as void Function()
-                      : null;
+
                   return CustomTransitionPage(
-                      child: ProductionRecipeDetailsPage(
-                        id: id,
-                        refreshCallback: refreshCallback,
+                      child: RecipeDetailsPage(
+                        hId: id,
                       ),
                       transitionsBuilder: customSlideTransition);
                 },

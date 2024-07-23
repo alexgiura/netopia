@@ -22,46 +22,51 @@ class RecipeService {
     if (data != null && data is List<dynamic>) {
       final List<Recipe> recips =
           data.map((json) => Recipe.fromJson(json)).toList();
+
       return recips;
     } else {
       throw Exception('Invalid data');
     }
   }
 
-  Future<String> saveRecipe({required Recipe recipe}) async {
-    final List<Map<String, dynamic>> itemsList =
-        recipe.documentItems!.map((documentItem) {
-      return {
-        "item_id": documentItem.item.id,
-        "quantity": documentItem.quantity,
-        "item_type_pn": documentItem.itemTypePn
-      };
-    }).toList();
-    final QueryOptions options = QueryOptions(
-      document: gql(mutations.saveRecipe),
-      variables: <String, dynamic>{
-        "input": {
-          "id": recipe.id,
-          "name": recipe.name,
-          "is_active": recipe.isActive,
-          "document_items": itemsList,
-        }
-      },
-      fetchPolicy: FetchPolicy.noCache,
-    );
+  Future<Recipe> saveRecipe({required Recipe recipe}) async {
+    try {
+      final List<Map<String, dynamic>> itemsList =
+          recipe.documentItems!.map((documentItem) {
+        return {
+          "item_id": documentItem.item.id,
+          "quantity": documentItem.quantity,
+          "item_type_pn": documentItem.itemTypePn
+        };
+      }).toList();
 
-    final QueryResult result = await graphQLClient.value.query(options);
+      final QueryOptions options = QueryOptions(
+        document: gql(mutations.saveRecipe),
+        variables: <String, dynamic>{
+          "input": {
+            "id": recipe.id,
+            "name": recipe.name,
+            "is_active": recipe.isActive,
+            "document_items": itemsList,
+          }
+        },
+        fetchPolicy: FetchPolicy.noCache,
+      );
 
-    if (result.hasException) {
-      throw Exception(result.exception.toString());
-    }
-    final dynamic data = result.data!;
+      final QueryResult result = await graphQLClient.value.query(options);
 
-    if (data != null) {
-      final String response = data['saveRecipe'];
-      return response;
-    } else {
-      throw Exception('Invalid form data.');
+      if (result.hasException) {
+        throw Exception(result.exception.toString());
+      }
+
+      final dynamic data = result.data;
+      if (data != null) {
+        return Recipe.fromJson(data['saveRecipe']);
+      } else {
+        throw Exception('Invalid response data.');
+      }
+    } catch (e) {
+      throw Exception('An error occurred: ${e.toString()}');
     }
   }
 

@@ -127,7 +127,6 @@
     "item_category": "Categorii Produse",
     "edit_item_category": "Editează Categorie",
     "add_item_category": "Adaugă Categorie",
-    "final_product": "Produs Finit",
     "item_category_activ_description": "Categoria este activă și poate fi utilizată în operațiunile curente",
     "item_category_final_product_description": "Categoria este de tip produs finit și se pot genera rapoarte de producție automat",
     "auto_generate_production_report":"Se va genera automat raport de producție",
@@ -223,5 +222,19 @@
     "authotize_SPV_access__for_emit_eInvoice": "Autorizează accesul în S.P.V. pentru emiterea e-Facturilor",
     "authorize_access": "Autorizează",
     "item_unit_name": "Denumirea unității de măsură",
-    "item_unit_code": "Codul unității de măsură"
+    "item_unit_code": "Codul unității de măsură",
+    "recipes": "Rețete",
+    "recipe_name_hint": "Adaugă denumire rețetă",
+    "recipe_activ_description": "Rețeta este activă și poate fi utilizată în operațiunile curente",
+    "recipe_details": "Detalii rețetă",
+    "success_save_recipe": "Rețeta a fost salvat cu success",
+    "final_product": "Produs Finit",
+    "raw_material": "Materie Primă",
+    "recipe_already_registered_error": "Mai există o rețetă cu același nume",
+    "select_recipe": "Selectează rețeta"
+
+    
+    
+    
+    
 }

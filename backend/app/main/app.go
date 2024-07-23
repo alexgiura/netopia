@@ -3,13 +3,10 @@ package main
 import (
 	"backend/app"
 	"backend/config"
-	"fmt"
 	"log"
 	"os"
 	"os/signal"
 )
-
-//const defaultPort = "8080"
 
 func main() {
 	cfg, err := config.Load()
@@ -22,7 +19,7 @@ func main() {
 
 	err = app.Run()
 	if err != nil {
-		fmt.Println(err)
+		log.Println("Error:", err)
 	}
 
 	// Wait for a signal to stop the server
