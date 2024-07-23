@@ -75,9 +75,9 @@ class _DocumentsDataTableState extends ConsumerState<DocumentsDataTable>
             children: [
               CustomTabControllerWidget(
                 tabs: [
-                  Text('activ_feminin'.tr(context)),
-                  Text('inactiv_feminin'.tr(context)),
                   Text('all_feminin'.tr(context)),
+                  Text('valid_feminin'.tr(context)),
+                  Text('canceled'.tr(context)),
                 ],
                 onStatusChanged: (value) {
                   setState(() {

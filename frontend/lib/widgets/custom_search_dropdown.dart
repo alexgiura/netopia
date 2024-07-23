@@ -131,11 +131,11 @@ class SearchDropDownState<T> extends ConsumerState<SearchDropDown<T>> {
 
                   contentPadding: const EdgeInsets.fromLTRB(0, 12, 16, 12),
                   errorBorder: OutlineInputBorder(
-                    borderRadius: CustomStyle.customBorderRadius,
+                    borderRadius: CustomStyle.customBorderRadiusSmall,
                     borderSide: const BorderSide(color: CustomColor.error),
                   ),
                   focusedErrorBorder: OutlineInputBorder(
-                    borderRadius: CustomStyle.customBorderRadius,
+                    borderRadius: CustomStyle.customBorderRadiusSmall,
                     borderSide: const BorderSide(color: CustomColor.error),
                   ),
                   enabledBorder: OutlineInputBorder(
@@ -144,7 +144,7 @@ class SearchDropDownState<T> extends ConsumerState<SearchDropDown<T>> {
                           ? CustomColor.textPrimary
                           : CustomColor.slate_300,
                     ),
-                    borderRadius: CustomStyle.customBorderRadius,
+                    borderRadius: CustomStyle.customBorderRadiusSmall,
                   ),
                   suffixIcon: const Icon(
                     Icons.expand_more_rounded,
@@ -223,7 +223,7 @@ class SearchDropDownState<T> extends ConsumerState<SearchDropDown<T>> {
 
   Widget buildOverlay() => Material(
       clipBehavior: Clip.antiAlias,
-      borderRadius: CustomStyle.customBorderRadius,
+      borderRadius: CustomStyle.containerDefaultCustomBorderRadius,
       color: CustomColor.white,
       elevation: 4,
       child: TapRegion(
@@ -231,7 +231,8 @@ class SearchDropDownState<T> extends ConsumerState<SearchDropDown<T>> {
           hideOverlay();
         },
         child: Container(
-            decoration: CustomStyle.customContainerDecoration(),
+            decoration: CustomStyle.customContainerDecoration(
+                borderRadius: CustomStyle.customBorderRadiusSmall),
             constraints: const BoxConstraints(
               maxHeight: 350.0,
               //maxWidth: 350,
@@ -251,7 +252,7 @@ class SearchDropDownState<T> extends ConsumerState<SearchDropDown<T>> {
                             children: [
                               Expanded(
                                   child: CustomSearchBar(
-                                hintText: 'Cauta',
+                                hintText: 'search'.tr(context),
                                 onValueChanged: (value) {
                                   List<T> newFilteredDataList =
                                       dataList.where((item) {

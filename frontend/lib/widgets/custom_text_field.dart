@@ -132,7 +132,7 @@ class CustomTextFieldState extends State<CustomTextField> {
                               : CustomColor.slate_300,
                       width: 1,
                     ),
-                    borderRadius: CustomStyle.customBorderRadius,
+                    borderRadius: CustomStyle.customBorderRadiusSmall,
                   ),
                   focusedBorder: OutlineInputBorder(
                     borderSide: widget.enabled
@@ -147,7 +147,7 @@ class CustomTextFieldState extends State<CustomTextField> {
                         : const BorderSide(
                             color: CustomColor.light,
                           ),
-                    borderRadius: CustomStyle.customBorderRadius,
+                    borderRadius: CustomStyle.customBorderRadiusSmall,
                   ),
                   disabledBorder: OutlineInputBorder(
                     borderSide: BorderSide(
@@ -156,14 +156,14 @@ class CustomTextFieldState extends State<CustomTextField> {
                           : CustomColor.slate_200,
                       width: 1,
                     ),
-                    borderRadius: CustomStyle.customBorderRadius,
+                    borderRadius: CustomStyle.customBorderRadiusSmall,
                   ),
                   errorBorder: OutlineInputBorder(
-                    borderRadius: CustomStyle.customBorderRadius,
+                    borderRadius: CustomStyle.customBorderRadiusSmall,
                     borderSide: const BorderSide(color: CustomColor.error),
                   ),
                   focusedErrorBorder: OutlineInputBorder(
-                    borderRadius: CustomStyle.customBorderRadius,
+                    borderRadius: CustomStyle.customBorderRadiusSmall,
                     borderSide: const BorderSide(color: CustomColor.error),
                   ),
                   prefixIcon: widget.prefixWidget != null

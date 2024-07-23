@@ -81,7 +81,7 @@ class _DatePickerWidgetState extends State<DatePickerWidget> {
             padding: const EdgeInsets.only(left: 8),
             decoration: BoxDecoration(
               border: Border.all(width: 0.5, color: CustomColor.light),
-              borderRadius: CustomStyle.customBorderRadius,
+              borderRadius: CustomStyle.customBorderRadiusSmall,
               color: widget.enabled ? Colors.white : CustomColor.lightest,
             ),
             child: Row(

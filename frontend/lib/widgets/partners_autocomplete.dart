@@ -82,7 +82,8 @@ class PartnerSearchWidgetState extends State<PartnerSearchWidget> {
                     decoration: CustomStyle.customContainerDecoration(),
                     width: constraints.biggest.width,
                     child: Material(
-                      borderRadius: CustomStyle.customBorderRadius,
+                      borderRadius:
+                          CustomStyle.containerDefaultCustomBorderRadius,
                       color: CustomColor.white,
                       child: ListView(
                         shrinkWrap: true,
@@ -115,14 +116,16 @@ class PartnerSearchWidgetState extends State<PartnerSearchWidget> {
                         color: CustomColor.light,
                         width: 1,
                       ),
-                      borderRadius: CustomStyle.customBorderRadius,
+                      borderRadius:
+                          CustomStyle.containerDefaultCustomBorderRadius,
                     ),
                     focusedBorder: OutlineInputBorder(
                       borderSide: const BorderSide(
                         color: CustomColor.active,
                         width: 1.5,
                       ),
-                      borderRadius: CustomStyle.customBorderRadius,
+                      borderRadius:
+                          CustomStyle.containerDefaultCustomBorderRadius,
                     ),
                     suffixIcon: textEditingController.text.isNotEmpty
                         ? InkWell(

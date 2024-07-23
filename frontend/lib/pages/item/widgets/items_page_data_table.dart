@@ -41,7 +41,7 @@ class _ItemsPageDataTableState extends ConsumerState<ItemsPageDataTable>
   void initState() {
     super.initState();
     _tabController = TabController(length: 3, vsync: this);
-    _selectStatus.add(true);
+    _allItems();
     _tabController.addListener(() {
       int selectedIndex = _tabController.index;
       // Check if the index is already being processed
@@ -52,20 +52,40 @@ class _ItemsPageDataTableState extends ConsumerState<ItemsPageDataTable>
         _selectStatus.clear();
         switch (selectedIndex) {
           case 0:
-            // 'Activi' tab is selected
-            _selectStatus.add(true);
+            // 'All' tab is selected
+            _allItems();
             break;
           case 1:
-            // 'Inactiv' tab is selected
-            _selectStatus.add(false);
+            // 'Activi' tab is selected
+            _activeItems();
             break;
           case 2:
-            // 'All' tab is selected
-            _selectStatus.add(true);
-            _selectStatus.add(false);
+            // 'Inactiv' tab is selected
+            _inactiveItems();
             break;
         }
       });
+    });
+  }
+
+  void _allItems() {
+    setState(() {
+      _selectStatus.add(true);
+      _selectStatus.add(false);
+    });
+  }
+
+  void _activeItems() {
+    setState(() {
+      _selectStatus.clear();
+      _selectStatus.add(true);
+    });
+  }
+
+  void _inactiveItems() {
+    setState(() {
+      _selectStatus.clear();
+      _selectStatus.add(false);
     });
   }
 
@@ -93,9 +113,9 @@ class _ItemsPageDataTableState extends ConsumerState<ItemsPageDataTable>
               CustomTabBar(
                 tabController: _tabController,
                 tabs: [
+                  Tab(text: 'all_feminin'.tr(context)),
                   Tab(text: 'activ_feminin'.tr(context)),
                   Tab(text: 'inactiv_feminin'.tr(context)),
-                  Tab(text: 'all_feminin'.tr(context)),
                 ],
               ),
               const Gap(24),

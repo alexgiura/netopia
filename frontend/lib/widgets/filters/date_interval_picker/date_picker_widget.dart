@@ -126,7 +126,10 @@ class _DateIntervalPickerFilterState<T>
         child: Container(
           padding: const EdgeInsets.fromLTRB(16, 0, 8, 0),
           height: CustomSize.filterHeight,
-          decoration: CustomStyle.customContainerDecoration(border: true),
+          decoration: CustomStyle.customContainerDecoration(
+            border: true,
+            borderRadius: CustomStyle.customBorderRadiusSmall,
+          ),
           child: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
@@ -209,7 +212,9 @@ class _DateIntervalPickerFilterState<T>
             hideOverlay();
           },
           child: Container(
-            decoration: CustomStyle.customContainerDecoration(),
+            decoration: CustomStyle.customContainerDecoration(
+              borderRadius: CustomStyle.customBorderRadiusSmall,
+            ),
             constraints: const BoxConstraints(
               //maxHeight: 400,
               maxWidth: 480,
@@ -287,7 +292,7 @@ class _DateIntervalPickerFilterState<T>
                             const Spacer(),
                             Expanded(
                               child: SecondaryButton(
-                                text: 'Cancel',
+                                text: 'cancel'.tr(context),
                                 onPressed: () {
                                   setState(() {});
                                 },
@@ -298,7 +303,7 @@ class _DateIntervalPickerFilterState<T>
                             ),
                             Expanded(
                               child: PrimaryButton(
-                                text: 'Apply',
+                                text: 'apply'.tr(context),
                                 onPressed: () {
                                   hideOverlay();
                                 },

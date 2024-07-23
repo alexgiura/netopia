@@ -40,7 +40,7 @@ class _ProductionRecipesDataTableState
               ),
               child: SelectionArea(
                 child: ClipRRect(
-                  borderRadius: CustomStyle.customBorderRadius,
+                  borderRadius: CustomStyle.containerDefaultCustomBorderRadius,
                   child: DataTable2(
                       // hover row color
                       dataRowColor: MaterialStateProperty.resolveWith<Color?>(

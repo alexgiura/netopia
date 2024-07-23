@@ -35,7 +35,7 @@ class CustomSearchBar extends StatelessWidget {
                   : CustomColor.slate_300,
               width: 1,
             ),
-            borderRadius: CustomStyle.customBorderRadius,
+            borderRadius: CustomStyle.customBorderRadiusSmall,
           ),
           focusedBorder: OutlineInputBorder(
             borderSide: BorderSide(
@@ -43,7 +43,7 @@ class CustomSearchBar extends StatelessWidget {
                   ? Colors.transparent
                   : CustomColor.textPrimary,
             ),
-            borderRadius: CustomStyle.customBorderRadius,
+            borderRadius: CustomStyle.customBorderRadiusSmall,
           ),
           prefixIcon:
               const Icon(Icons.search_rounded, color: CustomColor.slate_700),

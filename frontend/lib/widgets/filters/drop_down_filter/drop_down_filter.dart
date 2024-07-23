@@ -1,5 +1,6 @@
 import 'package:erp_frontend_v2/constants/sizes.dart';
 import 'package:erp_frontend_v2/constants/style.dart';
+import 'package:erp_frontend_v2/models/app_localizations.dart';
 import 'package:erp_frontend_v2/widgets/buttons/primary_button.dart';
 import 'package:erp_frontend_v2/widgets/buttons/secondary_button.dart';
 import 'package:erp_frontend_v2/widgets/custom_text_field.dart';
@@ -44,8 +45,9 @@ class _DropDownFilterState<T> extends ConsumerState<DropDownFilter<T>> {
   }
 
   Widget formatDisplayText() {
-    String valueText =
-        checkedItems.isEmpty ? 'All' : (checkedItems.first as dynamic).name;
+    String valueText = checkedItems.isEmpty
+        ? 'all'.tr(context)
+        : (checkedItems.first as dynamic).name;
     int additionalCount = checkedItems.length - 1;
 
     return Row(
@@ -74,7 +76,8 @@ class _DropDownFilterState<T> extends ConsumerState<DropDownFilter<T>> {
           padding: const EdgeInsets.fromLTRB(16, 0, 8, 0),
           height: CustomSize.filterHeight,
           //color: CustomColor.white,
-          decoration: CustomStyle.customContainerDecoration(border: true),
+          decoration: CustomStyle.customContainerDecoration(
+              border: true, borderRadius: CustomStyle.customBorderRadiusSmall),
           child: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
@@ -210,7 +213,7 @@ class _DropDownFilterState<T> extends ConsumerState<DropDownFilter<T>> {
                       children: [
                         Expanded(
                           child: SecondaryButton(
-                            text: 'Clear All',
+                            text: 'clear_all'.tr(context),
                             onPressed: () {
                               setState(() {
                                 checkedItems.clear();

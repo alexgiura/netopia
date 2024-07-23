@@ -73,14 +73,14 @@ class CustomDropdownState<T> extends State<CustomDropdown<T>> {
                 color: _showError ? Colors.red : CustomColor.light,
                 width: 0.5,
               ),
-              borderRadius: CustomStyle.customBorderRadius,
+              borderRadius: CustomStyle.customBorderRadiusSmall,
             ),
             focusedBorder: OutlineInputBorder(
               borderSide: BorderSide(
                 color: _showError ? Colors.red : CustomColor.active,
                 width: 1.0,
               ),
-              borderRadius: CustomStyle.customBorderRadius,
+              borderRadius: CustomStyle.containerDefaultCustomBorderRadius,
             ),
             suffixIcon: Icon(
               Icons.arrow_drop_down,
@@ -98,7 +98,7 @@ class CustomDropdownState<T> extends State<CustomDropdown<T>> {
 
   Widget buildOverlay() => Material(
         clipBehavior: Clip.antiAlias,
-        borderRadius: CustomStyle.customBorderRadius,
+        borderRadius: CustomStyle.containerDefaultCustomBorderRadius,
         color: CustomColor.white,
         elevation: 4,
         child: TapRegion(

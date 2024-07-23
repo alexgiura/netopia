@@ -166,11 +166,11 @@ class CustomTextField1State extends State<CustomTextField1> {
                     // 0 padding from left compansate with prefixText: otherwise error text is not allign on the left
                     const EdgeInsets.fromLTRB(0, 12, 16, 12),
                 errorBorder: OutlineInputBorder(
-                  borderRadius: CustomStyle.customBorderRadius,
+                  borderRadius: CustomStyle.customBorderRadiusSmall,
                   borderSide: const BorderSide(color: CustomColor.error),
                 ),
                 focusedErrorBorder: OutlineInputBorder(
-                  borderRadius: CustomStyle.customBorderRadius,
+                  borderRadius: CustomStyle.containerDefaultCustomBorderRadius,
                   borderSide: const BorderSide(color: CustomColor.error),
                 ),
                 enabledBorder: OutlineInputBorder(
@@ -179,10 +179,10 @@ class CustomTextField1State extends State<CustomTextField1> {
                         ? Colors.transparent
                         : CustomColor.slate_300,
                   ),
-                  borderRadius: CustomStyle.customBorderRadius,
+                  borderRadius: CustomStyle.customBorderRadiusSmall,
                 ),
                 focusedBorder: OutlineInputBorder(
-                  borderRadius: CustomStyle.customBorderRadius,
+                  borderRadius: CustomStyle.customBorderRadiusSmall,
                   borderSide: const BorderSide(color: CustomColor.textPrimary),
                 ),
 

@@ -358,7 +358,7 @@ class CustomStyle {
     backgroundColor: const MaterialStatePropertyAll(CustomColor.active),
     shape: MaterialStateProperty.all<RoundedRectangleBorder>(
       RoundedRectangleBorder(
-        borderRadius: CustomStyle.customBorderRadius,
+        borderRadius: CustomStyle.containerDefaultCustomBorderRadius,
       ),
     ),
     textStyle: MaterialStateProperty.resolveWith<TextStyle?>(
@@ -410,7 +410,7 @@ class CustomStyle {
       backgroundColor: const MaterialStatePropertyAll(CustomColor.white),
       shape: MaterialStateProperty.all<RoundedRectangleBorder>(
         RoundedRectangleBorder(
-          borderRadius: CustomStyle.customBorderRadius,
+          borderRadius: CustomStyle.containerDefaultCustomBorderRadius,
         ),
       ),
       side: MaterialStateProperty.resolveWith<BorderSide?>(
@@ -506,7 +506,7 @@ class CustomStyle {
 
   // Container decoration
   static BoxDecoration customContainerDecoration({
-    double? borderRadius,
+    BorderRadius? borderRadius,
     bool border = false,
     double borderWidth = 1.00,
     bool boxShadow = false,
@@ -515,9 +515,7 @@ class CustomStyle {
   }) {
     return BoxDecoration(
       color: CustomColor.bgSecondary,
-      borderRadius: borderRadius != null
-          ? BorderRadius.circular(borderRadius)
-          : customBorderRadius,
+      borderRadius: borderRadius ?? containerDefaultCustomBorderRadius,
       border: isError
           ? Border.all(color: CustomColor.error, width: borderWidth)
           : border
@@ -539,5 +537,8 @@ class CustomStyle {
   }
 
 // Border Radius
-  static BorderRadius customBorderRadius = BorderRadius.circular(8);
+  static BorderRadius containerDefaultCustomBorderRadius =
+      BorderRadius.circular(24);
+
+  static BorderRadius customBorderRadiusSmall = BorderRadius.circular(8);
 }

@@ -52,16 +52,36 @@ class _CustomTabControllerWidgetState extends State<CustomTabControllerWidget>
     _selectStatus = [];
     switch (selectedIndex) {
       case 0:
-        _selectStatus.add(true);
+        _allItems();
         break;
       case 1:
-        _selectStatus.add(false);
+        _activeItems();
         break;
       case 2:
-        _selectStatus.add(true);
-        _selectStatus.add(false);
+        _inactiveItems();
         break;
     }
+  }
+
+  void _allItems() {
+    setState(() {
+      _selectStatus.add(true);
+      _selectStatus.add(false);
+    });
+  }
+
+  void _activeItems() {
+    setState(() {
+      _selectStatus.clear();
+      _selectStatus.add(true);
+    });
+  }
+
+  void _inactiveItems() {
+    setState(() {
+      _selectStatus.clear();
+      _selectStatus.add(false);
+    });
   }
 
   @override

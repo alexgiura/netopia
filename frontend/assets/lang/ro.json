@@ -1,5 +1,8 @@
 {
     "app_name": "OptiManage",
+    "all": "Toate",
+    "apply": "Aplică",
+    "clear_all": "Șterge tot",
     "dashboard": "Dashboard",
     "settings": "Setări",
     "ensure_conditions": "Asigură-te că îndeplinești următoarele condiții:",
@@ -101,6 +104,7 @@
     "vat_number_already_registered_subtitle": "O companie cu acest CUI este deja înregistrată. Dacă această companie îți aparține, te rugăm să te întorci la pagina de Login.",
     "back_to_Login": "Înapoi la Login",
     "cancel": "Anulează",
+    "canceled": "Anulate",
     "measurement_units": "Unități de Măsură",
     "edit_measurement_unit": "Editează Unitate de Măsură",
     "add_measurement_unit": "Adaugă Unitate de Măsură",

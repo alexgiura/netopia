@@ -172,7 +172,7 @@ class CustomPhoneFieldState<T> extends ConsumerState<CustomPhoneField<T>> {
 
   Widget buildOverlay() => Material(
       clipBehavior: Clip.antiAlias,
-      borderRadius: CustomStyle.customBorderRadius,
+      borderRadius: CustomStyle.containerDefaultCustomBorderRadius,
       color: CustomColor.white,
       elevation: 4,
       child: TapRegion(
