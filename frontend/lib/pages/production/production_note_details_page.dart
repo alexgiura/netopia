@@ -155,6 +155,7 @@ class _ProductionNoteDetailsPageState
           context: context,
           builder: (BuildContext context) {
             return WarningCustomDialog(
+              type: WarningType.warning,
               title: 'error'.tr(context),
               subtitle: error.toString(),
               primaryButtonText: 'cancel_all'.tr(context),
@@ -254,6 +255,7 @@ class _ProductionNoteDetailsPageState
                           context: context,
                           builder: (BuildContext context) {
                             return WarningCustomDialog(
+                              type: WarningType.warning,
                               title: 'cancel_confirmation'.tr(context),
                               subtitle:
                                   'cancel_confirmation_description'.tr(context),

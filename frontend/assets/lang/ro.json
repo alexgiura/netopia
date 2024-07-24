@@ -231,7 +231,9 @@
     "final_product": "Produs Finit",
     "raw_material": "Materie Primă",
     "recipe_already_registered_error": "Mai există o rețetă cu același nume",
-    "select_recipe": "Selectează rețeta"
+    "select_recipe": "Selectează rețeta",
+    "success_authorization": "Autorizare cu success!",
+    "success_authorization_description": "Autorizarea accesul in Spațiul Privat Virtual pentru emiterea e-Facturilor a fost efectuată!"
 
     
     

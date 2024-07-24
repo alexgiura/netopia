@@ -1,11 +1,20 @@
 import 'package:erp_frontend_v2/constants/style.dart';
 import 'package:erp_frontend_v2/models/app_localizations.dart';
-import 'package:erp_frontend_v2/pages/efactura/efactura_error_popup.dart';
+import 'package:erp_frontend_v2/pages/efactura/widgets/efactura_error_popup.dart';
+import 'package:erp_frontend_v2/pages/efactura/widgets/efactura_helpers.dart';
+import 'package:erp_frontend_v2/routing/routes.dart';
+import 'package:erp_frontend_v2/services/eFactura.dart';
+import 'package:erp_frontend_v2/utils/util_functions.dart';
 import 'package:erp_frontend_v2/widgets/buttons/primary_button.dart';
 import 'package:erp_frontend_v2/widgets/buttons/secondary_button.dart';
 import 'package:erp_frontend_v2/pages/efactura/widgets/custom_checkbox_listTile.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter/widgets.dart';
 import 'package:gap/gap.dart';
+import 'package:go_router/go_router.dart';
 
 class EfacturaInfoPopup extends StatefulWidget {
   const EfacturaInfoPopup({super.key});
@@ -129,19 +138,13 @@ class _EfacturaInfoPopupState extends State<EfacturaInfoPopup> {
                   Expanded(
                     child: PrimaryButton(
                       text: 'continue'.tr(context),
-                      onPressed: () {
+                      asyncOnPressed: () async {
                         if (!_value1 || !_value2) {
                           setState(() {
                             _showError = true;
                           });
                         } else {
-                          Navigator.of(context).pop();
-                          showDialog(
-                            context: context,
-                            builder: (BuildContext context) {
-                              return const EfacturaErrorPopup();
-                            },
-                          );
+                          await eFacturaAutorize(context);
                         }
                       },
                     ),

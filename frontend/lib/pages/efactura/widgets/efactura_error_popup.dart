@@ -1,19 +1,22 @@
 import 'package:erp_frontend_v2/constants/style.dart';
 import 'package:erp_frontend_v2/models/app_localizations.dart';
-import 'package:erp_frontend_v2/pages/efactura/efactura_info_popup.dart';
+import 'package:erp_frontend_v2/pages/efactura/widgets/efactura_info_popup.dart';
+import 'package:erp_frontend_v2/pages/efactura/widgets/efactura_helpers.dart';
+import 'package:erp_frontend_v2/routing/routes.dart';
 import 'package:erp_frontend_v2/widgets/buttons/primary_button.dart';
 import 'package:erp_frontend_v2/widgets/buttons/secondary_button.dart';
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
+import 'package:go_router/go_router.dart';
 
 class EfacturaErrorPopup extends StatefulWidget {
   const EfacturaErrorPopup({super.key});
 
   @override
-  State<EfacturaErrorPopup> createState() => _EfacturaInfoPopupState();
+  State<EfacturaErrorPopup> createState() => _EfacturaErrorPopupState();
 }
 
-class _EfacturaInfoPopupState extends State<EfacturaErrorPopup> {
+class _EfacturaErrorPopupState extends State<EfacturaErrorPopup> {
   @override
   Widget build(BuildContext context) {
     return Dialog(
@@ -280,14 +283,8 @@ class _EfacturaInfoPopupState extends State<EfacturaErrorPopup> {
                   Expanded(
                     child: PrimaryButton(
                       text: 'retry'.tr(context),
-                      onPressed: () {
-                        Navigator.of(context).pop();
-                        showDialog(
-                          context: context,
-                          builder: (BuildContext context) {
-                            return const EfacturaInfoPopup();
-                          },
-                        );
+                      asyncOnPressed: () async {
+                        await eFacturaAutorize(context);
                       },
                     ),
                   ),

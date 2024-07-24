@@ -61,6 +61,7 @@ class _RegisterFormState extends ConsumerState<RegisterForm> {
     } catch (error) {
       if (error.toString().contains('Email address already exists')) {
         WarningCustomDialog(
+          type: WarningType.warning,
           title: 'email_already_registered_title'.tr(context),
           subtitle: 'email_already_registered_subtitle'.tr(context),
           primaryButtonText: 'back_to_Login'.tr(context),
@@ -391,6 +392,7 @@ class _RegisterFormState extends ConsumerState<RegisterForm> {
             context: context,
             builder: (BuildContext context) {
               return WarningCustomDialog(
+                type: WarningType.warning,
                 title: 'vat_number_already_registered_title'.tr(context),
                 subtitle: 'vat_number_already_registered_subtitle'.tr(context),
                 primaryButtonText: 'back_to_Login'.tr(context),
@@ -528,6 +530,7 @@ class _RegisterFormState extends ConsumerState<RegisterForm> {
             context: context,
             builder: (BuildContext context) {
               return WarningCustomDialog(
+                type: WarningType.warning,
                 title: 'email_already_registered_title'.tr(context),
                 subtitle: 'email_already_registered_subtitle'.tr(context),
                 primaryButtonText: 'back_to_Login'.tr(context),

@@ -149,6 +149,7 @@ class _DocumentDetailsPageState extends ConsumerState<DocumentDetailsPage> {
           context: context,
           builder: (BuildContext context) {
             return WarningCustomDialog(
+              type: WarningType.error,
               title: 'error'.tr(context),
               subtitle: error.toString(),
               primaryButtonText: 'cancel_all'.tr(context),
@@ -256,6 +257,7 @@ class _DocumentDetailsPageState extends ConsumerState<DocumentDetailsPage> {
                           context: context,
                           builder: (BuildContext context) {
                             return WarningCustomDialog(
+                              type: WarningType.warning,
                               title: 'cancel_confirmation'.tr(context),
                               subtitle:
                                   'cancel_confirmation_description'.tr(context),

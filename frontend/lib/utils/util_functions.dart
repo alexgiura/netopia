@@ -3,6 +3,7 @@ import 'dart:math';
 import 'package:erp_frontend_v2/models/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 String formatNumber(double value) {
   if ((value * 1000) % 10 != 0) {
@@ -110,3 +111,10 @@ String truncateToDecimals(double? number, [int decimals = 2]) {
 
 formatPrice(double? price) => ' ${truncateToDecimals(price, 2)} RON';
 formatDate(DateTime date) => DateFormat.yMd().format(date);
+
+Future<void> launch(String url, {bool isNewTab = true}) async {
+  await launchUrl(
+    Uri.parse(url),
+    webOnlyWindowName: isNewTab ? '_blank' : '_self',
+  );
+}

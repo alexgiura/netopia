@@ -4,25 +4,28 @@ import 'package:erp_frontend_v2/widgets/buttons/secondary_button.dart';
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
 
+enum WarningType { success, warning, error }
+
 class WarningCustomDialog extends StatelessWidget {
   final String title;
   final String subtitle;
   final String primaryButtonText;
   final VoidCallback? primaryButtonAction;
   final Future<void> Function()? asyncPrimaryButtonAction;
+  WarningType type;
+  final String? secondaryButtonText;
+  final VoidCallback? secondaryButtonAction;
 
-  final String secondaryButtonText;
-  final VoidCallback secondaryButtonAction;
-
-  const WarningCustomDialog({
+  WarningCustomDialog({
     Key? key,
     required this.title,
     required this.subtitle,
+    required this.type,
     required this.primaryButtonText,
     this.primaryButtonAction,
     this.asyncPrimaryButtonAction,
-    required this.secondaryButtonText,
-    required this.secondaryButtonAction,
+    this.secondaryButtonText,
+    this.secondaryButtonAction,
   }) : super(key: key);
 
   @override
@@ -46,10 +49,18 @@ class WarningCustomDialog extends StatelessWidget {
                 },
               ),
             ),
-            const Icon(
-              Icons.warning_amber_outlined,
+            Icon(
+              type == WarningType.warning
+                  ? Icons.warning_amber_outlined
+                  : type == WarningType.error
+                      ? Icons.error_outline_rounded
+                      : Icons.check_circle_outline_rounded,
               size: 72,
-              color: CustomColor.warning, // Customize icon color
+              color: type == WarningType.warning
+                  ? CustomColor.warning
+                  : type == WarningType.error
+                      ? CustomColor.error
+                      : CustomColor.green, // Customize icon color
             ),
             const Gap(24),
             Text(
@@ -67,13 +78,15 @@ class WarningCustomDialog extends StatelessWidget {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
-                Expanded(
-                  child: SecondaryButton(
-                    text: secondaryButtonText,
-                    onPressed: secondaryButtonAction,
+                if (secondaryButtonText != null) ...[
+                  Expanded(
+                    child: SecondaryButton(
+                      text: secondaryButtonText!,
+                      onPressed: secondaryButtonAction,
+                    ),
                   ),
-                ),
-                Gap(24),
+                  Gap(24),
+                ],
                 Expanded(
                   child: PrimaryButton(
                     asyncOnPressed: asyncPrimaryButtonAction,

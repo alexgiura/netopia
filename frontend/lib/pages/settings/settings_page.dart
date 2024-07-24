@@ -1,11 +1,14 @@
 import 'package:erp_frontend_v2/constants/style.dart';
+import 'package:erp_frontend_v2/pages/efactura/efactura_page.dart';
+import 'package:erp_frontend_v2/routing/routes.dart';
 import 'package:erp_frontend_v2/utils/responsiveness.dart';
 import 'package:erp_frontend_v2/models/app_localizations.dart';
-import 'package:erp_frontend_v2/pages/efactura/efactura_info_popup.dart';
+import 'package:erp_frontend_v2/pages/efactura/widgets/efactura_info_popup.dart';
 import 'package:erp_frontend_v2/pages/settings/widgets/settings_card.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_layout_grid/flutter_layout_grid.dart';
 import 'package:gap/gap.dart';
+import 'package:go_router/go_router.dart';
 
 class SettingsPage extends StatefulWidget {
   const SettingsPage({Key? key}) : super(key: key);
@@ -112,11 +115,8 @@ class _SettingsPageState extends State<SettingsPage> {
               title: 'e_factura'.tr(context),
               subtitle: 'e_factura_description'.tr(context),
               onTap: () {
-                showDialog(
-                  context: context,
-                  builder: (BuildContext context) {
-                    return const EfacturaInfoPopup();
-                  },
+                context.goNamed(
+                  efacturaPageName,
                 );
               },
             ),

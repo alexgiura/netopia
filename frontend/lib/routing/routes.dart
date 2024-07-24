@@ -6,9 +6,6 @@ const authenticationPageRoute = "/authentication";
 const overviewPageName = "Overview";
 const overviewPageRoute = "/";
 
-const settingsPageName = "Settings";
-const settingsPageRoute = "/settings";
-
 const itemsPageName = "Items";
 const itemsRoute = "/items";
 
@@ -23,6 +20,13 @@ const partnersRoute = "/partners";
 
 const testPageName = "Test";
 const testRoute = "test";
+
+//Settings
+const settingsPageName = "Settings";
+const settingsPageRoute = "/settings";
+
+const efacturaPageName = "Efactura";
+const efacturaPageRoute = "efactura";
 
 //Document details
 const documentDetailsPageName = "Document Details";
