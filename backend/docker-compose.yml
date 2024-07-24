@@ -84,7 +84,6 @@ services:
       - traefik.http.routers.erp-frontend-dev.rule=Host(`dev.optimanage.ro`)
       - traefik.port=80
       - traefik.docker.network=traff
-      # - traefik.http.routers.erp-frontend-dev.entrypoints=websecure
       - traefik.http.routers.erp-frontend-dev.tls=true
       - traefik.http.routers.erp-frontend-dev.tls.certresolver=myresolver
       - traefik.http.middlewares.https-redirect.redirectscheme.scheme=https

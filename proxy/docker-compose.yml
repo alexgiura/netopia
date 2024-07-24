@@ -14,7 +14,8 @@ services:
       - --api.dashboard=true
       - --providers.docker=true
       - --providers.docker.exposedbydefault=false
-      - --entrypoints.web.address=:443
+      - --entrypoints.web.address=:80
+      - --entrypoints.websecure.address=:443
       - --providers.docker.network=traff
       - --certificatesresolvers.myresolver.acme.tlschallenge=true
       - --certificatesresolvers.myresolver.acme.email=lilianpletosu7@gmail.com
@@ -22,7 +23,7 @@ services:
 
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
-      - ./letsencrypt/:/letsenrypt
+      - ./letsencrypt/:/letsencrypt
     networks:
       - traff
 
