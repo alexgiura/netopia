@@ -37,7 +37,7 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
               ],
             ),
             SizedBox(height: 16),
-            SizedBox(height: 250, child: SplineChart()),
+            SizedBox(height: 250, child: Text('data')),
             SizedBox(height: 16),
             SizedBox(height: 300, child: ItemStockChart()),
           ],

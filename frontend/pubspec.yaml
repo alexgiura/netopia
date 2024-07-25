@@ -58,7 +58,7 @@ dependencies:
   custom_sliding_segmented_control: ^1.8.1
   # fl_chart: ^0.64.0
   syncfusion_flutter_pdf: any
-  syncfusion_flutter_charts: any
+  # syncfusion_flutter_charts: any
   syncfusion_flutter_pdfviewer: any
   skeletonizer: ^0.8.0
   calendar_date_picker2: ^0.5.3
