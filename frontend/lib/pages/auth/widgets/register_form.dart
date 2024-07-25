@@ -586,10 +586,15 @@ class _RegisterFormState extends ConsumerState<RegisterForm> {
             style: CustomStyle.regular16(color: CustomColor.slate_500),
           )
         else if (currentStep == 1)
-          Text(
-            'checking_dates_and_edit_if_need'.tr(context),
-            style: CustomStyle.regular16(color: CustomColor.slate_500),
-          )
+          ref.read(userProvider).company!.vatNumber.isNotEmpty
+              ? Text(
+                  'checking_dates_and_edit_if_need'.tr(context),
+                  style: CustomStyle.regular16(color: CustomColor.slate_500),
+                )
+              : Text(
+                  'input_company_data'.tr(context),
+                  style: CustomStyle.regular16(color: CustomColor.slate_500),
+                )
         else
           Text(
             'input_account_data_for_login'.tr(context),
