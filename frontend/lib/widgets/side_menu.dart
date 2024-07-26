@@ -184,22 +184,25 @@ class _SideMenuState extends State<SideMenu> {
                     hoveredItemIndex = -1;
                   });
                 },
-                child: ListTile(
-                  /// Here we are checking if the current menu item is selected or not and styling accordingly
-                  leading: menuItem.icon != null
-                      ? Icon(menuItem.icon, color: CustomColor.textSecondary)
-                      : null,
-                  title: Text(menuItem.title,
-                      style: CustomStyle.medium14(
-                          color: CustomColor.textSecondary)),
+                child: GestureDetector(
                   onTap: () {
                     setState(() {
                       selectedIndex =
-                          menuItem.id; // Update the selected index on tap
+                          menuItem.id; // Updatează indexul selectat la clic
                     });
                     List<String> route = generateRoute(menuItem);
                     context.go(route[0]);
                   },
+                  child: ListTile(
+                    leading: menuItem.icon != null
+                        ? Icon(menuItem.icon, color: CustomColor.textSecondary)
+                        : null,
+                    title: Text(
+                      menuItem.title,
+                      style: CustomStyle.medium14(
+                          color: CustomColor.textSecondary),
+                    ),
+                  ),
                 ),
               ),
             );

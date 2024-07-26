@@ -148,14 +148,23 @@ class _ExpandileState extends State<Expandile> {
   }
 
   Widget infoTile() {
-    return ListTile(
-      autofocus: false,
-      contentPadding: widget.contentPadding,
-      onTap: widget.onTap ?? () => changeExpansionFn(),
-      leading: _leading(),
-      title: _infoTitle(),
-      subtitle: _infoSubtitle(),
-      trailing: widget.trailingIcon ? _expansionButton() : null,
+    return MouseRegion(
+      cursor: SystemMouseCursors.cell,
+      child: GestureDetector(
+        onTap: widget.onTap ?? () => changeExpansionFn(),
+        child: Container(
+          color: Colors
+              .transparent, // Asigură-te că containerul este transparent pentru a nu avea feedback vizual la clic
+          child: ListTile(
+            autofocus: false,
+            contentPadding: widget.contentPadding,
+            leading: _leading(),
+            title: _infoTitle(),
+            subtitle: _infoSubtitle(),
+            trailing: widget.trailingIcon ? _expansionButton() : null,
+          ),
+        ),
+      ),
     );
   }
 
