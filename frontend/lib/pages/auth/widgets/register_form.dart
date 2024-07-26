@@ -48,6 +48,8 @@ class _RegisterFormState extends ConsumerState<RegisterForm> {
 
   int currentStep = 0;
 
+  bool isFetchedData = false;
+
   @override
   void initState() {
     super.initState();
@@ -84,6 +86,10 @@ class _RegisterFormState extends ConsumerState<RegisterForm> {
     try {
       final companyService = CompanyService();
       Company? result = await companyService.getCompanyByTaxId(taxId);
+
+      setState(() {
+        isFetchedData = true;
+      });
 
       if (result != null) {
         if (context.mounted) {
@@ -586,7 +592,7 @@ class _RegisterFormState extends ConsumerState<RegisterForm> {
             style: CustomStyle.regular16(color: CustomColor.slate_500),
           )
         else if (currentStep == 1)
-          ref.read(userProvider).company!.vatNumber.isNotEmpty
+          isFetchedData
               ? Text(
                   'checking_dates_and_edit_if_need'.tr(context),
                   style: CustomStyle.regular16(color: CustomColor.slate_500),
