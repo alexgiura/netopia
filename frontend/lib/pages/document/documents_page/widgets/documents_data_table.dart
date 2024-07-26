@@ -39,6 +39,7 @@ class _DocumentsDataTableState extends ConsumerState<DocumentsDataTable>
   @override
   void initState() {
     super.initState();
+    _activeItems();
 
     DateTime now = DateTime.now();
     int currentDayOfWeek = now.weekday;
@@ -55,6 +56,28 @@ class _DocumentsDataTableState extends ConsumerState<DocumentsDataTable>
 
     Future.microtask(() =>
         ref.read(documentProvider.notifier).updateFilter(_documentFilter));
+  }
+
+  void _allItems() {
+    setState(() {
+      _selectStatus.add(true);
+      _selectStatus.add(false);
+    });
+  }
+
+  void _activeItems() {
+    setState(() {
+      _selectStatus.clear();
+      _selectStatus.add(true);
+    });
+  }
+
+  void _inactiveItems() {
+    setState(() {
+      _selectStatus.clear();
+      _selectStatus.clear();
+      _selectStatus.add(false);
+    });
   }
 
   @override
@@ -74,9 +97,9 @@ class _DocumentsDataTableState extends ConsumerState<DocumentsDataTable>
             children: [
               CustomTabBar(
                 tabs: [
-                  Text('all_feminin'.tr(context)),
                   Text('valid_feminin'.tr(context)),
                   Text('canceled'.tr(context)),
+                  Text('all_feminin'.tr(context)),
                 ],
                 onChanged: (value) {
                   setState(() {
@@ -84,16 +107,15 @@ class _DocumentsDataTableState extends ConsumerState<DocumentsDataTable>
                     switch (value) {
                       case 0:
                         // 'Activi' tab is selected
-                        _selectStatus.add(true);
+                        _activeItems();
                         break;
                       case 1:
                         // 'Inactiv' tab is selected
-                        _selectStatus.add(false);
+                        _inactiveItems();
                         break;
                       case 2:
                         // 'All' tab is selected
-                        _selectStatus.add(true);
-                        _selectStatus.add(false);
+                        _allItems();
                         break;
                     }
                   });
