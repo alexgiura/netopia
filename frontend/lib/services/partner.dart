@@ -69,11 +69,11 @@ class PartnerService {
           "code": partner.code,
           "name": partner.name,
           "type": partner.type.toString(),
-          "tax_id": partner.vatNumber,
-          "company_number": partner.registrationNumber,
+          "vat_number": partner.vatNumber,
+          "registration_number": partner.registrationNumber,
           "personal_number": partner.individualNumber,
           "is_active": partner.isActive,
-          // "vat": partner.vat,
+          "vat": partner.vat
         }
       },
       fetchPolicy: FetchPolicy.noCache,

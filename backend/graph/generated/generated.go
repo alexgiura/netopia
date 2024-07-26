@@ -1777,9 +1777,11 @@ input PartnerInput {
   code: String
   name: String!
   type: String!
-  tax_id: String
-  company_number: String
+  vat_number: String
+  vat:Boolean!
+  registration_number: String
   personal_number: String
+  address: AddressInput
   is_active: Boolean
 }
 
@@ -10718,7 +10720,7 @@ func (ec *executionContext) unmarshalInputPartnerInput(ctx context.Context, obj 
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"id", "code", "name", "type", "tax_id", "company_number", "personal_number", "is_active"}
+	fieldsInOrder := [...]string{"id", "code", "name", "type", "vat_number", "vat", "registration_number", "personal_number", "address", "is_active"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
@@ -10753,20 +10755,27 @@ func (ec *executionContext) unmarshalInputPartnerInput(ctx context.Context, obj 
 				return it, err
 			}
 			it.Type = data
-		case "tax_id":
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("tax_id"))
+		case "vat_number":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("vat_number"))
 			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
 			if err != nil {
 				return it, err
 			}
-			it.TaxID = data
-		case "company_number":
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("company_number"))
+			it.VatNumber = data
+		case "vat":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("vat"))
+			data, err := ec.unmarshalNBoolean2bool(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Vat = data
+		case "registration_number":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("registration_number"))
 			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
 			if err != nil {
 				return it, err
 			}
-			it.CompanyNumber = data
+			it.RegistrationNumber = data
 		case "personal_number":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("personal_number"))
 			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
@@ -10774,6 +10783,13 @@ func (ec *executionContext) unmarshalInputPartnerInput(ctx context.Context, obj 
 				return it, err
 			}
 			it.PersonalNumber = data
+		case "address":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("address"))
+			data, err := ec.unmarshalOAddressInput2ᚖbackendᚋgraphᚋmodelᚐAddressInput(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Address = data
 		case "is_active":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("is_active"))
 			data, err := ec.unmarshalOBoolean2ᚖbool(ctx, v)

@@ -16,9 +16,11 @@ input PartnerInput {
   code: String
   name: String!
   type: String!
-  tax_id: String
-  company_number: String
+  vat_number: String
+  vat:Boolean!
+  registration_number: String
   personal_number: String
+  address: AddressInput
   is_active: Boolean
 }
 

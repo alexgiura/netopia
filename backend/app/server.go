@@ -8,13 +8,14 @@ import (
 	"backend/middleware"
 	"backend/util"
 	"context"
+	"errors"
 	"fmt"
-	"github.com/99designs/gqlgen/graphql"
 	"log"
 	"net/http"
 	"net/url"
 	"time"
 
+	"github.com/99designs/gqlgen/graphql"
 	"github.com/99designs/gqlgen/graphql/handler"
 	"github.com/99designs/gqlgen/graphql/playground"
 	"github.com/gorilla/mux"
@@ -94,8 +95,11 @@ func (app *App) Run() error {
 			w.WriteHeader(http.StatusInternalServerError)
 			return
 		}
-		if err = app.services.EfacturaProcessAuthorizationCallback(r); err != nil {
+		var authorizationStatus db.CoreEfacturaAuthorizationStatus
+		if authorizationStatus, err = app.services.EfacturaProcessAuthorizationCallback(r); err != nil {
 			app.services.Logger.Error("ProcessAuthorizationCallback failed: %v", zap.Error(err))
+		} else if authorizationStatus != db.CoreEfacturaAuthorizationStatusSuccess {
+			err = errors.New("authorization_error")
 		}
 		redirect(company.FrontendUrl.String, err)
 	})

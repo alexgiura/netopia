@@ -26,8 +26,9 @@ func (r *mutationResolver) SavePartner(ctx context.Context, input model.PartnerI
 			Code:               util.NullableStr(input.Code),
 			Name:               input.Name,
 			Type:               input.Type,
-			VatNumber:          util.NullableStr(input.TaxID),
-			RegistrationNumber: util.NullableStr(input.CompanyNumber),
+			VatNumber:          util.NullableStr(input.VatNumber),
+			Vat:                input.Vat,
+			RegistrationNumber: util.NullableStr(input.RegistrationNumber),
 			PersonalNumber:     util.NullableStr(input.PersonalNumber),
 		})
 		if err != nil {
@@ -46,8 +47,9 @@ func (r *mutationResolver) SavePartner(ctx context.Context, input model.PartnerI
 			Name:               input.Name,
 			IsActive:           *input.IsActive,
 			Type:               input.Type,
-			VatNumber:          util.NullableStr(input.TaxID),
-			RegistrationNumber: util.NullableStr(input.CompanyNumber),
+			Vat:                input.Vat,
+			VatNumber:          util.NullableStr(input.VatNumber),
+			RegistrationNumber: util.NullableStr(input.RegistrationNumber),
 			PersonalNumber:     util.NullableStr(input.PersonalNumber),
 		})
 		if err != nil {
@@ -78,6 +80,7 @@ func (r *queryResolver) GetPartners(ctx context.Context) ([]*models.Partner, err
 			Type:               row.Type,
 			Active:             row.IsActive,
 			Name:               row.Name,
+			Vat:                row.Vat,
 			VatNumber:          util.StringOrNil(row.VatNumber),
 			RegistrationNumber: util.StringOrNil(row.RegistrationNumber),
 			IndividualNumber:   util.StringOrNil(row.PersonalNumber),

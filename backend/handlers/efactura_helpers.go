@@ -28,54 +28,63 @@ import (
 // represents the authorization code that must be exchanged to a token. The
 // callback request must have the `code` param, which represents the UUID of
 // the e-factura authorization.
-func (r *Resolver) EfacturaProcessAuthorizationCallback(req *http.Request) error {
-	var authCode *string
+func (r *Resolver) EfacturaProcessAuthorizationCallback(req *http.Request) (authorizationStatus db.CoreEfacturaAuthorizationStatus, err error) {
+	var authCode string
 	authorizationID := req.URL.Query().Get("state")
 	if authorizationID == "" {
-		return errors.New("e-factura: authorization: invalid request: state param not set")
+		err = errors.New("e-factura: authorization: invalid request: state param not set")
+		return
 	}
 
-	if err := r.DBPool.BeginFunc(req.Context(), func(tx pgx.Tx) (err error) {
+	if err = r.DBPool.BeginFunc(req.Context(), func(tx pgx.Tx) (err error) {
 		transaction := r.DBProvider.WithTx(tx)
 
 		if authErr := req.URL.Query().Get("error"); authErr != "" {
+			authorizationStatus = db.CoreEfacturaAuthorizationStatusError
 			err = transaction.UpdateAuthorizationStatus(req.Context(), db.UpdateAuthorizationStatusParams{
 				AID:    util.StrToUUID(&authorizationID),
 				Status: db.CoreEfacturaAuthorizationStatusError,
 			})
-		} else if code := req.URL.Query().Get("code"); code != "" {
-			authCode = &code
+		} else if authCode = req.URL.Query().Get("code"); authCode != "" {
+			authorizationStatus = db.CoreEfacturaAuthorizationStatusError
 			err = transaction.UpdateAuthorizationCode(req.Context(), db.UpdateAuthorizationCodeParams{
 				AID:  util.StrToUUID(&authorizationID),
-				Code: util.NullableStr(authCode),
+				Code: util.NullableStr(&authCode),
 			})
 		}
 		return
 	}); err != nil {
-		return fmt.Errorf("e-factura: authorization: update failed: %w", err)
+		err = fmt.Errorf("e-factura: authorization: update failed: %w", err)
+		return
 	}
 
-	if authCode != nil {
-		oauth2Cfg, err := efactura_oauth2.MakeConfig(
+	if authCode != "" {
+		var oauth2Cfg efactura_oauth2.Config
+		oauth2Cfg, err = efactura_oauth2.MakeConfig(
 			efactura_oauth2.ConfigCredentials(r.EfacturaSettings.ClientID, r.EfacturaSettings.ClientSecret),
 			efactura_oauth2.ConfigRedirectURL(r.EfacturaSettings.CallbackURL),
 		)
 		if err != nil {
-			return fmt.Errorf("e-factura: authorization: create oauth2 config failed: %w", err)
+			err = fmt.Errorf("e-factura: authorization: create oauth2 config failed: %w", err)
+			return
 		}
 
-		token, err := oauth2Cfg.Exchange(req.Context(), *authCode)
+		var token *xoauth2.Token
+		token, err = oauth2Cfg.Exchange(req.Context(), authCode)
 		if err != nil {
 			// XXX(victor): maybe better update db status?
-			return fmt.Errorf("e-factura: authorization: oauth2 exchange code failed: %w", err)
+			err = fmt.Errorf("e-factura: authorization: oauth2 exchange code failed: %w", err)
+			return
 		}
 
-		if err := r._EfacturaUpdateAuthorizationToken(req.Context(), util.StrToUUID(&authorizationID), token); err != nil {
-			return fmt.Errorf("e-factura: authorization: update token failed: %w", err)
+		authorizationStatus = db.CoreEfacturaAuthorizationStatusSuccess
+		if err = r._EfacturaUpdateAuthorizationToken(req.Context(), util.StrToUUID(&authorizationID), token); err != nil {
+			err = fmt.Errorf("e-factura: authorization: update token failed: %w", err)
+			return
 		}
 	}
 
-	return nil
+	return
 }
 
 func (r *Resolver) trx(ctx context.Context, txFun func(tx *db.Queries) error) error {

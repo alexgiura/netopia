@@ -18,6 +18,7 @@ select
     code,
     name,
     type,
+    vat,
     vat_number,
     registration_number,
     personal_number,
@@ -30,6 +31,7 @@ type GetPartnersRow struct {
 	Code               sql.NullString
 	Name               string
 	Type               string
+	Vat                bool
 	VatNumber          sql.NullString
 	RegistrationNumber sql.NullString
 	PersonalNumber     sql.NullString
@@ -50,6 +52,7 @@ func (q *Queries) GetPartners(ctx context.Context) ([]GetPartnersRow, error) {
 			&i.Code,
 			&i.Name,
 			&i.Type,
+			&i.Vat,
 			&i.VatNumber,
 			&i.RegistrationNumber,
 			&i.PersonalNumber,
@@ -128,8 +131,8 @@ func (q *Queries) GetPartnersByDocumentIds(ctx context.Context, dollar_1 []uuid.
 
 const insertPartner = `-- name: InsertPartner :one
 
-Insert into core.partners (code,name,type,vat_number,registration_number,personal_number)
-VALUES ($1,$2,$3,$4,$5,$6)
+Insert into core.partners (code,name,type,vat,vat_number,registration_number,personal_number)
+VALUES ($1,$2,$3,$4,$5,$6,$7)
 RETURNING id
 `
 
@@ -137,6 +140,7 @@ type InsertPartnerParams struct {
 	Code               sql.NullString
 	Name               string
 	Type               string
+	Vat                bool
 	VatNumber          sql.NullString
 	RegistrationNumber sql.NullString
 	PersonalNumber     sql.NullString
@@ -148,6 +152,7 @@ func (q *Queries) InsertPartner(ctx context.Context, arg InsertPartnerParams) (u
 		arg.Code,
 		arg.Name,
 		arg.Type,
+		arg.Vat,
 		arg.VatNumber,
 		arg.RegistrationNumber,
 		arg.PersonalNumber,
@@ -164,8 +169,9 @@ Set code=$2,
     is_active=$4,
     type=$5,
     vat_number=$6,
-    registration_number=$7,
-    personal_number=$8
+    vat=$7,
+    registration_number=$8,
+    personal_number=$9
 where id=$1
 `
 
@@ -176,6 +182,7 @@ type UpdatePartnerParams struct {
 	IsActive           bool
 	Type               string
 	VatNumber          sql.NullString
+	Vat                bool
 	RegistrationNumber sql.NullString
 	PersonalNumber     sql.NullString
 }
@@ -188,6 +195,7 @@ func (q *Queries) UpdatePartner(ctx context.Context, arg UpdatePartnerParams) er
 		arg.IsActive,
 		arg.Type,
 		arg.VatNumber,
+		arg.Vat,
 		arg.RegistrationNumber,
 		arg.PersonalNumber,
 	)

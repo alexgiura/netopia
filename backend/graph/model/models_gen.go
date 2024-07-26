@@ -139,14 +139,16 @@ type Mutation struct {
 }
 
 type PartnerInput struct {
-	ID             *string `json:"id,omitempty"`
-	Code           *string `json:"code,omitempty"`
-	Name           string  `json:"name"`
-	Type           string  `json:"type"`
-	TaxID          *string `json:"tax_id,omitempty"`
-	CompanyNumber  *string `json:"company_number,omitempty"`
-	PersonalNumber *string `json:"personal_number,omitempty"`
-	IsActive       *bool   `json:"is_active,omitempty"`
+	ID                 *string       `json:"id,omitempty"`
+	Code               *string       `json:"code,omitempty"`
+	Name               string        `json:"name"`
+	Type               string        `json:"type"`
+	VatNumber          *string       `json:"vat_number,omitempty"`
+	Vat                bool          `json:"vat"`
+	RegistrationNumber *string       `json:"registration_number,omitempty"`
+	PersonalNumber     *string       `json:"personal_number,omitempty"`
+	Address            *AddressInput `json:"address,omitempty"`
+	IsActive           *bool         `json:"is_active,omitempty"`
 }
 
 type ProductionNote struct {
