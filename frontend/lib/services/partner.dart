@@ -73,6 +73,7 @@ class PartnerService {
           "company_number": partner.registrationNumber,
           "personal_number": partner.individualNumber,
           "is_active": partner.isActive,
+          // "vat": partner.vat,
         }
       },
       fetchPolicy: FetchPolicy.noCache,

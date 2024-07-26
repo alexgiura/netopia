@@ -312,7 +312,6 @@ class _PartnerDetailsPopupState extends ConsumerState<PartnerDetailsPopup> {
                   else
                     _partner.vat = false;
                 });
-                print(_partner.vat);
               },
             )
           ],
