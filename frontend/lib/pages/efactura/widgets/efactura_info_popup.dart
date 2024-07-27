@@ -122,7 +122,7 @@ class _EfacturaInfoPopupState extends State<EfacturaInfoPopup> {
                 _showError ? 'err_ensure_conditions'.tr(context) : '',
                 style: CustomStyle.semibold12(color: CustomColor.error),
               ),
-              Gap(32),
+              Gap(24),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
