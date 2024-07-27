@@ -74,7 +74,7 @@ services:
     restart: unless-stopped
     build:
       context: ../frontend
-      dockerfile: ../frontend/Dockerfile
+      dockerfile: frontend/Dockerfile
       args:
           - BRANCH=dev
     labels:
@@ -93,7 +93,7 @@ services:
     container_name: "erp-frontend-live"
     build:
       context: ../frontend
-      dockerfile: ../frontend/Dockerfile
+      dockerfile: Dockerfile
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.erp-frontend-live.rule=Host(`optimanage.ro`)"
