@@ -5,7 +5,6 @@ import 'package:erp_frontend_v2/layout.dart';
 import 'package:erp_frontend_v2/pages/auth/auth_page.dart';
 import 'package:erp_frontend_v2/pages/dashboard/dashboard_page.dart';
 import 'package:erp_frontend_v2/pages/document/document_details/document_details_page.dart';
-import 'package:erp_frontend_v2/pages/efactura/efactura_page.dart';
 import 'package:erp_frontend_v2/pages/item/item_category_page.dart';
 import 'package:erp_frontend_v2/pages/item/item_units_page.dart';
 import 'package:erp_frontend_v2/pages/item/items_page.dart';
@@ -45,30 +44,17 @@ final GoRouter router = GoRouter(
         },
         routes: [
           GoRoute(
-              name: settingsPageName,
-              path: settingsPageRoute,
-              builder: (BuildContext context, GoRouterState state) {
-                return const SettingsPage();
-              },
-              routes: <RouteBase>[
-                GoRoute(
-                  name: efacturaPageName,
-                  path: efacturaPageRoute,
-                  pageBuilder: (context, state) {
-                    final id = state.queryParameters['state'];
-                    final error = state.queryParameters['error'];
-
-                    return CustomTransitionPage(
-                        fullscreenDialog: true,
-                        opaque: false,
-                        child: EfacturaPage(
-                          state: id,
-                          error: error,
-                        ),
-                        transitionsBuilder: customScaleTransition);
-                  },
-                ),
-              ]),
+            name: settingsPageName,
+            path: settingsPageRoute,
+            builder: (BuildContext context, GoRouterState state) {
+              final id = state.queryParameters['state'];
+              final error = state.queryParameters['error'];
+              return SettingsPage(
+                state: id,
+                error: error,
+              );
+            },
+          ),
 
           GoRoute(
             path: overviewPageRoute,

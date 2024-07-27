@@ -1,4 +1,4 @@
-import 'package:erp_frontend_v2/pages/efactura/widgets/efactura_error_popup.dart';
+import 'package:erp_frontend_v2/pages/settings/widgets/efactura_error_popup.dart';
 import 'package:erp_frontend_v2/services/eFactura.dart';
 import 'package:erp_frontend_v2/utils/util_functions.dart';
 import 'package:flutter/material.dart';

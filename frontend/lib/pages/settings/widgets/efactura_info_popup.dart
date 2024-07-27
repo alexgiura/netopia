@@ -1,13 +1,13 @@
 import 'package:erp_frontend_v2/constants/style.dart';
 import 'package:erp_frontend_v2/models/app_localizations.dart';
-import 'package:erp_frontend_v2/pages/efactura/widgets/efactura_error_popup.dart';
-import 'package:erp_frontend_v2/pages/efactura/widgets/efactura_helpers.dart';
+import 'package:erp_frontend_v2/pages/settings/widgets/efactura_error_popup.dart';
+import 'package:erp_frontend_v2/pages/settings/widgets/efactura_helpers.dart';
 import 'package:erp_frontend_v2/routing/routes.dart';
 import 'package:erp_frontend_v2/services/eFactura.dart';
 import 'package:erp_frontend_v2/utils/util_functions.dart';
 import 'package:erp_frontend_v2/widgets/buttons/primary_button.dart';
 import 'package:erp_frontend_v2/widgets/buttons/secondary_button.dart';
-import 'package:erp_frontend_v2/pages/efactura/widgets/custom_checkbox_listTile.dart';
+import 'package:erp_frontend_v2/pages/settings/widgets/custom_checkbox_listTile.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';

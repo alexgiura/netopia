@@ -25,9 +25,6 @@ const testRoute = "test";
 const settingsPageName = "Settings";
 const settingsPageRoute = "/settings";
 
-const efacturaPageName = "Efactura";
-const efacturaPageRoute = "efactura";
-
 //Document details
 const documentDetailsPageName = "Document Details";
 const documentDetailsRoute = "document-details";

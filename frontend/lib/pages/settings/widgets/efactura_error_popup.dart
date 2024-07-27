@@ -1,7 +1,7 @@
 import 'package:erp_frontend_v2/constants/style.dart';
 import 'package:erp_frontend_v2/models/app_localizations.dart';
-import 'package:erp_frontend_v2/pages/efactura/widgets/efactura_info_popup.dart';
-import 'package:erp_frontend_v2/pages/efactura/widgets/efactura_helpers.dart';
+import 'package:erp_frontend_v2/pages/settings/widgets/efactura_info_popup.dart';
+import 'package:erp_frontend_v2/pages/settings/widgets/efactura_helpers.dart';
 import 'package:erp_frontend_v2/routing/routes.dart';
 import 'package:erp_frontend_v2/widgets/buttons/primary_button.dart';
 import 'package:erp_frontend_v2/widgets/buttons/secondary_button.dart';
