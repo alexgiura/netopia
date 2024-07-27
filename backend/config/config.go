@@ -27,11 +27,10 @@ type DatabaseSettings struct {
 }
 
 type EfacturaSettings struct {
-	ClientID                 string `env:"EFACTURA_CLIENT_ID,notEmpty"`
-	ClientSecret             string `env:"EFACTURA_CLIENT_SECRET,notEmpty"`
-	CallbackURL              string `env:"EFACTURA_CALLBACK_URL,notEmpty"`
-	CallbackPath             string `env:"EFACTURA_CALLBACK_PATH,notEmpty"`
-	AuthorizationRedirectURL string `env:"EFACTURA_AUTHORIZATION_REDIRECT_URL,notEmpty"`
+	ClientID     string `env:"EFACTURA_CLIENT_ID,notEmpty"`
+	ClientSecret string `env:"EFACTURA_CLIENT_SECRET,notEmpty"`
+	CallbackURL  string `env:"EFACTURA_CALLBACK_URL,notEmpty"`
+	CallbackPath string `env:"EFACTURA_CALLBACK_PATH,notEmpty"`
 }
 
 type Config struct {

@@ -83,11 +83,13 @@ func (app *App) Run() error {
 
 	app.router.HandleFunc(app.cfg.EfacturaSettings.CallbackPath, func(w http.ResponseWriter, r *http.Request) {
 		redirect := func(redirectURL string, err error) {
+			status := "success"
 			if err != nil {
-				redirectURL, _ = util.AddGetParams(redirectURL, url.Values{
-					"error": {"authorization_error"},
-				})
+				status = "authorization_error"
 			}
+			redirectURL, _ = util.AddGetParams(redirectURL, url.Values{
+				"efactura_auth_status": {status},
+			})
 			http.Redirect(w, r, redirectURL, http.StatusSeeOther)
 		}
 		company, err := app.services.DBProvider.GetCompany(r.Context())

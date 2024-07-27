@@ -5,7 +5,7 @@ FROM golang:latest
 WORKDIR /app
 
 # Copy go.mod and go.sum files to the working directory.
-COPY backend/go.mod backend/go.sum ./
+COPY go.mod go.sum ./
 
 RUN ls -la
 
@@ -13,7 +13,7 @@ RUN ls -la
 RUN go mod download
 
 # Copy the source code from the current directory to the working directory inside the container.
-COPY backend/ .
+COPY . .
 
 # Build the Go app.
 RUN  go build -o erp-api ./app/main/app.go
