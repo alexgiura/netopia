@@ -47,11 +47,10 @@ final GoRouter router = GoRouter(
             name: settingsPageName,
             path: settingsPageRoute,
             builder: (BuildContext context, GoRouterState state) {
-              final id = state.queryParameters['state'];
-              final error = state.queryParameters['error'];
+              final status = state.queryParameters['efactura_auth_status'];
+
               return SettingsPage(
-                state: id,
-                error: error,
+                efacturaAuthStatus: status,
               );
             },
           ),

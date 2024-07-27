@@ -12,9 +12,8 @@ import 'package:gap/gap.dart';
 import 'package:go_router/go_router.dart';
 
 class SettingsPage extends StatefulWidget {
-  const SettingsPage({super.key, this.state, this.error});
-  final String? state;
-  final String? error;
+  const SettingsPage({super.key, this.efacturaAuthStatus});
+  final String? efacturaAuthStatus;
 
   @override
   State<SettingsPage> createState() => _SettingsPageState();
@@ -36,9 +35,11 @@ class _SettingsPageState extends State<SettingsPage> {
   void _showDialog() {
     Widget? dialogContent;
 
-    if (widget.error != null && widget.error != '') {
-      dialogContent = EfacturaErrorPopup();
-    } else if (widget.state != null) {
+    if (widget.efacturaAuthStatus != null) {
+      if (widget.efacturaAuthStatus == 'authorization_error') {
+        dialogContent = EfacturaErrorPopup();
+      }
+    } else if (widget.efacturaAuthStatus == 'success') {
       dialogContent = EfacturaSuccessPopup();
     }
 
