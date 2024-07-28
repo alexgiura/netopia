@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_localization/flutter_localization.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:go_router/go_router.dart';
 import '../constants/theme.dart';
 import '../models/app_localizations.dart';
 import '../routing/router.dart';
@@ -45,25 +46,3 @@ class App extends StatelessWidget {
     );
   }
 }
-
-
-
-// class App extends StatelessWidget {
-//   @override
-//   Widget build(BuildContext context) {
-//     return MaterialApp(
-//       debugShowCheckedModeBanner: false,
-//       title: 'Your App',
-//       home: Scaffold(
-//         body: Builder(
-//           builder: (context) {
-//             return GraphQLProvider(
-//               client: graphQLClient,
-//               child: SplashPage(),
-//             );
-//           },
-//         ),
-//       ),
-//     );
-//   }
-// }

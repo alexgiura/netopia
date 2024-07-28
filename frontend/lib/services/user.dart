@@ -5,7 +5,7 @@ import '../graphql/queries/user.dart' as queries;
 import '../graphql/mutations/user.dart' as mutations;
 
 class UserService {
-  Future<User?> getUser(String userId) async {
+  Future<User> getUser(String userId) async {
     final QueryOptions options = QueryOptions(
       document: gql(queries.getUser),
       variables: <String, dynamic>{
@@ -26,20 +26,18 @@ class UserService {
 
       return user;
     } else {
-      return null;
+      throw Exception('Invalid data.');
     }
   }
 
-  Future<User?> saveUser(User user) async {
+  Future<User> saveUser(User user) async {
     final MutationOptions options = MutationOptions(
       document: gql(mutations.saveUser),
       variables: <String, dynamic>{
         'input': user.toJson(),
       },
     );
-
     final QueryResult result = await graphQLClient.value.mutate(options);
-
     if (result.hasException) {
       throw result.exception!;
     }
@@ -48,10 +46,10 @@ class UserService {
 
     if (userData != null) {
       final User user = User.fromJson(userData);
+
       return user;
     } else {
-      print("is null");
-      return null;
+      throw Exception('Invalid data.');
     }
   }
 }

@@ -2,6 +2,7 @@ import 'package:erp_frontend_v2/boxes.dart';
 import 'package:erp_frontend_v2/constants/style.dart';
 import 'package:erp_frontend_v2/models/app_localizations.dart';
 import 'package:erp_frontend_v2/models/user/user.dart' as custom_user;
+import 'package:erp_frontend_v2/providers/user_provider.dart';
 import 'package:erp_frontend_v2/routing/routes.dart';
 import 'package:erp_frontend_v2/services/user.dart';
 import 'package:erp_frontend_v2/utils/extensions.dart';
@@ -10,6 +11,7 @@ import 'package:erp_frontend_v2/widgets/buttons/tertiary_button.dart';
 import 'package:erp_frontend_v2/widgets/custom_checkbox.dart';
 import 'package:erp_frontend_v2/widgets/custom_text_field_1.dart';
 import 'package:erp_frontend_v2/widgets/dialog_widgets/custom_toast.dart';
+import 'package:erp_frontend_v2/widgets/dialog_widgets/warning_dialog.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -47,38 +49,26 @@ class _LoginFormState extends ConsumerState<LoginForm> {
         password: password,
       );
 
-      final firebaseUser = credential.user!;
-
-      custom_user.User? user = await _fetchUser(firebaseUser.uid);
-
-      if (user != null) {
-        boxUser.put('user', user);
-        if (mounted) {
+      try {
+        custom_user.User result =
+            await UserService().getUser(credential.user!.uid);
+        if (context.mounted) {
+          ref.read(userProvider.notifier).updateUser(result);
           context.go(overviewPageRoute);
         }
-      } else {
-        print('No user found in the database.');
+      } catch (error) {
+        emailError = 'user_not_found'.tr(context);
       }
     } on FirebaseAuthException catch (e) {
-      if (e.code == 'user-not-found') {
-        emailError = 'user-not-found'.tr(context);
-      } else if (e.code == 'wrong-password') {
-        passwordError = 'wrong-password'.tr(context);
-      } else if (e.code == 'invalid-credential') {
-        passwordError = 'invalid-credential'.tr(context);
+      if (e.code == 'user_not_found') {
+        emailError = 'user_not_found'.tr(context);
+      } else if (e.code == 'wrong_password') {
+        passwordError = 'wrong_password'.tr(context);
+      } else if (e.code == 'invalid_credential') {
+        passwordError = 'invalid_credential'.tr(context);
       }
     } catch (e) {
-      showToast('unexpected-error'.tr(context), ToastType.warning);
-    }
-  }
-
-  Future<custom_user.User?> _fetchUser(String userId) async {
-    try {
-      final userService = UserService();
-      final user = await userService.getUser(userId);
-      return user;
-    } catch (error) {
-      return null; // Return null in case of an error
+      emailError = 'user_not_found'.tr(context);
     }
   }
 
@@ -160,9 +150,9 @@ class _LoginFormState extends ConsumerState<LoginForm> {
       child: PrimaryButton(
         style: CustomStyle.submitBlackButton,
         text: 'login'.tr(context),
-        onPressed: () {
+        asyncOnPressed: () async {
           if (formKey.currentState!.validate()) {
-            _signInWithEmailAndPassword(
+            await _signInWithEmailAndPassword(
                 emailController.text, passwordController.text);
           }
         },

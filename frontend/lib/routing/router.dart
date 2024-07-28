@@ -15,6 +15,7 @@ import 'package:erp_frontend_v2/pages/report/item_stock/item_stock_report_page.d
 import 'package:erp_frontend_v2/pages/report/production_note/production_note_report_page.dart';
 import 'package:erp_frontend_v2/pages/report/transaction_available_items/transaction_available_items_report_page.dart';
 import 'package:erp_frontend_v2/pages/settings/settings_page.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import '../models/menu_model.dart';
@@ -24,7 +25,6 @@ import '../pages/production/recipes_page.dart';
 import '../pdf/pdf_viewer.dart';
 import 'routes.dart';
 
-//final _rootNavigatorKey = GlobalKey<NavigatorState>();
 final _shellNavigatorKey = GlobalKey<NavigatorState>();
 
 /// The route configuration.
@@ -411,6 +411,13 @@ final GoRouter router = GoRouter(
           ),
         ]),
   ],
+  redirect: (BuildContext context, GoRouterState state) async {
+    final bool loggedIn = FirebaseAuth.instance.currentUser != null;
+    final bool loggingIn = state.location == authenticationPageRoute;
+
+    if (!loggedIn && !loggingIn) return authenticationPageRoute;
+    return null;
+  },
 );
 
 List<String> generateRoute(Menu menuItem) {

@@ -26,7 +26,7 @@ class Company {
   Company.empty()
       : id = null,
         name = '',
-        vat = null,
+        vat = true,
         vatNumber = '',
         registrationNumber = '',
         address = Address.empty();

@@ -170,7 +170,7 @@ class CustomTextField1State extends State<CustomTextField1> {
                   borderSide: const BorderSide(color: CustomColor.error),
                 ),
                 focusedErrorBorder: OutlineInputBorder(
-                  borderRadius: CustomStyle.containerDefaultCustomBorderRadius,
+                  borderRadius: CustomStyle.customBorderRadiusSmall,
                   borderSide: const BorderSide(color: CustomColor.error),
                 ),
                 enabledBorder: OutlineInputBorder(

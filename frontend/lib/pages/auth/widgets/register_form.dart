@@ -49,6 +49,7 @@ class _RegisterFormState extends ConsumerState<RegisterForm> {
   int currentStep = 0;
 
   bool isFetchedData = false;
+  custom_user.User user = custom_user.User.empty();
 
   @override
   void initState() {
@@ -56,9 +57,10 @@ class _RegisterFormState extends ConsumerState<RegisterForm> {
   }
 
   Future<custom_user.User?> _saveUser(custom_user.User user) async {
+    showToast('error_try_again'.tr(context), ToastType.error);
     try {
       final userService = UserService();
-      custom_user.User? result = await userService.saveUser(user);
+      custom_user.User? result = await UserService().saveUser(user);
       return result;
     } catch (error) {
       if (error.toString().contains('Email address already exists')) {
@@ -169,11 +171,9 @@ class _RegisterFormState extends ConsumerState<RegisterForm> {
     return CustomTextField(
       key: formKey1,
       validator: (value) {
-        if (value!.isEmpty) {
-          return 'error_required_field'.tr(context);
-        } else {
+        if (value!.isNotEmpty) {
           if (errorCompanyTaxId) {
-            return 'wrong_company_vat_number'.tr(context);
+            return 'code_validation_failed'.tr(context);
           }
           return validateCompanyCif(context, value);
         }
@@ -194,7 +194,8 @@ class _RegisterFormState extends ConsumerState<RegisterForm> {
     if (formKey1.currentState!.valid()) {
       Company? company = await _getCompanyByTaxId(companyTaxIdController.text);
       if (company != null && !errorCompanyTaxId) {
-        ref.read(userProvider.notifier).updateUserField('company', company);
+        user.company = company;
+
         if (mounted) {
           setState(() {
             currentStep++;
@@ -213,7 +214,7 @@ class _RegisterFormState extends ConsumerState<RegisterForm> {
           child: Column(
             children: [
               CustomTextField1(
-                initialValue: ref.read(userProvider).company?.name ?? '',
+                initialValue: user.company?.name ?? '',
                 validator: (value) {
                   if (value!.isEmpty) {
                     return 'error_required_field'.tr(context);
@@ -224,9 +225,7 @@ class _RegisterFormState extends ConsumerState<RegisterForm> {
                 labelText: 'company_name'.tr(context),
                 hintText: 'company_name'.tr(context),
                 onValueChanged: (value) {
-                  ref
-                      .read(userProvider.notifier)
-                      .updateUserField('company.name', value);
+                  user.company!.name = value;
                 },
                 required: true,
               ),
@@ -234,15 +233,11 @@ class _RegisterFormState extends ConsumerState<RegisterForm> {
                 children: [
                   Flexible(
                     child: CustomTextField1(
-                      initialValue:
-                          ref.read(userProvider).company?.vatNumber ?? '',
+                      initialValue: user.company!.vatNumber ?? '',
                       validator: (value) {
                         if (value!.isEmpty) {
                           return 'error_required_field'.tr(context);
                         } else {
-                          if (errorCompanyTaxId) {
-                            return 'code_validation_failed'.tr(context);
-                          }
                           return validateCompanyCif(context, value);
                         }
                       },
@@ -250,9 +245,7 @@ class _RegisterFormState extends ConsumerState<RegisterForm> {
                       labelText: 'vat_number'.tr(context),
                       hintText: 'RO12345678',
                       onValueChanged: (value) {
-                        ref
-                            .read(userProvider.notifier)
-                            .updateUserField('company.vatNumber', value);
+                        user.company!.vatNumber = value;
                       },
                       required: true,
                     ),
@@ -260,9 +253,7 @@ class _RegisterFormState extends ConsumerState<RegisterForm> {
                   Gap(context.width01),
                   Flexible(
                     child: CustomTextField1(
-                      initialValue:
-                          ref.read(userProvider).company?.registrationNumber ??
-                              '',
+                      initialValue: user.company?.registrationNumber ?? '',
                       validator: (value) {
                         if (value!.isEmpty) {
                           return 'error_required_field'.tr(context);
@@ -273,8 +264,7 @@ class _RegisterFormState extends ConsumerState<RegisterForm> {
                       labelText: 'registry_nr'.tr(context),
                       hintText: 'registry_nr'.tr(context),
                       onValueChanged: (value) {
-                        ref.read(userProvider.notifier).updateUserField(
-                            'company.registrationNumber', value);
+                        user.company?.registrationNumber = value;
                       },
                       required: true,
                     ),
@@ -282,8 +272,7 @@ class _RegisterFormState extends ConsumerState<RegisterForm> {
                 ],
               ),
               CustomTextField1(
-                initialValue:
-                    ref.read(userProvider).company?.address?.address ?? '',
+                initialValue: user.company?.address?.address ?? '',
                 validator: (value) {
                   if (value!.isEmpty) {
                     return 'error_required_field'.tr(context);
@@ -294,9 +283,7 @@ class _RegisterFormState extends ConsumerState<RegisterForm> {
                 labelText: 'address'.tr(context),
                 hintText: 'address'.tr(context),
                 onValueChanged: (value) {
-                  ref
-                      .read(userProvider.notifier)
-                      .updateUserField('company.address.address', value);
+                  user.company?.address?.address = value;
                 },
                 required: true,
               ),
@@ -304,9 +291,7 @@ class _RegisterFormState extends ConsumerState<RegisterForm> {
                 children: [
                   Flexible(
                     child: CustomTextField1(
-                      initialValue:
-                          ref.read(userProvider).company?.address?.countyCode ??
-                              '',
+                      initialValue: user.company?.address?.countyCode ?? '',
                       validator: (value) {
                         if (value!.isEmpty) {
                           return 'error_required_field'.tr(context);
@@ -320,8 +305,7 @@ class _RegisterFormState extends ConsumerState<RegisterForm> {
                       labelText: 'state'.tr(context),
                       hintText: 'ex_Bihor'.tr(context),
                       onValueChanged: (value) {
-                        ref.read(userProvider.notifier).updateUserField(
-                            'company.address.countyCode', value);
+                        user.company?.address?.countyCode = value;
                       },
                       required: true,
                     ),
@@ -329,9 +313,7 @@ class _RegisterFormState extends ConsumerState<RegisterForm> {
                   Gap(context.width01),
                   Flexible(
                     child: CustomTextField1(
-                      initialValue:
-                          ref.read(userProvider).company?.address?.locality ??
-                              '',
+                      initialValue: user.company?.address?.locality ?? '',
                       validator: (value) {
                         if (value!.isEmpty) {
                           return 'error_required_field'.tr(context);
@@ -346,9 +328,7 @@ class _RegisterFormState extends ConsumerState<RegisterForm> {
                       labelText: 'locality'.tr(context),
                       hintText: 'ex_locality'.tr(context),
                       onValueChanged: (value) {
-                        ref
-                            .read(userProvider.notifier)
-                            .updateUserField('company.address.locality', value);
+                        user.company?.address?.locality = value;
                       },
                       required: true,
                     ),
@@ -384,9 +364,8 @@ class _RegisterFormState extends ConsumerState<RegisterForm> {
   Future<void> _submitSecondStep() async {
     if (_formKey.currentState!.validate()) {
       try {
-        final company = await CompanyService().getCompany(
-          ref.read(userProvider).company?.vatNumber,
-        );
+        final company =
+            await CompanyService().getCompany(user.company?.vatNumber);
         if (company == null) {
           if (mounted) {
             setState(() {
@@ -433,9 +412,7 @@ class _RegisterFormState extends ConsumerState<RegisterForm> {
                 labelText: 'email'.tr(context),
                 hintText: 'input_email'.tr(context),
                 onValueChanged: (value) {
-                  ref
-                      .read(userProvider.notifier)
-                      .updateUserField('email', value);
+                  user.email = value;
                 },
                 required: true,
               ),
@@ -444,9 +421,7 @@ class _RegisterFormState extends ConsumerState<RegisterForm> {
                 labelText: 'phone'.tr(context),
                 hintText: 'phone_placeholder'.tr(context),
                 onValueChanged: (value) {
-                  ref
-                      .read(userProvider.notifier)
-                      .updateUserField('phoneNumber', value);
+                  user.phoneNumber = value;
                 },
                 required: false,
               ),
@@ -505,28 +480,53 @@ class _RegisterFormState extends ConsumerState<RegisterForm> {
       try {
         final credential =
             await FirebaseAuth.instance.createUserWithEmailAndPassword(
-          email: ref.read(userProvider).email!,
+          email: user.email!,
           password: passwordController.text,
         );
 
         if (credential.user != null) {
-          ref
-              .read(userProvider.notifier)
-              .updateUserField('id', credential.user!.uid);
-          final updatedUser = ref.read(userProvider);
+          user.id = credential.user!.uid;
 
           try {
             // Save user in DB
-            custom_user.User? result = await _saveUser(updatedUser);
-            if (result != null) {
-              boxUser.put('user', result);
-              if (context.mounted) {
-                context.go(overviewPageRoute);
-              }
-            } else {
-              await credential.user!.delete();
+
+            custom_user.User result = await UserService().saveUser(user);
+            if (context.mounted) {
+              ref.read(userProvider.notifier).updateUser(result);
+              context.go(overviewPageRoute);
             }
-          } catch (e) {
+          } catch (error) {
+            if (error.toString().contains('Email address already exists')) {
+              WarningCustomDialog(
+                type: WarningType.warning,
+                title: 'email_already_registered_title'.tr(context),
+                subtitle: 'email_already_registered_subtitle'.tr(context),
+                primaryButtonText: 'back_to_Login'.tr(context),
+                primaryButtonAction: () {
+                  widget.changeForm();
+                  Navigator.of(context).pop();
+                },
+                secondaryButtonText: 'close'.tr(context),
+                secondaryButtonAction: () {
+                  Navigator.of(context).pop();
+                },
+              );
+            } else {
+              WarningCustomDialog(
+                type: WarningType.error,
+                title: 'error'.tr(context),
+                subtitle: 'error_create_account'.tr(context),
+                primaryButtonText: 'retry'.tr(context),
+                asyncPrimaryButtonAction: () async {
+                  await _submitThirdStep();
+                  Navigator.of(context).pop();
+                },
+                secondaryButtonText: 'close'.tr(context),
+                secondaryButtonAction: () {
+                  Navigator.of(context).pop();
+                },
+              );
+            }
             await credential.user!.delete();
           }
         }

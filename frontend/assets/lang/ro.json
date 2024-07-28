@@ -94,10 +94,10 @@
     "error_phone": "Telefonul este obligatoriu",
     "phone_placeholder": "Introdu telefonul",
     "code_validation_failed": "Codul introdus nu a putut fi validat automat! ",
-    "user-not-found": "Adresa de e-mail introdusă nu este înregistrată",
-    "wrong-password": "Parola introdusă este invalidă",
-    "invalid-credential": "Credențialele introduse sunt invalide",
-    "unexpected-error": "A apărut o eroare neașteptată!",
+    "user_not_found": "Adresa de e-mail introdusă nu este înregistrată",
+    "wrong_password": "Parola introdusă este invalidă",
+    "invalid_credential": "Credențialele introduse sunt invalide",
+    "unexpected_error": "A apărut o eroare neașteptată!",
     "email_already_registered_title": "E-mail deja înregistrat!",
     "email_already_registered_subtitle": "Adresa de e-mail introdusă este deja înregistrată. Dacă ai deja un cont, te rugăm să te întorci la Login.",
     "vat_number_already_registered_title": "CUI deja înregistrat !",
@@ -234,5 +234,6 @@
     "select_recipe": "Selectează rețeta",
     "success_authorization": "Autorizare cu success!",
     "success_authorization_description": "Autorizarea accesul in Spațiul Privat Virtual pentru emiterea e-Facturilor a fost efectuată!",
-    "input_company_data": "Introdu datele companiei tale."
+    "input_company_data": "Introdu datele companiei tale.",
+    "error_create_account": "Contul nu a putut fi salvat. Vă rugăm să încercați din nou!"
 }
