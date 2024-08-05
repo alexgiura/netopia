@@ -3,9 +3,6 @@
     "all": "Toate",
     "apply": "Aplică",
     "clear_all": "Șterge tot",
-    "all": "Toate",
-    "apply": "Aplică",
-    "clear_all": "Șterge tot",
     "dashboard": "Dashboard",
     "settings": "Setări",
     "ensure_conditions": "Asigură-te că îndeplinești următoarele condiții:",
@@ -107,7 +104,6 @@
     "vat_number_already_registered_subtitle": "O companie cu acest CUI este deja înregistrată. Dacă această companie îți aparține, te rugăm să te întorci la pagina de Login.",
     "back_to_Login": "Înapoi la Login",
     "cancel": "Anulează",
-    "canceled": "Anulate",
     "canceled": "Anulate",
     "measurement_units": "Unități de Măsură",
     "edit_measurement_unit": "Editează Unitate de Măsură",
@@ -267,5 +263,5 @@
     "add_in_warehouse": "Adaugă în depozit",
     "add_in_production": "Adaugă în producție",
     "add_in_incomes": "Adaugă în intrări",
-    "add_in_exits": "Adaugă în ieșiri",
+    "add_in_exits": "Adaugă în ieșiri"
 }
