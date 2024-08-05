@@ -8,7 +8,29 @@ package db
 import (
 	"context"
 	"database/sql"
+
+	"github.com/google/uuid"
+	"github.com/jackc/pgtype"
 )
+
+const getAuthorization = `-- name: GetAuthorization :one
+SELECT a_id, token
+FROM core.efactura_authorizations ea
+WHERE ea.status='success'  and ea.token_expires_at > CURRENT_DATE
+ORDER BY ea.token_expires_at DESC LIMIT 1
+`
+
+type GetAuthorizationRow struct {
+	AID   uuid.UUID
+	Token pgtype.JSON
+}
+
+func (q *Queries) GetAuthorization(ctx context.Context) (GetAuthorizationRow, error) {
+	row := q.db.QueryRow(ctx, getAuthorization)
+	var i GetAuthorizationRow
+	err := row.Scan(&i.AID, &i.Token)
+	return i, err
+}
 
 const getUserById = `-- name: GetUserById :one
 SELECT id,

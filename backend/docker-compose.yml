@@ -36,8 +36,14 @@ services:
       - EFACTURA_CLIENT_SECRET=$EFACTURA_CLIENT_SECRET
       - EFACTURA_CALLBACK_URL=$EFACTURA_CALLBACK_URL
       - EFACTURA_CALLBACK_PATH=$EFACTURA_CALLBACK_PATH
+      - RABBITMQ_USER=$RABBITMQ_USER
+      - RABBITMQ_PASSWORD=$RABBITMQ_PASSWORD
+      - RABBITMQ_HOST=rabbitmq
+      - RABBITMQ_PORT=5672
 
     env_file: ./.env
+    depends_on:
+          - rabbitmq
 
   erp-app-live:
     container_name: "erp-api-live"
@@ -64,8 +70,14 @@ services:
       - EFACTURA_CLIENT_SECRET=$EFACTURA_CLIENT_SECRET
       - EFACTURA_CALLBACK_URL=$EFACTURA_CALLBACK_URL
       - EFACTURA_CALLBACK_PATH=$EFACTURA_CALLBACK_PATH
+      - RABBITMQ_USER=$RABBITMQ_USER
+      - RABBITMQ_PASSWORD=$RABBITMQ_PASSWORD
+      - RABBITMQ_HOST=rabbitmq
+      - RABBITMQ_PORT=5672
 
     env_file: ./.env
+    depends_on:
+      - rabbitmq
 
 
   erp-frontend-dev:
@@ -99,3 +111,31 @@ services:
       - "traefik.http.routers.erp-frontend-live.rule=Host(`optimanage.ro`)"
       - "traefik.port=80"
       - "traefik.docker.network=traff"
+
+  rabbitmq:
+    image: rabbitmq:3-management
+    restart: unless-stopped
+    container_name: "rabbitmq"
+    networks:
+      - default
+    ports:
+      - "5672:5672"   # RabbitMQ broker port
+      - "15672:15672" # RabbitMQ management UI port
+    environment:
+      RABBITMQ_DEFAULT_USER: $RABBITMQ_USER
+      RABBITMQ_DEFAULT_PASS: $RABBITMQ_PASSWORD
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.rabbitmq.rule=Host(`rabbitmq.optimanage.ro`)
+      - traefik.port=80
+      - traefik.docker.network=traff
+      - traefik.http.routers.rabbitmq.tls=true
+      - traefik.http.routers.rabbitmq.tls.certresolver=myresolver
+      - traefik.http.middlewares.https-redirect.redirectscheme.scheme=https
+      - traefik.http.middlewares.https-redirect.redirectscheme.permanent=true
+      - traefik.http.routers.rabbitmq.middlewares=https-redirect
+
+
+
+
+

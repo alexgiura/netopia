@@ -53,7 +53,6 @@ func fetchPartnersByDocumentIds(ctx context.Context, dbProvider *db.Queries, ids
 			Name:               row.Name,
 			VatNumber:          util.StringOrNil(row.VatNumber),
 			RegistrationNumber: util.StringOrNil(row.RegistrationNumber),
-			IndividualNumber:   util.StringOrNil(row.PersonalNumber),
 		}
 	}
 

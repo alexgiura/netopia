@@ -33,3 +33,9 @@ RETURNING
     email::text,
     phone_number::text;
 
+-- name: GetAuthorization :one
+SELECT a_id, token
+FROM core.efactura_authorizations ea
+WHERE ea.status='success'  and ea.token_expires_at > CURRENT_DATE
+ORDER BY ea.token_expires_at DESC LIMIT 1;
+

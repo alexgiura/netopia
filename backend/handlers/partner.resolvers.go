@@ -29,7 +29,9 @@ func (r *mutationResolver) SavePartner(ctx context.Context, input model.PartnerI
 			VatNumber:          util.NullableStr(input.VatNumber),
 			Vat:                input.Vat,
 			RegistrationNumber: util.NullableStr(input.RegistrationNumber),
-			PersonalNumber:     util.NullableStr(input.PersonalNumber),
+			Address:            util.NullableStr(input.Address.Address),
+			Locality:           util.NullableStr(input.Address.Locality),
+			CountyCode:         util.NullableStr(input.Address.CountyCode),
 		})
 		if err != nil {
 			log.Print("\"message\":Failed to insert partner, "+"\"error\": ", err.Error())
@@ -50,7 +52,9 @@ func (r *mutationResolver) SavePartner(ctx context.Context, input model.PartnerI
 			Vat:                input.Vat,
 			VatNumber:          util.NullableStr(input.VatNumber),
 			RegistrationNumber: util.NullableStr(input.RegistrationNumber),
-			PersonalNumber:     util.NullableStr(input.PersonalNumber),
+			Address:            util.NullableStr(input.Address.Address),
+			Locality:           util.NullableStr(input.Address.Locality),
+			CountyCode:         util.NullableStr(input.Address.CountyCode),
 		})
 		if err != nil {
 			log.Print("\"message\":Failed to update partner, "+"\"error\": ", err.Error())
@@ -83,7 +87,6 @@ func (r *queryResolver) GetPartners(ctx context.Context) ([]*models.Partner, err
 			Vat:                row.Vat,
 			VatNumber:          util.StringOrNil(row.VatNumber),
 			RegistrationNumber: util.StringOrNil(row.RegistrationNumber),
-			IndividualNumber:   util.StringOrNil(row.PersonalNumber),
 		}
 
 		partners = append(partners, partner)

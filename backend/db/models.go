@@ -334,8 +334,7 @@ type CorePartner struct {
 	VatNumber          sql.NullString
 	Vat                bool
 	RegistrationNumber sql.NullString
-	PersonalNumber     sql.NullString
-	Address            string
+	Address            sql.NullString
 	Locality           sql.NullString
 	CountyCode         sql.NullString
 	CreatedAt          time.Time

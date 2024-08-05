@@ -416,6 +416,7 @@ final GoRouter router = GoRouter(
     final bool loggingIn = state.location == authenticationPageRoute;
 
     if (!loggedIn && !loggingIn) return authenticationPageRoute;
+    if (loggedIn && loggingIn) return overviewPageRoute;
     return null;
   },
 );

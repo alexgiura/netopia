@@ -29,7 +29,6 @@ class ItemService {
 
     if (data != null && data is List<dynamic>) {
       final List<Item> items = data.map((json) => Item.fromJson(json)).toList();
-
       return items;
     } else {
       throw Exception('Invalid documents data');

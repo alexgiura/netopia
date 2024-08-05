@@ -3,6 +3,7 @@ package handlers
 import (
 	"backend/models"
 	"context"
+	"database/sql"
 	"log"
 	"time"
 
@@ -35,6 +36,7 @@ func (r *Resolver) _SaveDocument(ctx context.Context, transaction *db.Queries, i
 		RepresentativeID: util.NullableUuid(util.StrToUUID(input.PersonID)),
 		RecipeID:         util.NullableInt32(input.RecipeID),
 		Notes:            util.NullableStr(input.Notes),
+		CurrencyID:       sql.NullInt32{Int32: 1, Valid: true},
 	})
 	if err != nil {
 		r.Logger.Error("failed to save document header", zap.Error(err))
@@ -194,7 +196,7 @@ func (r *Resolver) _GetDocumentByID(ctx context.Context, transaction *db.Queries
 		return nil, _err.Error(ctx, "Failed to get document", "DatabaseError")
 
 	}
-
+	efacturaStatus := string(row.EfacturaStatus.CoreEfacturaDocumentStatus)
 	return &models.Document{
 		HId: row.HID.String(),
 		Type: models.DocumentType{
@@ -202,11 +204,12 @@ func (r *Resolver) _GetDocumentByID(ctx context.Context, transaction *db.Queries
 			NameRo: *util.StringOrNil(row.DocumentTypeNameRo),
 			NameEn: *util.StringOrNil(row.DocumentTypeNameEn),
 		},
-		Series:  util.StringOrNil(row.Series),
-		Number:  row.Number,
-		Date:    row.Date.Format("2006-01-02"),
-		Notes:   util.StringOrNil(row.Notes),
-		Deleted: row.IsDeleted,
+		Series:         util.StringOrNil(row.Series),
+		Number:         row.Number,
+		Date:           row.Date.Format("2006-01-02"),
+		Notes:          util.StringOrNil(row.Notes),
+		Deleted:        row.IsDeleted,
+		EFacturaStatus: &efacturaStatus,
 	}, nil
 }
 func (r *Resolver) _GetDocumentItemsById(ctx context.Context, transaction *db.Queries, documentID *string) ([]*models.DocumentItem, error) {

@@ -21,8 +21,7 @@ mutation saveDocument($input: DocumentInput!) {
         name,
         vat,
         vat_number,
-        registration_number,
-        individual_number 
+        registration_number
     },
     document_items{
         d_id,

@@ -17,4 +17,5 @@ type Resolver struct {
 	DBProvider       *db.Queries
 	DBPool           *pgxpool.Pool
 	EfacturaSettings config.EfacturaSettings
+	RabbitMQSettings config.RabbitMqSettings
 }

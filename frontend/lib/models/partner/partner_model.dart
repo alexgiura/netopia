@@ -9,7 +9,6 @@ class Partner {
   bool? vat;
   String? vatNumber;
   String? registrationNumber;
-  String? individualNumber;
   bool isActive;
   Address? address;
 
@@ -22,7 +21,6 @@ class Partner {
       required this.vat,
       required this.vatNumber,
       required this.registrationNumber,
-      required this.individualNumber,
       required this.isActive});
   Partner.empty()
       : id = null,
@@ -32,7 +30,6 @@ class Partner {
         vat = false,
         vatNumber = null,
         registrationNumber = null,
-        individualNumber = null,
         isActive = true,
         address = Address.empty();
 
@@ -49,11 +46,23 @@ class Partner {
       vat: json['vat'],
       vatNumber: json['vat_number'],
       registrationNumber: json['registration_number'],
-      individualNumber: json['individual_number'],
       isActive: json['active'],
-      address: json.containsKey('company_address')
-          ? Address.fromJson(json['company_address'])
+      address: json.containsKey('address')
+          ? Address.fromJson(json['address'])
           : null,
     );
+  }
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'code': code,
+      'name': name,
+      'type': type.name,
+      'vat': vat,
+      'vat_number': vatNumber,
+      'registration_number': registrationNumber,
+      'is_active': isActive,
+      'address': address?.toJson(),
+    };
   }
 }

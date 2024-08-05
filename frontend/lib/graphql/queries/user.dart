@@ -15,7 +15,8 @@ query getUser($userId: String!) {
                 locality,
                 county_code
             }   
-        }      
+        }
+        efactura_auth
     }
 }
 ''';

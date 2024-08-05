@@ -1,5 +1,6 @@
 import 'package:erp_frontend_v2/constants/style.dart';
 import 'package:erp_frontend_v2/pages/settings/widgets/efactura_error_popup.dart';
+import 'package:erp_frontend_v2/pages/settings/widgets/efactura_status.dart';
 import 'package:erp_frontend_v2/pages/settings/widgets/efactura_sucess_popup.dart';
 import 'package:erp_frontend_v2/routing/routes.dart';
 import 'package:erp_frontend_v2/utils/responsiveness.dart';
@@ -140,6 +141,7 @@ class _SettingsPageState extends State<SettingsPage> {
               iconData: Icons.receipt_long_outlined,
               title: 'e_factura'.tr(context),
               subtitle: 'e_factura_description'.tr(context),
+              statusWidget: EfacturaStatus(),
               onTap: () {
                 showDialog(
                   context: context,

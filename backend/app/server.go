@@ -44,6 +44,13 @@ func (app *App) Run() error {
 		log.Fatalf("Failed to get resolver dependency: %v", err)
 	}
 
+	// Start the RabbitMQ consumer in a separate goroutine
+	go func() {
+		if err := app.services.ConsumeFromRabbitMQ(); err != nil {
+			app.services.Logger.Fatal("Failed to consume from RabbitMQ", zap.Error(err))
+		}
+	}()
+
 	graphMiddleware := func(next http.Handler) http.Handler {
 		handler := next
 		// Add the cors function to the router
@@ -163,8 +170,16 @@ func (app *App) GetResolverDependencies() (*handlers.Resolver, error) {
 		DBProvider:       dbProvider,
 		DBPool:           pool,
 		EfacturaSettings: app.cfg.EfacturaSettings,
+		RabbitMQSettings: app.cfg.RabbitMqSettings,
 	}
 
 	return resolver, nil
 
+}
+func (app *App) StartConsumer() {
+	go func() {
+		if err := app.services.ConsumeFromRabbitMQ(); err != nil {
+			app.services.Logger.Fatal("failed to consume from RabbitMQ", zap.Error(err))
+		}
+	}()
 }

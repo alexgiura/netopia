@@ -52,8 +52,8 @@ class _CustomListTileState extends State<CustomListTile> {
         },
         child: Container(
           decoration: BoxDecoration(
-              color: _isHovering ? CustomColor.lightest : Colors.transparent,
-              borderRadius: CustomStyle.containerDefaultCustomBorderRadius),
+              color: _isHovering ? Colors.transparent : Colors.transparent,
+              borderRadius: CustomStyle.customBorderRadiusSmall),
           padding: EdgeInsets.fromLTRB(8, 8, 0, 8),
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.center,

@@ -12,6 +12,7 @@ import (
 	"backend/models"
 	"backend/util"
 	"context"
+	"fmt"
 	"log"
 
 	"github.com/jackc/pgconn"
@@ -115,6 +116,16 @@ func (r *userResolver) Company(ctx context.Context, obj *models.User) (*models.C
 		return nil, err
 	}
 	return company, nil
+}
+
+// EfacturaAuth is the resolver for the efactura_auth field.
+func (r *userResolver) EfacturaAuth(ctx context.Context, obj *models.User) (bool, error) {
+	_, err := r.DBProvider.GetAuthorization(ctx)
+	if err != nil {
+		err = fmt.Errorf("e-factura: upload: fetch authorization failed: %w", err)
+		return false, nil
+	}
+	return true, nil
 }
 
 // User returns generated.UserResolver implementation.

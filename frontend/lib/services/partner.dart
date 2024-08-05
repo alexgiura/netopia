@@ -63,19 +63,7 @@ class PartnerService {
   }) async {
     final QueryOptions options = QueryOptions(
       document: gql(mutations.savePartner),
-      variables: <String, dynamic>{
-        "input": {
-          "id": partner.id,
-          "code": partner.code,
-          "name": partner.name,
-          "type": partner.type.toString(),
-          "vat_number": partner.vatNumber,
-          "registration_number": partner.registrationNumber,
-          "personal_number": partner.individualNumber,
-          "is_active": partner.isActive,
-          "vat": partner.vat
-        }
-      },
+      variables: <String, dynamic>{"input": partner.toJson()},
       fetchPolicy: FetchPolicy.noCache,
     );
 

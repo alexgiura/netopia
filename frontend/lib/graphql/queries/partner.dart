@@ -8,8 +8,7 @@ query getPartners{
         name,
         vat,
         vat_number,
-        registration_number,
-        individual_number
+        registration_number
     }
 }
 ''';

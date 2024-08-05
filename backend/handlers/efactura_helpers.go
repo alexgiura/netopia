@@ -151,13 +151,6 @@ func (r *Resolver) _EfacturaGenerateXMLDocument(ctx context.Context, documentID 
 		return locality
 	}
 
-	var documentHeader db.GetDocumentHeaderRow
-	documentHeader, err = tx.GetDocumentHeader(ctx, documentID)
-	if err != nil {
-		err = fmt.Errorf("e-factura: generate: fetch document header failed: %w", err)
-		return
-	}
-
 	var company db.GetCompanyRow
 	company, err = tx.GetCompany(ctx)
 	if err != nil {
@@ -165,16 +158,59 @@ func (r *Resolver) _EfacturaGenerateXMLDocument(ctx context.Context, documentID 
 		return
 	}
 
+	var documentHeader db.GetDocumentHeaderRow
+	documentHeader, err = tx.GetDocumentHeader(ctx, documentID)
+	if err != nil {
+		err = fmt.Errorf("e-factura: generate: fetch document header failed: %w", err)
+		return
+	}
+
+	var partnerBillingDetails struct {
+		Name       string
+		VatNumber  string
+		Vat        bool
+		Address    string
+		Locality   string
+		CountyCode string
+	}
+	if documentHeader.DocumentPartnerBillingDetailsID.Valid {
+		partner, perr := tx.GetDocumentHeaderPartnerBillingDetails(ctx, documentHeader.DocumentPartnerBillingDetailsID.Int32)
+		if perr != nil {
+			err = fmt.Errorf("e-factura: generate: fetch document partner billing details failed: %w", perr)
+			return
+		}
+
+		partnerBillingDetails.Name = partner.CorePartner.Name
+		partnerBillingDetails.VatNumber = partner.CorePartner.VatNumber.String
+		partnerBillingDetails.Address = partner.CoreDocumentPartnerBillingDetail.Address
+		partnerBillingDetails.Locality = partner.CoreDocumentPartnerBillingDetail.Locality.String
+		partnerBillingDetails.CountyCode = partner.CoreDocumentPartnerBillingDetail.CountyCode.String
+	} else {
+		partner, perr := tx.GetDocumentHeaderPartner(ctx, documentHeader.PartnerID)
+		if err != nil {
+			err = fmt.Errorf("e-factura: generate: fetch document partner failed: %w", perr)
+			return
+		}
+
+		partnerBillingDetails.Name = partner.Name
+		partnerBillingDetails.VatNumber = partner.VatNumber.String
+		partnerBillingDetails.Vat = partner.Vat
+		partnerBillingDetails.Address = partner.Address.String
+		partnerBillingDetails.Locality = partner.Locality.String
+		partnerBillingDetails.CountyCode = partner.CountyCode.String
+	}
+
+	if partnerBillingDetails.Name == "" || partnerBillingDetails.VatNumber == "" ||
+		partnerBillingDetails.Address == "" || partnerBillingDetails.Locality == "" ||
+		partnerBillingDetails.CountyCode == "" {
+		err = fmt.Errorf("e-factura: generate: invalid partner billing details")
+		return
+	}
+
 	var documentItems []db.GetDocumentItemsRow
 	documentItems, err = tx.GetDocumentItems(ctx, documentHeader.HID)
 	if err != nil {
 		err = fmt.Errorf("e-factura: generate: fetch document items failed: %w", err)
-		return
-	}
-
-	partner, err := tx.GetDocumentHeaderPartnerBillingDetails(ctx, documentHeader.DocumentPartnerBillingDetailsID.Int32)
-	if err != nil {
-		err = fmt.Errorf("e-factura: generate: fetch document partner billing details failed: %w", err)
 		return
 	}
 
@@ -286,25 +322,25 @@ func (r *Resolver) _EfacturaGenerateXMLDocument(ctx context.Context, documentID 
 	invoiceBuilder.WithSupplier(supplierParty)
 
 	// Buyer info
-	buyerVatID := partner.CorePartner.VatNumber.String
-	if partner.CoreDocumentPartnerBillingDetail.Vat && !strings.HasPrefix(buyerVatID, "RO") {
+	buyerVatID := partnerBillingDetails.VatNumber
+	if partnerBillingDetails.Vat && !strings.HasPrefix(buyerVatID, "RO") {
 		buyerVatID = "RO" + buyerVatID
 	}
-	customerAddrSubentityCode := getAddressCountrySubentity(partner.CoreDocumentPartnerBillingDetail.CountyCode.String)
+	customerAddrSubentityCode := getAddressCountrySubentity(partnerBillingDetails.CountyCode)
 	customerParty := efactura.InvoiceCustomerParty{
 		Identifications: []efactura.InvoicePartyIdentification{{
-			ID: efactura.MakeValueWithAttrs(partner.CorePartner.VatNumber.String),
+			ID: efactura.MakeValueWithAttrs(partnerBillingDetails.VatNumber),
 		}},
 		CommercialName: &efactura.InvoicePartyName{
-			Name: efactura_text.Transliterate(partner.CorePartner.Name),
+			Name: efactura_text.Transliterate(partnerBillingDetails.Name),
 		},
 		LegalEntity: efactura.InvoiceCustomerLegalEntity{
-			Name:      efactura_text.Transliterate(partner.CorePartner.Name),
+			Name:      efactura_text.Transliterate(partnerBillingDetails.Name),
 			CompanyID: efactura.NewValueWithAttrs(buyerVatID),
 		},
 		PostalAddress: efactura.MakeInvoiceCustomerPostalAddress(efactura.PostalAddress{
-			Line1:            efactura_text.Transliterate(partner.CoreDocumentPartnerBillingDetail.Address),
-			CityName:         efactura_text.Transliterate(getAddressCityName(customerAddrSubentityCode, partner.CoreDocumentPartnerBillingDetail.Locality.String)),
+			Line1:            efactura_text.Transliterate(partnerBillingDetails.Address),
+			CityName:         efactura_text.Transliterate(getAddressCityName(customerAddrSubentityCode, partnerBillingDetails.Locality)),
 			CountrySubentity: customerAddrSubentityCode,
 			Country: efactura.Country{
 				Code: efactura.CountryCodeRO,
@@ -313,7 +349,7 @@ func (r *Resolver) _EfacturaGenerateXMLDocument(ctx context.Context, documentID 
 	}
 	// Cumpărător plătitor de TVA   => BT-48
 	// Cumpărător neplătitor de TVA => BT-47
-	if partner.CoreDocumentPartnerBillingDetail.Vat {
+	if partnerBillingDetails.Vat {
 		customerParty.TaxScheme = newPartyTaxScheme(buyerVatID, false)
 	} else {
 		customerParty.LegalEntity.CompanyID = efactura.NewValueWithAttrs(buyerVatID)
@@ -387,6 +423,9 @@ func (r *Resolver) _EfacturaGenerateDocumentCheck(ctx context.Context, documentI
 		}
 
 		_, xmlDocID, err := r._EfacturaGenerateXMLDocument(ctx, documentID, transaction)
+		if err != nil {
+			return err
+		}
 
 		if (uuid.UUID{}) == efacturaDocument.EID {
 			efacturaDocID, err = transaction.CreateEfacturaDocument(ctx, db.CreateEfacturaDocumentParams{

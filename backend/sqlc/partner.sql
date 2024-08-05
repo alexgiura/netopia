@@ -7,14 +7,13 @@ select
     vat,
     vat_number,
     registration_number,
-    personal_number,
     is_active
 from core.partners;
 -- where  (code like ('%' || sqlc.arg(code) || '%') OR code IS NULL) and name like '%' || sqlc.arg(name) || '%' and type like '%' || sqlc.arg(type)|| '%' and tax_id like '%' || sqlc.arg(tax_id)|| '%';
 
 -- name: InsertPartner :one
-Insert into core.partners (code,name,type,vat,vat_number,registration_number,personal_number)
-VALUES ($1,$2,$3,$4,$5,$6,$7)
+Insert into core.partners (code,name,type,vat,vat_number,registration_number,address,locality,county_code)
+VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9)
 RETURNING id;
 
 -- name: UpdatePartner :exec
@@ -26,7 +25,9 @@ Set code=$2,
     vat_number=$6,
     vat=$7,
     registration_number=$8,
-    personal_number=$9
+    address=$9,
+    locality=$10,
+    county_code=$11
 where id=$1;
 
 -- name: GetPartnersByDocumentIds :many
@@ -38,7 +39,6 @@ SELECT
     type,
     vat_number,
     registration_number,
-    personal_number,
     is_active
 FROM
     core.partners p

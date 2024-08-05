@@ -1,4 +1,3 @@
-import 'package:erp_frontend_v2/boxes.dart';
 import 'package:erp_frontend_v2/constants/style.dart';
 import 'package:erp_frontend_v2/models/app_localizations.dart';
 import 'package:erp_frontend_v2/models/user/user.dart' as custom_user;
@@ -44,21 +43,10 @@ class _LoginFormState extends ConsumerState<LoginForm> {
   Future<void> _signInWithEmailAndPassword(
       String email, String password) async {
     try {
-      final credential = await FirebaseAuth.instance.signInWithEmailAndPassword(
+      await FirebaseAuth.instance.signInWithEmailAndPassword(
         email: email,
         password: password,
       );
-
-      try {
-        custom_user.User result =
-            await UserService().getUser(credential.user!.uid);
-        if (context.mounted) {
-          ref.read(userProvider.notifier).updateUser(result);
-          context.go(overviewPageRoute);
-        }
-      } catch (error) {
-        emailError = 'user_not_found'.tr(context);
-      }
     } on FirebaseAuthException catch (e) {
       if (e.code == 'user_not_found') {
         emailError = 'user_not_found'.tr(context);

@@ -1,4 +1,3 @@
-import 'package:erp_frontend_v2/boxes.dart';
 import 'package:erp_frontend_v2/constants/style.dart';
 import 'package:erp_frontend_v2/models/app_localizations.dart';
 import 'package:erp_frontend_v2/models/company/company_model.dart';

@@ -21,7 +21,6 @@ select
     vat,
     vat_number,
     registration_number,
-    personal_number,
     is_active
 from core.partners
 `
@@ -34,7 +33,6 @@ type GetPartnersRow struct {
 	Vat                bool
 	VatNumber          sql.NullString
 	RegistrationNumber sql.NullString
-	PersonalNumber     sql.NullString
 	IsActive           bool
 }
 
@@ -55,7 +53,6 @@ func (q *Queries) GetPartners(ctx context.Context) ([]GetPartnersRow, error) {
 			&i.Vat,
 			&i.VatNumber,
 			&i.RegistrationNumber,
-			&i.PersonalNumber,
 			&i.IsActive,
 		); err != nil {
 			return nil, err
@@ -77,7 +74,6 @@ SELECT
     type,
     vat_number,
     registration_number,
-    personal_number,
     is_active
 FROM
     core.partners p
@@ -95,7 +91,6 @@ type GetPartnersByDocumentIdsRow struct {
 	Type               string
 	VatNumber          sql.NullString
 	RegistrationNumber sql.NullString
-	PersonalNumber     sql.NullString
 	IsActive           bool
 }
 
@@ -116,7 +111,6 @@ func (q *Queries) GetPartnersByDocumentIds(ctx context.Context, dollar_1 []uuid.
 			&i.Type,
 			&i.VatNumber,
 			&i.RegistrationNumber,
-			&i.PersonalNumber,
 			&i.IsActive,
 		); err != nil {
 			return nil, err
@@ -131,8 +125,8 @@ func (q *Queries) GetPartnersByDocumentIds(ctx context.Context, dollar_1 []uuid.
 
 const insertPartner = `-- name: InsertPartner :one
 
-Insert into core.partners (code,name,type,vat,vat_number,registration_number,personal_number)
-VALUES ($1,$2,$3,$4,$5,$6,$7)
+Insert into core.partners (code,name,type,vat,vat_number,registration_number,address,locality,county_code)
+VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9)
 RETURNING id
 `
 
@@ -143,7 +137,9 @@ type InsertPartnerParams struct {
 	Vat                bool
 	VatNumber          sql.NullString
 	RegistrationNumber sql.NullString
-	PersonalNumber     sql.NullString
+	Address            sql.NullString
+	Locality           sql.NullString
+	CountyCode         sql.NullString
 }
 
 // where  (code like ('%' || sqlc.arg(code) || '%') OR code IS NULL) and name like '%' || sqlc.arg(name) || '%' and type like '%' || sqlc.arg(type)|| '%' and tax_id like '%' || sqlc.arg(tax_id)|| '%';
@@ -155,7 +151,9 @@ func (q *Queries) InsertPartner(ctx context.Context, arg InsertPartnerParams) (u
 		arg.Vat,
 		arg.VatNumber,
 		arg.RegistrationNumber,
-		arg.PersonalNumber,
+		arg.Address,
+		arg.Locality,
+		arg.CountyCode,
 	)
 	var id uuid.UUID
 	err := row.Scan(&id)
@@ -171,7 +169,9 @@ Set code=$2,
     vat_number=$6,
     vat=$7,
     registration_number=$8,
-    personal_number=$9
+    address=$9,
+    locality=$10,
+    county_code=$11
 where id=$1
 `
 
@@ -184,7 +184,9 @@ type UpdatePartnerParams struct {
 	VatNumber          sql.NullString
 	Vat                bool
 	RegistrationNumber sql.NullString
-	PersonalNumber     sql.NullString
+	Address            sql.NullString
+	Locality           sql.NullString
+	CountyCode         sql.NullString
 }
 
 func (q *Queries) UpdatePartner(ctx context.Context, arg UpdatePartnerParams) error {
@@ -197,7 +199,9 @@ func (q *Queries) UpdatePartner(ctx context.Context, arg UpdatePartnerParams) er
 		arg.VatNumber,
 		arg.Vat,
 		arg.RegistrationNumber,
-		arg.PersonalNumber,
+		arg.Address,
+		arg.Locality,
+		arg.CountyCode,
 	)
 	return err
 }

@@ -27,4 +27,37 @@ class EfacturaService {
       throw Exception('An error occurred: ${e.toString()}');
     }
   }
+
+  Future<String> uploadEfacturaDocument({
+    required String hId,
+    required bool regenerate,
+  }) async {
+    try {
+      final QueryOptions options = QueryOptions(
+        document: gql(mutations.uploadEfacturaDocument),
+        variables: <String, dynamic>{
+          "input": {
+            "h_id": hId,
+            "regenerate": regenerate,
+          }
+        },
+        fetchPolicy: FetchPolicy.noCache,
+      );
+
+      final QueryResult result = await graphQLClient.value.query(options);
+
+      if (result.hasException) {
+        throw Exception(result.exception.toString());
+      }
+      final dynamic data = result.data!['uploadEfacturaDocument'];
+
+      if (data != null) {
+        return data;
+      } else {
+        throw Exception('Invalid data');
+      }
+    } catch (e) {
+      throw Exception('An error occurred: ${e.toString()}');
+    }
+  }
 }

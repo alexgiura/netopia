@@ -7,7 +7,6 @@ type Partner {
   vat_number: String
   vat: Boolean!
   registration_number: String
-  individual_number: String
   address: Address
 }
 
@@ -19,7 +18,6 @@ input PartnerInput {
   vat_number: String
   vat:Boolean!
   registration_number: String
-  personal_number: String
   address: AddressInput
   is_active: Boolean
 }

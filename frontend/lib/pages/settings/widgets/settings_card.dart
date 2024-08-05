@@ -7,14 +7,16 @@ class SettingsCard extends StatefulWidget {
   final String title;
   final String subtitle;
   final VoidCallback onTap;
+  final Widget? statusWidget;
 
-  const SettingsCard({
-    Key? key,
-    required this.iconData,
-    required this.title,
-    required this.subtitle,
-    required this.onTap,
-  }) : super(key: key);
+  const SettingsCard(
+      {Key? key,
+      required this.iconData,
+      required this.title,
+      required this.subtitle,
+      required this.onTap,
+      this.statusWidget})
+      : super(key: key);
 
   @override
   State<SettingsCard> createState() => SettingsCardState();
@@ -36,12 +38,19 @@ class SettingsCardState extends State<SettingsCard> {
             crossAxisAlignment:
                 CrossAxisAlignment.start, // Align items to the start of the row
             children: [
-              CircleAvatar(
-                backgroundColor: CustomColor.accentColor.withOpacity(0.4),
-                child: Icon(
-                  widget.iconData,
-                  color: Colors.black,
-                ),
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  CircleAvatar(
+                    backgroundColor: CustomColor.accentColor.withOpacity(0.4),
+                    child: Icon(
+                      widget.iconData,
+                      color: Colors.black,
+                    ),
+                  ),
+                  Spacer(),
+                  widget.statusWidget ?? Container()
+                ],
               ),
               Gap(16.0),
               Text(

@@ -1,5 +1,4 @@
 import 'package:erp_frontend_v2/app/app.dart';
-import 'package:erp_frontend_v2/boxes.dart';
 import 'package:erp_frontend_v2/firebase_options.dart';
 import 'package:erp_frontend_v2/routing/router.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -16,9 +15,6 @@ void main() async {
     options: DefaultFirebaseOptions.currentPlatform,
   );
 
-  // await Hive.initFlutter();
-  // Hive.registerAdapter(custom_user.UserAdapter());
-  // boxUser = await Hive.openBox<User>('userBox');
   setUrlStrategy(PathUrlStrategy());
   FirebaseAuth.instance.authStateChanges().listen((User? user) {
     router.refresh();

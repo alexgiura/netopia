@@ -45,6 +45,8 @@ class Item {
         name: json['name'],
         isActive: json['is_active'],
         isStock: json['is_stock'],
+
+        // category: ItemCategory.empty(),
         um: Um.fromJson(json['um']),
         vat: Vat.fromJson(json['vat']),
         category: json.containsKey('category')

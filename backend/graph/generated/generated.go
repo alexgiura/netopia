@@ -130,12 +130,6 @@ type ComplexityRoot struct {
 		Number               func(childComplexity int) int
 	}
 
-	Individual struct {
-		IndividualAddress func(childComplexity int) int
-		IndividualNumber  func(childComplexity int) int
-		Name              func(childComplexity int) int
-	}
-
 	Item struct {
 		Category func(childComplexity int) int
 		Code     func(childComplexity int) int
@@ -175,7 +169,6 @@ type ComplexityRoot struct {
 		Address            func(childComplexity int) int
 		Code               func(childComplexity int) int
 		ID                 func(childComplexity int) int
-		IndividualNumber   func(childComplexity int) int
 		Name               func(childComplexity int) int
 		RegistrationNumber func(childComplexity int) int
 		Type               func(childComplexity int) int
@@ -235,10 +228,11 @@ type ComplexityRoot struct {
 	}
 
 	User struct {
-		Company     func(childComplexity int) int
-		Email       func(childComplexity int) int
-		Id          func(childComplexity int) int
-		PhoneNumber func(childComplexity int) int
+		Company      func(childComplexity int) int
+		EfacturaAuth func(childComplexity int) int
+		Email        func(childComplexity int) int
+		Id           func(childComplexity int) int
+		PhoneNumber  func(childComplexity int) int
 	}
 
 	Vat struct {
@@ -297,6 +291,7 @@ type RecipeResolver interface {
 }
 type UserResolver interface {
 	Company(ctx context.Context, obj *models.User) (*models.Company, error)
+	EfacturaAuth(ctx context.Context, obj *models.User) (bool, error)
 }
 
 type executableSchema struct {
@@ -661,27 +656,6 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.GeneratedDocument.Number(childComplexity), true
 
-	case "Individual.individual_address":
-		if e.complexity.Individual.IndividualAddress == nil {
-			break
-		}
-
-		return e.complexity.Individual.IndividualAddress(childComplexity), true
-
-	case "Individual.individual_number":
-		if e.complexity.Individual.IndividualNumber == nil {
-			break
-		}
-
-		return e.complexity.Individual.IndividualNumber(childComplexity), true
-
-	case "Individual.name":
-		if e.complexity.Individual.Name == nil {
-			break
-		}
-
-		return e.complexity.Individual.Name(childComplexity), true
-
 	case "Item.category":
 		if e.complexity.Item.Category == nil {
 			break
@@ -944,13 +918,6 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Partner.ID(childComplexity), true
-
-	case "Partner.individual_number":
-		if e.complexity.Partner.IndividualNumber == nil {
-			break
-		}
-
-		return e.complexity.Partner.IndividualNumber(childComplexity), true
 
 	case "Partner.name":
 		if e.complexity.Partner.Name == nil {
@@ -1301,6 +1268,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.User.Company(childComplexity), true
 
+	case "User.efactura_auth":
+		if e.complexity.User.EfacturaAuth == nil {
+			break
+		}
+
+		return e.complexity.User.EfacturaAuth(childComplexity), true
+
 	case "User.email":
 		if e.complexity.User.Email == nil {
 			break
@@ -1509,12 +1483,6 @@ type Company{
     registration_number: String
     company_address: Address
 
-}
-
-type Individual{
-    name: String!
-    individual_number: String!
-    individual_address: Address
 }
 
 type Address{
@@ -1768,7 +1736,6 @@ extend type Mutation {
   vat_number: String
   vat: Boolean!
   registration_number: String
-  individual_number: String
   address: Address
 }
 
@@ -1780,7 +1747,6 @@ input PartnerInput {
   vat_number: String
   vat:Boolean!
   registration_number: String
-  personal_number: String
   address: AddressInput
   is_active: Boolean
 }
@@ -1873,6 +1839,7 @@ directive @isAuthenticated on FIELD | FIELD_DEFINITION`, BuiltIn: false},
     email: String!
     phone_number: String
     company: Company
+    efactura_auth: Boolean!
 
 }
 
@@ -3197,8 +3164,6 @@ func (ec *executionContext) fieldContext_Document_partner(ctx context.Context, f
 				return ec.fieldContext_Partner_vat(ctx, field)
 			case "registration_number":
 				return ec.fieldContext_Partner_registration_number(ctx, field)
-			case "individual_number":
-				return ec.fieldContext_Partner_individual_number(ctx, field)
 			case "address":
 				return ec.fieldContext_Partner_address(ctx, field)
 			}
@@ -4372,134 +4337,6 @@ func (ec *executionContext) fieldContext_GeneratedDocument_document_source_numbe
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return nil, errors.New("field of type String does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _Individual_name(ctx context.Context, field graphql.CollectedField, obj *model.Individual) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Individual_name(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp := ec._fieldMiddleware(ctx, obj, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Name, nil
-	})
-
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(string)
-	fc.Result = res
-	return ec.marshalNString2string(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_Individual_name(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "Individual",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _Individual_individual_number(ctx context.Context, field graphql.CollectedField, obj *model.Individual) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Individual_individual_number(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp := ec._fieldMiddleware(ctx, obj, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.IndividualNumber, nil
-	})
-
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(string)
-	fc.Result = res
-	return ec.marshalNString2string(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_Individual_individual_number(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "Individual",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _Individual_individual_address(ctx context.Context, field graphql.CollectedField, obj *model.Individual) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Individual_individual_address(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp := ec._fieldMiddleware(ctx, obj, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.IndividualAddress, nil
-	})
-
-	if resTmp == nil {
-		return graphql.Null
-	}
-	res := resTmp.(*models.Address)
-	fc.Result = res
-	return ec.marshalOAddress2ᚖbackendᚋmodelsᚐAddress(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_Individual_individual_address(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "Individual",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "address":
-				return ec.fieldContext_Address_address(ctx, field)
-			case "locality":
-				return ec.fieldContext_Address_locality(ctx, field)
-			case "county_code":
-				return ec.fieldContext_Address_county_code(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type Address", field.Name)
 		},
 	}
 	return fc, nil
@@ -5697,6 +5534,8 @@ func (ec *executionContext) fieldContext_Mutation_createNewAccount(ctx context.C
 				return ec.fieldContext_User_phone_number(ctx, field)
 			case "company":
 				return ec.fieldContext_User_company(ctx, field)
+			case "efactura_auth":
+				return ec.fieldContext_User_efactura_auth(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type User", field.Name)
 		},
@@ -6022,44 +5861,6 @@ func (ec *executionContext) _Partner_registration_number(ctx context.Context, fi
 }
 
 func (ec *executionContext) fieldContext_Partner_registration_number(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "Partner",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _Partner_individual_number(ctx context.Context, field graphql.CollectedField, obj *models.Partner) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Partner_individual_number(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp := ec._fieldMiddleware(ctx, obj, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.IndividualNumber, nil
-	})
-
-	if resTmp == nil {
-		return graphql.Null
-	}
-	res := resTmp.(*string)
-	fc.Result = res
-	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_Partner_individual_number(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Partner",
 		Field:      field,
@@ -7240,8 +7041,6 @@ func (ec *executionContext) fieldContext_Query_getPartners(ctx context.Context, 
 				return ec.fieldContext_Partner_vat(ctx, field)
 			case "registration_number":
 				return ec.fieldContext_Partner_registration_number(ctx, field)
-			case "individual_number":
-				return ec.fieldContext_Partner_individual_number(ctx, field)
 			case "address":
 				return ec.fieldContext_Partner_address(ctx, field)
 			}
@@ -7399,6 +7198,8 @@ func (ec *executionContext) fieldContext_Query_getUser(ctx context.Context, fiel
 				return ec.fieldContext_User_phone_number(ctx, field)
 			case "company":
 				return ec.fieldContext_User_company(ctx, field)
+			case "efactura_auth":
+				return ec.fieldContext_User_efactura_auth(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type User", field.Name)
 		},
@@ -8202,6 +8003,47 @@ func (ec *executionContext) fieldContext_User_company(ctx context.Context, field
 				return ec.fieldContext_Company_company_address(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Company", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _User_efactura_auth(ctx context.Context, field graphql.CollectedField, obj *models.User) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_User_efactura_auth(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp := ec._fieldMiddleware(ctx, obj, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.User().EfacturaAuth(rctx, obj)
+	})
+
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(bool)
+	fc.Result = res
+	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_User_efactura_auth(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "User",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Boolean does not have child fields")
 		},
 	}
 	return fc, nil
@@ -10720,7 +10562,7 @@ func (ec *executionContext) unmarshalInputPartnerInput(ctx context.Context, obj 
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"id", "code", "name", "type", "vat_number", "vat", "registration_number", "personal_number", "address", "is_active"}
+	fieldsInOrder := [...]string{"id", "code", "name", "type", "vat_number", "vat", "registration_number", "address", "is_active"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
@@ -10776,13 +10618,6 @@ func (ec *executionContext) unmarshalInputPartnerInput(ctx context.Context, obj 
 				return it, err
 			}
 			it.RegistrationNumber = data
-		case "personal_number":
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("personal_number"))
-			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
-			if err != nil {
-				return it, err
-			}
-			it.PersonalNumber = data
 		case "address":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("address"))
 			data, err := ec.unmarshalOAddressInput2ᚖbackendᚋgraphᚋmodelᚐAddressInput(ctx, v)
@@ -11743,52 +11578,6 @@ func (ec *executionContext) _GeneratedDocument(ctx context.Context, sel ast.Sele
 	return out
 }
 
-var individualImplementors = []string{"Individual"}
-
-func (ec *executionContext) _Individual(ctx context.Context, sel ast.SelectionSet, obj *model.Individual) graphql.Marshaler {
-	fields := graphql.CollectFields(ec.OperationContext, sel, individualImplementors)
-
-	out := graphql.NewFieldSet(fields)
-	deferred := make(map[string]*graphql.FieldSet)
-	for i, field := range fields {
-		switch field.Name {
-		case "__typename":
-			out.Values[i] = graphql.MarshalString("Individual")
-		case "name":
-			out.Values[i] = ec._Individual_name(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
-		case "individual_number":
-			out.Values[i] = ec._Individual_individual_number(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
-		case "individual_address":
-			out.Values[i] = ec._Individual_individual_address(ctx, field, obj)
-		default:
-			panic("unknown field " + strconv.Quote(field.Name))
-		}
-	}
-	out.Dispatch(ctx)
-	if out.Invalids > 0 {
-		return graphql.Null
-	}
-
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
-
-	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
-			Label:    label,
-			Path:     graphql.GetPath(ctx),
-			FieldSet: dfs,
-			Context:  ctx,
-		})
-	}
-
-	return out
-}
-
 var itemImplementors = []string{"Item"}
 
 func (ec *executionContext) _Item(ctx context.Context, sel ast.SelectionSet, obj *models.Item) graphql.Marshaler {
@@ -12047,8 +11836,6 @@ func (ec *executionContext) _Partner(ctx context.Context, sel ast.SelectionSet, 
 			}
 		case "registration_number":
 			out.Values[i] = ec._Partner_registration_number(ctx, field, obj)
-		case "individual_number":
-			out.Values[i] = ec._Partner_individual_number(ctx, field, obj)
 		case "address":
 			out.Values[i] = ec._Partner_address(ctx, field, obj)
 		default:
@@ -12752,6 +12539,42 @@ func (ec *executionContext) _User(ctx context.Context, sel ast.SelectionSet, obj
 					}
 				}()
 				res = ec._User_company(ctx, field, obj)
+				return res
+			}
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+		case "efactura_auth":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._User_efactura_auth(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
 				return res
 			}
 

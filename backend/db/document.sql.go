@@ -20,8 +20,8 @@ WITH auth AS (
     WHERE efactura_authorizations.a_id=$1
 )
 INSERT INTO core.efactura_authorizations(company_id, code, status, token, token_expires_at)
-    SELECT auth.company_id, auth.code, auth.status, $2, $3 FROM auth
-    RETURNING a_id
+SELECT auth.company_id, auth.code, auth.status, $2, $3 FROM auth
+                                                                RETURNING a_id
 `
 
 type CloneAuthorizationWithTokenParams struct {
@@ -57,17 +57,17 @@ func (q *Queries) CreateEfacturaDocument(ctx context.Context, arg CreateEfactura
 
 const createEfacturaDocumentUpload = `-- name: CreateEfacturaDocumentUpload :one
 WITH insert_upload AS (
-    INSERT INTO core.efactura_document_uploads(e_id, x_id, status, upload_index)
-    VALUES ($1, $2, $3, $4)
+INSERT INTO core.efactura_document_uploads(e_id, x_id, status, upload_index)
+VALUES ($1, $2, $3, $4)
     RETURNING id
-)
+    )
 UPDATE core.efactura_documents AS ed
 SET x_id=$2,
     status=$3,
     upload_index=$4,
     u_id = (SELECT id FROM insert_upload)
 WHERE ed.e_id=$1
-RETURNING u_id::bigint
+    RETURNING u_id::bigint
 `
 
 type CreateEfacturaDocumentUploadParams struct {
@@ -145,7 +145,7 @@ func (q *Queries) DeleteDocument(ctx context.Context, hID uuid.UUID) error {
 const fetchLastAuthorization = `-- name: FetchLastAuthorization :one
 SELECT a_id, token
 FROM core.efactura_authorizations ea
-INNER JOIN core.company c ON ea.company_id = c.id
+         INNER JOIN core.company c ON ea.company_id = c.id
 WHERE ea.status='success'
 ORDER BY ea.token_expires_at DESC LIMIT 1
 `
@@ -217,7 +217,7 @@ func (q *Queries) GetDocumentDetails(ctx context.Context, dID uuid.UUID) (GetDoc
 
 const getDocumentHeader = `-- name: GetDocumentHeader :one
 Select
-    h_id,
+    d.h_id,
     dt.id as document_type_id,
     dt.name_ro as document_type_name_ro,
     dt.name_en as document_type_name_en,
@@ -232,17 +232,20 @@ Select
     pe.name as person_name,
     notes,
     dc.name AS currency,
-    is_deleted
+    is_deleted,
+    ed.status as efactura_status
 from core.document_header as d
-left join core.partners as pa
+    left join core.partners as pa
 on pa.id=d.partner_id
-left join core.persons as pe
-on pe.id=d.representative_id
-left join core.document_types as dt
-on dt.id=d.document_type
-left join core.document_currency dc
-on d.currency_id = dc.id
-where h_id=$1
+    left join core.persons as pe
+    on pe.id=d.representative_id
+    left join core.document_types as dt
+    on dt.id=d.document_type
+    left join core.document_currency dc
+    on d.currency_id = dc.id
+    left join core.efactura_documents ed
+    on ed.h_id=d.h_id
+where d.h_id=$1
 `
 
 type GetDocumentHeaderRow struct {
@@ -262,6 +265,7 @@ type GetDocumentHeaderRow struct {
 	Notes                           sql.NullString
 	Currency                        sql.NullString
 	IsDeleted                       bool
+	EfacturaStatus                  NullCoreEfacturaDocumentStatus
 }
 
 func (q *Queries) GetDocumentHeader(ctx context.Context, hID uuid.UUID) (GetDocumentHeaderRow, error) {
@@ -284,6 +288,7 @@ func (q *Queries) GetDocumentHeader(ctx context.Context, hID uuid.UUID) (GetDocu
 		&i.Notes,
 		&i.Currency,
 		&i.IsDeleted,
+		&i.EfacturaStatus,
 	)
 	return i, err
 }
@@ -298,7 +303,9 @@ Select
     vat,
     vat_number,
     registration_number,
-    personal_number
+    address,
+    locality,
+    county_code
 from core.partners
 where id=$1
 `
@@ -312,7 +319,9 @@ type GetDocumentHeaderPartnerRow struct {
 	Vat                bool
 	VatNumber          sql.NullString
 	RegistrationNumber sql.NullString
-	PersonalNumber     sql.NullString
+	Address            sql.NullString
+	Locality           sql.NullString
+	CountyCode         sql.NullString
 }
 
 func (q *Queries) GetDocumentHeaderPartner(ctx context.Context, id uuid.UUID) (GetDocumentHeaderPartnerRow, error) {
@@ -327,13 +336,15 @@ func (q *Queries) GetDocumentHeaderPartner(ctx context.Context, id uuid.UUID) (G
 		&i.Vat,
 		&i.VatNumber,
 		&i.RegistrationNumber,
-		&i.PersonalNumber,
+		&i.Address,
+		&i.Locality,
+		&i.CountyCode,
 	)
 	return i, err
 }
 
 const getDocumentHeaderPartnerBillingDetails = `-- name: GetDocumentHeaderPartnerBillingDetails :one
-SELECT p.id, p.code, p.name, p.is_active, p.type, p.vat_number, p.vat, p.registration_number, p.personal_number, p.address, p.locality, p.county_code, p.created_at, bd.id, bd.partner_id, bd.vat, bd.registration_number, bd.address, bd.locality, bd.county_code, bd.created_at
+SELECT p.id, p.code, p.name, p.is_active, p.type, p.vat_number, p.vat, p.registration_number, p.address, p.locality, p.county_code, p.created_at, bd.id, bd.partner_id, bd.vat, bd.registration_number, bd.address, bd.locality, bd.county_code, bd.created_at
 FROM core.document_partner_billing_details bd
          INNER JOIN core.partners p
                     ON p.id = bd.partner_id
@@ -357,7 +368,6 @@ func (q *Queries) GetDocumentHeaderPartnerBillingDetails(ctx context.Context, id
 		&i.CorePartner.VatNumber,
 		&i.CorePartner.Vat,
 		&i.CorePartner.RegistrationNumber,
-		&i.CorePartner.PersonalNumber,
 		&i.CorePartner.Address,
 		&i.CorePartner.Locality,
 		&i.CorePartner.CountyCode,
@@ -608,12 +618,12 @@ Select
     ed.status as efactura_status,
     notes
 from core.document_header as d
-left join core.partners as pa
+    left join core.partners as pa
 on pa.id=d.partner_id
-left join core.document_types as dt
-on dt.id=d.document_type
-left join core.efactura_documents ed
-on ed.h_id=d.h_id
+    left join core.document_types as dt
+    on dt.id=d.document_type
+    left join core.efactura_documents ed
+    on ed.h_id=d.h_id
 where document_type=$1 and date>=$2 and date<=$3  and (($4::uuid[]) IS NULL OR cardinality($4::uuid[]) = 0 OR  pa.id = ANY($4::uuid[]))
 ORDER BY date DESC
 `
@@ -680,17 +690,17 @@ func (q *Queries) GetDocuments(ctx context.Context, arg GetDocumentsParams) ([]G
 
 const getEfacturaDocument = `-- name: GetEfacturaDocument :one
 SELECT d.e_id,
-    d.h_id,
-    d.x_id,
-    x.invoice_xml,
-    x.invoice_md5_sum,
-    d.status,
-    d.upload_index,
-    d.download_id,
-    d.u_id AS upload_record_id
+       d.h_id,
+       d.x_id,
+       x.invoice_xml,
+       x.invoice_md5_sum,
+       d.status,
+       d.upload_index,
+       d.download_id,
+       d.u_id AS upload_record_id
 FROM core.efactura_documents d
-INNER JOIN core.efactura_xml_documents x
-ON d.x_id = x.id
+         INNER JOIN core.efactura_xml_documents x
+                    ON d.x_id = x.id
 WHERE d.e_id=$1
 `
 
@@ -725,18 +735,18 @@ func (q *Queries) GetEfacturaDocument(ctx context.Context, eID uuid.UUID) (GetEf
 
 const getEfacturaDocumentForHeaderIDLockForUpdate = `-- name: GetEfacturaDocumentForHeaderIDLockForUpdate :one
 SELECT d.e_id,
-    d.x_id,
-    x.invoice_xml,
-    x.invoice_md5_sum,
-    d.status,
-    d.upload_index,
-    d.download_id,
-    d.u_id AS upload_record_id
+       d.x_id,
+       x.invoice_xml,
+       x.invoice_md5_sum,
+       d.status,
+       d.upload_index,
+       d.download_id,
+       d.u_id AS upload_record_id
 FROM core.efactura_documents d
-INNER JOIN core.efactura_xml_documents x
-ON d.x_id = x.id
+         INNER JOIN core.efactura_xml_documents x
+                    ON d.x_id = x.id
 WHERE d.h_id=$1
-FOR UPDATE OF d
+    FOR UPDATE OF d
 `
 
 type GetEfacturaDocumentForHeaderIDLockForUpdateRow struct {
@@ -777,10 +787,10 @@ SELECT d.e_id,
        d.download_id,
        d.u_id AS upload_record_id
 FROM core.efactura_documents d
-INNER JOIN core.efactura_xml_documents x
-ON d.x_id = x.id
+         INNER JOIN core.efactura_xml_documents x
+                    ON d.x_id = x.id
 WHERE d.e_id=$1
-FOR UPDATE OF d
+    FOR UPDATE OF d
 `
 
 type GetEfacturaDocumentLockForUpdateRow struct {
@@ -874,9 +884,9 @@ func (q *Queries) GetGenerateAvailableItems(ctx context.Context, arg GetGenerate
 
 const getGeneratedDocuments = `-- name: GetGeneratedDocuments :many
 select dh.h_id as h_id, dt.name_ro as document_type, dh.number as document_number, dhSource.number as document_source_number from core.document_connections dc
-inner join core.document_header dh on dh.h_id=dc.h_id
-inner join core.document_header dhSource on dhSource.h_id=dc.h_id_source
-inner join core.document_types dt on dt.id=dh.document_type
+                                                                                                                                      inner join core.document_header dh on dh.h_id=dc.h_id
+                                                                                                                                      inner join core.document_header dhSource on dhSource.h_id=dc.h_id_source
+                                                                                                                                      inner join core.document_types dt on dt.id=dh.document_type
 where h_id_source=$1 and dh.is_deleted=false group by dh.h_id, dt.name_ro,dh.document_type,dhSource.number
 `
 
@@ -922,7 +932,7 @@ func (q *Queries) RemoveDocumentConnections(ctx context.Context, hID uuid.UUID) 
 }
 
 const saveDocument = `-- name: SaveDocument :one
-insert into core.document_header(document_type, series, number,partner_id,date,representative_id,recipe_id,notes) VALUES ($1,$2,$3,$4,$5,$6,$7,$8)
+insert into core.document_header(document_type, series, number,partner_id,date,representative_id,recipe_id,notes,currency_id) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9)
     RETURNING h_id
 `
 
@@ -935,6 +945,7 @@ type SaveDocumentParams struct {
 	RepresentativeID uuid.NullUUID
 	RecipeID         sql.NullInt32
 	Notes            sql.NullString
+	CurrencyID       sql.NullInt32
 }
 
 func (q *Queries) SaveDocument(ctx context.Context, arg SaveDocumentParams) (uuid.UUID, error) {
@@ -947,6 +958,7 @@ func (q *Queries) SaveDocument(ctx context.Context, arg SaveDocumentParams) (uui
 		arg.RepresentativeID,
 		arg.RecipeID,
 		arg.Notes,
+		arg.CurrencyID,
 	)
 	var h_id uuid.UUID
 	err := row.Scan(&h_id)
@@ -955,14 +967,14 @@ func (q *Queries) SaveDocument(ctx context.Context, arg SaveDocumentParams) (uui
 
 const saveDocumentConnection = `-- name: SaveDocumentConnection :exec
 SELECT core.insert_document_connections(
-$1::int,
-$2::uuid,
-$3::uuid,
-$4::uuid,
-$5::uuid,
-$6::uuid,
-$7::float
-)
+               $1::int,
+               $2::uuid,
+               $3::uuid,
+               $4::uuid,
+               $5::uuid,
+               $6::uuid,
+               $7::float
+           )
 `
 
 type SaveDocumentConnectionParams struct {
@@ -990,15 +1002,15 @@ func (q *Queries) SaveDocumentConnection(ctx context.Context, arg SaveDocumentCo
 
 const saveDocumentDetails = `-- name: SaveDocumentDetails :one
 SELECT returned_d_id::UUID from core.insert_document_details(
-    $1::uuid,
-    $2::uuid,
-    $3::float,
-    $4::float,
-    $5::float,
-    $6::float,
-    $7::float,
-    $8::text
-) AS returned_d_id
+                                        $1::uuid,
+                                        $2::uuid,
+                                        $3::float,
+                                        $4::float,
+                                        $5::float,
+                                        $6::float,
+                                        $7::float,
+                                        $8::text
+                                    ) AS returned_d_id
 `
 
 type SaveDocumentDetailsParams struct {
@@ -1102,11 +1114,11 @@ func (q *Queries) UpdateEfacturaDocumentXMLDocumentID(ctx context.Context, arg U
 
 const updateEfacturaUploadIndex = `-- name: UpdateEfacturaUploadIndex :exec
 WITH update_upload AS (
-    UPDATE core.efactura_document_uploads
-    SET upload_index=$2,
-        status='processing',
-        updated_at=NOW()
-    WHERE id=$1
+UPDATE core.efactura_document_uploads
+SET upload_index=$2,
+    status='processing',
+    updated_at=NOW()
+WHERE id=$1
     RETURNING id
 )
 UPDATE core.efactura_documents
@@ -1128,11 +1140,11 @@ func (q *Queries) UpdateEfacturaUploadIndex(ctx context.Context, arg UpdateEfact
 
 const updateEfacturaUploadStatus = `-- name: UpdateEfacturaUploadStatus :exec
 WITH update_upload AS (
-    UPDATE core.efactura_document_uploads
-    SET status=$2,
-        download_id=$3,
-        updated_at=NOW()
-    WHERE id=$1
+UPDATE core.efactura_document_uploads
+SET status=$2,
+    download_id=$3,
+    updated_at=NOW()
+WHERE id=$1
     RETURNING id
 )
 UPDATE core.efactura_documents

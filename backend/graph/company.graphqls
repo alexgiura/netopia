@@ -9,12 +9,6 @@ type Company{
 
 }
 
-type Individual{
-    name: String!
-    individual_number: String!
-    individual_address: Address
-}
-
 type Address{
     address: String
     locality: String

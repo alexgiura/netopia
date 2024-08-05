@@ -5,6 +5,7 @@ import 'package:erp_frontend_v2/pages/document/documents_page/widgets/eFactura_w
 import 'package:erp_frontend_v2/providers/document_providers.dart';
 import 'package:erp_frontend_v2/providers/partner_provider.dart';
 import 'package:erp_frontend_v2/widgets/buttons/edit_button.dart';
+import 'package:erp_frontend_v2/widgets/buttons/icon_button.dart';
 import 'package:erp_frontend_v2/widgets/buttons/primary_button.dart';
 import 'package:erp_frontend_v2/widgets/custom_data_table.dart';
 import 'package:erp_frontend_v2/widgets/custom_search_bar.dart';
@@ -163,15 +164,13 @@ class _DocumentsDataTableState extends ConsumerState<DocumentsDataTable>
                     initialStartDate: _documentFilter.startDate,
                     initialEndDate: _documentFilter.endDate,
                   ),
-                  IconButton(
-                    icon: const Icon(
-                      Icons.refresh_rounded,
-                      color: CustomColor.textPrimary,
-                    ),
-                    onPressed: () {
+                  CustomIconButton(
+                    icon: Icons.refresh_rounded,
+                    asyncOnPressed: () async {
                       ref.read(documentProvider.notifier).refreshDocuments();
                     },
                   ),
+
                   const Spacer(),
                   // const SelectColumns()
                 ],
@@ -240,7 +239,7 @@ class _DocumentsDataTableState extends ConsumerState<DocumentsDataTable>
           ),
           if (widget.documentTypeId == 2)
             DataCell(SizedBox(
-              child: Center(child: eFacturaWidget(row.value, context)),
+              child: Center(child: eFacturaWidget(row.value, context, ref)),
             )),
           DataCell(Container(
             alignment: Alignment.center,

@@ -13,19 +13,19 @@ Select
     ed.status as efactura_status,
     notes
 from core.document_header as d
-left join core.partners as pa
+    left join core.partners as pa
 on pa.id=d.partner_id
-left join core.document_types as dt
-on dt.id=d.document_type
-left join core.efactura_documents ed
-on ed.h_id=d.h_id
+    left join core.document_types as dt
+    on dt.id=d.document_type
+    left join core.efactura_documents ed
+    on ed.h_id=d.h_id
 where document_type=$1 and date>=sqlc.arg(start_date) and date<=sqlc.arg(end_date)  and ((sqlc.arg(partner)::uuid[]) IS NULL OR cardinality(sqlc.arg(partner)::uuid[]) = 0 OR  pa.id = ANY(sqlc.arg(partner)::uuid[]))
 ORDER BY date DESC;
 
 
 -- name: GetDocumentHeader :one
 Select
-    h_id,
+    d.h_id,
     dt.id as document_type_id,
     dt.name_ro as document_type_name_ro,
     dt.name_en as document_type_name_en,
@@ -40,17 +40,20 @@ Select
     pe.name as person_name,
     notes,
     dc.name AS currency,
-    is_deleted
+    is_deleted,
+    ed.status as efactura_status
 from core.document_header as d
-left join core.partners as pa
+    left join core.partners as pa
 on pa.id=d.partner_id
-left join core.persons as pe
-on pe.id=d.representative_id
-left join core.document_types as dt
-on dt.id=d.document_type
-left join core.document_currency dc
-on d.currency_id = dc.id
-where h_id=$1;
+    left join core.persons as pe
+    on pe.id=d.representative_id
+    left join core.document_types as dt
+    on dt.id=d.document_type
+    left join core.document_currency dc
+    on d.currency_id = dc.id
+    left join core.efactura_documents ed
+    on ed.h_id=d.h_id
+where d.h_id=$1;
 
 -- name: GetDocumentHeaderPartner :one
 Select
@@ -62,7 +65,9 @@ Select
     vat,
     vat_number,
     registration_number,
-    personal_number
+    address,
+    locality,
+    county_code
 from core.partners
 where id=$1;
 
@@ -130,21 +135,21 @@ WHERE
 
 
 -- name: SaveDocument :one
-insert into core.document_header(document_type, series, number,partner_id,date,representative_id,recipe_id,notes) VALUES ($1,$2,$3,$4,$5,$6,$7,$8)
+insert into core.document_header(document_type, series, number,partner_id,date,representative_id,recipe_id,notes,currency_id) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9)
     RETURNING h_id;
 
 
 -- name: SaveDocumentDetails :one
 SELECT returned_d_id::UUID from core.insert_document_details(
-    sqlc.arg('h_id')::uuid,
-    sqlc.arg('item_id')::uuid,
-    sqlc.arg('quantity')::float,
-    sqlc.narg('price')::float,
-    sqlc.narg('net_value')::float,
-    sqlc.narg('vat_value')::float,
-    sqlc.narg('gross_value')::float,
-    sqlc.narg('item_type_pn')::text
-) AS returned_d_id;
+                                        sqlc.arg('h_id')::uuid,
+                                        sqlc.arg('item_id')::uuid,
+                                        sqlc.arg('quantity')::float,
+                                        sqlc.narg('price')::float,
+                                        sqlc.narg('net_value')::float,
+                                        sqlc.narg('vat_value')::float,
+                                        sqlc.narg('gross_value')::float,
+                                        sqlc.narg('item_type_pn')::text
+                                    ) AS returned_d_id;
 
 
 -- name: GetDocumentTransactions :many
@@ -165,20 +170,20 @@ SELECT quantity::float,h_id,d_id from core.document_details where d_id=$1;
 
 -- name: SaveDocumentConnection :exec
 SELECT core.insert_document_connections(
-sqlc.arg('transaction_id')::int,
-sqlc.arg('h_id')::uuid,
-sqlc.arg('d_id')::uuid,
-sqlc.arg('h_id_source')::uuid,
-sqlc.arg('d_id_source')::uuid,
-sqlc.arg('item_id')::uuid,
-sqlc.arg('quantity')::float
-);
+               sqlc.arg('transaction_id')::int,
+               sqlc.arg('h_id')::uuid,
+               sqlc.arg('d_id')::uuid,
+               sqlc.arg('h_id_source')::uuid,
+               sqlc.arg('d_id_source')::uuid,
+               sqlc.arg('item_id')::uuid,
+               sqlc.arg('quantity')::float
+           );
 
 -- name: GetGeneratedDocuments :many
 select dh.h_id as h_id, dt.name_ro as document_type, dh.number as document_number, dhSource.number as document_source_number from core.document_connections dc
-inner join core.document_header dh on dh.h_id=dc.h_id
-inner join core.document_header dhSource on dhSource.h_id=dc.h_id_source
-inner join core.document_types dt on dt.id=dh.document_type
+                                                                                                                                      inner join core.document_header dh on dh.h_id=dc.h_id
+                                                                                                                                      inner join core.document_header dhSource on dhSource.h_id=dc.h_id_source
+                                                                                                                                      inner join core.document_types dt on dt.id=dh.document_type
 where h_id_source=$1 and dh.is_deleted=false group by dh.h_id, dt.name_ro,dh.document_type,dhSource.number;
 
 -- name: DeleteDocument :exec
@@ -211,8 +216,8 @@ WITH auth AS (
     WHERE efactura_authorizations.a_id=$1
 )
 INSERT INTO core.efactura_authorizations(company_id, code, status, token, token_expires_at)
-    SELECT auth.company_id, auth.code, auth.status, $2, $3 FROM auth
-    RETURNING a_id;
+SELECT auth.company_id, auth.code, auth.status, $2, $3 FROM auth
+                                                                RETURNING a_id;
 
 -- name: UpdateAuthorizationCode :exec
 UPDATE core.efactura_authorizations
@@ -238,7 +243,7 @@ WHERE a_id=$1;
 -- name: FetchLastAuthorization :one
 SELECT a_id, token
 FROM core.efactura_authorizations ea
-INNER JOIN core.company c ON ea.company_id = c.id
+         INNER JOIN core.company c ON ea.company_id = c.id
 WHERE ea.status='success'
 ORDER BY ea.token_expires_at DESC LIMIT 1;
 
@@ -264,25 +269,25 @@ WHERE e_id=$1;
 
 -- name: CreateEfacturaDocumentUpload :one
 WITH insert_upload AS (
-    INSERT INTO core.efactura_document_uploads(e_id, x_id, status, upload_index)
-    VALUES ($1, $2, $3, $4)
+INSERT INTO core.efactura_document_uploads(e_id, x_id, status, upload_index)
+VALUES ($1, $2, $3, $4)
     RETURNING id
-)
+    )
 UPDATE core.efactura_documents AS ed
 SET x_id=$2,
     status=$3,
     upload_index=$4,
     u_id = (SELECT id FROM insert_upload)
 WHERE ed.e_id=$1
-RETURNING u_id::bigint;
+    RETURNING u_id::bigint;
 
 -- name: UpdateEfacturaUploadIndex :exec
 WITH update_upload AS (
-    UPDATE core.efactura_document_uploads
-    SET upload_index=$2,
-        status='processing',
-        updated_at=NOW()
-    WHERE id=$1
+UPDATE core.efactura_document_uploads
+SET upload_index=$2,
+    status='processing',
+    updated_at=NOW()
+WHERE id=$1
     RETURNING id
 )
 UPDATE core.efactura_documents
@@ -293,11 +298,11 @@ WHERE u_id = (SELECT id FROM update_upload);
 
 -- name: UpdateEfacturaUploadStatus :exec
 WITH update_upload AS (
-    UPDATE core.efactura_document_uploads
-    SET status=$2,
-        download_id=$3,
-        updated_at=NOW()
-    WHERE id=$1
+UPDATE core.efactura_document_uploads
+SET status=$2,
+    download_id=$3,
+    updated_at=NOW()
+WHERE id=$1
     RETURNING id
 )
 UPDATE core.efactura_documents
@@ -308,17 +313,17 @@ WHERE u_id = (SELECT id FROM update_upload);
 
 -- name: GetEfacturaDocument :one
 SELECT d.e_id,
-    d.h_id,
-    d.x_id,
-    x.invoice_xml,
-    x.invoice_md5_sum,
-    d.status,
-    d.upload_index,
-    d.download_id,
-    d.u_id AS upload_record_id
+       d.h_id,
+       d.x_id,
+       x.invoice_xml,
+       x.invoice_md5_sum,
+       d.status,
+       d.upload_index,
+       d.download_id,
+       d.u_id AS upload_record_id
 FROM core.efactura_documents d
-INNER JOIN core.efactura_xml_documents x
-ON d.x_id = x.id
+         INNER JOIN core.efactura_xml_documents x
+                    ON d.x_id = x.id
 WHERE d.e_id=$1;
 
 -- name: GetEfacturaDocumentLockForUpdate :one
@@ -332,25 +337,25 @@ SELECT d.e_id,
        d.download_id,
        d.u_id AS upload_record_id
 FROM core.efactura_documents d
-INNER JOIN core.efactura_xml_documents x
-ON d.x_id = x.id
+         INNER JOIN core.efactura_xml_documents x
+                    ON d.x_id = x.id
 WHERE d.e_id=$1
-FOR UPDATE OF d;
+    FOR UPDATE OF d;
 
 -- name: GetEfacturaDocumentForHeaderIDLockForUpdate :one
 SELECT d.e_id,
-    d.x_id,
-    x.invoice_xml,
-    x.invoice_md5_sum,
-    d.status,
-    d.upload_index,
-    d.download_id,
-    d.u_id AS upload_record_id
+       d.x_id,
+       x.invoice_xml,
+       x.invoice_md5_sum,
+       d.status,
+       d.upload_index,
+       d.download_id,
+       d.u_id AS upload_record_id
 FROM core.efactura_documents d
-INNER JOIN core.efactura_xml_documents x
-ON d.x_id = x.id
+         INNER JOIN core.efactura_xml_documents x
+                    ON d.x_id = x.id
 WHERE d.h_id=$1
-FOR UPDATE OF d;
+    FOR UPDATE OF d;
 
 -- name: CreateEfacturaMessage :one
 INSERT INTO core.efactura_messages(u_id, state, download_id, error_message)

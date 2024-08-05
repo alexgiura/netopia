@@ -1,10 +1,10 @@
 import 'dart:js_util';
 import 'dart:typed_data';
-import 'package:erp_frontend_v2/boxes.dart';
 import 'package:erp_frontend_v2/models/company/company_model.dart';
 import 'package:erp_frontend_v2/models/document/document_model.dart' as doc;
 import 'package:erp_frontend_v2/models/partner/partner_model.dart';
 import 'package:erp_frontend_v2/models/user/user.dart';
+import 'package:erp_frontend_v2/providers/user_provider.dart';
 import 'package:erp_frontend_v2/services/company.dart';
 import 'package:erp_frontend_v2/utils/util_functions.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -20,8 +20,10 @@ class PdfDocument {
       doc.Document document, WidgetRef ref) async {
     final pdf = Document();
 
-    User? user = boxUser.get('user') as User?;
-    Company company = user != null ? user.company! : Company.empty();
+    final userState = ref.watch(userProvider);
+    User user = userState.asData!.value;
+
+    Company company = user.company!;
 
     if (document.documentType.id == 2) {
       pdf.addPage(MultiPage(

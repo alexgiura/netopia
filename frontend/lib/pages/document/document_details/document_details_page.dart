@@ -3,6 +3,7 @@ import 'package:erp_frontend_v2/models/document/document_transaction_model.dart'
 import 'package:erp_frontend_v2/pages/document/document_add_item/add_item_popup.dart';
 import 'package:erp_frontend_v2/pages/document/document_details/widgets/document_details_data_table.dart';
 import 'package:erp_frontend_v2/pages/document/document_generate_popup/document_generate_popup.dart';
+import 'package:erp_frontend_v2/pages/document/documents_page/widgets/eFactura_widget.dart';
 import 'package:erp_frontend_v2/providers/document_providers.dart';
 import 'package:erp_frontend_v2/providers/document_transaction_provider.dart';
 import 'package:erp_frontend_v2/routing/router.dart';
@@ -103,6 +104,7 @@ class _DocumentDetailsPageState extends ConsumerState<DocumentDetailsPage> {
           .then((results) => results[0] as Document);
 
       if (context.mounted) {
+        ref.read(documentProvider.notifier).refreshDocuments();
         final routeName =
             getDetailsRouteNameByDocumentType(widget.documentTypeId);
         context.goNamed(
@@ -221,7 +223,7 @@ class _DocumentDetailsPageState extends ConsumerState<DocumentDetailsPage> {
         ),
         const Spacer(),
         if (_document.isDeleted != true)
-          _document.hId == null
+          widget.hId == '0' || widget.hId.isEmpty
               ? PrimaryButton(
                   text: 'save'.tr(context),
                   icon: Icons.save,
@@ -233,7 +235,7 @@ class _DocumentDetailsPageState extends ConsumerState<DocumentDetailsPage> {
                 )
               : Row(
                   children: [
-                    if ([2, 4, 5].contains(_document.documentType.id))
+                    if ([2, 4, 5].contains(widget.documentTypeId))
                       PrimaryButton(
                         text: 'export'.tr(context),
                         icon: Icons.file_download_outlined,
@@ -531,6 +533,21 @@ class _DocumentDetailsPageState extends ConsumerState<DocumentDetailsPage> {
                     ),
                   ),
                   Spacer(),
+                  if (_document.documentType.id == 2) ...[
+                    Column(
+                      mainAxisSize: MainAxisSize.min,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          '${'e_factura'.tr(context)}:',
+                          style: CustomStyle.regular14(
+                              color: CustomColor.greenGray),
+                        ),
+                        eFacturaStatus(_document, context)
+                      ],
+                    ),
+                    Gap(40),
+                  ],
                   Column(
                     mainAxisSize: MainAxisSize.min,
                     crossAxisAlignment: CrossAxisAlignment.start,

@@ -4,14 +4,15 @@ import 'package:erp_frontend_v2/utils/extensions.dart';
 import 'package:erp_frontend_v2/utils/responsiveness.dart';
 import 'package:erp_frontend_v2/widgets/buttons/primary_button.dart';
 import 'package:erp_frontend_v2/widgets/custom_expansiontile.dart';
+import 'package:erp_frontend_v2/widgets/side_menu/widgets/menu_efactura_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:gap/gap.dart';
 import 'package:go_router/go_router.dart';
 
-import '../data/menu_data.dart';
-import '../models/menu_model.dart';
-import '../routing/router.dart';
+import '../../data/menu_data.dart';
+import '../../models/menu_model.dart';
+import '../../routing/router.dart';
 
 class SideMenu extends StatefulWidget {
   const SideMenu({super.key});
@@ -71,7 +72,7 @@ class _SideMenuState extends State<SideMenu> {
                             },
                           ),
                         ),
-                        _bottomSection(),
+                        MenuEfacturaWidget(),
                       ],
                     ),
                   ),
@@ -82,47 +83,6 @@ class _SideMenuState extends State<SideMenu> {
         ),
       ],
     );
-  }
-
-  Widget _bottomSection() {
-    if (context.deviceWidth >= mediumScreenSize) {
-      return Container(
-        padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
-        width: double.infinity,
-        height: 166,
-        decoration: BoxDecoration(
-          color: CustomColor.bgPrimary.withOpacity(0.12),
-          border: Border.all(
-            color: CustomColor.bgPrimary.withOpacity(0.16),
-            width: 0.5,
-          ),
-          borderRadius: BorderRadius.circular(28),
-        ),
-        margin: const EdgeInsets.symmetric(vertical: 16),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-          children: [
-            Text(
-              'emit_eInvoice'.tr(context),
-              style: CustomStyle.semibold16(color: CustomColor.textSecondary),
-            ),
-            Text(
-              'authotize_SPV_access__for_emit_eInvoice'.tr(context),
-              style: CustomStyle.regular12(color: CustomColor.textSecondary),
-            ),
-            Container(
-              width: double.infinity,
-              child: PrimaryButton(
-                text: 'authorize_access'.tr(context),
-                style: CustomStyle.ctaButton,
-                fontColor: CustomColor.textPrimary,
-              ),
-            ),
-          ],
-        ),
-      );
-    }
-    return Container();
   }
 
   Container _topLogo() {

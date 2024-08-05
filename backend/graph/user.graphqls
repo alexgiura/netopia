@@ -3,6 +3,7 @@ type User {
     email: String!
     phone_number: String
     company: Company
+    efactura_auth: Boolean!
 
 }
 

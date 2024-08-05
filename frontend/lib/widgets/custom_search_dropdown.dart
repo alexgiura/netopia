@@ -223,7 +223,7 @@ class SearchDropDownState<T> extends ConsumerState<SearchDropDown<T>> {
 
   Widget buildOverlay() => Material(
       clipBehavior: Clip.antiAlias,
-      borderRadius: CustomStyle.containerDefaultCustomBorderRadius,
+      borderRadius: CustomStyle.customBorderRadiusSmall,
       color: CustomColor.white,
       elevation: 4,
       child: TapRegion(

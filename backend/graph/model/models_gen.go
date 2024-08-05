@@ -111,12 +111,6 @@ type GetItemsInput struct {
 	CategoryList []int `json:"category_list,omitempty"`
 }
 
-type Individual struct {
-	Name              string          `json:"name"`
-	IndividualNumber  string          `json:"individual_number"`
-	IndividualAddress *models.Address `json:"individual_address,omitempty"`
-}
-
 type ItemCategoryInput struct {
 	ID         *int   `json:"id,omitempty"`
 	Name       string `json:"name"`
@@ -146,7 +140,6 @@ type PartnerInput struct {
 	VatNumber          *string       `json:"vat_number,omitempty"`
 	Vat                bool          `json:"vat"`
 	RegistrationNumber *string       `json:"registration_number,omitempty"`
-	PersonalNumber     *string       `json:"personal_number,omitempty"`
 	Address            *AddressInput `json:"address,omitempty"`
 	IsActive           *bool         `json:"is_active,omitempty"`
 }

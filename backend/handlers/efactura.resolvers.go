@@ -44,11 +44,27 @@ func (r *mutationResolver) UploadEfacturaDocument(ctx context.Context, input mod
 	if err != nil {
 		return nil, err
 	}
+
+	message := TaskMessage{
+		Task:               "CheckEfacturaUploadState",
+		EfacturaDocumentID: efacturaDocID.String(),
+		CheckInterval:      1000,  // 1 second
+		MaxWaitTime:        10000, // 10 seconds
+	}
+
+	err2 := r.sendToRabbitMQ(ctx, message)
+	if err2 != nil {
+		log.Print("\"message\":Failed to send message, "+"\"error\": ", err2.Error())
+		return nil, _err.Error(ctx, "Failed upload invoice", "InternalError")
+
+	}
+
 	return util.StringPtr(efacturaDocID.String()), nil
+
 }
 
 // CheckEfacturaUploadState is the resolver for the checkEfacturaUploadState field.
-func (r *mutationResolver) CheckEfacturaUploadState(ctx context.Context, efacturaDocumentID string) (*string, error) {
+func (r *Resolver) CheckEfacturaUploadState(ctx context.Context, efacturaDocumentID string) (*string, error) {
 	docID := util.StrToUUID(&efacturaDocumentID)
 	status, err := r._EfacturaCheckUploadState(ctx, docID)
 	if err != nil {

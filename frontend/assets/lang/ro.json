@@ -167,6 +167,8 @@
     "resend": "Retrimite",
     "send": "Trimite",
     "processed": "Procesat",
+    "processing": "În procesare",
+    "unprocessed": "Neprocesat",
     "suceess_add_item": "Produsul a fost adăugat cu succes!",
     "suceess_edit_item": "Produsul a fost modificat cu succes!",
     "edit_item": "Editează Produs",

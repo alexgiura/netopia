@@ -221,10 +221,6 @@ class _ProductionNotesDataTableState
               ),
             ),
           ),
-          if (widget.documentTypeId == 2)
-            DataCell(SizedBox(
-              child: Center(child: eFacturaWidget(row.value, context)),
-            )),
           DataCell(Container(
             alignment: Alignment.center,
             child: CustomEditButton(
@@ -269,15 +265,6 @@ List<DataColumn2> getColumns(BuildContext context, int documentType) {
       ),
       size: ColumnSize.M,
     ),
-    if (documentType == 2)
-      DataColumn2(
-        label: Container(
-          alignment: Alignment.center,
-          child: Text('e_factura'.tr(context),
-              style: CustomStyle.semibold16(color: CustomColor.greenGray)),
-        ),
-        size: ColumnSize.M,
-      ),
     DataColumn2(
         label: Container(
             alignment: Alignment.center,

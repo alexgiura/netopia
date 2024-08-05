@@ -22,9 +22,9 @@ query getDocuments($input: GetDocumentsInput!){
             name,
             vat,
             vat_number,
-            registration_number,
-            individual_number 
-        }      
+            registration_number
+        }
+        efactura_status      
     }
 }
 ''';
@@ -52,8 +52,7 @@ query  getDocumentById($documentId: String!) {
         name,
         vat,
         vat_number,
-        registration_number,
-        individual_number 
+        registration_number
     },
     document_items{
         d_id,
