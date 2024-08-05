@@ -38,6 +38,8 @@ class CustomColor {
   static const warning = Color(0xffE9B635);
   static const green = Color(0xff2D8E26);
   static const greenGray = Color(0xff7B897F);
+  static const chartColor1 = Color(0xff94D820);
+  static const chartColor2 = Color(0xffA4C6BE);
 
   static const darkGreen = Color(0xff083F03);
   static const slate_50 = Color(0xffF8FAFC);
@@ -126,6 +128,14 @@ class CustomStyle {
   static TextStyle regular48({Color color = CustomColor.textPrimary}) {
     return TextStyle(
       fontSize: 48,
+      color: color,
+      fontWeight: FontWeight.w400,
+    );
+  }
+
+  static TextStyle regular40({Color color = CustomColor.textPrimary}) {
+    return TextStyle(
+      fontSize: 40,
       color: color,
       fontWeight: FontWeight.w400,
     );
@@ -251,6 +261,16 @@ class CustomStyle {
       {Color color = CustomColor.textPrimary, bool? isUnderline}) {
     return TextStyle(
       fontSize: 14,
+      color: color,
+      decoration: isUnderline == true ? TextDecoration.underline : null,
+      fontWeight: FontWeight.w600,
+    );
+  }
+
+  static TextStyle semibold13(
+      {Color color = CustomColor.textPrimary, bool? isUnderline}) {
+    return TextStyle(
+      fontSize: 13,
       color: color,
       decoration: isUnderline == true ? TextDecoration.underline : null,
       fontWeight: FontWeight.w600,
@@ -512,9 +532,10 @@ class CustomStyle {
     bool boxShadow = false,
     bool isSelected = false,
     bool isError = false,
+    Color? backgroundColor,
   }) {
     return BoxDecoration(
-      color: CustomColor.bgSecondary,
+      color: backgroundColor ?? CustomColor.bgSecondary,
       borderRadius: borderRadius ?? containerDefaultCustomBorderRadius,
       border: isError
           ? Border.all(color: CustomColor.error, width: borderWidth)
@@ -541,4 +562,5 @@ class CustomStyle {
       BorderRadius.circular(24);
 
   static BorderRadius customBorderRadiusSmall = BorderRadius.circular(8);
+  static BorderRadius customBorderRadiusMid = BorderRadius.circular(16);
 }

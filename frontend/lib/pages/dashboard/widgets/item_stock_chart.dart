@@ -23,8 +23,7 @@ class _ItemStockChartState extends ConsumerState<ItemStockChart> {
     return itemList.when(
       data: (data) {
         return Container(
-          padding: const EdgeInsets.all(16),
-          margin: const EdgeInsets.only(bottom: 30),
+          padding: const EdgeInsets.all(0),
           decoration: CustomStyle.customContainerDecoration(),
           child: Column(
             children: [
@@ -36,7 +35,8 @@ class _ItemStockChartState extends ConsumerState<ItemStockChart> {
                       children: [
                         Text(
                           widget.title!,
-                          style: CustomStyle.subtitleText,
+                          style: CustomStyle.semibold16(
+                              color: CustomColor.greenGray),
                         ),
                         const SizedBox(height: 16),
                       ],
@@ -53,7 +53,7 @@ class _ItemStockChartState extends ConsumerState<ItemStockChart> {
           ),
         );
       },
-      loading: () => Center(child: CircularProgressIndicator()),
+      loading: () => const Center(child: CircularProgressIndicator()),
       error: (e, st) => Text(e.toString()),
     );
   }
@@ -62,10 +62,18 @@ class _ItemStockChartState extends ConsumerState<ItemStockChart> {
     return data.asMap().entries.map((row) {
       return DataRow2(
         cells: [
-          DataCell(Text(row.value.itemCode!)),
-          DataCell(Text(row.value.itemName)),
-          DataCell(Text(row.value.itemQuantity.toStringAsFixed(2))),
-          DataCell(Text(row.value.itemUm!)),
+          DataCell(Text(
+            row.value.itemCode!,
+            style: CustomStyle.semibold14(color: CustomColor.textPrimary),
+          )),
+          DataCell(Text(row.value.itemName,
+              style: CustomStyle.semibold14(color: CustomColor.textPrimary))),
+          DataCell(Text(row.value.itemQuantity.toStringAsFixed(2),
+              style: CustomStyle.semibold14(color: CustomColor.textPrimary))),
+          DataCell(Text(row.value.itemUm!,
+              style: CustomStyle.semibold14(color: CustomColor.textPrimary))),
+          DataCell(Text("${row.value.total ?? 0.00.toStringAsFixed(2)} RON",
+              style: CustomStyle.semibold14(color: CustomColor.textPrimary))),
         ],
       );
     }).toList();
@@ -73,20 +81,31 @@ class _ItemStockChartState extends ConsumerState<ItemStockChart> {
 }
 
 List<DataColumn2> _columns = [
-  const DataColumn2(
-    label: Text('Cod'),
+  DataColumn2(
+    label: Text(
+      'Cod',
+      style: CustomStyle.semibold16(color: CustomColor.greenGray),
+    ),
     size: ColumnSize.S,
   ),
-  const DataColumn2(
-    label: Text('Denumire'),
+  DataColumn2(
+    label: Text('Denumire',
+        style: CustomStyle.semibold16(color: CustomColor.greenGray)),
     size: ColumnSize.L,
   ),
-  const DataColumn2(
-    label: Text('Cantitate'),
+  DataColumn2(
+    label: Text('Cantitate',
+        style: CustomStyle.semibold16(color: CustomColor.greenGray)),
     size: ColumnSize.S,
   ),
-  const DataColumn2(
-    label: Text('UM'),
+  DataColumn2(
+    label:
+        Text('UM', style: CustomStyle.semibold16(color: CustomColor.greenGray)),
+    size: ColumnSize.S,
+  ),
+  DataColumn2(
+    label: Text('Sumă totală',
+        style: CustomStyle.semibold16(color: CustomColor.greenGray)),
     size: ColumnSize.S,
   ),
 ];

@@ -34,6 +34,7 @@ class ResponsiveWidget extends StatelessWidget {
   }
 
   static bool isCustomSize(BuildContext context) {
+    // Verifică dacă lățimea ecranului este între `mediumScreenSize` și `customScreenSize`
     return MediaQuery.of(context).size.width <= customScreenSize &&
         MediaQuery.of(context).size.width >= mediumScreenSize;
   }
