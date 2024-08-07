@@ -346,7 +346,6 @@ final GoRouter router = GoRouter(
                       child: ProductionNoteDetailsPage(
                         hId: hId,
                         documentTypeId: 8,
-                        pageTitle: productionNoteDetailsPageName,
                       ),
                       transitionsBuilder: customSlideTransition);
                 },

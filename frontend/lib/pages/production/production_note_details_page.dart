@@ -39,13 +39,11 @@ import 'dart:html' as html;
 class ProductionNoteDetailsPage extends ConsumerStatefulWidget {
   final String hId;
   final int documentTypeId;
-  final String pageTitle;
 
   const ProductionNoteDetailsPage({
     super.key,
     required this.hId,
     required this.documentTypeId,
-    required this.pageTitle,
   });
 
   @override
@@ -214,7 +212,8 @@ class _ProductionNoteDetailsPageState
     return Row(
       children: [
         CustomHeader(
-          title: widget.pageTitle,
+          title:
+              ('${'production_notes'.tr(context)} / ${widget.hId == '0' ? 'add'.tr(context) : 'edit'.tr(context)}'),
           hasBackIcon: true,
         ),
         const Spacer(),
@@ -292,7 +291,7 @@ class _ProductionNoteDetailsPageState
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'document_details'.tr(context),
+              'production_details'.tr(context),
               style: CustomStyle.medium20(),
             ),
             Gap(24),
@@ -375,11 +374,11 @@ class _ProductionNoteDetailsPageState
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'included_products'.tr(context),
+                      'production_recipe'.tr(context),
                       style: CustomStyle.medium20(),
                     ),
                     Text(
-                      'included_products_description'.tr(context),
+                      'production_recipe_description'.tr(context),
                       style:
                           CustomStyle.regular14(color: CustomColor.greenGray),
                     ),
@@ -420,29 +419,33 @@ class _ProductionNoteDetailsPageState
                   Text('raw_material'.tr(context)),
                 ],
                 tabViews: [
-                  ProductionDetailsDataTable(
-                    data: _document.documentItems
-                        .where((item) => item.itemTypePn == 'finalProduct')
-                        .toList(),
-                    onUpdate: (data) {
-                      setState(() {
-                        _document.documentItems.removeWhere(
-                            (item) => item.itemTypePn == 'finalProduct');
-                        _document.documentItems.addAll(data);
-                      });
-                    },
+                  Flexible(
+                    child: ProductionDetailsDataTable(
+                      data: _document.documentItems
+                          .where((item) => item.itemTypePn == 'finalProduct')
+                          .toList(),
+                      onUpdate: (data) {
+                        setState(() {
+                          _document.documentItems.removeWhere(
+                              (item) => item.itemTypePn == 'finalProduct');
+                          _document.documentItems.addAll(data);
+                        });
+                      },
+                    ),
                   ),
-                  ProductionDetailsDataTable(
-                    data: _document.documentItems
-                        .where((item) => item.itemTypePn == 'rawMaterial')
-                        .toList(),
-                    onUpdate: (data) {
-                      setState(() {
-                        _document.documentItems.removeWhere(
-                            (item) => item.itemTypePn == 'rawMaterial');
-                        _document.documentItems.addAll(data);
-                      });
-                    },
+                  Flexible(
+                    child: ProductionDetailsDataTable(
+                      data: _document.documentItems
+                          .where((item) => item.itemTypePn == 'rawMaterial')
+                          .toList(),
+                      onUpdate: (data) {
+                        setState(() {
+                          _document.documentItems.removeWhere(
+                              (item) => item.itemTypePn == 'rawMaterial');
+                          _document.documentItems.addAll(data);
+                        });
+                      },
+                    ),
                   )
                 ],
                 onChanged: (value) {
@@ -583,56 +586,54 @@ class _ProductionNoteDetailsPageState
               ),
             ),
             Gap(24),
-            Flexible(
-              child: CustomTabBar(
-                  tabs: [
-                    Text('final_product'.tr(context)),
-                    Text('raw_material'.tr(context)),
-                  ],
-                  tabViews: [
-                    ProductionDetailsDataTable(
-                      readOnly: true,
-                      data: _document.documentItems
-                          .where((item) => item.itemTypePn == 'finalProduct')
-                          .toList(),
-                      onUpdate: (data) {},
-                    ),
-                    ProductionDetailsDataTable(
-                      readOnly: true,
-                      data: _document.documentItems
-                          .where((item) => item.itemTypePn == 'rawMaterial')
-                          .toList(),
-                      onUpdate: (data) {},
-                    )
-                  ],
-                  onChanged: (value) {
-                    tabIndex = value;
-                  },
-                  sufixButton: _document.hId == null
-                      ? PrimaryButton(
-                          text: 'add'.tr(context),
-                          icon: Icons.add,
-                          onPressed: () {
-                            showDialog(
-                              context: context,
-                              builder: (BuildContext context) {
-                                return AddItemPopup(
-                                  itemTypePn: tabIndex == 0
-                                      ? 'finalProduct'
-                                      : 'rawMaterial',
-                                  callback: (documentItems) {
-                                    setState(() {
-                                      _document.documentItems
-                                          .addAll(documentItems);
-                                    });
-                                  },
-                                );
-                              },
-                            );
-                          },
-                        )
-                      : null),
-            ),
+            CustomTabBar(
+                tabs: [
+                  Text('final_product'.tr(context)),
+                  Text('raw_material'.tr(context)),
+                ],
+                tabViews: [
+                  ProductionDetailsDataTable(
+                    readOnly: true,
+                    data: _document.documentItems
+                        .where((item) => item.itemTypePn == 'finalProduct')
+                        .toList(),
+                    onUpdate: (data) {},
+                  ),
+                  ProductionDetailsDataTable(
+                    readOnly: true,
+                    data: _document.documentItems
+                        .where((item) => item.itemTypePn == 'rawMaterial')
+                        .toList(),
+                    onUpdate: (data) {},
+                  )
+                ],
+                onChanged: (value) {
+                  tabIndex = value;
+                },
+                sufixButton: _document.hId == null
+                    ? PrimaryButton(
+                        text: 'add'.tr(context),
+                        icon: Icons.add,
+                        onPressed: () {
+                          showDialog(
+                            context: context,
+                            builder: (BuildContext context) {
+                              return AddItemPopup(
+                                itemTypePn: tabIndex == 0
+                                    ? 'finalProduct'
+                                    : 'rawMaterial',
+                                callback: (documentItems) {
+                                  setState(() {
+                                    _document.documentItems
+                                        .addAll(documentItems);
+                                  });
+                                },
+                              );
+                            },
+                          );
+                        },
+                      )
+                    : null),
           ],
         ),
       ),

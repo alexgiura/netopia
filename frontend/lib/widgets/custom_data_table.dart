@@ -37,76 +37,76 @@ class CustomDataTable extends StatelessWidget {
     );
   }
 
-  Widget _buildTotalsRow(List<double?> totals) {
-    // Suppose M is base and has a factor of 2
-    const int baseFlex = 2;
-    const double smRatio = 0.67; // Raport S/M
-    const double lmRatio = 1.2; // Raport L/M
+  // Widget _buildTotalsRow(List<double?> totals) {
+  //   // Suppose M is base and has a factor of 2
+  //   const int baseFlex = 2;
+  //   const double smRatio = 0.67; // Raport S/M
+  //   const double lmRatio = 1.2; // Raport L/M
 
-    return Container(
-      height: 48,
-      decoration: const BoxDecoration(
-        border: Border(
-          top: BorderSide(
-            color: CustomColor.light,
-            width: 0.5,
-          ),
-        ),
-      ),
-      child: Row(
-        children: List<Widget>.generate(columns.length, (index) {
-          int flexFactor;
-          switch (columns[index].size) {
-            case ColumnSize.S:
-              flexFactor = (baseFlex * smRatio).round();
-              break;
-            case ColumnSize.M:
-              flexFactor = baseFlex;
-              break;
-            case ColumnSize.L:
-              flexFactor = (baseFlex * lmRatio).round();
-              break;
-            default:
-              flexFactor = baseFlex; // Valoare default pentru siguranță
-          }
+  //   return Container(
+  //     height: 48,
+  //     decoration: const BoxDecoration(
+  //       border: Border(
+  //         top: BorderSide(
+  //           color: CustomColor.light,
+  //           width: 0.5,
+  //         ),
+  //       ),
+  //     ),
+  //     child: Row(
+  //       children: List<Widget>.generate(columns.length, (index) {
+  //         int flexFactor;
+  //         switch (columns[index].size) {
+  //           case ColumnSize.S:
+  //             flexFactor = (baseFlex * smRatio).round();
+  //             break;
+  //           case ColumnSize.M:
+  //             flexFactor = baseFlex;
+  //             break;
+  //           case ColumnSize.L:
+  //             flexFactor = (baseFlex * lmRatio).round();
+  //             break;
+  //           default:
+  //             flexFactor = baseFlex; // Valoare default pentru siguranță
+  //         }
 
-          if (totals[index] != null) {
-            return Expanded(
-              flex: flexFactor,
-              child: Container(
-                alignment: Alignment.centerRight,
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                child: Text(
-                  formatNumber(totals[index]!),
-                  style: CustomStyle.bodyTextBold,
-                ),
-              ),
-            );
-          } else {
-            // Spatiu gol pentru coloanele fara total
-            return Expanded(
-              flex: flexFactor,
-              child: Container(),
-            );
-          }
-        }),
-      ),
-    );
-  }
+  //         if (totals[index] != null) {
+  //           return Expanded(
+  //             flex: flexFactor,
+  //             child: Container(
+  //               alignment: Alignment.centerRight,
+  //               padding: const EdgeInsets.symmetric(horizontal: 16),
+  //               child: Text(
+  //                 formatNumber(totals[index]!),
+  //                 style: CustomStyle.bodyTextBold,
+  //               ),
+  //             ),
+  //           );
+  //         } else {
+  //           // Spatiu gol pentru coloanele fara total
+  //           return Expanded(
+  //             flex: flexFactor,
+  //             child: Container(),
+  //           );
+  //         }
+  //       }),
+  //     ),
+  //   );
+  // }
 
-  List<double?> calculateTotals(List<DataColumn2> columns, List<DataRow2> rows,
-      List<int> columnsToTotal) {
-    List<double?> totals = List.filled(columns.length, null, growable: false);
+  // List<double?> calculateTotals(List<DataColumn2> columns, List<DataRow2> rows,
+  //     List<int> columnsToTotal) {
+  //   List<double?> totals = List.filled(columns.length, null, growable: false);
 
-    for (DataRow2 row in rows) {
-      for (var columnIndex in columnsToTotal) {
-        final cellWidget = row.cells[columnIndex].child;
-        String? cellValue = cellWidget is Text ? cellWidget.data : null;
-        double value = double.tryParse(cellValue ?? "0") ?? 0.0;
-        totals[columnIndex] = (totals[columnIndex] ?? 0.0) + value;
-      }
-    }
+  //   for (DataRow2 row in rows) {
+  //     for (var columnIndex in columnsToTotal) {
+  //       final cellWidget = row.cells[columnIndex].child;
+  //       String? cellValue = cellWidget is Text ? cellWidget.data : null;
+  //       double value = double.tryParse(cellValue ?? "0") ?? 0.0;
+  //       totals[columnIndex] = (totals[columnIndex] ?? 0.0) + value;
+  //     }
+  //   }
 
-    return totals;
-  }
+  //   return totals;
+  // }
 }

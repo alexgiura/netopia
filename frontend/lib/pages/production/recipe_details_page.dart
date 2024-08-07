@@ -217,11 +217,11 @@ class _DocumentDetailsPageState extends ConsumerState<RecipeDetailsPage>
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'included_products'.tr(context),
+                      'recipe_included_products'.tr(context),
                       style: CustomStyle.medium20(),
                     ),
                     Text(
-                      'included_products_description'.tr(context),
+                      'recipe_included_products_description'.tr(context),
                       style:
                           CustomStyle.regular14(color: CustomColor.greenGray),
                     ),

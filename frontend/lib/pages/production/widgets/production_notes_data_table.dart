@@ -109,7 +109,7 @@ class _ProductionNotesDataTableState
                   Container(
                     width: context.deviceWidth / 4,
                     child: CustomSearchBar(
-                      hintText: 'document_hint_search'.tr(context),
+                      hintText: 'number_hint_search'.tr(context),
                       initialValue: _searchText,
                       onValueChanged: (value) {
                         setState(() {

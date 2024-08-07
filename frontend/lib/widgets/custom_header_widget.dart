@@ -38,7 +38,7 @@ class CustomHeader extends StatelessWidget {
           children: [
             Text(
               title,
-              style: CustomStyle.titleText,
+              style: CustomStyle.medium40(),
             ),
             subtitle != null
                 ? Text(

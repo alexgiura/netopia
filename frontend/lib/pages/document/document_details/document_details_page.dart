@@ -461,7 +461,7 @@ class _DocumentDetailsPageState extends ConsumerState<DocumentDetailsPage> {
                 },
               ),
             if (_document.documentItems.isNotEmpty)
-              Expanded(
+              Flexible(
                 child: DocumentItemsDataTable(
                   documentTypeId: _document.documentType.id,
                   data: _document.documentItems,

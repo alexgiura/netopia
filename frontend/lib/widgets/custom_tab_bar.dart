@@ -93,11 +93,15 @@ class _CustomTabBarState extends State<CustomTabBar>
         ),
         if (widget.tabViews != null &&
             widget.tabViews!.length == widget.tabs.length)
-          Padding(
-            padding: const EdgeInsets.only(top: 24),
-            child: ContentSizeTabBarView(
-              controller: _tabController,
-              children: widget.tabViews!,
+          Flexible(
+            child: Padding(
+              padding: const EdgeInsets.only(top: 24),
+              child: SingleChildScrollView(
+                child: ContentSizeTabBarView(
+                  controller: _tabController,
+                  children: widget.tabViews!,
+                ),
+              ),
             ),
           )
       ],
