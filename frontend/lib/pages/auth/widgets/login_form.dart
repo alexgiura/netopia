@@ -13,6 +13,7 @@ import 'package:erp_frontend_v2/widgets/dialog_widgets/custom_toast.dart';
 import 'package:erp_frontend_v2/widgets/dialog_widgets/warning_dialog.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:gap/gap.dart';
 import 'package:go_router/go_router.dart';
@@ -36,9 +37,11 @@ class _LoginFormState extends ConsumerState<LoginForm> {
   final emailController = TextEditingController();
   final passwordController = TextEditingController();
   bool rememberMe = false;
+  final FocusNode _focusNode = FocusNode();
 
   String? passwordError;
   String? emailError;
+  String? tooManyRequestsError;
 
   Future<void> _signInWithEmailAndPassword(
       String email, String password) async {
@@ -48,12 +51,16 @@ class _LoginFormState extends ConsumerState<LoginForm> {
         password: password,
       );
     } on FirebaseAuthException catch (e) {
-      if (e.code == 'user_not_found') {
+      if (e.code == 'user-not-found') {
         emailError = 'user_not_found'.tr(context);
-      } else if (e.code == 'wrong_password') {
+      } else if (e.code == 'wrong-password') {
         passwordError = 'wrong_password'.tr(context);
-      } else if (e.code == 'invalid_credential') {
+      } else if (e.code == 'invalid-credential') {
         passwordError = 'invalid_credential'.tr(context);
+      } else if (e.code == 'too-many-requests') {
+        setState(() {
+          tooManyRequestsError = 'too_many_requests'.tr(context);
+        });
       }
     } catch (e) {
       emailError = 'user_not_found'.tr(context);
@@ -82,52 +89,63 @@ class _LoginFormState extends ConsumerState<LoginForm> {
   }
 
   Widget _formBody(BuildContext context) {
-    return Form(
-      key: formKey,
-      child: Column(
-        children: [
-          CustomTextField1(
-            validator: (value) {
-              if (value!.isEmpty) {
-                return 'error_required_field'.tr(context);
-              } else {
-                if (emailError != null) {
-                  return emailError;
+    return KeyboardListener(
+      focusNode: _focusNode,
+      onKeyEvent: (event) async {
+        if (event.logicalKey == LogicalKeyboardKey.enter) {
+          if (formKey.currentState!.validate()) {
+            await _signInWithEmailAndPassword(
+                emailController.text, passwordController.text);
+          }
+        }
+      },
+      child: Form(
+        key: formKey,
+        child: Column(
+          children: [
+            CustomTextField1(
+              validator: (value) {
+                if (value!.isEmpty) {
+                  return 'error_required_field'.tr(context);
+                } else {
+                  if (emailError != null) {
+                    return emailError;
+                  }
+                  return validateEmail(context, value);
                 }
-                return validateEmail(context, value);
-              }
-            },
-            keyboardType: TextInputType.emailAddress,
-            labelText: 'email'.tr(context),
-            hintText: 'input_email'.tr(context),
-            onValueChanged: (value) {
-              emailError = null;
-              emailController.text = value;
-            },
-            required: true,
-          ),
-          Gap(context.height01),
-          CustomTextField1(
-            keyboardType: TextInputType.visiblePassword,
-            labelText: 'password'.tr(context),
-            hintText: 'input_password'.tr(context),
-            validator: (value) {
-              if (value!.isEmpty) {
-                return 'error_required_field'.tr(context);
-              }
-              if (passwordError != null) {
-                return passwordError;
-              }
-              return null;
-            },
-            obscureText: true,
-            onValueChanged: (value) {
-              passwordError = null;
-              passwordController.text = value;
-            },
-            required: true,
-          ),
-        ],
+              },
+              keyboardType: TextInputType.emailAddress,
+              labelText: 'email'.tr(context),
+              hintText: 'input_email'.tr(context),
+              onValueChanged: (value) {
+                emailError = null;
+                emailController.text = value;
+              },
+              required: true,
+            ),
+            Gap(context.height01),
+            CustomTextField1(
+              keyboardType: TextInputType.visiblePassword,
+              labelText: 'password'.tr(context),
+              hintText: 'input_password'.tr(context),
+              validator: (value) {
+                if (value!.isEmpty) {
+                  return 'error_required_field'.tr(context);
+                }
+                if (passwordError != null) {
+                  return passwordError;
+                }
+                return null;
+              },
+              obscureText: true,
+              onValueChanged: (value) {
+                passwordError = null;
+                passwordController.text = value;
+              },
+              required: true,
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -172,7 +190,12 @@ class _LoginFormState extends ConsumerState<LoginForm> {
         Text(
           'input_your_account_data'.tr(context),
           style: CustomStyle.regular16(color: CustomColor.slate_500),
-        )
+        ),
+        if (tooManyRequestsError != null)
+          Text(
+            tooManyRequestsError.toString(),
+            style: CustomStyle.errorText,
+          )
       ],
     );
   }
