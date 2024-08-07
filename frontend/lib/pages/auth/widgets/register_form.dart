@@ -475,7 +475,7 @@ class _RegisterFormState extends ConsumerState<RegisterForm> {
   }
 
   Future<void> _submitThirdStep() async {
-    if (_formKey.currentState!.validate()) {
+    if (_formKey2.currentState!.validate()) {
       try {
         final credential =
             await FirebaseAuth.instance.createUserWithEmailAndPassword(
