@@ -13,7 +13,10 @@ query getDocuments($input: GetDocumentsInput!){
         due_date,
         notes,
         deleted,
-        efactura_status,
+        efactura{
+          status,
+          error_message
+        }
         partner{
             id,
             code,        
@@ -24,7 +27,10 @@ query getDocuments($input: GetDocumentsInput!){
             vat_number,
             registration_number
         }
-        efactura_status      
+        efactura{
+          status,
+          error_message
+        }      
     }
 }
 ''';
@@ -43,7 +49,10 @@ query  getDocumentById($documentId: String!) {
     date,
     notes,
     deleted,
-    efactura_status,
+    efactura{
+      status,
+      error_message
+    }
     partner{
         id,
         code,        

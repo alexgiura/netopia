@@ -369,46 +369,6 @@ class CustomStyle {
 
   // -----------------End of new text styles from figma design-----------------//
 
-  // Button Style
-  static ButtonStyle activeButton = ButtonStyle(
-    padding: const MaterialStatePropertyAll(
-        EdgeInsets.symmetric(horizontal: 14)), // Adjust horizontal padding
-    fixedSize: const MaterialStatePropertyAll(
-        Size.fromHeight(CustomSize.buttonHeight)),
-    backgroundColor: const MaterialStatePropertyAll(CustomColor.active),
-    shape: MaterialStateProperty.all<RoundedRectangleBorder>(
-      RoundedRectangleBorder(
-        borderRadius: CustomStyle.containerDefaultCustomBorderRadius,
-      ),
-    ),
-    textStyle: MaterialStateProperty.resolveWith<TextStyle?>(
-      (Set<MaterialState> states) {
-        if (states.contains(MaterialState.disabled)) {
-          return CustomStyle.primaryButtonText.copyWith(
-            color: CustomColor.light,
-          );
-        }
-        // Default style
-        return CustomStyle.primaryButtonText;
-      },
-    ),
-
-    iconSize: MaterialStateProperty.resolveWith<double?>(
-      (Set<MaterialState> states) {
-        return 18.0;
-      },
-    ),
-    iconColor: MaterialStateProperty.resolveWith<Color?>(
-      (Set<MaterialState> states) {
-        if (states.contains(MaterialState.disabled)) {
-          return CustomColor.light; // Color for disabled state
-        }
-        // Default color
-        return CustomColor.white; // Replace with your default color
-      },
-    ),
-  );
-
   static ButtonStyle ctaButton = ButtonStyle(
     padding:
         WidgetStateProperty.all(const EdgeInsets.symmetric(horizontal: 14)),
@@ -422,106 +382,71 @@ class CustomStyle {
     textStyle: WidgetStateProperty.all(CustomStyle.semibold16()),
   );
 
-  static ButtonStyle secondaryButton = ButtonStyle(
-      padding: const MaterialStatePropertyAll(
-          EdgeInsets.symmetric(horizontal: 24)), // Adjust horizontal padding
-      fixedSize: const MaterialStatePropertyAll(
-          Size.fromHeight(CustomSize.buttonHeight)),
-      backgroundColor: const MaterialStatePropertyAll(CustomColor.white),
-      shape: MaterialStateProperty.all<RoundedRectangleBorder>(
-        RoundedRectangleBorder(
-          borderRadius: CustomStyle.containerDefaultCustomBorderRadius,
-        ),
-      ),
-      side: MaterialStateProperty.resolveWith<BorderSide?>(
-        (Set<MaterialState> states) {
-          return const BorderSide(color: CustomColor.medium, width: 1.0);
-        },
-      ),
-      textStyle:
-          const MaterialStatePropertyAll(CustomStyle.secondaryButtonText),
-      iconSize: const MaterialStatePropertyAll(18),
-      iconColor: const MaterialStatePropertyAll(CustomColor.medium));
-
-  static ButtonStyle tertiaryButton = ButtonStyle(
-    overlayColor: MaterialStatePropertyAll(Colors.transparent),
-    textStyle: MaterialStatePropertyAll(CustomStyle.tertiaryButtonText),
-    iconSize: MaterialStatePropertyAll(18),
-    iconColor: MaterialStatePropertyAll(CustomColor.active),
-    padding: MaterialStateProperty.all(EdgeInsets.zero),
-  );
-
-  static ButtonStyle tertiaryUnderlineButton = ButtonStyle(
-    overlayColor: MaterialStatePropertyAll(Colors.transparent),
-    textStyle:
-        MaterialStatePropertyAll(CustomStyle.tertiaryButtonTextUnderline),
-    iconSize: MaterialStatePropertyAll(18),
-    iconColor: MaterialStatePropertyAll(CustomColor.active),
-    padding: MaterialStateProperty.all(EdgeInsets.zero),
-  );
-
-  // Button Style
-
   static ButtonStyle submitBlackButton = ButtonStyle(
     padding: WidgetStateProperty.all(
         const EdgeInsets.symmetric(horizontal: 14, vertical: 20)),
     backgroundColor: WidgetStateProperty.all(CustomColor.textPrimary),
     shape: WidgetStateProperty.all(RoundedRectangleBorder(
-      borderRadius: BorderRadius.circular(15),
+      borderRadius: BorderRadius.circular(12),
     )),
     foregroundColor: WidgetStateProperty.all(CustomColor.textSecondary),
     iconSize: WidgetStateProperty.all(18),
     iconColor: WidgetStateProperty.all(CustomColor.white),
   );
 
-  static ButtonStyle negativeButton = ButtonStyle(
+  static ButtonStyle negativeButtonStyle = ButtonStyle(
     padding: WidgetStateProperty.all(
         const EdgeInsets.symmetric(horizontal: 14, vertical: 20)),
     backgroundColor: WidgetStateProperty.all(CustomColor.accentNeutral),
     shape: WidgetStateProperty.all(RoundedRectangleBorder(
-      borderRadius: BorderRadius.circular(15),
+      borderRadius: BorderRadius.circular(12),
     )),
     foregroundColor: WidgetStateProperty.all(CustomColor.error),
     iconSize: WidgetStateProperty.all(18),
     iconColor: WidgetStateProperty.all(CustomColor.error),
   );
 
-  static ButtonStyle neutralButton = ButtonStyle(
+  static ButtonStyle neutralButtonStyle = ButtonStyle(
     padding: WidgetStateProperty.all(
         const EdgeInsets.symmetric(horizontal: 14, vertical: 20)),
     backgroundColor: WidgetStateProperty.all(CustomColor.accentNeutral),
     shape: WidgetStateProperty.all(RoundedRectangleBorder(
-      borderRadius: BorderRadius.circular(15),
+      borderRadius: BorderRadius.circular(12),
     )),
     foregroundColor: WidgetStateProperty.all(CustomColor.textPrimary),
     iconSize: WidgetStateProperty.all(18),
     iconColor: WidgetStateProperty.all(CustomColor.textPrimary),
   );
 
-  static ButtonStyle secondaryElevatedButtonStyle = ButtonStyle(
-    padding: MaterialStateProperty.all(
+  static ButtonStyle secondaryButtonStyle = ButtonStyle(
+    padding: WidgetStateProperty.all(
         const EdgeInsets.symmetric(horizontal: 14, vertical: 20)),
-    foregroundColor: MaterialStateProperty.all(CustomColor.textPrimary),
-    backgroundColor: MaterialStateProperty.all(CustomColor.white),
-    shape: MaterialStateProperty.all(
+    foregroundColor: WidgetStateProperty.all(CustomColor.textPrimary),
+    backgroundColor: WidgetStateProperty.all(CustomColor.white),
+    shape: WidgetStateProperty.all(
       RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(15),
+        borderRadius: BorderRadius.circular(12),
       ),
     ),
-    side: MaterialStateProperty.all(
+    side: WidgetStateProperty.all(
       const BorderSide(color: CustomColor.textPrimary),
     ),
   );
 
-  static ButtonStyle primaryBlackButton = ButtonStyle(
-    padding: MaterialStateProperty.all(
-        EdgeInsets.symmetric(horizontal: 14, vertical: 17)),
-    backgroundColor: MaterialStateProperty.all(CustomColor.textPrimary),
-    shape: MaterialStateProperty.all(RoundedRectangleBorder(
-      borderRadius: BorderRadius.circular(15),
-    )),
-    iconSize: MaterialStateProperty.all(18),
-    iconColor: MaterialStateProperty.all(CustomColor.white),
+  static ButtonStyle tertiaryButtonStyle = ButtonStyle(
+    overlayColor: const WidgetStatePropertyAll(Colors.transparent),
+    textStyle: WidgetStatePropertyAll(CustomStyle.tertiaryButtonText),
+    iconSize: const WidgetStatePropertyAll(18),
+    iconColor: const WidgetStatePropertyAll(CustomColor.active),
+    padding: WidgetStateProperty.all(EdgeInsets.zero),
+  );
+
+  static ButtonStyle tertiaryUnderlineButtonStyle = ButtonStyle(
+    overlayColor: const WidgetStatePropertyAll(Colors.transparent),
+    textStyle: WidgetStatePropertyAll(CustomStyle.tertiaryButtonTextUnderline),
+    iconSize: const WidgetStatePropertyAll(18),
+    iconColor: const WidgetStatePropertyAll(CustomColor.active),
+    padding: WidgetStateProperty.all(EdgeInsets.zero),
   );
 
   // Container decoration

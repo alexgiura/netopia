@@ -179,38 +179,29 @@ class _DocumentDetailsPageState extends ConsumerState<DocumentDetailsPage> {
           }).toList()
         : [];
 
-    return Container(
-      padding: EdgeInsets.only(
-        left: ResponsiveWidget.isSmallScreen(context) ? 0 : 24,
-        right: ResponsiveWidget.isSmallScreen(context) ? 0 : 24,
-        top: ResponsiveWidget.isSmallScreen(context) ? 24 : 32,
-        bottom: ResponsiveWidget.isSmallScreen(context) ? 0 : 24,
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          _buildTitle(),
-          const SizedBox(height: 16),
-          _isLoading == true
-              ? const Expanded(
-                  child: Center(child: CircularProgressIndicator()))
-              : Flexible(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      if (_document.hId == null) ...[
-                        _buildNewDocumentForm(),
-                        Gap(32),
-                      ],
-                      _document.hId == null
-                          ? _buildNewDocumentDetails()
-                          : _buildDocumentDetails()
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        _buildTitle(),
+        const SizedBox(height: 16),
+        _isLoading == true
+            ? const Expanded(child: Center(child: CircularProgressIndicator()))
+            : Flexible(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    if (_document.hId == null) ...[
+                      _buildNewDocumentForm(),
+                      Gap(32),
                     ],
-                  ),
+                    _document.hId == null
+                        ? _buildNewDocumentDetails()
+                        : _buildDocumentDetails()
+                  ],
                 ),
-        ],
-      ),
+              ),
+      ],
     );
   }
 
@@ -248,7 +239,7 @@ class _DocumentDetailsPageState extends ConsumerState<DocumentDetailsPage> {
                             html.window.open(url, '_blank');
                           });
                         },
-                        style: CustomStyle.neutralButton,
+                        style: CustomStyle.neutralButtonStyle,
                       ),
                     const SizedBox(width: 16),
                     PrimaryButton(
@@ -276,7 +267,7 @@ class _DocumentDetailsPageState extends ConsumerState<DocumentDetailsPage> {
                           },
                         );
                       },
-                      style: CustomStyle.negativeButton,
+                      style: CustomStyle.negativeButtonStyle,
                     )
                   ],
                 ),

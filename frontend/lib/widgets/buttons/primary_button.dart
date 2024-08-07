@@ -87,9 +87,10 @@ class _PrimaryButtonState extends State<PrimaryButton> {
                       Text(
                         widget.text,
                         style: CustomStyle.semibold14(
-                            color: widget.style == CustomStyle.negativeButton
+                            color: widget.style ==
+                                    CustomStyle.negativeButtonStyle
                                 ? CustomColor.error
-                                : widget.style == CustomStyle.neutralButton
+                                : widget.style == CustomStyle.neutralButtonStyle
                                     ? CustomColor.textPrimary
                                     : widget.fontColor ??
                                         CustomColor.textSecondary),

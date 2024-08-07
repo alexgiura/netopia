@@ -78,17 +78,17 @@ type ComplexityRoot struct {
 	}
 
 	Document struct {
-		Date           func(childComplexity int) int
-		Deleted        func(childComplexity int) int
-		DocumentItems  func(childComplexity int) int
-		DueDate        func(childComplexity int) int
-		EFacturaStatus func(childComplexity int) int
-		HId            func(childComplexity int) int
-		Notes          func(childComplexity int) int
-		Number         func(childComplexity int) int
-		Partner        func(childComplexity int) int
-		Series         func(childComplexity int) int
-		Type           func(childComplexity int) int
+		Date          func(childComplexity int) int
+		Deleted       func(childComplexity int) int
+		DocumentItems func(childComplexity int) int
+		DueDate       func(childComplexity int) int
+		EFactura      func(childComplexity int) int
+		HId           func(childComplexity int) int
+		Notes         func(childComplexity int) int
+		Number        func(childComplexity int) int
+		Partner       func(childComplexity int) int
+		Series        func(childComplexity int) int
+		Type          func(childComplexity int) int
 	}
 
 	DocumentItem struct {
@@ -113,6 +113,11 @@ type ComplexityRoot struct {
 		ID     func(childComplexity int) int
 		NameEn func(childComplexity int) int
 		NameRo func(childComplexity int) int
+	}
+
+	EFactura struct {
+		ErrorMessage func(childComplexity int) int
+		Status       func(childComplexity int) int
 	}
 
 	GenerateAvailableItems struct {
@@ -439,12 +444,12 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Document.DueDate(childComplexity), true
 
-	case "Document.efactura_status":
-		if e.complexity.Document.EFacturaStatus == nil {
+	case "Document.efactura":
+		if e.complexity.Document.EFactura == nil {
 			break
 		}
 
-		return e.complexity.Document.EFacturaStatus(childComplexity), true
+		return e.complexity.Document.EFactura(childComplexity), true
 
 	case "Document.h_id":
 		if e.complexity.Document.HId == nil {
@@ -592,6 +597,20 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.DocumentType.NameRo(childComplexity), true
+
+	case "EFactura.error_message":
+		if e.complexity.EFactura.ErrorMessage == nil {
+			break
+		}
+
+		return e.complexity.EFactura.ErrorMessage(childComplexity), true
+
+	case "EFactura.status":
+		if e.complexity.EFactura.Status == nil {
+			break
+		}
+
+		return e.complexity.EFactura.Status(childComplexity), true
 
 	case "GenerateAvailableItems.date":
 		if e.complexity.GenerateAvailableItems.Date == nil {
@@ -1533,7 +1552,7 @@ type Document{
     partner: Partner!
     notes: String
     deleted: Boolean!
-    efactura_status:String
+    efactura: EFactura
     document_items: [DocumentItem]
 }
 
@@ -1641,7 +1660,12 @@ extend type Mutation {
     regenerateProductionNotes(input: GetDocumentsInput!):String
 }
 `, BuiltIn: false},
-	{Name: "../efactura.graphqls", Input: `input GenerateEfacturaDocumentInput{
+	{Name: "../efactura.graphqls", Input: `type EFactura {
+    status: String
+    error_message: String
+}
+
+input GenerateEfacturaDocumentInput{
     h_id: String!
     regenerate: Boolean
 }
@@ -3252,8 +3276,8 @@ func (ec *executionContext) fieldContext_Document_deleted(ctx context.Context, f
 	return fc, nil
 }
 
-func (ec *executionContext) _Document_efactura_status(ctx context.Context, field graphql.CollectedField, obj *models.Document) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Document_efactura_status(ctx, field)
+func (ec *executionContext) _Document_efactura(ctx context.Context, field graphql.CollectedField, obj *models.Document) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Document_efactura(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -3266,25 +3290,31 @@ func (ec *executionContext) _Document_efactura_status(ctx context.Context, field
 	}()
 	resTmp := ec._fieldMiddleware(ctx, obj, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.EFacturaStatus, nil
+		return obj.EFactura, nil
 	})
 
 	if resTmp == nil {
 		return graphql.Null
 	}
-	res := resTmp.(*string)
+	res := resTmp.(*models.EFactura)
 	fc.Result = res
-	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
+	return ec.marshalOEFactura2ᚖbackendᚋmodelsᚐEFactura(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Document_efactura_status(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Document_efactura(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Document",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
+			switch field.Name {
+			case "status":
+				return ec.fieldContext_EFactura_status(ctx, field)
+			case "error_message":
+				return ec.fieldContext_EFactura_error_message(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type EFactura", field.Name)
 		},
 	}
 	return fc, nil
@@ -3951,6 +3981,82 @@ func (ec *executionContext) _DocumentType_name_en(ctx context.Context, field gra
 func (ec *executionContext) fieldContext_DocumentType_name_en(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "DocumentType",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _EFactura_status(ctx context.Context, field graphql.CollectedField, obj *models.EFactura) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_EFactura_status(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp := ec._fieldMiddleware(ctx, obj, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Status, nil
+	})
+
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*string)
+	fc.Result = res
+	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_EFactura_status(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "EFactura",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _EFactura_error_message(ctx context.Context, field graphql.CollectedField, obj *models.EFactura) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_EFactura_error_message(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp := ec._fieldMiddleware(ctx, obj, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.ErrorMessage, nil
+	})
+
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*string)
+	fc.Result = res
+	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_EFactura_error_message(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "EFactura",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -4913,8 +5019,8 @@ func (ec *executionContext) fieldContext_Mutation_saveDocument(ctx context.Conte
 				return ec.fieldContext_Document_notes(ctx, field)
 			case "deleted":
 				return ec.fieldContext_Document_deleted(ctx, field)
-			case "efactura_status":
-				return ec.fieldContext_Document_efactura_status(ctx, field)
+			case "efactura":
+				return ec.fieldContext_Document_efactura(ctx, field)
 			case "document_items":
 				return ec.fieldContext_Document_document_items(ctx, field)
 			}
@@ -6527,8 +6633,8 @@ func (ec *executionContext) fieldContext_Query_getDocuments(ctx context.Context,
 				return ec.fieldContext_Document_notes(ctx, field)
 			case "deleted":
 				return ec.fieldContext_Document_deleted(ctx, field)
-			case "efactura_status":
-				return ec.fieldContext_Document_efactura_status(ctx, field)
+			case "efactura":
+				return ec.fieldContext_Document_efactura(ctx, field)
 			case "document_items":
 				return ec.fieldContext_Document_document_items(ctx, field)
 			}
@@ -6600,8 +6706,8 @@ func (ec *executionContext) fieldContext_Query_getDocumentById(ctx context.Conte
 				return ec.fieldContext_Document_notes(ctx, field)
 			case "deleted":
 				return ec.fieldContext_Document_deleted(ctx, field)
-			case "efactura_status":
-				return ec.fieldContext_Document_efactura_status(ctx, field)
+			case "efactura":
+				return ec.fieldContext_Document_efactura(ctx, field)
 			case "document_items":
 				return ec.fieldContext_Document_document_items(ctx, field)
 			}
@@ -11254,8 +11360,8 @@ func (ec *executionContext) _Document(ctx context.Context, sel ast.SelectionSet,
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&out.Invalids, 1)
 			}
-		case "efactura_status":
-			out.Values[i] = ec._Document_efactura_status(ctx, field, obj)
+		case "efactura":
+			out.Values[i] = ec._Document_efactura(ctx, field, obj)
 		case "document_items":
 			field := field
 
@@ -11448,6 +11554,44 @@ func (ec *executionContext) _DocumentType(ctx context.Context, sel ast.Selection
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var eFacturaImplementors = []string{"EFactura"}
+
+func (ec *executionContext) _EFactura(ctx context.Context, sel ast.SelectionSet, obj *models.EFactura) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, eFacturaImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("EFactura")
+		case "status":
+			out.Values[i] = ec._EFactura_status(ctx, field, obj)
+		case "error_message":
+			out.Values[i] = ec._EFactura_error_message(ctx, field, obj)
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -13783,6 +13927,13 @@ func (ec *executionContext) marshalODocumentTransaction2ᚖbackendᚋgraphᚋmod
 		return graphql.Null
 	}
 	return ec._DocumentTransaction(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalOEFactura2ᚖbackendᚋmodelsᚐEFactura(ctx context.Context, sel ast.SelectionSet, v *models.EFactura) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	return ec._EFactura(ctx, sel, v)
 }
 
 func (ec *executionContext) unmarshalOFloat2ᚕfloat64ᚄ(ctx context.Context, v interface{}) ([]float64, error) {

@@ -60,11 +60,10 @@ func (r *mutationResolver) UploadEfacturaDocument(ctx context.Context, input mod
 	}
 
 	return util.StringPtr(efacturaDocID.String()), nil
-
 }
 
 // CheckEfacturaUploadState is the resolver for the checkEfacturaUploadState field.
-func (r *Resolver) CheckEfacturaUploadState(ctx context.Context, efacturaDocumentID string) (*string, error) {
+func (r *mutationResolver) CheckEfacturaUploadState(ctx context.Context, efacturaDocumentID string) (*string, error) {
 	docID := util.StrToUUID(&efacturaDocumentID)
 	status, err := r._EfacturaCheckUploadState(ctx, docID)
 	if err != nil {

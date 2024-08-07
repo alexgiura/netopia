@@ -12,7 +12,10 @@ mutation saveDocument($input: DocumentInput!) {
     date,
     notes,
     deleted,
-    efactura_status,
+    efactura{
+        status,
+        error_message
+    }
     partner{
         id,
         code,        

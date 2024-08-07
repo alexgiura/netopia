@@ -16,44 +16,36 @@ class PartnersPage extends StatefulWidget {
 class _PartnersPageState extends State<PartnersPage> {
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: EdgeInsets.only(
-        left: ResponsiveWidget.isSmallScreen(context) ? 0 : 24,
-        right: ResponsiveWidget.isSmallScreen(context) ? 0 : 24,
-        top: ResponsiveWidget.isSmallScreen(context) ? 24 : 32,
-        bottom: ResponsiveWidget.isSmallScreen(context) ? 0 : 24,
-      ),
-      child: Column(
-        children: [
-          Row(
-            children: [
-              Text(
-                'partners'.tr(context),
-                style: CustomStyle.medium40(),
-              ),
-              const Spacer(),
-              PrimaryButton(
-                text: 'add'.tr(context),
-                icon: Icons.add,
-                onPressed: () {
-                  showDialog(
-                    context: context,
-                    builder: (BuildContext context) {
-                      return const PartnerDetailsPopup(
-                        partner: null,
-                      );
-                    },
-                  );
-                },
-              ),
-            ],
-          ),
-          const SizedBox(height: 16),
-          const Flexible(
-            child: PartnerPageDataTable(),
-          )
-        ],
-      ),
+    return Column(
+      children: [
+        Row(
+          children: [
+            Text(
+              'partners'.tr(context),
+              style: CustomStyle.medium40(),
+            ),
+            const Spacer(),
+            PrimaryButton(
+              text: 'add'.tr(context),
+              icon: Icons.add,
+              onPressed: () {
+                showDialog(
+                  context: context,
+                  builder: (BuildContext context) {
+                    return const PartnerDetailsPopup(
+                      partner: null,
+                    );
+                  },
+                );
+              },
+            ),
+          ],
+        ),
+        const SizedBox(height: 16),
+        const Flexible(
+          child: PartnerPageDataTable(),
+        )
+      ],
     );
   }
 }

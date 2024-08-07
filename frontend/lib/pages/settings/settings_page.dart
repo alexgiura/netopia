@@ -56,40 +56,32 @@ class _SettingsPageState extends State<SettingsPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: EdgeInsets.only(
-        left: ResponsiveWidget.isSmallScreen(context) ? 0 : 24,
-        right: ResponsiveWidget.isSmallScreen(context) ? 0 : 24,
-        top: ResponsiveWidget.isSmallScreen(context) ? 24 : 24,
-        bottom: ResponsiveWidget.isSmallScreen(context) ? 0 : 24,
-      ),
-      child: SingleChildScrollView(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Row(
-              children: [
-                Text(
-                  'settings'.tr(context),
-                  style: CustomStyle.medium40(),
-                ),
-                Spacer()
-              ],
+    return SingleChildScrollView(
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Row(
+            children: [
+              Text(
+                'settings'.tr(context),
+                style: CustomStyle.medium40(),
+              ),
+              Spacer()
+            ],
+          ),
+          Gap(16.0),
+          ResponsiveWidget(
+            largeScreen: SingleChildScrollView(
+              child: _largeScreen(context),
             ),
-            Gap(16.0),
-            ResponsiveWidget(
-              largeScreen: SingleChildScrollView(
-                child: _largeScreen(context),
-              ),
-              mediumScreen: SingleChildScrollView(
-                child: _mediumScreen(context),
-              ),
-              smallScreen: SingleChildScrollView(
-                child: _smallScreen(context),
-              ),
+            mediumScreen: SingleChildScrollView(
+              child: _mediumScreen(context),
             ),
-          ],
-        ),
+            smallScreen: SingleChildScrollView(
+              child: _smallScreen(context),
+            ),
+          ),
+        ],
       ),
     );
   }

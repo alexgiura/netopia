@@ -1,18 +1,15 @@
 package models
 
 type Document struct {
-	HId            string       `json:"h_id"`
-	Type           DocumentType `json:"type"`
-	Series         *string      `json:"series"`
-	Number         string       `json:"number"`
-	Date           string       `json:"date"`
-	DueDate        *string      `json:"due_date"`
-	Deleted        bool         `json:"deleted"`
-	EFacturaStatus *string      `json:"efactura_status"`
-	Notes          *string      `json:"notes"`
-	//DocumentItems []*DocumentItem `json:"document_items"`
-	//Person           *Company    `json:"company"`
-	//Individual         *Individual `json:"company"`
+	HId      string       `json:"h_id"`
+	Type     DocumentType `json:"type"`
+	Series   *string      `json:"series"`
+	Number   string       `json:"number"`
+	Date     string       `json:"date"`
+	DueDate  *string      `json:"due_date"`
+	Deleted  bool         `json:"deleted"`
+	EFactura *EFactura    `json:"efactura"`
+	Notes    *string      `json:"notes"`
 }
 
 type DocumentItem struct {

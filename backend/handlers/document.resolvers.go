@@ -231,12 +231,15 @@ func (r *queryResolver) GetDocuments(ctx context.Context, input model.GetDocumen
 				NameRo: *util.StringOrNil(row.DocumentTypeNameRo),
 				NameEn: *util.StringOrNil(row.DocumentTypeNameEn),
 			},
-			Series:         util.StringOrNil(row.Series),
-			Number:         row.Number,
-			Date:           row.Date.Format("2006-01-02"),
-			Notes:          util.StringOrNil(row.Notes),
-			Deleted:        row.IsDeleted,
-			EFacturaStatus: &efacturaStatus,
+			Series:  util.StringOrNil(row.Series),
+			Number:  row.Number,
+			Date:    row.Date.Format("2006-01-02"),
+			Notes:   util.StringOrNil(row.Notes),
+			Deleted: row.IsDeleted,
+			EFactura: &models.EFactura{
+				Status:       &efacturaStatus,
+				ErrorMessage: util.StringOrNil(row.EfacturaErrorMessage),
+			},
 		}
 
 		documents = append(documents, document)

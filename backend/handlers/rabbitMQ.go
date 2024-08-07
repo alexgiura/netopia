@@ -5,12 +5,13 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	amqp "github.com/rabbitmq/amqp091-go"
-	"go.uber.org/zap"
 	"os"
 	"os/signal"
 	"syscall"
 	"time"
+
+	amqp "github.com/rabbitmq/amqp091-go"
+	"go.uber.org/zap"
 )
 
 type TaskMessage struct {
@@ -162,7 +163,7 @@ func (r *Resolver) processTask(task TaskMessage) {
 	for {
 		select {
 		case <-ticker.C:
-			statusPtr, err := r.CheckEfacturaUploadState(ctx, task.EfacturaDocumentID)
+			statusPtr, err := r.Mutation().CheckEfacturaUploadState(ctx, task.EfacturaDocumentID)
 
 			if err != nil {
 				r.Logger.Error("Error checking status", zap.Error(err))

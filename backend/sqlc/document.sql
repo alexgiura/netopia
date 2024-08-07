@@ -11,6 +11,7 @@ Select
     pa.name as partner,
     is_deleted,
     ed.status as efactura_status,
+    ed.error_message as efactura_error_message,
     notes
 from core.document_header as d
     left join core.partners as pa
@@ -41,7 +42,8 @@ Select
     notes,
     dc.name AS currency,
     is_deleted,
-    ed.status as efactura_status
+    ed.status as efactura_status,
+    ed.error_message as efactura_error_message
 from core.document_header as d
     left join core.partners as pa
 on pa.id=d.partner_id
@@ -269,14 +271,15 @@ WHERE e_id=$1;
 
 -- name: CreateEfacturaDocumentUpload :one
 WITH insert_upload AS (
-INSERT INTO core.efactura_document_uploads(e_id, x_id, status, upload_index)
-VALUES ($1, $2, $3, $4)
+INSERT INTO core.efactura_document_uploads(e_id, x_id, status, upload_index, error_message)
+VALUES ($1, $2, $3, $4, $5)
     RETURNING id
     )
 UPDATE core.efactura_documents AS ed
 SET x_id=$2,
     status=$3,
     upload_index=$4,
+    error_message=$5,
     u_id = (SELECT id FROM insert_upload)
 WHERE ed.e_id=$1
     RETURNING u_id::bigint;
@@ -286,6 +289,7 @@ WITH update_upload AS (
 UPDATE core.efactura_document_uploads
 SET upload_index=$2,
     status='processing',
+    error_message=NULL,
     updated_at=NOW()
 WHERE id=$1
     RETURNING id
@@ -293,6 +297,7 @@ WHERE id=$1
 UPDATE core.efactura_documents
 SET upload_index=$2,
     status='processing',
+    error_message=NULL,
     updated_at=NOW()
 WHERE u_id = (SELECT id FROM update_upload);
 
@@ -301,6 +306,7 @@ WITH update_upload AS (
 UPDATE core.efactura_document_uploads
 SET status=$2,
     download_id=$3,
+    error_message=$4,
     updated_at=NOW()
 WHERE id=$1
     RETURNING id
@@ -308,6 +314,7 @@ WHERE id=$1
 UPDATE core.efactura_documents
 SET status=$2,
     download_id=$3,
+    error_message=$4,
     updated_at=NOW()
 WHERE u_id = (SELECT id FROM update_upload);
 
@@ -320,6 +327,7 @@ SELECT d.e_id,
        d.status,
        d.upload_index,
        d.download_id,
+       d.error_message,
        d.u_id AS upload_record_id
 FROM core.efactura_documents d
          INNER JOIN core.efactura_xml_documents x
@@ -335,6 +343,7 @@ SELECT d.e_id,
        d.status,
        d.upload_index,
        d.download_id,
+       d.error_message,
        d.u_id AS upload_record_id
 FROM core.efactura_documents d
          INNER JOIN core.efactura_xml_documents x
@@ -350,13 +359,10 @@ SELECT d.e_id,
        d.status,
        d.upload_index,
        d.download_id,
+       d.error_message,
        d.u_id AS upload_record_id
 FROM core.efactura_documents d
          INNER JOIN core.efactura_xml_documents x
                     ON d.x_id = x.id
 WHERE d.h_id=$1
     FOR UPDATE OF d;
-
--- name: CreateEfacturaMessage :one
-INSERT INTO core.efactura_messages(u_id, state, download_id, error_message)
-VALUES ($1,$2,$3,$4) RETURNING id;

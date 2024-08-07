@@ -17,7 +17,7 @@ class SecondaryButton extends StatelessWidget {
   Widget build(BuildContext context) {
     if (icon != null) {
       return OutlinedButton.icon(
-        style: buttonStyle ?? CustomStyle.secondaryElevatedButtonStyle,
+        style: buttonStyle ?? CustomStyle.secondaryButtonStyle,
         label: Text(text,
             style: CustomStyle.semibold14(color: CustomColor.textPrimary)),
         icon: Icon(icon),
@@ -25,7 +25,7 @@ class SecondaryButton extends StatelessWidget {
       );
     } else {
       return OutlinedButton(
-        style: buttonStyle ?? CustomStyle.secondaryElevatedButtonStyle,
+        style: buttonStyle ?? CustomStyle.secondaryButtonStyle,
         onPressed: onPressed,
         child: Text(text,
             style: CustomStyle.semibold14(color: CustomColor.textPrimary)),

@@ -673,7 +673,7 @@ class _RegisterFormState extends ConsumerState<RegisterForm> {
         if (currentStep != 0)
           Expanded(
             child: SecondaryButton(
-              buttonStyle: CustomStyle.secondaryElevatedButtonStyle,
+              buttonStyle: CustomStyle.secondaryButtonStyle,
               text: 'back'.tr(context),
               onPressed: () {
                 if (currentStep > 0) {

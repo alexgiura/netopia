@@ -13,15 +13,15 @@ import 'package:gap/gap.dart';
 Widget? eFacturaWidget(Document document, BuildContext context, WidgetRef ref) {
   if (document.isDeleted == true) {
     return null;
-  } else if (document.efacturaStatus!.isEmpty) {
+  } else if (document.eFactura!.status!.isEmpty) {
     return PrimaryButton(
       text: 'send'.tr(context),
-      style: CustomStyle.primaryBlackButton,
+      style: CustomStyle.submitBlackButton,
       asyncOnPressed: () async =>
           await _sendEfactura(context, document, false, ref),
     );
-  } else if (document.efacturaStatus != null &&
-      document.efacturaStatus == 'success') {
+  } else if (document.eFactura!.status != null &&
+      document.eFactura!.status == 'success') {
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
@@ -32,13 +32,13 @@ Widget? eFacturaWidget(Document document, BuildContext context, WidgetRef ref) {
             style: CustomStyle.semibold14(color: CustomColor.greenText)),
       ],
     );
-  } else if (document.efacturaStatus == 'error' ||
-      document.efacturaStatus == null) {
+  } else if (document.eFactura!.status == 'error' ||
+      document.eFactura!.status == null) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
         PrimaryButton(
-          style: CustomStyle.primaryBlackButton,
+          style: CustomStyle.submitBlackButton,
           text: 'resend'.tr(context),
           asyncOnPressed: () async {
             return _sendEfactura(context, document, true, ref);
@@ -52,8 +52,8 @@ Widget? eFacturaWidget(Document document, BuildContext context, WidgetRef ref) {
         )
       ],
     );
-  } else if (document.efacturaStatus == 'new' ||
-      document.efacturaStatus == 'processing') {
+  } else if (document.eFactura!.status == 'new' ||
+      document.eFactura!.status == 'processing') {
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
@@ -68,13 +68,13 @@ Widget? eFacturaWidget(Document document, BuildContext context, WidgetRef ref) {
 }
 
 Widget eFacturaStatus(Document document, BuildContext context) {
-  if (document.efacturaStatus == null || document.efacturaStatus == '') {
+  if (document.eFactura!.status == null || document.eFactura!.status == '') {
     return Text(
       '-',
       style: CustomStyle.semibold14(),
     );
   } else {
-    if (document.efacturaStatus == 'success') {
+    if (document.eFactura!.status == 'success') {
       return Row(
         mainAxisSize: MainAxisSize.min,
         children: [
@@ -85,7 +85,7 @@ Widget eFacturaStatus(Document document, BuildContext context) {
               style: CustomStyle.semibold14(color: CustomColor.greenText)),
         ],
       );
-    } else if (document.efacturaStatus == 'error') {
+    } else if (document.eFactura!.status == 'error') {
       return Row(
         mainAxisSize: MainAxisSize.min,
         children: [

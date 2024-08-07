@@ -1,3 +1,4 @@
+import 'package:erp_frontend_v2/models/efactura.dart';
 import 'package:erp_frontend_v2/models/item/item_model.dart';
 import 'package:erp_frontend_v2/models/partner/partner_model.dart';
 
@@ -15,7 +16,7 @@ class Document {
   int? recipeId;
   String? notes;
   bool? isDeleted;
-  String? efacturaStatus;
+  EFactura? eFactura;
   List<DocumentItem> documentItems;
 
   Document(
@@ -29,7 +30,7 @@ class Document {
       this.recipeId,
       this.notes,
       this.isDeleted,
-      this.efacturaStatus});
+      this.eFactura});
 
   Document.empty()
       : hId = null,
@@ -64,7 +65,7 @@ class Document {
       recipeId: json.containsKey('recipe_id') ? json['recipe_id'] : null,
       notes: json.containsKey('notes') ? json['notes'] : null,
       isDeleted: json['deleted'],
-      efacturaStatus: json['efactura_status'],
+      eFactura: EFactura.fromJson(json['efactura'] as Map<String, dynamic>),
       documentItems: documentItems,
     );
   }

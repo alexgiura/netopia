@@ -2,7 +2,6 @@ import 'package:erp_frontend_v2/constants/style.dart';
 import 'package:erp_frontend_v2/providers/user_provider.dart';
 import 'package:erp_frontend_v2/utils/responsiveness.dart';
 import 'package:erp_frontend_v2/utils/util_widgets.dart';
-import 'package:erp_frontend_v2/widgets/large_screen.dart';
 import 'package:erp_frontend_v2/widgets/side_menu/side_menu.dart';
 import 'package:erp_frontend_v2/widgets/top_nav/top_nav.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -45,9 +44,13 @@ class _AppLayoutState extends ConsumerState<AppLayout> {
                 builder: (context, constraints) {
                   return ToastificationWrapper(
                     child: ResponsiveWidget(
-                      largeScreen: LargeScreen(child: widget.child),
+                      largeScreen: Padding(
+                        padding: const EdgeInsets.only(
+                            left: 16, top: 24, right: 24, bottom: 24),
+                        child: widget.child,
+                      ),
                       smallScreen: Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 0),
+                        padding: const EdgeInsets.all(16),
                         child: widget.child,
                       ),
                     ),

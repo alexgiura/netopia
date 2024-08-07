@@ -151,13 +151,16 @@ class _DropDownFilterState<T> extends ConsumerState<DropDownFilter<T>> {
         mainAxisSize: MainAxisSize.min,
         children: [
           Container(
-              decoration: CustomStyle.customContainerDecoration(),
+              decoration: CustomStyle.customContainerDecoration(
+                boxShadow: true,
+                borderRadius: CustomStyle.customBorderRadiusSmall,
+              ),
               constraints: const BoxConstraints(
                 maxHeight: 350.0, maxWidth: 350,
                 //minHeight: 200,
               ),
               child: Padding(
-                padding: const EdgeInsets.all(8.0),
+                padding: const EdgeInsets.all(16.0),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   mainAxisSize: MainAxisSize.min,
@@ -225,7 +228,7 @@ class _DropDownFilterState<T> extends ConsumerState<DropDownFilter<T>> {
                           ),
                         ),
                         const SizedBox(
-                          width: 24,
+                          width: 16,
                         ),
                         Expanded(
                           child: PrimaryButton(

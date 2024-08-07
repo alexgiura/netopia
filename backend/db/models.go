@@ -246,26 +246,28 @@ type CoreEfacturaAuthorization struct {
 }
 
 type CoreEfacturaDocument struct {
-	EID         uuid.UUID
-	HID         uuid.UUID
-	XID         int64
-	UID         sql.NullInt64
-	Status      CoreEfacturaDocumentStatus
-	UploadIndex sql.NullInt64
-	DownloadID  sql.NullInt64
-	CreatedAt   time.Time
-	UpdatedAt   time.Time
+	EID          uuid.UUID
+	HID          uuid.UUID
+	XID          int64
+	UID          sql.NullInt64
+	Status       CoreEfacturaDocumentStatus
+	UploadIndex  sql.NullInt64
+	DownloadID   sql.NullInt64
+	ErrorMessage sql.NullString
+	CreatedAt    time.Time
+	UpdatedAt    time.Time
 }
 
 type CoreEfacturaDocumentUpload struct {
-	ID          int64
-	EID         uuid.UUID
-	XID         int64
-	Status      CoreEfacturaDocumentStatus
-	UploadIndex sql.NullInt64
-	DownloadID  sql.NullInt64
-	CreatedAt   time.Time
-	UpdatedAt   time.Time
+	ID           int64
+	EID          uuid.UUID
+	XID          int64
+	Status       CoreEfacturaDocumentStatus
+	UploadIndex  sql.NullInt64
+	DownloadID   sql.NullInt64
+	ErrorMessage sql.NullString
+	CreatedAt    time.Time
+	UpdatedAt    time.Time
 }
 
 type CoreEfacturaMessage struct {

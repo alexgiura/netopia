@@ -25,41 +25,33 @@ class _ProductionRecipesPageState extends State<ProductionRecipesPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: EdgeInsets.only(
-        left: ResponsiveWidget.isSmallScreen(context) ? 0 : 24,
-        right: ResponsiveWidget.isSmallScreen(context) ? 0 : 24,
-        top: ResponsiveWidget.isSmallScreen(context) ? 24 : 32,
-        bottom: ResponsiveWidget.isSmallScreen(context) ? 0 : 24,
-      ),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Row(
-            children: [
-              Text(
-                'recipes'.tr(context),
-                style: CustomStyle.medium40(),
-              ),
-              const Spacer(),
-              PrimaryButton(
-                text: 'add'.tr(context),
-                icon: Icons.add,
-                onPressed: () {
-                  context.goNamed(
-                    productionRecipeDetailsPageName,
-                    pathParameters: {'id1': '0'},
-                  );
-                },
-              ),
-            ],
-          ),
-          const Gap(24),
-          const Flexible(
-            child: RecipesDataTable(),
-          )
-        ],
-      ),
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Row(
+          children: [
+            Text(
+              'recipes'.tr(context),
+              style: CustomStyle.medium40(),
+            ),
+            const Spacer(),
+            PrimaryButton(
+              text: 'add'.tr(context),
+              icon: Icons.add,
+              onPressed: () {
+                context.goNamed(
+                  productionRecipeDetailsPageName,
+                  pathParameters: {'id1': '0'},
+                );
+              },
+            ),
+          ],
+        ),
+        const Gap(24),
+        const Flexible(
+          child: RecipesDataTable(),
+        )
+      ],
     );
   }
 }

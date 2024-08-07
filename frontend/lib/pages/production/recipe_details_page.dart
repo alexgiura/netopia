@@ -71,34 +71,25 @@ class _DocumentDetailsPageState extends ConsumerState<RecipeDetailsPage>
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: EdgeInsets.only(
-        left: ResponsiveWidget.isSmallScreen(context) ? 0 : 24,
-        right: ResponsiveWidget.isSmallScreen(context) ? 0 : 24,
-        top: ResponsiveWidget.isSmallScreen(context) ? 24 : 32,
-        bottom: ResponsiveWidget.isSmallScreen(context) ? 0 : 24,
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          _buildTitle(),
-          const SizedBox(height: 16),
-          _isLoading == true
-              ? const Expanded(
-                  child: Center(child: CircularProgressIndicator()))
-              : Flexible(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      _buildHeader(),
-                      Gap(32),
-                      _buildDetails(),
-                    ],
-                  ),
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        _buildTitle(),
+        const SizedBox(height: 16),
+        _isLoading == true
+            ? const Expanded(child: Center(child: CircularProgressIndicator()))
+            : Flexible(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    _buildHeader(),
+                    Gap(32),
+                    _buildDetails(),
+                  ],
                 ),
-        ],
-      ),
+              ),
+      ],
     );
   }
 

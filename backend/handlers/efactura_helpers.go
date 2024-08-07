@@ -480,7 +480,7 @@ func (r *Resolver) _EfacturaOnTokenChangedFunc(authorizationID uuid.UUID) func(c
 
 // _EfacturaUpload upload the e-factura document given by e_id to e-factura
 // system. This method DOES NOT update the status of the e-factura document.
-func (r *Resolver) _EfacturaUpload(ctx context.Context, efacturaDocument db.GetEfacturaDocumentLockForUpdateRow) (uploadIndex int64, err error) {
+func (r *Resolver) _EfacturaUpload(ctx context.Context, efacturaDocument db.GetEfacturaDocumentLockForUpdateRow) (uploadIndex int64, uploadErrorMessage string, err error) {
 	var company db.GetCompanyRow
 	company, err = r.DBProvider.GetCompany(ctx)
 	if err != nil {
@@ -531,7 +531,8 @@ func (r *Resolver) _EfacturaUpload(ctx context.Context, efacturaDocument db.GetE
 	if uploadRes.IsOk() {
 		uploadIndex = uploadRes.GetUploadIndex()
 	} else {
-		err = fmt.Errorf("e-factura: upload: upload failed: error message: %s", uploadRes.GetFirstErrorMessage())
+		uploadErrorMessage = uploadRes.GetFirstErrorMessage()
+		err = fmt.Errorf("e-factura: upload: upload failed: error message: %s", uploadErrorMessage)
 		return
 	}
 	return
@@ -579,15 +580,21 @@ func (r *Resolver) _EfacturaUploadUpdateStatus(ctx context.Context, efacturaDocI
 		return
 	}
 
-	uploadIndex, err = r._EfacturaUpload(ctx, efacturaDocument)
+	var uploadErrorMessage string
+	uploadIndex, uploadErrorMessage, err = r._EfacturaUpload(ctx, efacturaDocument)
 	if err != nil {
 		r.Logger.Error("e-factura: upload failed",
 			zap.Error(err),
 			zap.String("efactura_documents.id", efacturaDocID.String()))
 		if terr := r.trx(ctx, func(tx *db.Queries) error {
+			var dbErrorMessage sql.NullString
+			if uploadErrorMessage != "" {
+				dbErrorMessage = util.ParamStr(&uploadErrorMessage)
+			}
 			return tx.UpdateEfacturaUploadStatus(ctx, db.UpdateEfacturaUploadStatusParams{
-				ID:     uploadRecordID,
-				Status: db.CoreEfacturaDocumentStatusError,
+				ID:           uploadRecordID,
+				Status:       db.CoreEfacturaDocumentStatusError,
+				ErrorMessage: dbErrorMessage,
 			})
 		}); terr != nil {
 			// Return the error from _EfacturaUpload instead of returning the
@@ -718,27 +725,23 @@ func (r *Resolver) _EfacturaCheckUploadState(ctx context.Context, efacturaDocID 
 		if downloadID != 0 {
 			dbDownloadID = util.NullableInt64(&downloadID)
 		}
+
 		var dbErrorMessage sql.NullString
 		if errorMessage != "" {
-			dbErrorMessage = util.NullableStr(&errorMessage)
+			dbErrorMessage = util.ParamStr(&errorMessage)
 		}
 
 		return r.DBPool.BeginFunc(ctx, func(tx pgx.Tx) (err error) {
 			dbTrx := r.DBProvider.WithTx(tx)
 
-			_, err = dbTrx.CreateEfacturaMessage(ctx, db.CreateEfacturaMessageParams{
-				UID:          efacturaDocument.UploadRecordID.Int64,
-				State:        messageState,
-				DownloadID:   dbDownloadID,
-				ErrorMessage: dbErrorMessage,
-			})
 			if err != nil {
 				return
 			}
 			err = dbTrx.UpdateEfacturaUploadStatus(ctx, db.UpdateEfacturaUploadStatusParams{
-				ID:         efacturaDocument.UploadRecordID.Int64,
-				Status:     status,
-				DownloadID: dbDownloadID,
+				ID:           efacturaDocument.UploadRecordID.Int64,
+				Status:       status,
+				DownloadID:   dbDownloadID,
+				ErrorMessage: dbErrorMessage,
 			})
 			return
 		})

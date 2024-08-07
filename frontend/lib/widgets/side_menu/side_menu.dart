@@ -45,9 +45,9 @@ class _SideMenuState extends State<SideMenu> {
             Expanded(
               child: Padding(
                 padding: const EdgeInsets.only(
-                  left: 40,
-                  right: 40,
-                  bottom: 40,
+                  left: 24,
+                  right: 24,
+                  bottom: 24,
                 ),
                 child: Drawer(
                   shadowColor: CustomColor.bgSecondary,

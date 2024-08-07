@@ -57,24 +57,26 @@ func (q *Queries) CreateEfacturaDocument(ctx context.Context, arg CreateEfactura
 
 const createEfacturaDocumentUpload = `-- name: CreateEfacturaDocumentUpload :one
 WITH insert_upload AS (
-INSERT INTO core.efactura_document_uploads(e_id, x_id, status, upload_index)
-VALUES ($1, $2, $3, $4)
+INSERT INTO core.efactura_document_uploads(e_id, x_id, status, upload_index, error_message)
+VALUES ($1, $2, $3, $4, $5)
     RETURNING id
     )
 UPDATE core.efactura_documents AS ed
 SET x_id=$2,
     status=$3,
     upload_index=$4,
+    error_message=$5,
     u_id = (SELECT id FROM insert_upload)
 WHERE ed.e_id=$1
     RETURNING u_id::bigint
 `
 
 type CreateEfacturaDocumentUploadParams struct {
-	EID         uuid.UUID
-	XID         int64
-	Status      CoreEfacturaDocumentStatus
-	UploadIndex sql.NullInt64
+	EID          uuid.UUID
+	XID          int64
+	Status       CoreEfacturaDocumentStatus
+	UploadIndex  sql.NullInt64
+	ErrorMessage sql.NullString
 }
 
 func (q *Queries) CreateEfacturaDocumentUpload(ctx context.Context, arg CreateEfacturaDocumentUploadParams) (int64, error) {
@@ -83,34 +85,11 @@ func (q *Queries) CreateEfacturaDocumentUpload(ctx context.Context, arg CreateEf
 		arg.XID,
 		arg.Status,
 		arg.UploadIndex,
+		arg.ErrorMessage,
 	)
 	var u_id int64
 	err := row.Scan(&u_id)
 	return u_id, err
-}
-
-const createEfacturaMessage = `-- name: CreateEfacturaMessage :one
-INSERT INTO core.efactura_messages(u_id, state, download_id, error_message)
-VALUES ($1,$2,$3,$4) RETURNING id
-`
-
-type CreateEfacturaMessageParams struct {
-	UID          int64
-	State        CoreEfacturaMessageState
-	DownloadID   sql.NullInt64
-	ErrorMessage sql.NullString
-}
-
-func (q *Queries) CreateEfacturaMessage(ctx context.Context, arg CreateEfacturaMessageParams) (int64, error) {
-	row := q.db.QueryRow(ctx, createEfacturaMessage,
-		arg.UID,
-		arg.State,
-		arg.DownloadID,
-		arg.ErrorMessage,
-	)
-	var id int64
-	err := row.Scan(&id)
-	return id, err
 }
 
 const createEfacturaXMLDocument = `-- name: CreateEfacturaXMLDocument :one
@@ -233,7 +212,8 @@ Select
     notes,
     dc.name AS currency,
     is_deleted,
-    ed.status as efactura_status
+    ed.status as efactura_status,
+    ed.error_message as efactura_error_message
 from core.document_header as d
     left join core.partners as pa
 on pa.id=d.partner_id
@@ -266,6 +246,7 @@ type GetDocumentHeaderRow struct {
 	Currency                        sql.NullString
 	IsDeleted                       bool
 	EfacturaStatus                  NullCoreEfacturaDocumentStatus
+	EfacturaErrorMessage            sql.NullString
 }
 
 func (q *Queries) GetDocumentHeader(ctx context.Context, hID uuid.UUID) (GetDocumentHeaderRow, error) {
@@ -289,6 +270,7 @@ func (q *Queries) GetDocumentHeader(ctx context.Context, hID uuid.UUID) (GetDocu
 		&i.Currency,
 		&i.IsDeleted,
 		&i.EfacturaStatus,
+		&i.EfacturaErrorMessage,
 	)
 	return i, err
 }
@@ -616,6 +598,7 @@ Select
     pa.name as partner,
     is_deleted,
     ed.status as efactura_status,
+    ed.error_message as efactura_error_message,
     notes
 from core.document_header as d
     left join core.partners as pa
@@ -636,18 +619,19 @@ type GetDocumentsParams struct {
 }
 
 type GetDocumentsRow struct {
-	HID                uuid.UUID
-	DocumentTypeID     sql.NullInt32
-	DocumentTypeNameRo sql.NullString
-	DocumentTypeNameEn sql.NullString
-	Series             sql.NullString
-	Number             string
-	Date               time.Time
-	DueDate            sql.NullTime
-	Partner            sql.NullString
-	IsDeleted          bool
-	EfacturaStatus     NullCoreEfacturaDocumentStatus
-	Notes              sql.NullString
+	HID                  uuid.UUID
+	DocumentTypeID       sql.NullInt32
+	DocumentTypeNameRo   sql.NullString
+	DocumentTypeNameEn   sql.NullString
+	Series               sql.NullString
+	Number               string
+	Date                 time.Time
+	DueDate              sql.NullTime
+	Partner              sql.NullString
+	IsDeleted            bool
+	EfacturaStatus       NullCoreEfacturaDocumentStatus
+	EfacturaErrorMessage sql.NullString
+	Notes                sql.NullString
 }
 
 func (q *Queries) GetDocuments(ctx context.Context, arg GetDocumentsParams) ([]GetDocumentsRow, error) {
@@ -676,6 +660,7 @@ func (q *Queries) GetDocuments(ctx context.Context, arg GetDocumentsParams) ([]G
 			&i.Partner,
 			&i.IsDeleted,
 			&i.EfacturaStatus,
+			&i.EfacturaErrorMessage,
 			&i.Notes,
 		); err != nil {
 			return nil, err
@@ -697,6 +682,7 @@ SELECT d.e_id,
        d.status,
        d.upload_index,
        d.download_id,
+       d.error_message,
        d.u_id AS upload_record_id
 FROM core.efactura_documents d
          INNER JOIN core.efactura_xml_documents x
@@ -713,6 +699,7 @@ type GetEfacturaDocumentRow struct {
 	Status         CoreEfacturaDocumentStatus
 	UploadIndex    sql.NullInt64
 	DownloadID     sql.NullInt64
+	ErrorMessage   sql.NullString
 	UploadRecordID sql.NullInt64
 }
 
@@ -728,6 +715,7 @@ func (q *Queries) GetEfacturaDocument(ctx context.Context, eID uuid.UUID) (GetEf
 		&i.Status,
 		&i.UploadIndex,
 		&i.DownloadID,
+		&i.ErrorMessage,
 		&i.UploadRecordID,
 	)
 	return i, err
@@ -741,6 +729,7 @@ SELECT d.e_id,
        d.status,
        d.upload_index,
        d.download_id,
+       d.error_message,
        d.u_id AS upload_record_id
 FROM core.efactura_documents d
          INNER JOIN core.efactura_xml_documents x
@@ -757,6 +746,7 @@ type GetEfacturaDocumentForHeaderIDLockForUpdateRow struct {
 	Status         CoreEfacturaDocumentStatus
 	UploadIndex    sql.NullInt64
 	DownloadID     sql.NullInt64
+	ErrorMessage   sql.NullString
 	UploadRecordID sql.NullInt64
 }
 
@@ -771,6 +761,7 @@ func (q *Queries) GetEfacturaDocumentForHeaderIDLockForUpdate(ctx context.Contex
 		&i.Status,
 		&i.UploadIndex,
 		&i.DownloadID,
+		&i.ErrorMessage,
 		&i.UploadRecordID,
 	)
 	return i, err
@@ -785,6 +776,7 @@ SELECT d.e_id,
        d.status,
        d.upload_index,
        d.download_id,
+       d.error_message,
        d.u_id AS upload_record_id
 FROM core.efactura_documents d
          INNER JOIN core.efactura_xml_documents x
@@ -802,6 +794,7 @@ type GetEfacturaDocumentLockForUpdateRow struct {
 	Status         CoreEfacturaDocumentStatus
 	UploadIndex    sql.NullInt64
 	DownloadID     sql.NullInt64
+	ErrorMessage   sql.NullString
 	UploadRecordID sql.NullInt64
 }
 
@@ -817,6 +810,7 @@ func (q *Queries) GetEfacturaDocumentLockForUpdate(ctx context.Context, eID uuid
 		&i.Status,
 		&i.UploadIndex,
 		&i.DownloadID,
+		&i.ErrorMessage,
 		&i.UploadRecordID,
 	)
 	return i, err
@@ -1117,6 +1111,7 @@ WITH update_upload AS (
 UPDATE core.efactura_document_uploads
 SET upload_index=$2,
     status='processing',
+    error_message=NULL,
     updated_at=NOW()
 WHERE id=$1
     RETURNING id
@@ -1124,6 +1119,7 @@ WHERE id=$1
 UPDATE core.efactura_documents
 SET upload_index=$2,
     status='processing',
+    error_message=NULL,
     updated_at=NOW()
 WHERE u_id = (SELECT id FROM update_upload)
 `
@@ -1143,6 +1139,7 @@ WITH update_upload AS (
 UPDATE core.efactura_document_uploads
 SET status=$2,
     download_id=$3,
+    error_message=$4,
     updated_at=NOW()
 WHERE id=$1
     RETURNING id
@@ -1150,17 +1147,24 @@ WHERE id=$1
 UPDATE core.efactura_documents
 SET status=$2,
     download_id=$3,
+    error_message=$4,
     updated_at=NOW()
 WHERE u_id = (SELECT id FROM update_upload)
 `
 
 type UpdateEfacturaUploadStatusParams struct {
-	ID         int64
-	Status     CoreEfacturaDocumentStatus
-	DownloadID sql.NullInt64
+	ID           int64
+	Status       CoreEfacturaDocumentStatus
+	DownloadID   sql.NullInt64
+	ErrorMessage sql.NullString
 }
 
 func (q *Queries) UpdateEfacturaUploadStatus(ctx context.Context, arg UpdateEfacturaUploadStatusParams) error {
-	_, err := q.db.Exec(ctx, updateEfacturaUploadStatus, arg.ID, arg.Status, arg.DownloadID)
+	_, err := q.db.Exec(ctx, updateEfacturaUploadStatus,
+		arg.ID,
+		arg.Status,
+		arg.DownloadID,
+		arg.ErrorMessage,
+	)
 	return err
 }

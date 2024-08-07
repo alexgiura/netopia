@@ -22,45 +22,37 @@ class _ItemUnitsPageState extends State<ItemUnitsPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: EdgeInsets.only(
-        left: ResponsiveWidget.isSmallScreen(context) ? 0 : 24,
-        right: ResponsiveWidget.isSmallScreen(context) ? 0 : 24,
-        top: ResponsiveWidget.isSmallScreen(context) ? 24 : 32,
-        bottom: ResponsiveWidget.isSmallScreen(context) ? 0 : 24,
-      ),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Row(
-            children: [
-              Text(
-                'measurement_units'.tr(context),
-                style: CustomStyle.medium40(),
-              ),
-              const Spacer(),
-              PrimaryButton(
-                text: 'add'.tr(context),
-                icon: Icons.add,
-                onPressed: () {
-                  showDialog(
-                    context: context,
-                    builder: (BuildContext context) {
-                      return const ItemUnitPopup(
-                        um: null,
-                      );
-                    },
-                  );
-                },
-              ),
-            ],
-          ),
-          const Gap(24),
-          const Flexible(
-            child: ItemUnitsDataTable(),
-          )
-        ],
-      ),
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Row(
+          children: [
+            Text(
+              'measurement_units'.tr(context),
+              style: CustomStyle.medium40(),
+            ),
+            const Spacer(),
+            PrimaryButton(
+              text: 'add'.tr(context),
+              icon: Icons.add,
+              onPressed: () {
+                showDialog(
+                  context: context,
+                  builder: (BuildContext context) {
+                    return const ItemUnitPopup(
+                      um: null,
+                    );
+                  },
+                );
+              },
+            ),
+          ],
+        ),
+        const Gap(24),
+        const Flexible(
+          child: ItemUnitsDataTable(),
+        )
+      ],
     );
   }
 }

@@ -33,8 +33,9 @@ class TopNav extends ConsumerWidget implements PreferredSizeWidget {
           : null,
       automaticallyImplyLeading: false,
       title: Padding(
-        padding: EdgeInsets.symmetric(
-          horizontal: ResponsiveWidget.isSmallScreen(context) ? 16 : 24,
+        padding: EdgeInsets.only(
+          left: 16,
+          right: ResponsiveWidget.isSmallScreen(context) ? 16 : 24,
         ),
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.center,

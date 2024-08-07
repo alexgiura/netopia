@@ -31,7 +31,8 @@ class _CustomCalendarState extends State<CustomCalendar> {
         controlsHeight: 48,
         firstDayOfWeek: DateTime.monday,
         calendarType: CalendarDatePicker2Type.range,
-        selectedDayHighlightColor: CustomColor.active,
+        selectedDayHighlightColor: CustomColor.bgDark,
+        selectedRangeHighlightColor: CustomColor.bgDark.withOpacity(0.04),
         weekdayLabelTextStyle: CustomStyle.bodyTextBold,
         controlsTextStyle: CustomStyle.bodyTextBold,
         dayTextStyle: CustomStyle.labelText);

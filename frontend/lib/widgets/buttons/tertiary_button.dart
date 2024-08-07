@@ -18,8 +18,8 @@ class TertiaryButton extends StatelessWidget {
     if (icon != null) {
       return TextButton.icon(
         style: underline
-            ? CustomStyle.tertiaryUnderlineButton
-            : CustomStyle.tertiaryButton,
+            ? CustomStyle.tertiaryUnderlineButtonStyle
+            : CustomStyle.tertiaryButtonStyle,
         label: Text(
           text,
           style: CustomStyle.tertiaryButtonText,
@@ -32,8 +32,8 @@ class TertiaryButton extends StatelessWidget {
     } else {
       return TextButton(
         style: underline
-            ? CustomStyle.tertiaryUnderlineButton
-            : CustomStyle.tertiaryButton,
+            ? CustomStyle.tertiaryUnderlineButtonStyle
+            : CustomStyle.tertiaryButtonStyle,
         onPressed: onPressed,
         child: Text(text, style: CustomStyle.tertiaryButtonText),
       );

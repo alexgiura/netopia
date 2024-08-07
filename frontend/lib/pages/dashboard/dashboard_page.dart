@@ -47,32 +47,21 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: EdgeInsets.only(
-        left: ResponsiveWidget.isSmallScreen(context) ? 0 : 24,
-        right: ResponsiveWidget.isSmallScreen(context) ? 0 : 24,
-        top: ResponsiveWidget.isSmallScreen(context) ? 56 : 15,
-        bottom: ResponsiveWidget.isSmallScreen(context) ? 0 : 24,
-      ),
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          mainAxisSize: MainAxisSize.max,
-          crossAxisAlignment: CrossAxisAlignment.start,
+    return Column(
+      mainAxisSize: MainAxisSize.max,
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
           children: [
-            Row(
-              children: [
-                Text(
-                  'dashboard'.tr(context),
-                  style: CustomStyle.titleText,
-                ),
-                Spacer(),
-              ],
+            Text(
+              'dashboard'.tr(context),
+              style: CustomStyle.titleText,
             ),
-            Expanded(child: _body(context)),
+            Spacer(),
           ],
         ),
-      ),
+        Expanded(child: _body(context)),
+      ],
     );
   }
 

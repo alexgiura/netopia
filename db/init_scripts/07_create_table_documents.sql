@@ -107,6 +107,7 @@ CREATE TABLE IF NOT EXISTS core.efactura_documents(
     status core.efactura_document_status NOT NULL DEFAULT 'new',
     upload_index BIGINT NULL UNIQUE,
     download_id BIGINT NULL UNIQUE,
+    error_message text NULL,
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
     );
@@ -121,6 +122,7 @@ CREATE TABLE IF NOT EXISTS core.efactura_document_uploads(
     status core.efactura_document_status NOT NULL DEFAULT 'new',
     upload_index BIGINT NULL UNIQUE,
     download_id BIGINT NULL UNIQUE,
+    error_message text NULL,
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
     );

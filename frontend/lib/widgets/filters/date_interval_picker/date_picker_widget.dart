@@ -176,8 +176,8 @@ class _DateIntervalPickerFilterState<T>
     return InkWell(
       onTap: onTap,
       child: Padding(
-        padding: const EdgeInsets.only(bottom: 16),
-        child: Text(label, style: CustomStyle.bodyText),
+        padding: const EdgeInsets.only(bottom: 24),
+        child: Text(label, style: CustomStyle.semibold14()),
       ),
     );
   }
@@ -185,7 +185,7 @@ class _DateIntervalPickerFilterState<T>
   void _updateDateRange(List<DateTime> newRange) {
     setState(() {
       _rangeDatePickerValue = newRange;
-      refreshOverlay(); // Refresh the overlay to update the CustomCalendar
+      refreshOverlay();
     });
   }
 
@@ -213,11 +213,12 @@ class _DateIntervalPickerFilterState<T>
           },
           child: Container(
             decoration: CustomStyle.customContainerDecoration(
+              boxShadow: true,
               borderRadius: CustomStyle.customBorderRadiusSmall,
             ),
             constraints: const BoxConstraints(
               //maxHeight: 400,
-              maxWidth: 480,
+              maxWidth: 490,
               //minHeight: 200,
             ),
             child: Row(
@@ -273,12 +274,6 @@ class _DateIntervalPickerFilterState<T>
                         initialValue: _rangeDatePickerValue,
                         onValueChanged: (newDates) {
                           _rangeDatePickerValue = newDates;
-                          // setState(() {
-                          //   _rangeDatePickerValue = newDates;
-                          //   if (newDates.length == 2) {
-                          //     widget.onValueChanged(newDates[0]!, newDates[1]!);
-                          //   }
-                          // });
                         },
                       ),
                       const Divider(
@@ -289,7 +284,6 @@ class _DateIntervalPickerFilterState<T>
                         child: Row(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            const Spacer(),
                             Expanded(
                               child: SecondaryButton(
                                 text: 'cancel'.tr(context),
@@ -299,7 +293,7 @@ class _DateIntervalPickerFilterState<T>
                               ),
                             ),
                             const SizedBox(
-                              width: 8,
+                              width: 16,
                             ),
                             Expanded(
                               child: PrimaryButton(

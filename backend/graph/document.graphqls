@@ -16,7 +16,7 @@ type Document{
     partner: Partner!
     notes: String
     deleted: Boolean!
-    efactura_status:String
+    efactura: EFactura
     document_items: [DocumentItem]
 }
 

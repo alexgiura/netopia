@@ -33,46 +33,38 @@ class _DocumentsPageState extends State<DocumentsPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: EdgeInsets.only(
-        left: ResponsiveWidget.isSmallScreen(context) ? 0 : 24,
-        right: ResponsiveWidget.isSmallScreen(context) ? 0 : 24,
-        top: ResponsiveWidget.isSmallScreen(context) ? 24 : 32,
-        bottom: ResponsiveWidget.isSmallScreen(context) ? 0 : 24,
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Expanded(
-                  child: CustomHeader(
-                title: widget.documentTitle,
-                subtitle: widget.documentSubtitle,
-              )),
-              const Spacer(),
-              PrimaryButton(
-                text: 'add'.tr(context),
-                icon: Icons.add,
-                onPressed: () {
-                  final routeName =
-                      getDetailsRouteNameByDocumentType(widget.documentTypeId);
-                  context.goNamed(
-                    routeName,
-                    pathParameters: {'id1': '0'},
-                  );
-                },
-              ),
-            ],
-          ),
-          const SizedBox(height: 16),
-          Flexible(
-            child: DocumentsDataTable(
-              documentTypeId: widget.documentTypeId,
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            Expanded(
+                child: CustomHeader(
+              title: widget.documentTitle,
+              subtitle: widget.documentSubtitle,
+            )),
+            const Spacer(),
+            PrimaryButton(
+              text: 'add'.tr(context),
+              icon: Icons.add,
+              onPressed: () {
+                final routeName =
+                    getDetailsRouteNameByDocumentType(widget.documentTypeId);
+                context.goNamed(
+                  routeName,
+                  pathParameters: {'id1': '0'},
+                );
+              },
             ),
-          )
-        ],
-      ),
+          ],
+        ),
+        const SizedBox(height: 16),
+        Flexible(
+          child: DocumentsDataTable(
+            documentTypeId: widget.documentTypeId,
+          ),
+        )
+      ],
     );
   }
 }
