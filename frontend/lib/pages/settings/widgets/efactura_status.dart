@@ -24,29 +24,26 @@ class EfacturaStatus extends ConsumerWidget {
                   : CustomColor.error.withOpacity(0.1),
               borderRadius: BorderRadius.circular(50),
             ),
-            child: Flexible(
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 8),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Icon(
-                      user.eFacturaAuth == true
-                          ? Icons.check_circle_outline_rounded
-                          : Icons.error_outline_rounded,
-                      size: 20,
-                      color: user.eFacturaAuth == true
-                          ? CustomColor.green
-                          : CustomColor.error,
-                    ),
-                    Gap(4),
-                    Text(
-                        user.eFacturaAuth == true ? 'Autorizat' : 'Neautorizat',
-                        style: user.eFacturaAuth == true
-                            ? CustomStyle.semibold14(color: CustomColor.green)
-                            : CustomStyle.semibold14(color: CustomColor.error)),
-                  ],
-                ),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 8),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(
+                    user.eFacturaAuth == true
+                        ? Icons.check_circle_outline_rounded
+                        : Icons.error_outline_rounded,
+                    size: 20,
+                    color: user.eFacturaAuth == true
+                        ? CustomColor.green
+                        : CustomColor.error,
+                  ),
+                  Gap(4),
+                  Text(user.eFacturaAuth == true ? 'Autorizat' : 'Neautorizat',
+                      style: user.eFacturaAuth == true
+                          ? CustomStyle.semibold14(color: CustomColor.green)
+                          : CustomStyle.semibold14(color: CustomColor.error)),
+                ],
               ),
             ),
           ),

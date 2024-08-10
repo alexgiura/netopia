@@ -40,6 +40,7 @@ class SettingsCardState extends State<SettingsCard> {
             children: [
               Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   CircleAvatar(
                     backgroundColor: CustomColor.accentColor.withOpacity(0.4),
@@ -48,7 +49,6 @@ class SettingsCardState extends State<SettingsCard> {
                       color: Colors.black,
                     ),
                   ),
-                  Spacer(),
                   widget.statusWidget ?? Container()
                 ],
               ),
