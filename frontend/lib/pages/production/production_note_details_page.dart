@@ -410,33 +410,29 @@ class _ProductionNoteDetailsPageState
                   Text('raw_material'.tr(context)),
                 ],
                 tabViews: [
-                  Flexible(
-                    child: ProductionDetailsDataTable(
-                      data: _document.documentItems
-                          .where((item) => item.itemTypePn == 'finalProduct')
-                          .toList(),
-                      onUpdate: (data) {
-                        setState(() {
-                          _document.documentItems.removeWhere(
-                              (item) => item.itemTypePn == 'finalProduct');
-                          _document.documentItems.addAll(data);
-                        });
-                      },
-                    ),
+                  ProductionDetailsDataTable(
+                    data: _document.documentItems
+                        .where((item) => item.itemTypePn == 'finalProduct')
+                        .toList(),
+                    onUpdate: (data) {
+                      setState(() {
+                        _document.documentItems.removeWhere(
+                            (item) => item.itemTypePn == 'finalProduct');
+                        _document.documentItems.addAll(data);
+                      });
+                    },
                   ),
-                  Flexible(
-                    child: ProductionDetailsDataTable(
-                      data: _document.documentItems
-                          .where((item) => item.itemTypePn == 'rawMaterial')
-                          .toList(),
-                      onUpdate: (data) {
-                        setState(() {
-                          _document.documentItems.removeWhere(
-                              (item) => item.itemTypePn == 'rawMaterial');
-                          _document.documentItems.addAll(data);
-                        });
-                      },
-                    ),
+                  ProductionDetailsDataTable(
+                    data: _document.documentItems
+                        .where((item) => item.itemTypePn == 'rawMaterial')
+                        .toList(),
+                    onUpdate: (data) {
+                      setState(() {
+                        _document.documentItems.removeWhere(
+                            (item) => item.itemTypePn == 'rawMaterial');
+                        _document.documentItems.addAll(data);
+                      });
+                    },
                   )
                 ],
                 onChanged: (value) {
