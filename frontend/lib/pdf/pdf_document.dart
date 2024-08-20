@@ -402,12 +402,14 @@ class PdfDocument {
               children: [
                 buildText(
                   title: 'Subtotal:',
-                  value: formatPrice(netTotal),
+                  value:
+                      '${truncateToDecimals(netTotal, 2)} ${document.currency?.name ?? '###'}',
                 ),
                 SizedBox(height: 4),
                 buildText(
                   title: 'TVA:',
-                  value: formatPrice(vatTotal),
+                  value:
+                      '${truncateToDecimals(vatTotal, 2)} ${document.currency?.name ?? '###'}',
                 ),
                 Divider(thickness: 0.2),
                 buildText(
@@ -416,7 +418,8 @@ class PdfDocument {
                     fontSize: 11,
                     fontWeight: FontWeight.bold,
                   ),
-                  value: formatPrice(total),
+                  value:
+                      '${truncateToDecimals(total, 2)} ${document.currency?.name ?? '###'}',
                 ),
               ],
             ),
