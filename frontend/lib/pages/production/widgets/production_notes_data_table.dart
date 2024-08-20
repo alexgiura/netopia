@@ -2,7 +2,7 @@ import 'package:erp_frontend_v2/models/app_localizations.dart';
 import 'package:erp_frontend_v2/models/document/document_model.dart';
 import 'package:erp_frontend_v2/models/document/documents_filter_model.dart';
 import 'package:erp_frontend_v2/pages/document/documents_page/widgets/eFactura_widget.dart';
-import 'package:erp_frontend_v2/providers/document_provider.dart';
+import 'package:erp_frontend_v2/providers/document/document_provider.dart';
 import 'package:erp_frontend_v2/providers/partner_provider.dart';
 import 'package:erp_frontend_v2/utils/extensions.dart';
 import 'package:erp_frontend_v2/widgets/buttons/edit_button.dart';

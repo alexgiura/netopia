@@ -4,8 +4,8 @@ import 'package:erp_frontend_v2/pages/document/document_add_item/add_item_popup.
 import 'package:erp_frontend_v2/pages/document/document_details/widgets/document_details_data_table.dart';
 import 'package:erp_frontend_v2/pages/document/document_generate_popup/document_generate_popup.dart';
 import 'package:erp_frontend_v2/pages/document/documents_page/widgets/eFactura_widget.dart';
-import 'package:erp_frontend_v2/providers/currency_provider.dart';
-import 'package:erp_frontend_v2/providers/document_provider.dart';
+import 'package:erp_frontend_v2/providers/currency/currency_provider.dart';
+import 'package:erp_frontend_v2/providers/document/document_provider.dart';
 import 'package:erp_frontend_v2/providers/document_transaction_provider.dart';
 import 'package:erp_frontend_v2/routing/router.dart';
 import 'package:erp_frontend_v2/routing/routes.dart';

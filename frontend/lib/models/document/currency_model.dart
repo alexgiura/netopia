@@ -1,5 +1,3 @@
-import 'package:erp_frontend_v2/providers/currency_provider.dart';
-
 class Currency {
   int? id;
   String? name;
