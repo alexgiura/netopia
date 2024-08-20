@@ -173,8 +173,9 @@ type CoreDocumentConnection struct {
 }
 
 type CoreDocumentCurrency struct {
-	ID   int32
-	Name string
+	ID        int32
+	Name      string
+	IsPrimary bool
 }
 
 type CoreDocumentDetail struct {

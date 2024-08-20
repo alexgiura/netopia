@@ -49,10 +49,15 @@ query  getDocumentById($documentId: String!) {
     date,
     notes,
     deleted,
+    currency{
+        id,
+        name,
+        is_primary
+    },
     efactura{
       status,
       error_message
-    }
+    },
     partner{
         id,
         code,        
@@ -82,8 +87,7 @@ query  getDocumentById($documentId: String!) {
                 name,
                 percent
             },
-        }
-      
+        }  
       quantity,
       price,     
       amount_net,
@@ -132,5 +136,15 @@ query  getGenerateAvailableItems($input: GetGenerateAvailableItemsInput!) {
         quantity,      
     }  
   }
+}
+''';
+
+const String getCurrencyList = r'''
+query getCurrencyList{
+    getCurrencyList{
+        id,
+        name,
+        is_primary
+    }
 }
 ''';

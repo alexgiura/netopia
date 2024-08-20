@@ -29,11 +29,6 @@ type CompanyInput struct {
 	CompanyAddress     *AddressInput `json:"company_address,omitempty"`
 }
 
-type Currency struct {
-	ID   int    `json:"id"`
-	Name string `json:"name"`
-}
-
 type DeleteDocumentInput struct {
 	HID             string `json:"h_id"`
 	DeleteGenerated bool   `json:"delete_generated"`
@@ -50,6 +45,7 @@ type DocumentInput struct {
 	RecipeID      *int                 `json:"recipe_id,omitempty"`
 	Notes         *string              `json:"notes,omitempty"`
 	TransactionID *int                 `json:"transaction_id,omitempty"`
+	CurrencyID    *int                 `json:"currency_id,omitempty"`
 	DocumentItems []*DocumentItemInput `json:"document_items"`
 }
 

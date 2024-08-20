@@ -1,3 +1,4 @@
+import 'package:erp_frontend_v2/models/document/currency_model.dart';
 import 'package:erp_frontend_v2/models/document/document_generate_model.dart';
 import 'package:erp_frontend_v2/models/document/document_transaction_model.dart';
 import 'package:erp_frontend_v2/models/document/documents_filter_model.dart';
@@ -98,6 +99,7 @@ class DocumentService {
           "recipe_id": document.recipeId,
           "notes": document.notes,
           "transaction_id": transactionId,
+          "currency_id": document.currency!.id,
           "document_items": documentItemsList
         }
       },
@@ -202,6 +204,32 @@ class DocumentService {
       return response;
     } else {
       throw Exception('Invalid form data.');
+    }
+  }
+
+  Future<List<Currency>> getCurrencyList() async {
+    try {
+      final QueryOptions options = QueryOptions(
+        document: gql(queries.getCurrencyList),
+        fetchPolicy: FetchPolicy.noCache,
+      );
+
+      final QueryResult result = await graphQLClient.value.query(options);
+
+      if (result.hasException) {
+        throw Exception(result.exception.toString());
+      }
+      final dynamic data = result.data!['getCurrencyList'];
+
+      if (data != null && data is List<dynamic>) {
+        final List<Currency> docs =
+            data.map((json) => Currency.fromJson(json)).toList();
+        return docs;
+      } else {
+        return [];
+      }
+    } catch (e) {
+      throw Exception('An error occurred: ${e.toString()}');
     }
   }
 }

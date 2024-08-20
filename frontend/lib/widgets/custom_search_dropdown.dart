@@ -24,8 +24,7 @@ class SearchDropDown<T> extends ConsumerStatefulWidget {
   });
   final String? labelText;
   final Function(T) onValueChanged;
-  final StateNotifierProvider<StateNotifier<AsyncValue<List<T>>>,
-      AsyncValue<List<T>>>? provider;
+  final ProviderBase<AsyncValue<List<T>>>? provider;
   final String? hintText;
   final String? errorText;
   final T? initialValue;
@@ -75,7 +74,7 @@ class SearchDropDownState<T> extends ConsumerState<SearchDropDown<T>> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        if (widget.labelText != null)
+        if (widget.labelText != null) ...[
           widget.required
               ? Row(
                   children: [
@@ -91,7 +90,8 @@ class SearchDropDownState<T> extends ConsumerState<SearchDropDown<T>> {
                 )
               : Text('${widget.labelText!} (${'optional'.tr(context)})',
                   style: CustomStyle.regular16()),
-        if (widget.labelText != null) const Gap(8.0),
+          Gap(8.0)
+        ],
         CompositedTransformTarget(
           link: layerLink,
           child: Stack(
@@ -100,21 +100,23 @@ class SearchDropDownState<T> extends ConsumerState<SearchDropDown<T>> {
                 controller: _textController,
                 validator: (value) {
                   String? validatorError = widget.validator?.call(value);
-                  if (validatorError != null) {
+
+                  if (mounted) {
                     WidgetsBinding.instance.addPostFrameCallback((_) {
-                      setState(() {
-                        _showError = true;
-                        _errorText = validatorError;
-                      });
-                    });
-                  } else {
-                    WidgetsBinding.instance.addPostFrameCallback((_) {
-                      setState(() {
-                        _showError = false;
-                        _errorText = '';
-                      });
+                      if (mounted) {
+                        setState(() {
+                          if (validatorError != null) {
+                            _showError = true;
+                            _errorText = validatorError;
+                          } else {
+                            _showError = false;
+                            _errorText = '';
+                          }
+                        });
+                      }
                     });
                   }
+
                   return validatorError;
                 },
                 autovalidateMode: AutovalidateMode.onUserInteraction,

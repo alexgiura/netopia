@@ -2,7 +2,7 @@ import 'package:erp_frontend_v2/models/app_localizations.dart';
 import 'package:erp_frontend_v2/models/document/document_model.dart';
 import 'package:erp_frontend_v2/models/document/documents_filter_model.dart';
 import 'package:erp_frontend_v2/pages/document/documents_page/widgets/eFactura_widget.dart';
-import 'package:erp_frontend_v2/providers/document_providers.dart';
+import 'package:erp_frontend_v2/providers/document_provider.dart';
 import 'package:erp_frontend_v2/providers/partner_provider.dart';
 import 'package:erp_frontend_v2/widgets/buttons/edit_button.dart';
 import 'package:erp_frontend_v2/widgets/buttons/icon_button.dart';
@@ -55,8 +55,9 @@ class _DocumentsDataTableState extends ConsumerState<DocumentsDataTable>
       endDate: DateTime(endOfWeek.year, endOfWeek.month, endOfWeek.day),
     );
 
-    Future.microtask(() =>
-        ref.read(documentProvider.notifier).updateFilter(_documentFilter));
+    Future.microtask(() => ref
+        .read(documentNotifierProvider.notifier)
+        .updateFilter(_documentFilter));
   }
 
   void _allItems() {
@@ -83,7 +84,7 @@ class _DocumentsDataTableState extends ConsumerState<DocumentsDataTable>
 
   @override
   Widget build(BuildContext context) {
-    final documentState = ref.watch(documentProvider);
+    final documentState = ref.watch(documentNotifierProvider);
 
     return documentState.when(
       skipLoadingOnReload: true,
@@ -145,7 +146,7 @@ class _DocumentsDataTableState extends ConsumerState<DocumentsDataTable>
                       _documentFilter.partnerList =
                           selectedList.map((partner) => partner.id!).toList();
                       ref
-                          .read(documentProvider.notifier)
+                          .read(documentNotifierProvider.notifier)
                           .updateFilter(_documentFilter);
                     },
                     provider: partnerProvider,
@@ -158,7 +159,7 @@ class _DocumentsDataTableState extends ConsumerState<DocumentsDataTable>
                       _documentFilter.endDate = endDate;
 
                       ref
-                          .read(documentProvider.notifier)
+                          .read(documentNotifierProvider.notifier)
                           .updateFilter(_documentFilter);
                     },
                     initialStartDate: _documentFilter.startDate,
@@ -167,7 +168,9 @@ class _DocumentsDataTableState extends ConsumerState<DocumentsDataTable>
                   CustomIconButton(
                     icon: Icons.refresh_rounded,
                     asyncOnPressed: () async {
-                      ref.read(documentProvider.notifier).refreshDocuments();
+                      ref
+                          .read(documentNotifierProvider.notifier)
+                          .refreshDocuments();
                     },
                   ),
 

@@ -21,7 +21,7 @@ class DocumentItemsDataTable extends ConsumerStatefulWidget {
     required this.documentTypeId,
     this.readOnly,
   });
-  final List<DocumentItem>? data;
+  final Document data;
 
   final bool? readOnly;
   final void Function(List<DocumentItem>) onUpdate;
@@ -37,24 +37,25 @@ class _DocumentItemsDataTableState
     extends ConsumerState<DocumentItemsDataTable> {
   void updateDocumentItemAmount(int index) {
     setState(() {
-      final double price = widget.data![index].price ?? 0.0;
+      final double price = widget.data.documentItems[index].price ?? 0.0;
 
       // Calculate amountNet with 4 decimal places
-      widget.data![index].amountNet = double.parse(
-        (widget.data![index].quantity * price).toStringAsFixed(4),
+      widget.data.documentItems[index].amountNet = double.parse(
+        (widget.data.documentItems[index].quantity * price).toStringAsFixed(4),
       );
 
       // Calculate amountVat with 4 decimal places
-      widget.data![index].amountVat = double.parse(
-        (widget.data![index].amountNet! *
-                widget.data![index].item.vat.percent /
+      widget.data.documentItems[index].amountVat = double.parse(
+        (widget.data.documentItems[index].amountNet! *
+                widget.data.documentItems[index].item.vat.percent /
                 100)
             .toStringAsFixed(4),
       );
 
       // Calculate amountGross with 4 decimal places
-      widget.data![index].amountGross = double.parse(
-        (widget.data![index].amountNet! + widget.data![index].amountVat!)
+      widget.data.documentItems[index].amountGross = double.parse(
+        (widget.data.documentItems[index].amountNet! +
+                widget.data.documentItems[index].amountVat!)
             .toStringAsFixed(4),
       );
     });
@@ -63,21 +64,23 @@ class _DocumentItemsDataTableState
   void updateDocumentItemPrice(int index) {
     setState(() {
       // Calculate amountNet with 4 decimal places
-      widget.data![index].amountNet = double.parse(
-        ((widget.data![index].amountGross! * 100) /
-                (100 + widget.data![index].item.vat.percent))
+      widget.data.documentItems[index].amountNet = double.parse(
+        ((widget.data.documentItems[index].amountGross! * 100) /
+                (100 + widget.data.documentItems[index].item.vat.percent))
             .toStringAsFixed(4),
       );
 
       // Calculate amountVat with 4 decimal places
-      widget.data![index].amountVat = double.parse(
-        (widget.data![index].amountGross! - widget.data![index].amountNet!)
+      widget.data.documentItems[index].amountVat = double.parse(
+        (widget.data.documentItems[index].amountGross! -
+                widget.data.documentItems[index].amountNet!)
             .toStringAsFixed(4),
       );
 
       // Calculate price with 4 decimal places
-      widget.data![index].price = double.parse(
-        (widget.data![index].amountNet! / widget.data![index].quantity)
+      widget.data.documentItems[index].price = double.parse(
+        (widget.data.documentItems[index].amountNet! /
+                widget.data.documentItems[index].quantity)
             .toStringAsFixed(4),
       );
     });
@@ -85,7 +88,8 @@ class _DocumentItemsDataTableState
 
   @override
   Widget build(BuildContext context) {
-    return CustomDataTable(columns: getColumns(), rows: getRows(widget.data!));
+    return CustomDataTable(
+        columns: getColumns(), rows: getRows(widget.data.documentItems));
   }
 
   List<DataColumn2> getColumns() {
@@ -262,7 +266,7 @@ class _DocumentItemsDataTableState
                         color: CustomColor.error),
                     onPressed: () {
                       setState(() {
-                        widget.data!.remove(data[index]);
+                        widget.data.documentItems.remove(data[index]);
                         widget.onUpdate(data);
                       });
                     },
@@ -295,7 +299,8 @@ class _DocumentItemsDataTableState
               Text('subtotal'.tr(context),
                   style: CustomStyle.semibold16(color: CustomColor.greenGray)),
               Gap(4),
-              Text('${truncateToDecimals(sumNet, 2)} RON',
+              Text(
+                  '${truncateToDecimals(sumNet, 2)} ${widget.data.currency?.name ?? '###'}',
                   style: CustomStyle.semibold14()),
             ],
           ),
@@ -309,7 +314,8 @@ class _DocumentItemsDataTableState
               Text('total_vat'.tr(context),
                   style: CustomStyle.semibold16(color: CustomColor.greenGray)),
               Gap(4),
-              Text('${truncateToDecimals(sumVat, 2)} RON',
+              Text(
+                  '${truncateToDecimals(sumNet, 2)} ${widget.data.currency?.name ?? '###'}',
                   style: CustomStyle.semibold14()),
             ],
           ),
@@ -322,7 +328,8 @@ class _DocumentItemsDataTableState
             children: [
               Text('total'.tr(context), style: CustomStyle.bold16()),
               Gap(4),
-              Text('${truncateToDecimals(sumGross, 2)} RON',
+              Text(
+                  '${truncateToDecimals(sumNet, 2)} ${widget.data.currency?.name ?? '###'}',
                   style: CustomStyle.semibold14()),
             ],
           ),

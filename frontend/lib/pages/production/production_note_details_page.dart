@@ -6,7 +6,7 @@ import 'package:erp_frontend_v2/pages/document/document_generate_popup/document_
 import 'package:erp_frontend_v2/pages/production/widgets/production_note_details_data_table.dart';
 import 'package:erp_frontend_v2/pages/production/widgets/production_notes_data_table.dart';
 import 'package:erp_frontend_v2/pages/production/widgets/recipe_details_data_table.dart';
-import 'package:erp_frontend_v2/providers/document_providers.dart';
+import 'package:erp_frontend_v2/providers/document_provider.dart';
 import 'package:erp_frontend_v2/providers/document_transaction_provider.dart';
 import 'package:erp_frontend_v2/providers/recipe_provider.dart';
 import 'package:erp_frontend_v2/routing/router.dart';
@@ -106,7 +106,7 @@ class _ProductionNoteDetailsPageState
           .then((results) => results[0] as Document);
 
       if (context.mounted) {
-        ref.read(documentProvider.notifier).refreshDocuments();
+        ref.read(documentNotifierProvider.notifier).refreshDocuments();
         final routeName =
             getDetailsRouteNameByDocumentType(widget.documentTypeId);
         context.goNamed(
@@ -139,7 +139,7 @@ class _ProductionNoteDetailsPageState
 
       if (context.mounted) {
         if (result.isNotEmpty) {
-          ref.read(documentProvider.notifier).refreshDocuments();
+          ref.read(documentNotifierProvider.notifier).refreshDocuments();
           Navigator.of(dialogContext).pop();
           Navigator.of(context).pop();
 

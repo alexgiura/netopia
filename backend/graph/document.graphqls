@@ -14,6 +14,7 @@ type Document{
     date: String!
     due_date: String
     partner: Partner!
+    currency: Currency
     notes: String
     deleted: Boolean!
     efactura: EFactura
@@ -31,6 +32,7 @@ input DocumentInput{
     recipe_id:Int
     notes: String
     transaction_id: Int
+    currency_id: Int
     document_items: [DocumentItemInput]!
 }
 
@@ -108,6 +110,7 @@ type GeneratedDocument{
 type Currency{
     id:Int!
     name:String!
+    is_primary:Boolean!
 }
 
 extend type Query {

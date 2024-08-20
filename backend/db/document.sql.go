@@ -153,8 +153,54 @@ func (q *Queries) GenerateAuthorization(ctx context.Context) (uuid.UUID, error) 
 	return a_id, err
 }
 
+const getCurrenciesByDocumentIds = `-- name: GetCurrenciesByDocumentIds :many
+SELECT
+    d.h_id,
+    id,
+    name,
+    is_primary
+FROM
+    core.document_currency p
+        JOIN
+    core.document_header d ON p.id = d.currency_id
+WHERE
+        d.h_id = ANY($1::uuid[])
+`
+
+type GetCurrenciesByDocumentIdsRow struct {
+	HID       uuid.UUID
+	ID        int32
+	Name      string
+	IsPrimary bool
+}
+
+func (q *Queries) GetCurrenciesByDocumentIds(ctx context.Context, dollar_1 []uuid.UUID) ([]GetCurrenciesByDocumentIdsRow, error) {
+	rows, err := q.db.Query(ctx, getCurrenciesByDocumentIds, dollar_1)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []GetCurrenciesByDocumentIdsRow
+	for rows.Next() {
+		var i GetCurrenciesByDocumentIdsRow
+		if err := rows.Scan(
+			&i.HID,
+			&i.ID,
+			&i.Name,
+			&i.IsPrimary,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const getCurrencyList = `-- name: GetCurrencyList :many
-select id, name from core.document_currency
+select id, name,is_primary from core.document_currency
 `
 
 func (q *Queries) GetCurrencyList(ctx context.Context) ([]CoreDocumentCurrency, error) {
@@ -166,7 +212,7 @@ func (q *Queries) GetCurrencyList(ctx context.Context) ([]CoreDocumentCurrency, 
 	var items []CoreDocumentCurrency
 	for rows.Next() {
 		var i CoreDocumentCurrency
-		if err := rows.Scan(&i.ID, &i.Name); err != nil {
+		if err := rows.Scan(&i.ID, &i.Name, &i.IsPrimary); err != nil {
 			return nil, err
 		}
 		items = append(items, i)

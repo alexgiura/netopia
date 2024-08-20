@@ -9,7 +9,8 @@ create TABLE IF NOT EXISTS core.document_types(
 
 CREATE TABLE IF NOT EXISTS core.document_currency(
     id serial PRIMARY KEY UNIQUE,
-    name  VARCHAR(10) NOT NULL
+    name  VARCHAR(10) NOT NULL,
+    is_primary BOOL NOT NULL DEFAULT false
     );
 
 CREATE TABLE IF NOT EXISTS core.document_partner_billing_details(

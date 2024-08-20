@@ -1,3 +1,4 @@
+import 'package:erp_frontend_v2/models/document/currency_model.dart';
 import 'package:erp_frontend_v2/models/efactura.dart';
 import 'package:erp_frontend_v2/models/item/item_model.dart';
 import 'package:erp_frontend_v2/models/partner/partner_model.dart';
@@ -8,6 +9,7 @@ import '../item/vat_model.dart';
 class Document {
   String? hId;
   DocumentType documentType;
+  Currency? currency;
   String? series;
   String number;
   String date;
@@ -25,6 +27,7 @@ class Document {
       required this.series,
       required this.number,
       required this.date,
+      this.currency,
       this.partner,
       required this.documentItems,
       this.recipeId,
@@ -41,6 +44,7 @@ class Document {
         partner = null,
         recipeId = null,
         notes = null,
+        currency = null,
         documentItems = [];
 
   bool isEmpty() {
@@ -63,6 +67,9 @@ class Document {
       date: json['date'],
       partner: Partner.fromJson(json['partner'] as Map<String, dynamic>),
       recipeId: json.containsKey('recipe_id') ? json['recipe_id'] : null,
+      currency: json.containsKey('currency') && json['currency'] != null
+          ? Currency.fromJson(json['currency'] as Map<String, dynamic>)
+          : null,
       notes: json.containsKey('notes') ? json['notes'] : null,
       isDeleted: json['deleted'],
       eFactura: EFactura.fromJson(json['efactura'] as Map<String, dynamic>),

@@ -44,6 +44,34 @@ func (r *documentResolver) Partner(ctx context.Context, obj *models.Document) (*
 	return partner, nil
 }
 
+// Currency is the resolver for the currency field.
+func (r *documentResolver) Currency(ctx context.Context, obj *models.Document) (*models.Currency, error) {
+	loaders, ok := ctx.Value("loaders").(*models.Loaders)
+	if !ok {
+		log.Print("\"message\": Unable to fetch loaders from context, \"error\": context value is not of type *models.Loaders")
+		return nil, _err.Error(ctx, "ContextError", "InternalError")
+	}
+
+	result, err := loaders.CurrencyLoader.Load(ctx, dataloader.StringKey(obj.HId))()
+	if err != nil {
+		log.Print("\"message\": Failed to load currency using CurrencyLoader, \"error\": ", err.Error())
+		return nil, _err.Error(ctx, "FailedToLoadCurrency", "DatabaseError")
+	}
+
+	// Handle case where result is nil
+	if result == nil {
+		return nil, nil
+	}
+
+	currency, ok := result.(*models.Currency)
+	if !ok {
+		log.Print("\"message\": Unexpected type for Currency, \"error\": unexpected type ", fmt.Sprintf("%T", result))
+		return nil, _err.Error(ctx, "UnexpectedType", "InternalError")
+	}
+
+	return currency, nil
+}
+
 // DocumentItems is the resolver for the document_items field.
 func (r *documentResolver) DocumentItems(ctx context.Context, obj *models.Document) ([]*models.DocumentItem, error) {
 	loaders, ok := ctx.Value("loaders").(*models.Loaders)
@@ -341,17 +369,18 @@ func (r *queryResolver) GetGenerateAvailableItems(ctx context.Context, input mod
 }
 
 // GetCurrencyList is the resolver for the getCurrencyList field.
-func (r *queryResolver) GetCurrencyList(ctx context.Context) ([]*model.Currency, error) {
+func (r *queryResolver) GetCurrencyList(ctx context.Context) ([]*models.Currency, error) {
 	rows, err := r.DBProvider.GetCurrencyList(ctx)
 	if err != nil {
 		log.Print("\"message\":Failed to execute DBProvider.GetDocumentCurrency, "+"\"error\": ", err.Error())
 		return nil, _err.Error(ctx, "Failed to get currency list", "DatabaseError")
 	}
-	currencyList := make([]*model.Currency, 0)
+	currencyList := make([]*models.Currency, 0)
 	for _, row := range rows {
-		currency := &model.Currency{
-			ID:   int(row.ID),
-			Name: row.Name,
+		currency := &models.Currency{
+			ID:        int(row.ID),
+			Name:      row.Name,
+			IsPrimary: row.IsPrimary,
 		}
 
 		currencyList = append(currencyList, currency)

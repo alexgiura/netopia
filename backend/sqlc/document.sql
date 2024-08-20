@@ -199,7 +199,7 @@ delete from core.document_connections where  h_id=$1;
 
 
 -- name: GetCurrencyList :many
-select id, name from core.document_currency;
+select id, name,is_primary from core.document_currency;
 
 -- name: GetDocumentHeaderPartnerBillingDetails :one
 SELECT sqlc.embed(p), sqlc.embed(bd)
@@ -366,3 +366,16 @@ FROM core.efactura_documents d
                     ON d.x_id = x.id
 WHERE d.h_id=$1
     FOR UPDATE OF d;
+
+-- name: GetCurrenciesByDocumentIds :many
+SELECT
+    d.h_id,
+    id,
+    name,
+    is_primary
+FROM
+    core.document_currency p
+        JOIN
+    core.document_header d ON p.id = d.currency_id
+WHERE
+        d.h_id = ANY($1::uuid[]);

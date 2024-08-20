@@ -73,11 +73,13 @@ type ComplexityRoot struct {
 	}
 
 	Currency struct {
-		ID   func(childComplexity int) int
-		Name func(childComplexity int) int
+		ID        func(childComplexity int) int
+		IsPrimary func(childComplexity int) int
+		Name      func(childComplexity int) int
 	}
 
 	Document struct {
+		Currency      func(childComplexity int) int
 		Date          func(childComplexity int) int
 		Deleted       func(childComplexity int) int
 		DocumentItems func(childComplexity int) int
@@ -252,6 +254,7 @@ type ComplexityRoot struct {
 
 type DocumentResolver interface {
 	Partner(ctx context.Context, obj *models.Document) (*models.Partner, error)
+	Currency(ctx context.Context, obj *models.Document) (*models.Currency, error)
 
 	DocumentItems(ctx context.Context, obj *models.Document) ([]*models.DocumentItem, error)
 }
@@ -281,7 +284,7 @@ type QueryResolver interface {
 	GetDocumentByID(ctx context.Context, documentID *string) (*models.Document, error)
 	GetDocumentTransactions(ctx context.Context) ([]*model.DocumentTransaction, error)
 	GetGenerateAvailableItems(ctx context.Context, input model.GetGenerateAvailableItemsInput) ([]*model.GenerateAvailableItems, error)
-	GetCurrencyList(ctx context.Context) ([]*model.Currency, error)
+	GetCurrencyList(ctx context.Context) ([]*models.Currency, error)
 	GetItems(ctx context.Context, input model.GetItemsInput) ([]*models.Item, error)
 	GetUmList(ctx context.Context) ([]*models.Um, error)
 	GetVatList(ctx context.Context) ([]*models.Vat, error)
@@ -409,12 +412,26 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Currency.ID(childComplexity), true
 
+	case "Currency.is_primary":
+		if e.complexity.Currency.IsPrimary == nil {
+			break
+		}
+
+		return e.complexity.Currency.IsPrimary(childComplexity), true
+
 	case "Currency.name":
 		if e.complexity.Currency.Name == nil {
 			break
 		}
 
 		return e.complexity.Currency.Name(childComplexity), true
+
+	case "Document.currency":
+		if e.complexity.Document.Currency == nil {
+			break
+		}
+
+		return e.complexity.Document.Currency(childComplexity), true
 
 	case "Document.date":
 		if e.complexity.Document.Date == nil {
@@ -1550,6 +1567,7 @@ type Document{
     date: String!
     due_date: String
     partner: Partner!
+    currency: Currency
     notes: String
     deleted: Boolean!
     efactura: EFactura
@@ -1567,6 +1585,7 @@ input DocumentInput{
     recipe_id:Int
     notes: String
     transaction_id: Int
+    currency_id: Int
     document_items: [DocumentItemInput]!
 }
 
@@ -1644,6 +1663,7 @@ type GeneratedDocument{
 type Currency{
     id:Int!
     name:String!
+    is_primary:Boolean!
 }
 
 extend type Query {
@@ -2806,7 +2826,7 @@ func (ec *executionContext) fieldContext_Company_company_address(ctx context.Con
 	return fc, nil
 }
 
-func (ec *executionContext) _Currency_id(ctx context.Context, field graphql.CollectedField, obj *model.Currency) (ret graphql.Marshaler) {
+func (ec *executionContext) _Currency_id(ctx context.Context, field graphql.CollectedField, obj *models.Currency) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Currency_id(ctx, field)
 	if err != nil {
 		return graphql.Null
@@ -2847,7 +2867,7 @@ func (ec *executionContext) fieldContext_Currency_id(ctx context.Context, field 
 	return fc, nil
 }
 
-func (ec *executionContext) _Currency_name(ctx context.Context, field graphql.CollectedField, obj *model.Currency) (ret graphql.Marshaler) {
+func (ec *executionContext) _Currency_name(ctx context.Context, field graphql.CollectedField, obj *models.Currency) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Currency_name(ctx, field)
 	if err != nil {
 		return graphql.Null
@@ -2883,6 +2903,47 @@ func (ec *executionContext) fieldContext_Currency_name(ctx context.Context, fiel
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Currency_is_primary(ctx context.Context, field graphql.CollectedField, obj *models.Currency) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Currency_is_primary(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp := ec._fieldMiddleware(ctx, obj, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.IsPrimary, nil
+	})
+
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(bool)
+	fc.Result = res
+	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Currency_is_primary(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Currency",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Boolean does not have child fields")
 		},
 	}
 	return fc, nil
@@ -3192,6 +3253,52 @@ func (ec *executionContext) fieldContext_Document_partner(ctx context.Context, f
 				return ec.fieldContext_Partner_address(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Partner", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Document_currency(ctx context.Context, field graphql.CollectedField, obj *models.Document) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Document_currency(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp := ec._fieldMiddleware(ctx, obj, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Document().Currency(rctx, obj)
+	})
+
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*models.Currency)
+	fc.Result = res
+	return ec.marshalOCurrency2ᚖbackendᚋmodelsᚐCurrency(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Document_currency(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Document",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_Currency_id(ctx, field)
+			case "name":
+				return ec.fieldContext_Currency_name(ctx, field)
+			case "is_primary":
+				return ec.fieldContext_Currency_is_primary(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type Currency", field.Name)
 		},
 	}
 	return fc, nil
@@ -5015,6 +5122,8 @@ func (ec *executionContext) fieldContext_Mutation_saveDocument(ctx context.Conte
 				return ec.fieldContext_Document_due_date(ctx, field)
 			case "partner":
 				return ec.fieldContext_Document_partner(ctx, field)
+			case "currency":
+				return ec.fieldContext_Document_currency(ctx, field)
 			case "notes":
 				return ec.fieldContext_Document_notes(ctx, field)
 			case "deleted":
@@ -6629,6 +6738,8 @@ func (ec *executionContext) fieldContext_Query_getDocuments(ctx context.Context,
 				return ec.fieldContext_Document_due_date(ctx, field)
 			case "partner":
 				return ec.fieldContext_Document_partner(ctx, field)
+			case "currency":
+				return ec.fieldContext_Document_currency(ctx, field)
 			case "notes":
 				return ec.fieldContext_Document_notes(ctx, field)
 			case "deleted":
@@ -6702,6 +6813,8 @@ func (ec *executionContext) fieldContext_Query_getDocumentById(ctx context.Conte
 				return ec.fieldContext_Document_due_date(ctx, field)
 			case "partner":
 				return ec.fieldContext_Document_partner(ctx, field)
+			case "currency":
+				return ec.fieldContext_Document_currency(ctx, field)
 			case "notes":
 				return ec.fieldContext_Document_notes(ctx, field)
 			case "deleted":
@@ -6859,9 +6972,9 @@ func (ec *executionContext) _Query_getCurrencyList(ctx context.Context, field gr
 	if resTmp == nil {
 		return graphql.Null
 	}
-	res := resTmp.([]*model.Currency)
+	res := resTmp.([]*models.Currency)
 	fc.Result = res
-	return ec.marshalOCurrency2ᚕᚖbackendᚋgraphᚋmodelᚐCurrency(ctx, field.Selections, res)
+	return ec.marshalOCurrency2ᚕᚖbackendᚋmodelsᚐCurrency(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Query_getCurrencyList(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -6876,6 +6989,8 @@ func (ec *executionContext) fieldContext_Query_getCurrencyList(ctx context.Conte
 				return ec.fieldContext_Currency_id(ctx, field)
 			case "name":
 				return ec.fieldContext_Currency_name(ctx, field)
+			case "is_primary":
+				return ec.fieldContext_Currency_is_primary(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Currency", field.Name)
 		},
@@ -10200,7 +10315,7 @@ func (ec *executionContext) unmarshalInputDocumentInput(ctx context.Context, obj
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"document_type", "series", "number", "date", "due_date", "partner_id", "person_id", "recipe_id", "notes", "transaction_id", "document_items"}
+	fieldsInOrder := [...]string{"document_type", "series", "number", "date", "due_date", "partner_id", "person_id", "recipe_id", "notes", "transaction_id", "currency_id", "document_items"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
@@ -10277,6 +10392,13 @@ func (ec *executionContext) unmarshalInputDocumentInput(ctx context.Context, obj
 				return it, err
 			}
 			it.TransactionID = data
+		case "currency_id":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("currency_id"))
+			data, err := ec.unmarshalOInt2ᚖint(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.CurrencyID = data
 		case "document_items":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("document_items"))
 			data, err := ec.unmarshalNDocumentItemInput2ᚕᚖbackendᚋgraphᚋmodelᚐDocumentItemInput(ctx, v)
@@ -11240,7 +11362,7 @@ func (ec *executionContext) _Company(ctx context.Context, sel ast.SelectionSet, 
 
 var currencyImplementors = []string{"Currency"}
 
-func (ec *executionContext) _Currency(ctx context.Context, sel ast.SelectionSet, obj *model.Currency) graphql.Marshaler {
+func (ec *executionContext) _Currency(ctx context.Context, sel ast.SelectionSet, obj *models.Currency) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, currencyImplementors)
 
 	out := graphql.NewFieldSet(fields)
@@ -11256,6 +11378,11 @@ func (ec *executionContext) _Currency(ctx context.Context, sel ast.SelectionSet,
 			}
 		case "name":
 			out.Values[i] = ec._Currency_name(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "is_primary":
+			out.Values[i] = ec._Currency_is_primary(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -11330,6 +11457,39 @@ func (ec *executionContext) _Document(ctx context.Context, sel ast.SelectionSet,
 				if res == graphql.Null {
 					atomic.AddUint32(&fs.Invalids, 1)
 				}
+				return res
+			}
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+		case "currency":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Document_currency(ctx, field, obj)
 				return res
 			}
 
@@ -13709,7 +13869,7 @@ func (ec *executionContext) unmarshalOCompanyInput2ᚖbackendᚋgraphᚋmodelᚐ
 	return &res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) marshalOCurrency2ᚕᚖbackendᚋgraphᚋmodelᚐCurrency(ctx context.Context, sel ast.SelectionSet, v []*model.Currency) graphql.Marshaler {
+func (ec *executionContext) marshalOCurrency2ᚕᚖbackendᚋmodelsᚐCurrency(ctx context.Context, sel ast.SelectionSet, v []*models.Currency) graphql.Marshaler {
 	if v == nil {
 		return graphql.Null
 	}
@@ -13736,7 +13896,7 @@ func (ec *executionContext) marshalOCurrency2ᚕᚖbackendᚋgraphᚋmodelᚐCur
 			if !isLen1 {
 				defer wg.Done()
 			}
-			ret[i] = ec.marshalOCurrency2ᚖbackendᚋgraphᚋmodelᚐCurrency(ctx, sel, v[i])
+			ret[i] = ec.marshalOCurrency2ᚖbackendᚋmodelsᚐCurrency(ctx, sel, v[i])
 		}
 		if isLen1 {
 			f(i)
@@ -13750,7 +13910,7 @@ func (ec *executionContext) marshalOCurrency2ᚕᚖbackendᚋgraphᚋmodelᚐCur
 	return ret
 }
 
-func (ec *executionContext) marshalOCurrency2ᚖbackendᚋgraphᚋmodelᚐCurrency(ctx context.Context, sel ast.SelectionSet, v *model.Currency) graphql.Marshaler {
+func (ec *executionContext) marshalOCurrency2ᚖbackendᚋmodelsᚐCurrency(ctx context.Context, sel ast.SelectionSet, v *models.Currency) graphql.Marshaler {
 	if v == nil {
 		return graphql.Null
 	}

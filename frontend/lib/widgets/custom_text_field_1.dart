@@ -106,20 +106,26 @@ class CustomTextField1State extends State<CustomTextField1> {
               controller: _textController,
               validator: (value) {
                 String? validatorError = widget.validator?.call(value);
-                if (validatorError != null) {
-                  WidgetsBinding.instance.addPostFrameCallback((_) {
-                    setState(() {
-                      _showError = true;
-                      _errorText = validatorError;
+                if (mounted) {
+                  if (validatorError != null) {
+                    WidgetsBinding.instance.addPostFrameCallback((_) {
+                      if (mounted) {
+                        setState(() {
+                          _showError = true;
+                          _errorText = validatorError;
+                        });
+                      }
                     });
-                  });
-                } else {
-                  WidgetsBinding.instance.addPostFrameCallback((_) {
-                    setState(() {
-                      _showError = false;
-                      _errorText = '';
+                  } else {
+                    WidgetsBinding.instance.addPostFrameCallback((_) {
+                      if (mounted) {
+                        setState(() {
+                          _showError = false;
+                          _errorText = '';
+                        });
+                      }
                     });
-                  });
+                  }
                 }
                 return validatorError;
               },
@@ -199,7 +205,9 @@ class CustomTextField1State extends State<CustomTextField1> {
                     1, // ajustați numărul maxim de linii pentru mesajele de eroare
               ),
               onChanged: (value) {
-                widget.onValueChanged!(value);
+                if (mounted && widget.onValueChanged != null) {
+                  widget.onValueChanged!(value);
+                }
               },
             ),
             widget.hideErrortext == true

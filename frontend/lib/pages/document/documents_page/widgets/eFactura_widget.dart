@@ -1,7 +1,7 @@
 import 'package:erp_frontend_v2/constants/style.dart';
 import 'package:erp_frontend_v2/models/app_localizations.dart';
 import 'package:erp_frontend_v2/models/document/document_model.dart';
-import 'package:erp_frontend_v2/providers/document_providers.dart';
+import 'package:erp_frontend_v2/providers/document_provider.dart';
 import 'package:erp_frontend_v2/services/eFactura.dart';
 import 'package:erp_frontend_v2/widgets/buttons/primary_button.dart';
 import 'package:erp_frontend_v2/widgets/dialog_widgets/custom_toast.dart';
@@ -118,7 +118,7 @@ Future<void> _sendEfactura(BuildContext context, Document document,
       hId: document.hId!,
       regenerate: regenarate,
     );
-    ref.read(documentProvider.notifier).refreshDocuments();
+    ref.read(documentNotifierProvider.notifier).refreshDocuments();
   } catch (error) {
     showToast('error_try_again'.tr(context), ToastType.error);
   }

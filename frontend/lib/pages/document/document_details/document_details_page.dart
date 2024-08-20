@@ -4,7 +4,8 @@ import 'package:erp_frontend_v2/pages/document/document_add_item/add_item_popup.
 import 'package:erp_frontend_v2/pages/document/document_details/widgets/document_details_data_table.dart';
 import 'package:erp_frontend_v2/pages/document/document_generate_popup/document_generate_popup.dart';
 import 'package:erp_frontend_v2/pages/document/documents_page/widgets/eFactura_widget.dart';
-import 'package:erp_frontend_v2/providers/document_providers.dart';
+import 'package:erp_frontend_v2/providers/currency_provider.dart';
+import 'package:erp_frontend_v2/providers/document_provider.dart';
 import 'package:erp_frontend_v2/providers/document_transaction_provider.dart';
 import 'package:erp_frontend_v2/routing/router.dart';
 import 'package:erp_frontend_v2/routing/routes.dart';
@@ -18,6 +19,7 @@ import 'package:erp_frontend_v2/widgets/not_used_widgets/custom_search_dropdown.
 import 'package:erp_frontend_v2/widgets/custom_search_dropdown.dart';
 import 'package:erp_frontend_v2/widgets/custom_text_field.dart';
 import 'package:erp_frontend_v2/widgets/not_used_widgets/custom_error_dialog.dart';
+import 'package:erp_frontend_v2/models/document/currency_model.dart' as model;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:gap/gap.dart';
@@ -52,11 +54,10 @@ class DocumentDetailsPage extends ConsumerStatefulWidget {
 class _DocumentDetailsPageState extends ConsumerState<DocumentDetailsPage> {
   final GlobalKey<FormState> _documentDetailsFormKey = GlobalKey<FormState>();
 
-  // String? _hId = '0';
+  // model.Currency? primaryCurrency;
 
-  bool _isLoading = false;
   Document _document = Document.empty();
-  int _transactionId = 0;
+  final int _transactionId = 0;
 
   @override
   void initState() {
@@ -64,29 +65,6 @@ class _DocumentDetailsPageState extends ConsumerState<DocumentDetailsPage> {
     if (widget.hId == '0') {
       _document.documentType.id = widget.documentTypeId;
       _document.date = DateFormat('yyyy-MM-dd').format(DateTime.now());
-    } else {
-      _fetchDocument(widget.hId);
-    }
-  }
-
-  Future<void> _fetchDocument(documentId) async {
-    setState(() {
-      _isLoading = true;
-    });
-    try {
-      final documentService = DocumentService();
-
-      final document =
-          await documentService.getDocumentById(documentId: documentId);
-
-      setState(() {
-        _document = document;
-        _isLoading = false;
-      });
-    } catch (error) {
-      setState(() {
-        _isLoading = true;
-      });
     }
   }
 
@@ -104,17 +82,16 @@ class _DocumentDetailsPageState extends ConsumerState<DocumentDetailsPage> {
           .then((results) => results[0] as Document);
 
       if (context.mounted) {
-        ref.read(documentProvider.notifier).refreshDocuments();
+        await ref.read(documentNotifierProvider.notifier).refreshDocuments();
+
         final routeName =
             getDetailsRouteNameByDocumentType(widget.documentTypeId);
         context.goNamed(
           routeName,
           pathParameters: {'id1': result.hId!},
         );
-        setState(() {
-          _document = result;
-        });
 
+        // Show toast message
         showToast('success_save_document'.tr(context), ToastType.success);
       }
     } catch (error) {
@@ -137,7 +114,7 @@ class _DocumentDetailsPageState extends ConsumerState<DocumentDetailsPage> {
 
       if (context.mounted) {
         if (result.isNotEmpty) {
-          ref.read(documentProvider.notifier).refreshDocuments();
+          ref.read(documentNotifierProvider.notifier).refreshDocuments();
           Navigator.of(dialogContext).pop();
           Navigator.of(context).pop();
 
@@ -178,6 +155,7 @@ class _DocumentDetailsPageState extends ConsumerState<DocumentDetailsPage> {
                 widget.documentTypeId;
           }).toList()
         : [];
+    final asyncCurrencyList = ref.watch(currencyNotifierProvider);
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -185,23 +163,55 @@ class _DocumentDetailsPageState extends ConsumerState<DocumentDetailsPage> {
       children: [
         _buildTitle(),
         const SizedBox(height: 16),
-        _isLoading == true
-            ? const Expanded(child: Center(child: CircularProgressIndicator()))
-            : Flexible(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    if (_document.hId == null) ...[
-                      _buildNewDocumentForm(),
-                      Gap(32),
-                    ],
-                    _document.hId == null
-                        ? _buildNewDocumentDetails()
-                        : _buildDocumentDetails()
-                  ],
-                ),
-              ),
+        widget.hId == '0' ? buildNewDocument() : buildDocument()
       ],
+    );
+  }
+
+  Widget buildNewDocument() {
+    final asyncCurrencyList = ref.watch(currencyNotifierProvider);
+    return asyncCurrencyList.when(
+      data: (List<model.Currency> data) {
+        _document.currency ??= data.firstWhere(
+          (currency) => currency.isPrimary,
+        );
+
+        return Flexible(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              _buildNewDocumentForm(),
+              const Gap(32),
+              _buildNewDocumentDetails()
+            ],
+          ),
+        );
+      },
+      error: (error, stackTrace) => Text('Error: $error'),
+      loading: () => const Center(child: CircularProgressIndicator()),
+    );
+  }
+
+  Widget buildDocument() {
+    return FutureBuilder<Document>(
+      future: DocumentService().getDocumentById(documentId: widget.hId),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Center(child: CircularProgressIndicator());
+        } else if (snapshot.hasError) {
+          return Center(child: Text('Error: ${snapshot.error}'));
+        } else if (snapshot.hasData) {
+          _document = snapshot.data!;
+          return Flexible(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [_buildDocumentDetails()],
+            ),
+          );
+        } else {
+          return const Center(child: Text('Document not found'));
+        }
+      },
     );
   }
 
@@ -286,11 +296,35 @@ class _DocumentDetailsPageState extends ConsumerState<DocumentDetailsPage> {
           mainAxisAlignment: MainAxisAlignment.start,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              'document_details'.tr(context),
-              style: CustomStyle.medium20(),
+            Row(
+              mainAxisSize: MainAxisSize.max,
+              // mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'document_details'.tr(context),
+                  style: CustomStyle.medium20(),
+                ),
+                const Spacer(),
+                if (widget.documentTypeId == 1 ||
+                    widget.documentTypeId == 2) ...[
+                  Container(
+                    width: 90,
+                    child: SearchDropDown(
+                      initialValue: _document.currency,
+                      onValueChanged: (value) {
+                        setState(() {
+                          _document.currency = value;
+                        });
+                      },
+                      provider: currencyNotifierProvider,
+                      required: true,
+                    ),
+                  ),
+                ]
+              ],
             ),
-            Gap(24),
+            // Gap(24),
             Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -385,6 +419,7 @@ class _DocumentDetailsPageState extends ConsumerState<DocumentDetailsPage> {
   }
 
   Widget _buildNewDocumentDetails() {
+    ;
     return Flexible(
       child: Container(
         padding: const EdgeInsets.fromLTRB(24, 24, 24, 16),
@@ -431,7 +466,7 @@ class _DocumentDetailsPageState extends ConsumerState<DocumentDetailsPage> {
                   ),
               ],
             ),
-            Gap(24),
+            const Gap(24),
             if (_document.documentItems.isEmpty && _document.hId == null)
               PrimaryButton(
                 text: 'add'.tr(context),
@@ -455,7 +490,7 @@ class _DocumentDetailsPageState extends ConsumerState<DocumentDetailsPage> {
               Flexible(
                 child: DocumentItemsDataTable(
                   documentTypeId: _document.documentType.id,
-                  data: _document.documentItems,
+                  data: _document,
                   readOnly: _document.hId != null,
                   onUpdate: (updatedItems) {
                     setState(() {
@@ -498,7 +533,7 @@ class _DocumentDetailsPageState extends ConsumerState<DocumentDetailsPage> {
                       style: CustomStyle.bold32(color: CustomColor.greenGray),
                     ),
                   ],
-                  Gap(16),
+                  const Gap(16),
                   Container(
                     alignment: Alignment.center,
                     child: Container(
@@ -523,7 +558,7 @@ class _DocumentDetailsPageState extends ConsumerState<DocumentDetailsPage> {
                       ),
                     ),
                   ),
-                  Spacer(),
+                  const Spacer(),
                   if (_document.documentType.id == 2) ...[
                     Column(
                       mainAxisSize: MainAxisSize.min,
@@ -537,7 +572,7 @@ class _DocumentDetailsPageState extends ConsumerState<DocumentDetailsPage> {
                         eFacturaStatus(_document, context)
                       ],
                     ),
-                    Gap(40),
+                    const Gap(40),
                   ],
                   Column(
                     mainAxisSize: MainAxisSize.min,
@@ -554,7 +589,7 @@ class _DocumentDetailsPageState extends ConsumerState<DocumentDetailsPage> {
                       ),
                     ],
                   ),
-                  Gap(40),
+                  const Gap(40),
                   Column(
                     mainAxisSize: MainAxisSize.min,
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -571,7 +606,7 @@ class _DocumentDetailsPageState extends ConsumerState<DocumentDetailsPage> {
                     ],
                   ),
                   if (_document.notes != null) ...[
-                    Gap(40),
+                    const Gap(40),
                     Column(
                       mainAxisSize: MainAxisSize.min,
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -591,7 +626,7 @@ class _DocumentDetailsPageState extends ConsumerState<DocumentDetailsPage> {
                 ],
               ),
             ),
-            Gap(24),
+            const Gap(24),
             if (_document.documentItems.isEmpty && _document.hId == null)
               PrimaryButton(
                 text: 'add'.tr(context),
@@ -615,7 +650,7 @@ class _DocumentDetailsPageState extends ConsumerState<DocumentDetailsPage> {
               Flexible(
                 child: DocumentItemsDataTable(
                   documentTypeId: _document.documentType.id,
-                  data: _document.documentItems,
+                  data: _document,
                   readOnly: _document.hId != null,
                   onUpdate: (updatedItems) {
                     setState(() {

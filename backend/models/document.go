@@ -28,3 +28,9 @@ type DocumentType struct {
 	NameRo string `json:"name_ro"`
 	NameEn string `json:"name_en"`
 }
+
+type Currency struct {
+	ID        int    `json:"id"`
+	Name      string `json:"name"`
+	IsPrimary bool   `json:"is_primary"`
+}

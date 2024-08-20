@@ -3,7 +3,6 @@ package handlers
 import (
 	"backend/models"
 	"context"
-	"database/sql"
 	"log"
 	"time"
 
@@ -36,7 +35,7 @@ func (r *Resolver) _SaveDocument(ctx context.Context, transaction *db.Queries, i
 		RepresentativeID: util.NullableUuid(util.StrToUUID(input.PersonID)),
 		RecipeID:         util.NullableInt32(input.RecipeID),
 		Notes:            util.NullableStr(input.Notes),
-		CurrencyID:       sql.NullInt32{Int32: 1, Valid: true},
+		CurrencyID:       util.NullableInt32(input.CurrencyID),
 	})
 	if err != nil {
 		r.Logger.Error("failed to save document header", zap.Error(err))
