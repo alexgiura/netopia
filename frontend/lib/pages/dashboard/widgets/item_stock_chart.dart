@@ -45,6 +45,7 @@ class _ItemStockChartState extends ConsumerState<ItemStockChart> {
               ),
               Expanded(
                 child: CustomDataTable(
+                  showPagination: false,
                   columns: _columns,
                   rows: getRows(data),
                 ),

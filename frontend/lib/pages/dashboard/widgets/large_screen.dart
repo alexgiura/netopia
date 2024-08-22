@@ -27,26 +27,24 @@ class LargeScreen extends StatefulWidget {
 class _LargeScreenState extends State<LargeScreen> {
   @override
   Widget build(BuildContext context) {
-    return Expanded(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.start,
-        children: [
-          Container(
-              padding: const EdgeInsets.only(top: 32),
-              width: double.infinity,
-              child: _firstRow(context)),
-          const Gap(10),
-          Expanded(
-              child: Container(
-                  width: double.infinity, child: _secondRow(context))),
-          const Gap(10),
-          Expanded(
-              child: Container(
-                  width: double.infinity,
-                  height: 310,
-                  child: _thirdRow(context))),
-        ],
-      ),
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.start,
+      children: [
+        Container(
+            padding: const EdgeInsets.only(top: 32),
+            width: double.infinity,
+            child: _firstRow(context)),
+        const Gap(10),
+        Expanded(
+            child:
+                Container(width: double.infinity, child: _secondRow(context))),
+        const Gap(10),
+        Expanded(
+            child: Container(
+                width: double.infinity,
+                height: 310,
+                child: _thirdRow(context))),
+      ],
     );
   }
 

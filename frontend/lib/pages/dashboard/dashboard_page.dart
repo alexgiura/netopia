@@ -6,6 +6,7 @@ import 'package:erp_frontend_v2/pages/dashboard/widgets/medium_screen.dart';
 import 'package:erp_frontend_v2/pages/dashboard/widgets/small_screen.dart';
 import 'package:erp_frontend_v2/services/report.dart';
 import 'package:erp_frontend_v2/utils/extensions.dart';
+
 import 'package:erp_frontend_v2/utils/responsiveness.dart';
 import 'package:erp_frontend_v2/models/app_localizations.dart';
 import 'package:erp_frontend_v2/pages/dashboard/widgets/item_stock_chart.dart';
