@@ -414,6 +414,13 @@ class _RegisterFormState extends ConsumerState<RegisterForm> {
                   user.email = value;
                 },
                 required: true,
+                validator: (value) {
+                  if (value!.isEmpty) {
+                    return 'error_required_field'.tr(context);
+                  } else {
+                    return validateEmail(context, value);
+                  }
+                },
               ),
               CustomTextField1(
                 keyboardType: TextInputType.phone,
