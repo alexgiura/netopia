@@ -271,5 +271,8 @@
     "add_in_warehouse": "Adaugă în depozit",
     "add_in_production": "Adaugă în producție",
     "add_in_incomes": "Adaugă în intrări",
-    "add_in_exits": "Adaugă în ieșiri"
+    "add_in_exits": "Adaugă în ieșiri",
+    "showing" : "Afișare",
+    "out_of": "din",
+    "items_entries": "iteme"
 }

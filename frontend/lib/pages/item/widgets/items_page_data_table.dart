@@ -18,6 +18,7 @@ import 'package:flutter/material.dart';
 import 'package:data_table_2/data_table_2.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:gap/gap.dart';
+import 'package:hive/hive.dart';
 import '../../../constants/style.dart';
 
 class ItemsPageDataTable extends ConsumerStatefulWidget {
@@ -150,6 +151,7 @@ class _ItemsPageDataTableState extends ConsumerState<ItemsPageDataTable>
                 child: CustomDataTable(
                   columns: getColumns(context),
                   rows: getRows(itemList),
+                  showPagination: true,
                 ),
               ),
             ],
@@ -182,7 +184,6 @@ class _ItemsPageDataTableState extends ConsumerState<ItemsPageDataTable>
 
     return filteredData.asMap().entries.map((row) {
       Item item = row.value;
-
       return DataRow2(
         cells: [
           DataCell(Text(item.code ?? '', style: CustomStyle.semibold14())),
