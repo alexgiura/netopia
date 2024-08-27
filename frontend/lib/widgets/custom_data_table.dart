@@ -20,7 +20,7 @@ class CustomDataTable extends StatefulWidget {
     required this.rows,
     this.showTotals,
     this.totalsConfig,
-    this.showPagination = true,
+    this.showPagination = false,
   });
 
   @override
@@ -71,7 +71,7 @@ class _CustomDataTableState extends State<CustomDataTable> {
                 horizontalMargin: 16,
                 columnSpacing: 0,
                 columns: widget.columns,
-                rows: rowsToShow),
+                rows: widget.showPagination ? rowsToShow : widget.rows),
           ),
           if (widget.showPagination)
             Container(

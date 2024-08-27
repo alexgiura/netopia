@@ -42,23 +42,7 @@ class _CustomPaginationState extends State<CustomPagination> {
       endItem = widget.itemCount;
     }
 
-    List<Widget> buttons = List.generate(totalPages, (index) {
-      return Container(
-        margin: const EdgeInsets.symmetric(horizontal: 5),
-        width: 30,
-        height: 30,
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(_currentPage == index ? 12 : 24),
-          border: Border.all(
-            color:
-                _currentPage == index ? CustomColor.bgDark : Colors.transparent,
-            width: 2,
-          ),
-        ),
-        child:
-            _currentPage == index ? _outlinedButton(index) : _textButton(index),
-      );
-    }).toList();
+    List<Widget> buttons = _buildPaginationButtons(totalPages);
 
     return Padding(
       padding: const EdgeInsets.only(left: 10, top: 16, right: 35),
@@ -66,7 +50,7 @@ class _CustomPaginationState extends State<CustomPagination> {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Text(
-            '${'showing'.tr(context)} $endItem ${'out_of'.tr(context)} ${widget.itemCount} ${'items_entries'.tr(context)}',
+            '${'showing'.tr(context)} $endItem ${'out_of'.tr(context)} ${widget.itemCount} ${'documents'.tr(context)}',
             style: CustomStyle.regular12(color: CustomColor.greenGray),
           ),
           Flexible(
@@ -155,9 +139,73 @@ class _CustomPaginationState extends State<CustomPagination> {
       child: Center(
         child: Text(
           '${index + 1}',
+          softWrap: false,
           style: CustomStyle.semibold14(color: CustomColor.textPrimary),
         ),
       ),
+    );
+  }
+
+  List<Widget> _buildPaginationButtons(int totalPages) {
+    List<Widget> buttons = [];
+
+    if (totalPages <= 5) {
+      // if there are less than 5 pages, show all pages
+      buttons = List.generate(totalPages, (index) {
+        return _buildPageButton(index);
+      });
+    } else {
+      // if there are more than 5 pages, we need to decide which pages to show
+      if (_currentPage <= 2) {
+        // if we are on one of the first 3 pages, show the first 3 pages, the last page and the next page
+        buttons = [
+          _buildPageButton(0),
+          _buildPageButton(1),
+          _buildPageButton(2),
+          const Text('...'),
+          _buildPageButton(totalPages - 1),
+        ];
+      } else if (_currentPage >= totalPages - 3) {
+        // if we are on one of the last 3 pages, show the first page, the last 3 pages and the last page
+        buttons = [
+          _buildPageButton(0),
+          const Text('...'),
+          _buildPageButton(totalPages - 3),
+          _buildPageButton(totalPages - 2),
+          _buildPageButton(totalPages - 1),
+        ];
+      } else {
+        // if we are on any other page, show the first page, the current page, the next page, the last page and the pages before and after the current page
+        buttons = [
+          _buildPageButton(0),
+          const Text('...'),
+          _buildPageButton(_currentPage - 1),
+          _buildPageButton(_currentPage),
+          _buildPageButton(_currentPage + 1),
+          const Text('...'),
+          _buildPageButton(totalPages - 1),
+        ];
+      }
+    }
+
+    return buttons;
+  }
+
+  Widget _buildPageButton(int index) {
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 5),
+      width: 40,
+      height: 40,
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(_currentPage == index ? 12 : 24),
+        border: Border.all(
+          color:
+              _currentPage == index ? CustomColor.bgDark : Colors.transparent,
+          width: 2,
+        ),
+      ),
+      child:
+          _currentPage == index ? _outlinedButton(index) : _textButton(index),
     );
   }
 
