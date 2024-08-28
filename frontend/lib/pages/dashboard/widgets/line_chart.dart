@@ -65,6 +65,11 @@ class _CustomLineChartState extends State<CustomLineChart> {
     );
   }
 
+  double calculateReservedSize(String text) {
+    // calculate the size of the text
+    return text.length * 10.0;
+  }
+
   Widget bottomTitleWidgets(double value, TitleMeta meta) {
     var style = widget.bottomTextStyle ??
         CustomStyle.semibold10(color: CustomColor.slate_700);
@@ -178,7 +183,7 @@ class _CustomLineChartState extends State<CustomLineChart> {
             showTitles: true,
             interval: getInterval(),
             getTitlesWidget: leftTitleWidgets,
-            reservedSize: 25,
+            reservedSize: calculateReservedSize(combinedData.last.toString()),
           ),
         ),
       ),
