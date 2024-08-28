@@ -8,11 +8,14 @@ import '../models/partner/partner_model.dart';
 import '../models/partner/partner_filter_model.dart';
 
 class PartnerService {
-  Future<List<Partner>> getPartners({
-    required PartnerFilter partnerFilter,
-  }) async {
+  Future<List<Partner>> getPartners({String? partnerId
+      // required PartnerFilter partnerFilter,
+      }) async {
     final QueryOptions options = QueryOptions(
       document: gql(queries.getPartners),
+      variables: <String, dynamic>{
+        "partnerId": partnerId,
+      },
       fetchPolicy: FetchPolicy.noCache,
     );
 
@@ -61,24 +64,28 @@ class PartnerService {
   Future<String> savePartner({
     required Partner partner,
   }) async {
-    final QueryOptions options = QueryOptions(
-      document: gql(mutations.savePartner),
-      variables: <String, dynamic>{"input": partner.toJson()},
-      fetchPolicy: FetchPolicy.noCache,
-    );
+    try {
+      final QueryOptions options = QueryOptions(
+        document: gql(mutations.savePartner),
+        variables: <String, dynamic>{"input": partner.toJson()},
+        fetchPolicy: FetchPolicy.noCache,
+      );
 
-    final QueryResult result = await graphQLClient.value.query(options);
+      final QueryResult result = await graphQLClient.value.query(options);
 
-    if (result.hasException) {
-      throw Exception(result.exception.toString());
-    }
-    final dynamic data = result.data!;
+      if (result.hasException) {
+        throw Exception(result.exception.toString());
+      }
+      final dynamic data = result.data!;
 
-    if (data != null) {
-      final String response = data['savePartner'];
-      return response;
-    } else {
-      throw Exception('Invalid form data.');
+      if (data != null) {
+        final String response = data['savePartner'];
+        return response;
+      } else {
+        throw Exception('Invalid form data.');
+      }
+    } catch (e) {
+      throw Exception('An error occurred: ${e.toString()}');
     }
   }
 }

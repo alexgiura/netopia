@@ -1,4 +1,5 @@
 import 'package:erp_frontend_v2/models/address/address_model.dart';
+import 'package:erp_frontend_v2/models/partner/bank_account_model.dart';
 import 'package:erp_frontend_v2/models/partner/partner_type_model.dart';
 
 class Partner {
@@ -11,11 +12,13 @@ class Partner {
   String? registrationNumber;
   bool isActive;
   Address? address;
+  BankAccount? bankAccount;
 
   Partner(
       {this.id,
       this.code,
       this.address,
+      this.bankAccount,
       required this.name,
       required this.type,
       required this.vat,
@@ -31,7 +34,8 @@ class Partner {
         vatNumber = null,
         registrationNumber = null,
         isActive = true,
-        address = Address.empty();
+        address = Address.empty(),
+        bankAccount = BankAccount.empty();
 
   bool isEmpty() {
     return id == null;
@@ -50,6 +54,9 @@ class Partner {
       address: json.containsKey('address')
           ? Address.fromJson(json['address'])
           : null,
+      bankAccount: json.containsKey('bank_account')
+          ? BankAccount.fromJson(json['bank_account'])
+          : null,
     );
   }
   Map<String, dynamic> toJson() {
@@ -63,6 +70,7 @@ class Partner {
       'registration_number': registrationNumber,
       'is_active': isActive,
       'address': address?.toJson(),
+      'bank_account': bankAccount?.toJson(),
     };
   }
 }

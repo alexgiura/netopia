@@ -8,6 +8,7 @@ import 'package:erp_frontend_v2/pages/item/item_details_page.dart';
 import 'package:erp_frontend_v2/providers/item_provider.dart';
 import 'package:erp_frontend_v2/providers/partner_provider.dart';
 import 'package:erp_frontend_v2/widgets/buttons/edit_button.dart';
+import 'package:erp_frontend_v2/widgets/buttons/icon_button.dart';
 import 'package:erp_frontend_v2/widgets/custom_activ_status.dart';
 import 'package:erp_frontend_v2/widgets/custom_checkbox.dart';
 import 'package:erp_frontend_v2/widgets/custom_data_table.dart';
@@ -133,16 +134,12 @@ class _ItemsPageDataTableState extends ConsumerState<ItemsPageDataTable>
                             .updateFilter(_itemFilter);
                       },
                       provider: itemCategoryProvider),
-                  IconButton(
-                    icon: const Icon(
-                      Icons.refresh_rounded,
-                      color: CustomColor.textPrimary,
-                    ),
-                    onPressed: () {
+                  CustomIconButton(
+                    icon: Icons.refresh_rounded,
+                    asyncOnPressed: () async {
                       ref.read(itemProvider.notifier).refreshItems();
                     },
                   ),
-                  const Spacer(),
                   const Spacer(),
                 ],
               ),

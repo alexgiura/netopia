@@ -57,6 +57,11 @@ type ComplexityRoot struct {
 		Locality   func(childComplexity int) int
 	}
 
+	BankAccount struct {
+		Bank func(childComplexity int) int
+		Iban func(childComplexity int) int
+	}
+
 	ChartData struct {
 		SecondY func(childComplexity int) int
 		X       func(childComplexity int) int
@@ -174,6 +179,7 @@ type ComplexityRoot struct {
 	Partner struct {
 		Active             func(childComplexity int) int
 		Address            func(childComplexity int) int
+		BankAccount        func(childComplexity int) int
 		Code               func(childComplexity int) int
 		ID                 func(childComplexity int) int
 		Name               func(childComplexity int) int
@@ -201,7 +207,7 @@ type ComplexityRoot struct {
 		GetGenerateAvailableItems    func(childComplexity int, input model.GetGenerateAvailableItemsInput) int
 		GetItemCategoryList          func(childComplexity int) int
 		GetItems                     func(childComplexity int, input model.GetItemsInput) int
-		GetPartners                  func(childComplexity int) int
+		GetPartners                  func(childComplexity int, partnerID *string) int
 		GetProductionNoteReport      func(childComplexity int, input *model.ReportInput) int
 		GetRecipeByID                func(childComplexity int, recipeID int) int
 		GetRecipes                   func(childComplexity int) int
@@ -289,7 +295,7 @@ type QueryResolver interface {
 	GetUmList(ctx context.Context) ([]*models.Um, error)
 	GetVatList(ctx context.Context) ([]*models.Vat, error)
 	GetItemCategoryList(ctx context.Context) ([]*models.ItemCategory, error)
-	GetPartners(ctx context.Context) ([]*models.Partner, error)
+	GetPartners(ctx context.Context, partnerID *string) ([]*models.Partner, error)
 	GetRecipes(ctx context.Context) ([]*models.Recipe, error)
 	GetRecipeByID(ctx context.Context, recipeID int) (*models.Recipe, error)
 	GetUser(ctx context.Context, userID string) (*models.User, error)
@@ -341,6 +347,20 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Address.Locality(childComplexity), true
+
+	case "BankAccount.bank":
+		if e.complexity.BankAccount.Bank == nil {
+			break
+		}
+
+		return e.complexity.BankAccount.Bank(childComplexity), true
+
+	case "BankAccount.iban":
+		if e.complexity.BankAccount.Iban == nil {
+			break
+		}
+
+		return e.complexity.BankAccount.Iban(childComplexity), true
 
 	case "ChartData.second_y":
 		if e.complexity.ChartData.SecondY == nil {
@@ -941,6 +961,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Partner.Address(childComplexity), true
 
+	case "Partner.bank_account":
+		if e.complexity.Partner.BankAccount == nil {
+			break
+		}
+
+		return e.complexity.Partner.BankAccount(childComplexity), true
+
 	case "Partner.code":
 		if e.complexity.Partner.Code == nil {
 			break
@@ -1123,7 +1150,12 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			break
 		}
 
-		return e.complexity.Query.GetPartners(childComplexity), true
+		args, err := ec.field_Query_getPartners_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Query.GetPartners(childComplexity, args["partnerId"].(*string)), true
 
 	case "Query.getProductionNoteReport":
 		if e.complexity.Query.GetProductionNoteReport == nil {
@@ -1383,6 +1415,7 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 	ec := executionContext{rc, e, 0, 0, make(chan graphql.DeferredResult)}
 	inputUnmarshalMap := graphql.BuildUnmarshalerMap(
 		ec.unmarshalInputAddressInput,
+		ec.unmarshalInputBankAccountInput,
 		ec.unmarshalInputCompanyInput,
 		ec.unmarshalInputDeleteDocumentInput,
 		ec.unmarshalInputDocumentInput,
@@ -1781,6 +1814,16 @@ extend type Mutation {
   vat: Boolean!
   registration_number: String
   address: Address
+  bank_account: BankAccount
+}
+
+type BankAccount{
+  bank: String
+  iban: String
+}
+input BankAccountInput{
+  bank: String
+  iban: String
 }
 
 input PartnerInput {
@@ -1792,11 +1835,12 @@ input PartnerInput {
   vat:Boolean!
   registration_number: String
   address: AddressInput
+  bank_account:BankAccountInput
   is_active: Boolean
 }
 
 extend type Query {
-  getPartners: [Partner]
+  getPartners(partnerId: String): [Partner]
 }
 
 extend type Mutation {
@@ -2209,6 +2253,21 @@ func (ec *executionContext) field_Query_getItems_args(ctx context.Context, rawAr
 	return args, nil
 }
 
+func (ec *executionContext) field_Query_getPartners_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 *string
+	if tmp, ok := rawArgs["partnerId"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("partnerId"))
+		arg0, err = ec.unmarshalOString2ᚖstring(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["partnerId"] = arg0
+	return args, nil
+}
+
 func (ec *executionContext) field_Query_getProductionNoteReport_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
@@ -2448,6 +2507,82 @@ func (ec *executionContext) _Address_county_code(ctx context.Context, field grap
 func (ec *executionContext) fieldContext_Address_county_code(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Address",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _BankAccount_bank(ctx context.Context, field graphql.CollectedField, obj *models.BankAccount) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_BankAccount_bank(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp := ec._fieldMiddleware(ctx, obj, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Bank, nil
+	})
+
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*string)
+	fc.Result = res
+	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_BankAccount_bank(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "BankAccount",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _BankAccount_iban(ctx context.Context, field graphql.CollectedField, obj *models.BankAccount) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_BankAccount_iban(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp := ec._fieldMiddleware(ctx, obj, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Iban, nil
+	})
+
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*string)
+	fc.Result = res
+	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_BankAccount_iban(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "BankAccount",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -3251,6 +3386,8 @@ func (ec *executionContext) fieldContext_Document_partner(ctx context.Context, f
 				return ec.fieldContext_Partner_registration_number(ctx, field)
 			case "address":
 				return ec.fieldContext_Partner_address(ctx, field)
+			case "bank_account":
+				return ec.fieldContext_Partner_bank_account(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Partner", field.Name)
 		},
@@ -6134,6 +6271,50 @@ func (ec *executionContext) fieldContext_Partner_address(ctx context.Context, fi
 	return fc, nil
 }
 
+func (ec *executionContext) _Partner_bank_account(ctx context.Context, field graphql.CollectedField, obj *models.Partner) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Partner_bank_account(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp := ec._fieldMiddleware(ctx, obj, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.BankAccount, nil
+	})
+
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*models.BankAccount)
+	fc.Result = res
+	return ec.marshalOBankAccount2ᚖbackendᚋmodelsᚐBankAccount(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Partner_bank_account(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Partner",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "bank":
+				return ec.fieldContext_BankAccount_bank(ctx, field)
+			case "iban":
+				return ec.fieldContext_BankAccount_iban(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type BankAccount", field.Name)
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _ProductionNote_date(ctx context.Context, field graphql.CollectedField, obj *model.ProductionNote) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_ProductionNote_date(ctx, field)
 	if err != nil {
@@ -7227,7 +7408,7 @@ func (ec *executionContext) _Query_getPartners(ctx context.Context, field graphq
 	}()
 	resTmp := ec._fieldMiddleware(ctx, nil, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().GetPartners(rctx)
+		return ec.resolvers.Query().GetPartners(rctx, fc.Args["partnerId"].(*string))
 	})
 
 	if resTmp == nil {
@@ -7264,9 +7445,22 @@ func (ec *executionContext) fieldContext_Query_getPartners(ctx context.Context, 
 				return ec.fieldContext_Partner_registration_number(ctx, field)
 			case "address":
 				return ec.fieldContext_Partner_address(ctx, field)
+			case "bank_account":
+				return ec.fieldContext_Partner_bank_account(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Partner", field.Name)
 		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Query_getPartners_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
 	}
 	return fc, nil
 }
@@ -10219,6 +10413,40 @@ func (ec *executionContext) unmarshalInputAddressInput(ctx context.Context, obj 
 	return it, nil
 }
 
+func (ec *executionContext) unmarshalInputBankAccountInput(ctx context.Context, obj interface{}) (model.BankAccountInput, error) {
+	var it model.BankAccountInput
+	asMap := map[string]interface{}{}
+	for k, v := range obj.(map[string]interface{}) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"bank", "iban"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "bank":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("bank"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Bank = data
+		case "iban":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("iban"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Iban = data
+		}
+	}
+
+	return it, nil
+}
+
 func (ec *executionContext) unmarshalInputCompanyInput(ctx context.Context, obj interface{}) (model.CompanyInput, error) {
 	var it model.CompanyInput
 	asMap := map[string]interface{}{}
@@ -10790,7 +11018,7 @@ func (ec *executionContext) unmarshalInputPartnerInput(ctx context.Context, obj 
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"id", "code", "name", "type", "vat_number", "vat", "registration_number", "address", "is_active"}
+	fieldsInOrder := [...]string{"id", "code", "name", "type", "vat_number", "vat", "registration_number", "address", "bank_account", "is_active"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
@@ -10853,6 +11081,13 @@ func (ec *executionContext) unmarshalInputPartnerInput(ctx context.Context, obj 
 				return it, err
 			}
 			it.Address = data
+		case "bank_account":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("bank_account"))
+			data, err := ec.unmarshalOBankAccountInput2ᚖbackendᚋgraphᚋmodelᚐBankAccountInput(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.BankAccount = data
 		case "is_active":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("is_active"))
 			data, err := ec.unmarshalOBoolean2ᚖbool(ctx, v)
@@ -11233,6 +11468,44 @@ func (ec *executionContext) _Address(ctx context.Context, sel ast.SelectionSet, 
 			out.Values[i] = ec._Address_locality(ctx, field, obj)
 		case "county_code":
 			out.Values[i] = ec._Address_county_code(ctx, field, obj)
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var bankAccountImplementors = []string{"BankAccount"}
+
+func (ec *executionContext) _BankAccount(ctx context.Context, sel ast.SelectionSet, obj *models.BankAccount) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, bankAccountImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("BankAccount")
+		case "bank":
+			out.Values[i] = ec._BankAccount_bank(ctx, field, obj)
+		case "iban":
+			out.Values[i] = ec._BankAccount_iban(ctx, field, obj)
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -12142,6 +12415,8 @@ func (ec *executionContext) _Partner(ctx context.Context, sel ast.SelectionSet, 
 			out.Values[i] = ec._Partner_registration_number(ctx, field, obj)
 		case "address":
 			out.Values[i] = ec._Partner_address(ctx, field, obj)
+		case "bank_account":
+			out.Values[i] = ec._Partner_bank_account(ctx, field, obj)
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -13777,6 +14052,21 @@ func (ec *executionContext) unmarshalOAddressInput2ᚖbackendᚋgraphᚋmodelᚐ
 		return nil, nil
 	}
 	res, err := ec.unmarshalInputAddressInput(ctx, v)
+	return &res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalOBankAccount2ᚖbackendᚋmodelsᚐBankAccount(ctx context.Context, sel ast.SelectionSet, v *models.BankAccount) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	return ec._BankAccount(ctx, sel, v)
+}
+
+func (ec *executionContext) unmarshalOBankAccountInput2ᚖbackendᚋgraphᚋmodelᚐBankAccountInput(ctx context.Context, v interface{}) (*model.BankAccountInput, error) {
+	if v == nil {
+		return nil, nil
+	}
+	res, err := ec.unmarshalInputBankAccountInput(ctx, v)
 	return &res, graphql.ErrorOnPath(ctx, err)
 }
 

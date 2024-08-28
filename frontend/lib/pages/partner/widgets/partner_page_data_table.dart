@@ -2,9 +2,11 @@ import 'package:erp_frontend_v2/models/app_localizations.dart';
 import 'package:erp_frontend_v2/models/partner/partner_model.dart';
 import 'package:erp_frontend_v2/models/partner/partner_type_model.dart';
 import 'package:erp_frontend_v2/models/static_model.dart';
-import 'package:erp_frontend_v2/pages/partner/partner_details_page.dart';
+import 'package:erp_frontend_v2/pages/partner/widgets/partner_details_popup.dart';
 import 'package:erp_frontend_v2/providers/partner_provider.dart';
+import 'package:erp_frontend_v2/routing/routes.dart';
 import 'package:erp_frontend_v2/widgets/buttons/edit_button.dart';
+import 'package:erp_frontend_v2/widgets/buttons/icon_button.dart';
 import 'package:erp_frontend_v2/widgets/custom_activ_status.dart';
 import 'package:erp_frontend_v2/widgets/custom_checkbox.dart';
 import 'package:erp_frontend_v2/widgets/custom_data_table.dart';
@@ -15,6 +17,7 @@ import 'package:flutter/material.dart';
 import 'package:data_table_2/data_table_2.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:gap/gap.dart';
+import 'package:go_router/go_router.dart';
 import '../../../constants/style.dart';
 
 class PartnerPageDataTable extends ConsumerStatefulWidget {
@@ -134,16 +137,12 @@ class _PartnerPageDataTableState extends ConsumerState<PartnerPageDataTable>
                         });
                       },
                       staticData: PartnerType.partnerTypes),
-                  IconButton(
-                    icon: const Icon(
-                      Icons.refresh_rounded,
-                      color: CustomColor.textPrimary,
-                    ),
-                    onPressed: () {
+                  CustomIconButton(
+                    icon: Icons.refresh_rounded,
+                    asyncOnPressed: () async {
                       ref.read(partnerProvider.notifier).refreshPartners();
                     },
                   ),
-                  const Spacer(),
                   const Spacer(),
                 ],
               ),
@@ -208,13 +207,9 @@ class _PartnerPageDataTableState extends ConsumerState<PartnerPageDataTable>
             alignment: Alignment.center,
             child: CustomEditButton(
               onTap: () {
-                showDialog(
-                  context: context,
-                  builder: (BuildContext context) {
-                    return PartnerDetailsPopup(
-                      partner: partner,
-                    );
-                  },
+                context.goNamed(
+                  partnerDetailsPageName,
+                  pathParameters: {'id1': row.value.id!},
                 );
               },
             ),

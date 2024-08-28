@@ -15,6 +15,11 @@ type AddressInput struct {
 	CountyCode *string `json:"county_code,omitempty"`
 }
 
+type BankAccountInput struct {
+	Bank *string `json:"bank,omitempty"`
+	Iban *string `json:"iban,omitempty"`
+}
+
 type ChartData struct {
 	X       string   `json:"x"`
 	Y       float64  `json:"y"`
@@ -129,15 +134,16 @@ type Mutation struct {
 }
 
 type PartnerInput struct {
-	ID                 *string       `json:"id,omitempty"`
-	Code               *string       `json:"code,omitempty"`
-	Name               string        `json:"name"`
-	Type               string        `json:"type"`
-	VatNumber          *string       `json:"vat_number,omitempty"`
-	Vat                bool          `json:"vat"`
-	RegistrationNumber *string       `json:"registration_number,omitempty"`
-	Address            *AddressInput `json:"address,omitempty"`
-	IsActive           *bool         `json:"is_active,omitempty"`
+	ID                 *string           `json:"id,omitempty"`
+	Code               *string           `json:"code,omitempty"`
+	Name               string            `json:"name"`
+	Type               string            `json:"type"`
+	VatNumber          *string           `json:"vat_number,omitempty"`
+	Vat                bool              `json:"vat"`
+	RegistrationNumber *string           `json:"registration_number,omitempty"`
+	Address            *AddressInput     `json:"address,omitempty"`
+	BankAccount        *BankAccountInput `json:"bank_account,omitempty"`
+	IsActive           *bool             `json:"is_active,omitempty"`
 }
 
 type ProductionNote struct {

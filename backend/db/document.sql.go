@@ -372,7 +372,7 @@ func (q *Queries) GetDocumentHeaderPartner(ctx context.Context, id uuid.UUID) (G
 }
 
 const getDocumentHeaderPartnerBillingDetails = `-- name: GetDocumentHeaderPartnerBillingDetails :one
-SELECT p.id, p.code, p.name, p.is_active, p.type, p.vat_number, p.vat, p.registration_number, p.address, p.locality, p.county_code, p.created_at, bd.id, bd.partner_id, bd.vat, bd.registration_number, bd.address, bd.locality, bd.county_code, bd.created_at
+SELECT p.id, p.code, p.name, p.is_active, p.type, p.vat_number, p.vat, p.registration_number, p.address, p.locality, p.county_code, p.bank, p.iban, p.created_at, bd.id, bd.partner_id, bd.vat, bd.registration_number, bd.address, bd.locality, bd.county_code, bd.created_at
 FROM core.document_partner_billing_details bd
          INNER JOIN core.partners p
                     ON p.id = bd.partner_id
@@ -399,6 +399,8 @@ func (q *Queries) GetDocumentHeaderPartnerBillingDetails(ctx context.Context, id
 		&i.CorePartner.Address,
 		&i.CorePartner.Locality,
 		&i.CorePartner.CountyCode,
+		&i.CorePartner.Bank,
+		&i.CorePartner.Iban,
 		&i.CorePartner.CreatedAt,
 		&i.CoreDocumentPartnerBillingDetail.ID,
 		&i.CoreDocumentPartnerBillingDetail.PartnerID,

@@ -12,6 +12,7 @@ import (
 	"backend/util"
 	"context"
 	"errors"
+	"fmt"
 	"log"
 
 	"github.com/google/uuid"
@@ -32,6 +33,8 @@ func (r *mutationResolver) SavePartner(ctx context.Context, input model.PartnerI
 			Address:            util.NullableStr(input.Address.Address),
 			Locality:           util.NullableStr(input.Address.Locality),
 			CountyCode:         util.NullableStr(input.Address.CountyCode),
+			Bank:               util.NullableStr(input.BankAccount.Bank),
+			Iban:               util.NullableStr(input.BankAccount.Iban),
 		})
 		if err != nil {
 			log.Print("\"message\":Failed to insert partner, "+"\"error\": ", err.Error())
@@ -55,6 +58,8 @@ func (r *mutationResolver) SavePartner(ctx context.Context, input model.PartnerI
 			Address:            util.NullableStr(input.Address.Address),
 			Locality:           util.NullableStr(input.Address.Locality),
 			CountyCode:         util.NullableStr(input.Address.CountyCode),
+			Bank:               util.NullableStr(input.BankAccount.Bank),
+			Iban:               util.NullableStr(input.BankAccount.Iban),
 		})
 		if err != nil {
 			log.Print("\"message\":Failed to update partner, "+"\"error\": ", err.Error())
@@ -66,10 +71,15 @@ func (r *mutationResolver) SavePartner(ctx context.Context, input model.PartnerI
 }
 
 // GetPartners is the resolver for the getPartners field.
-func (r *queryResolver) GetPartners(ctx context.Context) ([]*models.Partner, error) {
-	rows, err := r.DBProvider.GetPartners(ctx)
+func (r *queryResolver) GetPartners(ctx context.Context, partnerID *string) ([]*models.Partner, error) {
+	partnerIdUuid := util.StrToUUID(partnerID)
+	fmt.Println(partnerIdUuid)
+
+	rows, err := r.DBProvider.GetPartners(ctx, partnerIdUuid)
 	if err != nil {
+		fmt.Println(err)
 		if errors.Is(err, pgx.ErrNoRows) {
+
 			return nil, nil
 		}
 		r.Logger.Error("failed to execute DBProvider.GetPartners", zap.Error(err))
@@ -87,6 +97,15 @@ func (r *queryResolver) GetPartners(ctx context.Context) ([]*models.Partner, err
 			Vat:                row.Vat,
 			VatNumber:          util.StringOrNil(row.VatNumber),
 			RegistrationNumber: util.StringOrNil(row.RegistrationNumber),
+			Address: &models.Address{
+				Address:    util.StringOrNil(row.Address),
+				Locality:   util.StringOrNil(row.Locality),
+				CountyCode: util.StringOrNil(row.CountyCode),
+			},
+			BankAccount: &models.BankAccount{
+				Bank: util.StringOrNil(row.Bank),
+				Iban: util.StringOrNil(row.Iban),
+			},
 		}
 
 		partners = append(partners, partner)

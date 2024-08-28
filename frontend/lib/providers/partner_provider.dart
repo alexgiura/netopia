@@ -15,8 +15,7 @@ class PartnerProvider extends StateNotifier<AsyncValue<List<Partner>>> {
   Future<void> fetchPartners() async {
     // state = const AsyncValue.loading();
     try {
-      final partnerList =
-          await PartnerService().getPartners(partnerFilter: partnerFilter);
+      final partnerList = await PartnerService().getPartners();
       state = AsyncValue.data(partnerList);
     } catch (e) {
       //state = AsyncValue.error(e);

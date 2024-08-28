@@ -10,6 +10,8 @@ create TABLE IF NOT EXISTS core.partners(
     address TEXT NULL,
     locality VARCHAR(50) NULL,
     county_code CHAR(2) NULL,
+    bank TEXT NULL,
+    iban TEXT NULL,
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
     );
 

@@ -18,6 +18,9 @@ const unitsRoute = "/units";
 const partnersPageName = "Partners";
 const partnersRoute = "/partners";
 
+const partnerDetailsPageName = "Partner Details";
+const partnerDetailRoute = ":id1";
+
 const testPageName = "Test";
 const testRoute = "test";
 

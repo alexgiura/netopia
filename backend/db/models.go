@@ -340,6 +340,8 @@ type CorePartner struct {
 	Address            sql.NullString
 	Locality           sql.NullString
 	CountyCode         sql.NullString
+	Bank               sql.NullString
+	Iban               sql.NullString
 	CreatedAt          time.Time
 }
 

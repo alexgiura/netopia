@@ -1,6 +1,6 @@
 import 'package:erp_frontend_v2/constants/style.dart';
 import 'package:erp_frontend_v2/models/app_localizations.dart';
-import 'package:erp_frontend_v2/pages/partner/partner_details_page.dart';
+import 'package:erp_frontend_v2/pages/partner/widgets/partner_details_popup.dart';
 import 'package:erp_frontend_v2/pages/partner/widgets/partner_page_data_table.dart';
 import 'package:erp_frontend_v2/widgets/buttons/primary_button.dart';
 import 'package:flutter/material.dart';
@@ -38,6 +38,7 @@ class _PartnersPageState extends State<PartnersPage> {
                   },
                 );
               },
+              style: CustomStyle.submitBlackButton,
             ),
           ],
         ),

@@ -8,6 +8,16 @@ type Partner {
   vat: Boolean!
   registration_number: String
   address: Address
+  bank_account: BankAccount
+}
+
+type BankAccount{
+  bank: String
+  iban: String
+}
+input BankAccountInput{
+  bank: String
+  iban: String
 }
 
 input PartnerInput {
@@ -19,11 +29,12 @@ input PartnerInput {
   vat:Boolean!
   registration_number: String
   address: AddressInput
+  bank_account:BankAccountInput
   is_active: Boolean
 }
 
 extend type Query {
-  getPartners: [Partner]
+  getPartners(partnerId: String): [Partner]
 }
 
 extend type Mutation {

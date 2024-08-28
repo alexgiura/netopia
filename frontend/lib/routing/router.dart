@@ -8,6 +8,7 @@ import 'package:erp_frontend_v2/pages/document/document_details/document_details
 import 'package:erp_frontend_v2/pages/item/item_category_page.dart';
 import 'package:erp_frontend_v2/pages/item/item_units_page.dart';
 import 'package:erp_frontend_v2/pages/item/items_page.dart';
+import 'package:erp_frontend_v2/pages/partner/partner_details_page.dart';
 import 'package:erp_frontend_v2/pages/production/production_note_details_page.dart';
 import 'package:erp_frontend_v2/pages/production/production_notes_page.dart';
 import 'package:erp_frontend_v2/pages/production/recipe_details_page.dart';
@@ -93,6 +94,21 @@ final GoRouter router = GoRouter(
             builder: (BuildContext context, GoRouterState state) {
               return const PartnersPage();
             },
+            routes: <RouteBase>[
+              GoRoute(
+                path: partnerDetailRoute,
+                name: partnerDetailsPageName,
+                pageBuilder: (context, state) {
+                  final partnerId = state.pathParameters['id1'] ?? '';
+
+                  return CustomTransitionPage(
+                      child: PartnerDetailsPage(
+                        partnerId: partnerId,
+                      ),
+                      transitionsBuilder: customSlideTransition);
+                },
+              ),
+            ],
           ),
 
           //Client

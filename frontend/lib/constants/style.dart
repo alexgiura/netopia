@@ -422,12 +422,13 @@ class CustomStyle {
     padding: WidgetStateProperty.all(
         const EdgeInsets.symmetric(horizontal: 14, vertical: 20)),
     foregroundColor: WidgetStateProperty.all(CustomColor.textPrimary),
-    backgroundColor: WidgetStateProperty.all(CustomColor.white),
+    backgroundColor: WidgetStateProperty.all(Colors.transparent),
     shape: WidgetStateProperty.all(
       RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(12),
       ),
     ),
+    overlayColor: WidgetStateProperty.all(Colors.transparent),
     side: WidgetStateProperty.all(
       const BorderSide(color: CustomColor.textPrimary),
     ),

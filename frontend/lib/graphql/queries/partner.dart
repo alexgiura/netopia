@@ -1,6 +1,6 @@
 const String getPartners = r'''
-query getPartners{
-    getPartners{
+query getPartners($partnerId: String){
+    getPartners(partnerId: $partnerId){
         id,
         code,
         type,
@@ -8,7 +8,16 @@ query getPartners{
         name,
         vat,
         vat_number,
-        registration_number
+        registration_number,
+        address{
+            address,
+            locality,
+            county_code
+        },
+        bank_account{
+            bank,
+            iban
+        }
     }
 }
 ''';

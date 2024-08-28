@@ -9,26 +9,30 @@ void showToast(String text, ToastType type) {
     autoCloseDuration: const Duration(seconds: 3),
     alignment: Alignment.topCenter,
     builder: (BuildContext context, ToastificationItem holder) {
-      return IntrinsicWidth(
-        child: Container(
-          decoration: BoxDecoration(
+      return Transform.translate(
+        offset:
+            const Offset(0, -24), // Adjust the value to move the toast higher
+        child: IntrinsicWidth(
+          child: Container(
+            decoration: BoxDecoration(
               borderRadius: CustomStyle.customBorderRadiusSmall,
-              color: CustomColor.bgSecondary),
-          height: 40,
-          child: ClipRRect(
-            borderRadius: CustomStyle.customBorderRadiusSmall,
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                Container(
-                  color: type == ToastType.error
-                      ? CustomColor.error.withOpacity(0.1)
-                      : type == ToastType.warning
-                          ? CustomColor.warning.withOpacity(0.1)
-                          : CustomColor.green.withOpacity(0.1),
-                  width: 40,
-                  child: Center(
-                    child: Icon(
+              color: CustomColor.bgSecondary,
+            ),
+            height: 40,
+            child: ClipRRect(
+              borderRadius: CustomStyle.customBorderRadiusSmall,
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Container(
+                    color: type == ToastType.error
+                        ? CustomColor.error.withOpacity(0.1)
+                        : type == ToastType.warning
+                            ? CustomColor.warning.withOpacity(0.1)
+                            : CustomColor.green.withOpacity(0.1),
+                    width: 40,
+                    child: Center(
+                      child: Icon(
                         type == ToastType.error
                             ? Icons.cancel_outlined
                             : type == ToastType.warning
@@ -39,15 +43,18 @@ void showToast(String text, ToastType type) {
                             ? CustomColor.error
                             : type == ToastType.warning
                                 ? CustomColor.warning
-                                : CustomColor.green),
+                                : CustomColor.green,
+                      ),
+                    ),
                   ),
-                ),
-                Flexible(
-                  child: Padding(
+                  Flexible(
+                    child: Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 16),
-                      child: Text(text, style: CustomStyle.semibold14())),
-                ),
-              ],
+                      child: Text(text, style: CustomStyle.semibold14()),
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
         ),
