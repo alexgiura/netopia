@@ -78,6 +78,7 @@ dependencies:
   toastification: ^2.0.0
   flutter_svg: ^2.0.10+1
   contentsize_tabbarview: ^0.0.2
+  http: ^1.2.2
  
 
 

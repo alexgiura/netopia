@@ -1,8 +1,10 @@
 import 'package:erp_frontend_v2/models/app_localizations.dart';
 import 'package:erp_frontend_v2/models/company/company_model.dart';
+import 'package:erp_frontend_v2/models/county_model.dart';
 import 'package:erp_frontend_v2/models/partner/partner_model.dart';
 import 'package:erp_frontend_v2/models/partner/partner_type_model.dart';
 import 'package:erp_frontend_v2/pages/auth/widgets/step_indicator.dart';
+import 'package:erp_frontend_v2/providers/county_provider.dart';
 import 'package:erp_frontend_v2/providers/partner_provider.dart';
 import 'package:erp_frontend_v2/services/company.dart';
 import 'package:erp_frontend_v2/services/partner.dart';
@@ -352,17 +354,21 @@ class _PartnerDetailsPopupState extends ConsumerState<PartnerDetailsPopup> {
                 _partner.address?.address = value;
               },
             ),
-            Gap(4),
-            CustomTextField1(
-              initialValue: _partner.address?.countyCode,
-              keyboardType: TextInputType.name,
-              labelText: 'state'.tr(context),
-              hintText: 'state_hint'.tr(context),
-              onValueChanged: (String value) {
-                _partner.address?.countyCode = value;
-              },
-            ),
-            Gap(4),
+            const Gap(4),
+            Consumer(builder: (context, ref, child) {
+              final countyProviderNotifier = ref.watch(countyProvider.notifier);
+              return SearchDropDown(
+                onValueChanged: (value) {
+                  _partner.address?.countyCode = value.code;
+                },
+                labelText: 'state'.tr(context),
+                hintText: 'state_hint'.tr(context),
+                provider: countyProvider,
+                initialValue: countyProviderNotifier
+                    .getCountyByCode(_partner.address?.countyCode ?? ''),
+              );
+            }),
+            const Gap(4),
             CustomTextField1(
               initialValue: _partner.address?.locality,
               keyboardType: TextInputType.name,
