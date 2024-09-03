@@ -281,5 +281,7 @@
     "general_details": "Detalii generale",
     "activate": "Activează",
     "deactivate": "Dezactivează",
-    "documents": "documente"
+    "documents": "documente",
+    "my_profile": "Profilul meu",
+    "logout": "Deconectează-te"
 }
