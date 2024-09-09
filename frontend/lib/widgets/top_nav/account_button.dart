@@ -1,6 +1,7 @@
 import 'package:erp_frontend_v2/constants/style.dart';
 import 'package:erp_frontend_v2/models/app_localizations.dart';
 import 'package:erp_frontend_v2/providers/user_provider.dart';
+import 'package:erp_frontend_v2/utils/responsiveness.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -61,16 +62,16 @@ class CustomAccountButton extends ConsumerWidget {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          // itemTile(
-                          //     title: 'my_profile'.tr(context),
-                          //     icon: Icons.person_pin_outlined,
-                          //     onTap: () {
-                          //       hideDropdown();
-                          //     }),
-                          // const Divider(
-                          //   color: CustomColor.slate_200,
-                          //   height: 1,
-                          // ),
+                          itemTile(
+                              title: 'my_profile'.tr(context),
+                              icon: Icons.person_pin_outlined,
+                              onTap: () {
+                                hideDropdown();
+                              }),
+                          const Divider(
+                            color: CustomColor.slate_200,
+                            height: 1,
+                          ),
                           itemTile(
                               title: 'logout'.tr(context),
                               icon: Icons.logout,
@@ -123,13 +124,15 @@ class CustomAccountButton extends ConsumerWidget {
             skipLoadingOnReload: true,
             skipLoadingOnRefresh: true,
             data: (user) {
-              return Padding(
-                padding: const EdgeInsets.only(left: 8),
-                child: Text(
-                  user.company!.name,
-                  style: CustomStyle.medium16(),
-                ),
-              );
+              return !ResponsiveWidget.isSmallScreen(context)
+                  ? Padding(
+                      padding: const EdgeInsets.only(left: 8),
+                      child: Text(
+                        user.company!.name,
+                        style: CustomStyle.medium16(),
+                      ),
+                    )
+                  : Container();
             },
             loading: () {
               return const CircularProgressIndicator.adaptive();

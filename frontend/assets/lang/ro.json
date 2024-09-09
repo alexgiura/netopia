@@ -283,5 +283,6 @@
     "deactivate": "Dezactivează",
     "documents": "documente",
     "my_profile": "Profilul meu",
-    "logout": "Deconectează-te"
+    "logout": "Deconectează-te",
+    "not_found_results": "Nu s-au găsit rezultate"
 }

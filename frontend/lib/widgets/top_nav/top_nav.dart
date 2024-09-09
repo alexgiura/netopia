@@ -2,7 +2,6 @@ import 'package:erp_frontend_v2/models/app_localizations.dart';
 import 'package:erp_frontend_v2/providers/user_provider.dart';
 import 'package:erp_frontend_v2/routing/routes.dart';
 import 'package:erp_frontend_v2/widgets/top_nav/account_button.dart';
-import 'package:erp_frontend_v2/widgets/custom_search_bar.dart';
 import 'package:erp_frontend_v2/widgets/custom_text_field_1.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -11,6 +10,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../constants/style.dart';
 import '../../utils/responsiveness.dart';
+import '../custom_menu_search_bar.dart';
 
 class TopNav extends ConsumerWidget implements PreferredSizeWidget {
   const TopNav({super.key, required this.scaffoldKey});
@@ -40,23 +40,35 @@ class TopNav extends ConsumerWidget implements PreferredSizeWidget {
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
+            if (ResponsiveWidget.isSmallScreen(context))
+              Expanded(child: Container()),
             !ResponsiveWidget.isSmallScreen(context)
                 ? Expanded(
-                    child: CustomSearchBar(
+                    child: CustomMenuSearchBar(
                       hintText: 'search_page'.tr(context),
                       onValueChanged: (p0) {},
                     ),
                   )
-                : const SizedBox.shrink(),
-            Expanded(child: Container()),
+                : Container(),
+            if (!ResponsiveWidget.isSmallScreen(context))
+              Expanded(child: Container()),
+            const Gap(8),
             Stack(
               children: [
-                IconButton(
-                    splashRadius: 20,
-                    icon: const Icon(Icons.settings_outlined),
-                    onPressed: () {
-                      context.go(settingsPageRoute);
-                    }),
+                Container(
+                  height: 40,
+                  width: 40,
+                  decoration: const ShapeDecoration(
+                    shape: CircleBorder(),
+                    color: CustomColor.accentNeutral,
+                  ),
+                  child: IconButton(
+                      splashRadius: 20,
+                      icon: const Icon(Icons.settings_outlined),
+                      onPressed: () {
+                        context.go(settingsPageRoute);
+                      }),
+                ),
                 userState.when(
                   skipLoadingOnReload: true,
                   skipLoadingOnRefresh: true,
@@ -86,12 +98,21 @@ class TopNav extends ConsumerWidget implements PreferredSizeWidget {
                 )
               ],
             ),
+            const Gap(8),
             Stack(
               children: [
-                IconButton(
-                    splashRadius: 20,
-                    icon: const Icon(Icons.notifications_none),
-                    onPressed: () {}),
+                Container(
+                  width: 40,
+                  height: 40,
+                  decoration: const ShapeDecoration(
+                    shape: CircleBorder(),
+                    color: CustomColor.accentNeutral,
+                  ),
+                  child: IconButton(
+                      splashRadius: 20,
+                      icon: const Icon(Icons.notifications_none),
+                      onPressed: () {}),
+                ),
                 Positioned(
                   top: 7,
                   right: 7,

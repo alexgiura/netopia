@@ -23,15 +23,18 @@ class SideMenu extends StatefulWidget {
 
 class _SideMenuState extends State<SideMenu> {
   List<Menu> data = [];
+  List<bool> expansionState = [];
+
   int selectedIndex = -1;
   int hoveredItemIndex = -1;
 
   @override
   void initState() {
+    super.initState();
     for (var element in dataList) {
       data.add(Menu.fromJson(element));
+      expansionState.add(false); // Inițializăm fiecare element ca neexpandat
     }
-    super.initState();
   }
 
   @override
@@ -68,7 +71,7 @@ class _SideMenuState extends State<SideMenu> {
                             padding: const EdgeInsets.only(top: 20),
                             itemCount: data.length,
                             itemBuilder: (BuildContext context, int index) {
-                              return _buildMenuList(data[index]);
+                              return _buildMenuList(data[index], index);
                             },
                           ),
                         ),
@@ -96,10 +99,12 @@ class _SideMenuState extends State<SideMenu> {
     );
   }
 
-  Widget _buildMenuList(Menu menuItem) {
+  Widget _buildMenuList(Menu menuItem, int indexx) {
     return menuItem.children.isNotEmpty
         ? Expandile(
             autoHide: true,
+            expanded: expansionState[indexx], // Starea expansiunii
+
             primaryColor: Colors.white,
             title: menuItem.title,
             titleStyle: CustomStyle.medium14(color: CustomColor.textSecondary),
@@ -116,7 +121,9 @@ class _SideMenuState extends State<SideMenu> {
                       )
                     : menuItem.icon
                 : null,
-            children: menuItem.children.map(_buildMenuList).toList(),
+            children: menuItem.children
+                .map((child) => _buildMenuList(child, indexx))
+                .toList(),
           )
         : Builder(builder: (context) {
             Color _selectedCard = CustomColor.bgPrimary.withOpacity(0.12);
@@ -147,6 +154,9 @@ class _SideMenuState extends State<SideMenu> {
                 child: GestureDetector(
                   onTap: () {
                     setState(() {
+                      expansionState[indexx] =
+                          !expansionState[indexx]; // Inversăm starea
+
                       selectedIndex =
                           menuItem.id; // Updatează indexul selectat la clic
                     });

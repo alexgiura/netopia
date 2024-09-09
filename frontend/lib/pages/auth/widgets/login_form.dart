@@ -52,11 +52,17 @@ class _LoginFormState extends ConsumerState<LoginForm> {
       );
     } on FirebaseAuthException catch (e) {
       if (e.code == 'user-not-found') {
-        emailError = 'user_not_found'.tr(context);
+        setState(() {
+          emailError = 'user_not_found'.tr(context);
+        });
       } else if (e.code == 'wrong-password') {
-        passwordError = 'wrong_password'.tr(context);
+        setState(() {
+          passwordError = 'invalid_credentials'.tr(context);
+        });
       } else if (e.code == 'invalid-credential') {
-        passwordError = 'invalid_credential'.tr(context);
+        setState(() {
+          passwordError = 'invalid_credentials'.tr(context);
+        });
       } else if (e.code == 'too-many-requests') {
         setState(() {
           tooManyRequestsError = 'too_many_requests'.tr(context);
@@ -107,6 +113,8 @@ class _LoginFormState extends ConsumerState<LoginForm> {
               validator: (value) {
                 if (value!.isEmpty) {
                   return 'error_required_field'.tr(context);
+                } else if (passwordError != null) {
+                  return '';
                 } else {
                   if (emailError != null) {
                     return emailError;
@@ -133,7 +141,7 @@ class _LoginFormState extends ConsumerState<LoginForm> {
                   return 'error_required_field'.tr(context);
                 }
                 if (passwordError != null) {
-                  return passwordError;
+                  return '';
                 }
                 return null;
               },
@@ -195,7 +203,12 @@ class _LoginFormState extends ConsumerState<LoginForm> {
           Text(
             tooManyRequestsError.toString(),
             style: CustomStyle.errorText,
-          )
+          ),
+        if (passwordError != null)
+          Text(
+            passwordError.toString(),
+            style: CustomStyle.errorText,
+          ),
       ],
     );
   }

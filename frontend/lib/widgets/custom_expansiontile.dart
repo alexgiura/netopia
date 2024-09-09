@@ -67,6 +67,7 @@ class Expandile extends StatefulWidget {
   final EdgeInsets? padding;
 
   final bool trailingIcon;
+  final bool expanded;
 
   const Expandile(
       {Key? key,
@@ -80,6 +81,7 @@ class Expandile extends StatefulWidget {
       this.autoHide = false,
       this.autoHideDuration = 5000,
       this.trailingIcon = true,
+      this.expanded = false,
 
       ///5 Seconds
       this.onTap,
@@ -102,14 +104,25 @@ class _ExpandileState extends State<Expandile> {
   final GlobalKey parentKey = GlobalKey();
   bool expanded = false;
   Color cardColor = Colors.transparent;
+
   Color get textColor => widget.isValid
       ? (widget.validTextColor ?? Colors.white)
       : widget.primaryColor;
 
   @override
   void initState() {
-    expanded = widget.initialyExpanded;
+    expanded = widget.initialyExpanded || widget.expanded;
     super.initState();
+  }
+
+  @override
+  void didUpdateWidget(covariant Expandile oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.expanded != widget.expanded) {
+      setState(() {
+        expanded = widget.expanded;
+      });
+    }
   }
 
   @override
@@ -132,13 +145,14 @@ class _ExpandileState extends State<Expandile> {
               ),
             ),
             child: MouseRegion(
-                onEnter: (_) {
-                  setState(() => cardColor = selectedColor);
-                },
-                onExit: (_) {
-                  setState(() => cardColor = Colors.transparent);
-                },
-                child: infoTile()),
+              onEnter: (_) {
+                setState(() => cardColor = selectedColor);
+              },
+              onExit: (_) {
+                setState(() => cardColor = Colors.transparent);
+              },
+              child: infoTile(),
+            ),
           ),
           childrenWidgets(),
           footerWidget(),
@@ -153,8 +167,7 @@ class _ExpandileState extends State<Expandile> {
       child: GestureDetector(
         onTap: widget.onTap ?? () => changeExpansionFn(),
         child: Container(
-          color: Colors
-              .transparent, // Asigură-te că containerul este transparent pentru a nu avea feedback vizual la clic
+          color: Colors.transparent,
           child: ListTile(
             autofocus: false,
             contentPadding: widget.contentPadding,
@@ -211,95 +224,52 @@ class _ExpandileState extends State<Expandile> {
 
   Widget childrenWidgets() {
     return CrossFade(
-        useCenter: false,
-        show: expanded,
-        child: ListView.builder(
-          shrinkWrap: true,
-          itemCount: widget.children.length,
-          itemBuilder: (context, index) {
-            return Row(
-              mainAxisAlignment: MainAxisAlignment.start,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: <Widget>[
-                Padding(
-                  padding: const EdgeInsets.only(left: 11.5),
-                  child: CustomPaint(
-                    size: const Size(30, 50),
-                    painter: LinePainter(
-                      index: index,
-                      itemCount: widget.children.length,
-                      color: widget.primaryColor,
-                    ),
+      useCenter: false,
+      show: expanded,
+      child: ListView.builder(
+        shrinkWrap: true,
+        itemCount: widget.children.length,
+        itemBuilder: (context, index) {
+          return Row(
+            mainAxisAlignment: MainAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: <Widget>[
+              Padding(
+                padding: const EdgeInsets.only(left: 11.5),
+                child: CustomPaint(
+                  size: const Size(30, 50),
+                  painter: LinePainter(
+                    index: index,
+                    itemCount: widget.children.length,
+                    color: widget.primaryColor,
                   ),
                 ),
-                Flexible(
-                  child: Container(
-                      padding: EdgeInsets.only(left: 10),
-                      child: widget.children[index]),
+              ),
+              Flexible(
+                child: Container(
+                  padding: const EdgeInsets.only(left: 10),
+                  child: widget.children[index],
                 ),
-              ],
-            );
-          },
-        ));
+              ),
+            ],
+          );
+        },
+      ),
+    );
   }
-
-  /// Please, dont remove this code, it will be used in future for responsive design
-
-  // Widget responsiveChildrenWidgets() {
-  //   final renderBox = context.findRenderObject() as RenderBox;
-  //   final size = renderBox.size;
-  //   final offset = renderBox.localToGlobal(Offset.zero);
-  //   return OverlayPortal(
-  //     controller: overlayPortalController,
-  //     overlayChildBuilder: (context) {
-  //       return Positioned(
-  //         left: offset.dx + 71,
-  //         top: offset.dy + size.height,
-  //         child: Container(
-  //           width: 166,
-  //           height: 112,
-  //           decoration: const BoxDecoration(
-  //             borderRadius: BorderRadius.all(Radius.circular(28)),
-  //             color: CustomColor.white,
-  //           ),
-  //           child: ListView.builder(
-  //               shrinkWrap: true,
-  //               itemCount: widget.children.length,
-  //               itemBuilder: (context, index) {
-  //                 return Container(
-  //                     padding: EdgeInsets.only(left: 10),
-  //                     child: widget.children[index]);
-  //               }),
-  //         ),
-  //       );
-  //     },
-  //   );
-  // }
 
   Widget footerWidget() {
     if (widget.footer == null) return Container();
     return widget.footer!;
   }
 
-  static Future wait(int milliseconds) async {
-    await Future.delayed(Duration(milliseconds: milliseconds));
-  }
-
-  ///Function to change the expansion state automatically
   Future<void> changeExpansionFn() async {
-    // if (widget.autoHide) {
-    //   ///If already expanded, then don't allow to expand again!
-    //   if (expanded) return;
-
-    //   if (mounted) setState(() => expanded = true);
-    //   await wait(widget.autoHideDuration);
-    //   if (mounted) setState(() => expanded = false);
-    // } else {
-    if (mounted) setState(() => expanded = !expanded);
-    if (mounted) {
-      overlayPortalController.toggle();
+    setState(() => expanded = !expanded);
+    if (expanded) {
+      overlayPortalController.show();
+    } else {
+      overlayPortalController.hide();
     }
-    // }
   }
 }
 
