@@ -83,8 +83,8 @@ type GenerateAvailableItems struct {
 }
 
 type GenerateEfacturaDocumentInput struct {
-	HID        string `json:"h_id"`
-	Regenerate *bool  `json:"regenerate,omitempty"`
+	HIDList    []*string `json:"h_id_list,omitempty"`
+	Regenerate *bool     `json:"regenerate,omitempty"`
 }
 
 type GeneratedDocument struct {

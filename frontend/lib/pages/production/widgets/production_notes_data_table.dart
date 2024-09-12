@@ -1,7 +1,7 @@
 import 'package:erp_frontend_v2/models/app_localizations.dart';
 import 'package:erp_frontend_v2/models/document/document_model.dart';
 import 'package:erp_frontend_v2/models/document/documents_filter_model.dart';
-import 'package:erp_frontend_v2/pages/document/documents_page/widgets/eFactura_widget.dart';
+import 'package:erp_frontend_v2/widgets/eFactura/eFactura_widget.dart';
 import 'package:erp_frontend_v2/providers/document/document_provider.dart';
 import 'package:erp_frontend_v2/providers/partner_provider.dart';
 import 'package:erp_frontend_v2/utils/extensions.dart';
@@ -275,6 +275,6 @@ List<DataColumn2> getColumns(BuildContext context, int documentType) {
               'details'.tr(context),
               style: CustomStyle.semibold16(color: CustomColor.greenGray),
             )),
-        fixedWidth: 100),
+        fixedWidth: 60),
   ];
 }

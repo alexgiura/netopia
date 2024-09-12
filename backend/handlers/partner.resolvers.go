@@ -73,7 +73,6 @@ func (r *mutationResolver) SavePartner(ctx context.Context, input model.PartnerI
 // GetPartners is the resolver for the getPartners field.
 func (r *queryResolver) GetPartners(ctx context.Context, partnerID *string) ([]*models.Partner, error) {
 	partnerIdUuid := util.StrToUUID(partnerID)
-	fmt.Println(partnerIdUuid)
 
 	rows, err := r.DBProvider.GetPartners(ctx, partnerIdUuid)
 	if err != nil {

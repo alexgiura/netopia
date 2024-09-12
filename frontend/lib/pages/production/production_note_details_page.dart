@@ -14,6 +14,7 @@ import 'package:erp_frontend_v2/routing/routes.dart';
 import 'package:erp_frontend_v2/widgets/buttons/primary_button.dart';
 import 'package:erp_frontend_v2/widgets/buttons/tertiary_button.dart';
 import 'package:erp_frontend_v2/widgets/custom_header_widget.dart';
+import 'package:erp_frontend_v2/widgets/custom_status_chip.dart';
 import 'package:erp_frontend_v2/widgets/custom_tab_bar.dart';
 import 'package:erp_frontend_v2/widgets/custom_text_field_1.dart';
 import 'package:erp_frontend_v2/widgets/dialog_widgets/custom_toast.dart';
@@ -495,30 +496,13 @@ class _ProductionNoteDetailsPageState
                     ),
                   ],
                   Gap(16),
-                  Container(
-                    alignment: Alignment.center,
-                    child: Container(
-                      height: 28,
-                      width: 70,
-                      decoration: BoxDecoration(
-                        color: _document.isDeleted == true
-                            ? CustomColor.error.withOpacity(0.1)
-                            : CustomColor.green.withOpacity(0.1),
-                        borderRadius: BorderRadius.circular(50),
-                      ),
-                      child: Center(
-                        child: Text(
-                            _document.isDeleted == true
-                                ? 'canceled_masculin'.tr(context)
-                                : 'valid_masculin'.tr(context),
-                            style: _document.isDeleted == true
-                                ? CustomStyle.semibold14(
-                                    color: CustomColor.error)
-                                : CustomStyle.semibold14(
-                                    color: CustomColor.green)),
-                      ),
-                    ),
-                  ),
+                  _document.isDeleted == true
+                      ? CustomStatusChip(
+                          type: StatusType.error,
+                          label: 'canceled_masculin'.tr(context))
+                      : CustomStatusChip(
+                          type: StatusType.success,
+                          label: 'valid_masculin'.tr(context)),
                   Spacer(),
                   Column(
                     mainAxisSize: MainAxisSize.min,

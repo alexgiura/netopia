@@ -1719,7 +1719,7 @@ extend type Mutation {
 }
 
 input GenerateEfacturaDocumentInput{
-    h_id: String!
+    h_id_list: [String]
     regenerate: Boolean
 }
 
@@ -10730,20 +10730,20 @@ func (ec *executionContext) unmarshalInputGenerateEfacturaDocumentInput(ctx cont
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"h_id", "regenerate"}
+	fieldsInOrder := [...]string{"h_id_list", "regenerate"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
 			continue
 		}
 		switch k {
-		case "h_id":
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("h_id"))
-			data, err := ec.unmarshalNString2string(ctx, v)
+		case "h_id_list":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("h_id_list"))
+			data, err := ec.unmarshalOString2ᚕᚖstring(ctx, v)
 			if err != nil {
 				return it, err
 			}
-			it.HID = data
+			it.HIDList = data
 		case "regenerate":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("regenerate"))
 			data, err := ec.unmarshalOBoolean2ᚖbool(ctx, v)
@@ -14889,6 +14889,38 @@ func (ec *executionContext) marshalOString2ᚕstringᚄ(ctx context.Context, sel
 		if e == graphql.Null {
 			return graphql.Null
 		}
+	}
+
+	return ret
+}
+
+func (ec *executionContext) unmarshalOString2ᚕᚖstring(ctx context.Context, v interface{}) ([]*string, error) {
+	if v == nil {
+		return nil, nil
+	}
+	var vSlice []interface{}
+	if v != nil {
+		vSlice = graphql.CoerceList(v)
+	}
+	var err error
+	res := make([]*string, len(vSlice))
+	for i := range vSlice {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithIndex(i))
+		res[i], err = ec.unmarshalOString2ᚖstring(ctx, vSlice[i])
+		if err != nil {
+			return nil, err
+		}
+	}
+	return res, nil
+}
+
+func (ec *executionContext) marshalOString2ᚕᚖstring(ctx context.Context, sel ast.SelectionSet, v []*string) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	ret := make(graphql.Array, len(v))
+	for i := range v {
+		ret[i] = ec.marshalOString2ᚖstring(ctx, sel, v[i])
 	}
 
 	return ret

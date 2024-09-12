@@ -7,6 +7,7 @@ import 'package:erp_frontend_v2/services/partner.dart';
 import 'package:erp_frontend_v2/widgets/buttons/edit_button.dart';
 import 'package:erp_frontend_v2/widgets/buttons/primary_button.dart';
 import 'package:erp_frontend_v2/widgets/custom_header_widget.dart';
+import 'package:erp_frontend_v2/widgets/custom_status_chip.dart';
 import 'package:erp_frontend_v2/widgets/dialog_widgets/custom_toast.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -129,29 +130,11 @@ class _PartnerDetailsPageState extends ConsumerState<PartnerDetailsPage> {
                   ),
                 ],
                 const Gap(16),
-                Container(
-                  alignment: Alignment.center,
-                  child: Container(
-                    height: 28,
-                    width: 70,
-                    decoration: BoxDecoration(
-                      color: _partner.isActive == true
-                          ? CustomColor.green.withOpacity(0.1)
-                          : CustomColor.error.withOpacity(0.1),
-                      borderRadius: BorderRadius.circular(50),
-                    ),
-                    child: Center(
-                      child: Text(
-                          _partner.isActive == true
-                              ? 'active'.tr(context)
-                              : 'inactive'.tr(context),
-                          style: _partner.isActive == true
-                              ? CustomStyle.semibold14(color: CustomColor.green)
-                              : CustomStyle.semibold14(
-                                  color: CustomColor.error)),
-                    ),
-                  ),
-                ),
+                _partner.isActive == true
+                    ? CustomStatusChip(
+                        type: StatusType.success, label: 'active'.tr(context))
+                    : CustomStatusChip(
+                        type: StatusType.error, label: 'inactive'.tr(context)),
                 const Spacer(),
               ],
             ),

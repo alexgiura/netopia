@@ -148,7 +148,6 @@ class _ItemsPageDataTableState extends ConsumerState<ItemsPageDataTable>
                 child: CustomDataTable(
                   columns: getColumns(context),
                   rows: getRows(itemList),
-                  showPagination: true,
                 ),
               ),
             ],
@@ -278,6 +277,6 @@ List<DataColumn2> getColumns(BuildContext context) {
               'details'.tr(context),
               style: CustomStyle.semibold16(color: CustomColor.greenGray),
             )),
-        fixedWidth: 100),
+        fixedWidth: 60),
   ];
 }

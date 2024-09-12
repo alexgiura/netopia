@@ -1,7 +1,7 @@
 import 'package:erp_frontend_v2/models/app_localizations.dart';
 import 'package:erp_frontend_v2/models/document/document_model.dart';
 import 'package:erp_frontend_v2/models/document/documents_filter_model.dart';
-import 'package:erp_frontend_v2/pages/document/documents_page/widgets/eFactura_widget.dart';
+import 'package:erp_frontend_v2/widgets/eFactura/eFactura_widget.dart';
 import 'package:erp_frontend_v2/providers/document/document_provider.dart';
 import 'package:erp_frontend_v2/providers/partner_provider.dart';
 import 'package:erp_frontend_v2/widgets/buttons/edit_button.dart';
@@ -9,18 +9,25 @@ import 'package:erp_frontend_v2/widgets/buttons/icon_button.dart';
 import 'package:erp_frontend_v2/widgets/buttons/primary_button.dart';
 import 'package:erp_frontend_v2/widgets/custom_data_table.dart';
 import 'package:erp_frontend_v2/widgets/custom_search_bar.dart';
+import 'package:erp_frontend_v2/widgets/custom_status_chip.dart';
 import 'package:erp_frontend_v2/widgets/custom_tab_bar.dart';
+import 'package:erp_frontend_v2/widgets/dialog_widgets/custom_toast.dart';
 import 'package:erp_frontend_v2/widgets/filters/date_interval_picker/date_picker_widget.dart';
 import 'package:erp_frontend_v2/widgets/filters/drop_down_filter/drop_down_filter.dart';
 import 'package:erp_frontend_v2/widgets/filters/sort_widget.dart';
+import 'package:erp_frontend_v2/widgets/snack_bar/documents_snack_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:data_table_2/data_table_2.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:gap/gap.dart';
+import 'package:toastification/toastification.dart';
 import '../../../../constants/style.dart';
 import '../../../../routing/router.dart';
 import 'package:go_router/go_router.dart';
+
+// Declare it globally, outside any class
+final RouteObserver<PageRoute> routeObserver = RouteObserver<PageRoute>();
 
 class DocumentsDataTable extends ConsumerStatefulWidget {
   const DocumentsDataTable({super.key, required this.documentTypeId});
@@ -31,15 +38,27 @@ class DocumentsDataTable extends ConsumerStatefulWidget {
 }
 
 class _DocumentsDataTableState extends ConsumerState<DocumentsDataTable>
-    with SingleTickerProviderStateMixin {
+    with SingleTickerProviderStateMixin, RouteAware {
+  final GlobalKey<CustomDataTableState> _customDataTableKey =
+      GlobalKey<CustomDataTableState>();
+
   DocumentFilter _documentFilter = DocumentFilter.empty();
   String? _searchText;
 
   List<bool> _selectStatus = [];
 
+  List<int> selectedRows = [];
+  GoRouter? _router;
+
   @override
   void initState() {
     super.initState();
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _router = GoRouter.of(context);
+      _router?.addListener(_onRouteChange);
+    });
+
     _activeItems();
 
     DateTime now = DateTime.now();
@@ -83,6 +102,16 @@ class _DocumentsDataTableState extends ConsumerState<DocumentsDataTable>
   }
 
   @override
+  void dispose() {
+    _router?.removeListener(_onRouteChange);
+    super.dispose();
+  }
+
+  void _onRouteChange() {
+    _customDataTableKey.currentState?.deselectAllRows();
+  }
+
+  @override
   Widget build(BuildContext context) {
     final documentState = ref.watch(documentNotifierProvider);
 
@@ -90,107 +119,127 @@ class _DocumentsDataTableState extends ConsumerState<DocumentsDataTable>
       skipLoadingOnReload: true,
       skipLoadingOnRefresh: true,
       data: (documentList) {
-        return Container(
-          padding: const EdgeInsets.all(16),
-          decoration: CustomStyle.customContainerDecoration(),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              CustomTabBar(
-                tabs: [
-                  Text('valid_feminin'.tr(context)),
-                  Text('canceled'.tr(context)),
-                  Text('all_feminin'.tr(context)),
-                ],
-                onChanged: (value) {
-                  setState(() {
-                    _selectStatus.clear();
-                    switch (value) {
-                      case 0:
-                        // 'Activi' tab is selected
-                        _activeItems();
-                        break;
-                      case 1:
-                        // 'Inactiv' tab is selected
-                        _inactiveItems();
-                        break;
-                      case 2:
-                        // 'All' tab is selected
-                        _allItems();
-                        break;
-                    }
-                  });
-                },
-              ),
-              const Gap(24),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.start,
+        return Stack(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(16),
+              decoration: CustomStyle.customContainerDecoration(),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
                 children: [
-                  Container(
-                    width: MediaQuery.of(context).size.width / 4,
-                    child: CustomSearchBar(
-                      hintText: 'document_hint_search'.tr(context),
-                      initialValue: _searchText,
-                      onValueChanged: (value) {
-                        setState(() {
-                          _searchText = value;
-                        });
+                  CustomTabBar(
+                    tabs: [
+                      Text('valid_feminin'.tr(context)),
+                      Text('canceled'.tr(context)),
+                      Text('all_feminin'.tr(context)),
+                    ],
+                    onChanged: (value) {
+                      setState(() {
+                        _selectStatus.clear();
+                        switch (value) {
+                          case 0:
+                            // 'Activi' tab is selected
+                            _activeItems();
+                            break;
+                          case 1:
+                            // 'Inactiv' tab is selected
+                            _inactiveItems();
+                            break;
+                          case 2:
+                            // 'All' tab is selected
+                            _allItems();
+                            break;
+                        }
+                      });
+                    },
+                  ),
+                  const Gap(24),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    children: [
+                      Container(
+                        width: MediaQuery.of(context).size.width / 4,
+                        child: CustomSearchBar(
+                          hintText: 'document_hint_search'.tr(context),
+                          initialValue: _searchText,
+                          onValueChanged: (value) {
+                            setState(() {
+                              _searchText = value;
+                            });
+                          },
+                        ),
+                      ),
+                      const Gap(8),
+                      DropDownFilter(
+                        labelText: 'partner'.tr(context),
+                        onValueChanged: (selectedList) {
+                          _documentFilter.partnerList = selectedList
+                              .map((partner) => partner.id!)
+                              .toList();
+                          ref
+                              .read(documentNotifierProvider.notifier)
+                              .updateFilter(_documentFilter);
+                        },
+                        provider: partnerProvider,
+                      ),
+                      const Gap(8),
+                      DateIntervalPickerFilter(
+                        labelText: 'date'.tr(context),
+                        onValueChanged: (startDate, endDate) {
+                          _documentFilter.startDate = startDate;
+                          _documentFilter.endDate = endDate;
+
+                          ref
+                              .read(documentNotifierProvider.notifier)
+                              .updateFilter(_documentFilter);
+                        },
+                        initialStartDate: _documentFilter.startDate,
+                        initialEndDate: _documentFilter.endDate,
+                      ),
+                      CustomIconButton(
+                        icon: Icons.refresh_rounded,
+                        asyncOnPressed: () async {
+                          ref
+                              .read(documentNotifierProvider.notifier)
+                              .refreshDocuments();
+                        },
+                      ),
+
+                      const Spacer(),
+                      // const SelectColumns()
+                    ],
+                  ),
+                  const Gap(24),
+                  Flexible(
+                    child: CustomDataTable(
+                      key: _customDataTableKey,
+                      columns: getColumns(context, widget.documentTypeId),
+                      rows: getRows(documentList),
+                      showCheckBoxColumn: true,
+                      showPagination: true,
+                      keyColumnIndex: 0,
+                      hiddenColumnIndices: [0],
+                      onRowSelect: (selectedIds) {
+                        showCustomSnackBar(
+                          ref: ref,
+                          context,
+                          selectedIds: selectedIds,
+                          onClose: () {
+                            _customDataTableKey.currentState?.deselectAllRows();
+                          },
+                        );
                       },
                     ),
                   ),
-                  Gap(8),
-                  DropDownFilter(
-                    labelText: 'partner'.tr(context),
-                    onValueChanged: (selectedList) {
-                      _documentFilter.partnerList =
-                          selectedList.map((partner) => partner.id!).toList();
-                      ref
-                          .read(documentNotifierProvider.notifier)
-                          .updateFilter(_documentFilter);
-                    },
-                    provider: partnerProvider,
-                  ),
-                  const Gap(8),
-                  DateIntervalPickerFilter(
-                    labelText: 'date'.tr(context),
-                    onValueChanged: (startDate, endDate) {
-                      _documentFilter.startDate = startDate;
-                      _documentFilter.endDate = endDate;
-
-                      ref
-                          .read(documentNotifierProvider.notifier)
-                          .updateFilter(_documentFilter);
-                    },
-                    initialStartDate: _documentFilter.startDate,
-                    initialEndDate: _documentFilter.endDate,
-                  ),
-                  CustomIconButton(
-                    icon: Icons.refresh_rounded,
-                    asyncOnPressed: () async {
-                      ref
-                          .read(documentNotifierProvider.notifier)
-                          .refreshDocuments();
-                    },
-                  ),
-
-                  const Spacer(),
-                  // const SelectColumns()
                 ],
               ),
-              const Gap(24),
-              Flexible(
-                child: CustomDataTable(
-                  columns: getColumns(context, widget.documentTypeId),
-                  rows: getRows(documentList),
-                ),
-              ),
-            ],
-          ),
+            ),
+          ],
         );
       },
       loading: () {
-        return CircularProgressIndicator();
+        return const CircularProgressIndicator();
       },
       error: (error, stackTrace) {
         return Text("Error: $error");
@@ -215,35 +264,26 @@ class _DocumentsDataTableState extends ConsumerState<DocumentsDataTable>
       Document document = row.value;
       return DataRow2(
         cells: [
+          DataCell(Text(document.hId ?? '')),
           DataCell(Text(document.series ?? '')),
           DataCell(Text(document.number)),
           DataCell(Text(document.date)),
           DataCell(Text(document.partner!.name)),
           DataCell(
-            Container(
-              alignment: Alignment.center,
-              child: Container(
-                height: 28,
-                width: 70,
-                decoration: BoxDecoration(
-                  color: document.isDeleted == true
-                      ? CustomColor.error.withOpacity(0.1)
-                      : CustomColor.green.withOpacity(0.1),
-                  borderRadius: BorderRadius.circular(50),
-                ),
-                child: Center(
-                  child: Text(document.isDeleted == true ? 'Anulat' : 'Valid',
-                      style: document.isDeleted == true
-                          ? CustomStyle.semibold14(color: CustomColor.error)
-                          : CustomStyle.semibold14(color: CustomColor.green)),
-                ),
-              ),
+            Row(
+              children: [
+                document.isDeleted == true
+                    ? CustomStatusChip(
+                        type: StatusType.error,
+                        label: 'canceled_masculin'.tr(context))
+                    : CustomStatusChip(
+                        type: StatusType.success,
+                        label: 'valid_masculin'.tr(context)),
+              ],
             ),
           ),
           if (widget.documentTypeId == 2)
-            DataCell(SizedBox(
-              child: Center(child: eFacturaWidget(row.value, context, ref)),
-            )),
+            DataCell(eFacturaWidget(row.value, context, ref)),
           DataCell(Container(
             alignment: Alignment.center,
             child: CustomEditButton(
@@ -266,19 +306,24 @@ class _DocumentsDataTableState extends ConsumerState<DocumentsDataTable>
 List<DataColumn2> getColumns(BuildContext context, int documentType) {
   return [
     DataColumn2(
+      label: Text('hId'.tr(context),
+          style: CustomStyle.semibold16(color: CustomColor.greenGray)),
+      size: ColumnSize.S,
+    ),
+    DataColumn2(
       label: Text('series'.tr(context),
           style: CustomStyle.semibold16(color: CustomColor.greenGray)),
-      size: ColumnSize.M,
+      size: ColumnSize.S,
     ),
     DataColumn2(
       label: Text('number'.tr(context),
           style: CustomStyle.semibold16(color: CustomColor.greenGray)),
-      size: ColumnSize.M,
+      size: ColumnSize.S,
     ),
     DataColumn2(
       label: Text('date'.tr(context),
           style: CustomStyle.semibold16(color: CustomColor.greenGray)),
-      size: ColumnSize.M,
+      size: ColumnSize.S,
     ),
     DataColumn2(
       label: Text('partner'.tr(context),
@@ -286,21 +331,15 @@ List<DataColumn2> getColumns(BuildContext context, int documentType) {
       size: ColumnSize.L,
     ),
     DataColumn2(
-      label: Container(
-        alignment: Alignment.center,
-        child: Text('status'.tr(context),
-            style: CustomStyle.semibold16(color: CustomColor.greenGray)),
-      ),
-      size: ColumnSize.M,
+      label: Text('status'.tr(context),
+          style: CustomStyle.semibold16(color: CustomColor.greenGray)),
+      size: ColumnSize.S,
     ),
     if (documentType == 2)
       DataColumn2(
-        label: Container(
-          alignment: Alignment.center,
-          child: Text('e_factura'.tr(context),
-              style: CustomStyle.semibold16(color: CustomColor.greenGray)),
-        ),
-        size: ColumnSize.M,
+        label: Text('e_factura'.tr(context),
+            style: CustomStyle.semibold16(color: CustomColor.greenGray)),
+        size: ColumnSize.S,
       ),
     DataColumn2(
         label: Container(
@@ -309,6 +348,6 @@ List<DataColumn2> getColumns(BuildContext context, int documentType) {
               'details'.tr(context),
               style: CustomStyle.semibold16(color: CustomColor.greenGray),
             )),
-        fixedWidth: 100),
+        fixedWidth: 60),
   ];
 }

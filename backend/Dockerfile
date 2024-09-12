@@ -66,6 +66,3 @@ CMD ["./erp-api"]
 # # Rulează aplicația.
 # CMD ["./erp-backend-dev"]
 
-
-
-

@@ -3,7 +3,7 @@ import 'package:erp_frontend_v2/models/document/document_transaction_model.dart'
 import 'package:erp_frontend_v2/pages/document/document_add_item/add_item_popup.dart';
 import 'package:erp_frontend_v2/pages/document/document_details/widgets/document_details_data_table.dart';
 import 'package:erp_frontend_v2/pages/document/document_generate_popup/document_generate_popup.dart';
-import 'package:erp_frontend_v2/pages/document/documents_page/widgets/eFactura_widget.dart';
+import 'package:erp_frontend_v2/widgets/eFactura/eFactura_widget.dart';
 import 'package:erp_frontend_v2/providers/currency/currency_provider.dart';
 import 'package:erp_frontend_v2/providers/document/document_provider.dart';
 import 'package:erp_frontend_v2/providers/document_transaction_provider.dart';
@@ -12,6 +12,7 @@ import 'package:erp_frontend_v2/routing/routes.dart';
 import 'package:erp_frontend_v2/widgets/buttons/primary_button.dart';
 import 'package:erp_frontend_v2/widgets/buttons/tertiary_button.dart';
 import 'package:erp_frontend_v2/widgets/custom_header_widget.dart';
+import 'package:erp_frontend_v2/widgets/custom_status_chip.dart';
 import 'package:erp_frontend_v2/widgets/custom_text_field_1.dart';
 import 'package:erp_frontend_v2/widgets/dialog_widgets/custom_toast.dart';
 import 'package:erp_frontend_v2/widgets/dialog_widgets/warning_dialog.dart';
@@ -534,30 +535,13 @@ class _DocumentDetailsPageState extends ConsumerState<DocumentDetailsPage> {
                     ),
                   ],
                   const Gap(16),
-                  Container(
-                    alignment: Alignment.center,
-                    child: Container(
-                      height: 28,
-                      width: 70,
-                      decoration: BoxDecoration(
-                        color: _document.isDeleted == true
-                            ? CustomColor.error.withOpacity(0.1)
-                            : CustomColor.green.withOpacity(0.1),
-                        borderRadius: BorderRadius.circular(50),
-                      ),
-                      child: Center(
-                        child: Text(
-                            _document.isDeleted == true
-                                ? 'canceled_masculin'.tr(context)
-                                : 'valid_masculin'.tr(context),
-                            style: _document.isDeleted == true
-                                ? CustomStyle.semibold14(
-                                    color: CustomColor.error)
-                                : CustomStyle.semibold14(
-                                    color: CustomColor.green)),
-                      ),
-                    ),
-                  ),
+                  _document.isDeleted == true
+                      ? CustomStatusChip(
+                          type: StatusType.error,
+                          label: 'canceled_masculin'.tr(context))
+                      : CustomStatusChip(
+                          type: StatusType.success,
+                          label: 'valid_masculin'.tr(context)),
                   const Spacer(),
                   if (_document.documentType.id == 2) ...[
                     Column(

@@ -266,6 +266,6 @@ List<DataColumn2> getColumns(BuildContext context) {
               'details'.tr(context),
               style: CustomStyle.semibold16(color: CustomColor.greenGray),
             )),
-        fixedWidth: 100),
+        fixedWidth: 60),
   ];
 }

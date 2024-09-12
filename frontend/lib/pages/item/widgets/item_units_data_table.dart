@@ -62,7 +62,7 @@ class _ItemUnitsDataTableState extends ConsumerState<ItemUnitsDataTable> {
                 'details'.tr(context),
                 style: CustomStyle.semibold16(color: CustomColor.greenGray),
               )),
-          fixedWidth: 100),
+          fixedWidth: 60),
     ];
 
     return itemUnitsState.when(

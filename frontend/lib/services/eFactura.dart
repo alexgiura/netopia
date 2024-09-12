@@ -29,7 +29,7 @@ class EfacturaService {
   }
 
   Future<String> uploadEfacturaDocument({
-    required String hId,
+    required List<String> hIdList,
     required bool regenerate,
   }) async {
     try {
@@ -37,7 +37,7 @@ class EfacturaService {
         document: gql(mutations.uploadEfacturaDocument),
         variables: <String, dynamic>{
           "input": {
-            "h_id": hId,
+            "h_id_list": hIdList,
             "regenerate": regenerate,
           }
         },
@@ -49,10 +49,11 @@ class EfacturaService {
       if (result.hasException) {
         throw Exception(result.exception.toString());
       }
-      final dynamic data = result.data!['uploadEfacturaDocument'];
+      final dynamic data = result.data!;
 
       if (data != null) {
-        return data;
+        final String response = data['uploadEfacturaDocument'];
+        return response;
       } else {
         throw Exception('Invalid data');
       }

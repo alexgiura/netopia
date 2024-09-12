@@ -134,8 +134,3 @@ services:
       - traefik.http.middlewares.https-redirect.redirectscheme.scheme=https
       - traefik.http.middlewares.https-redirect.redirectscheme.permanent=true
       - traefik.http.routers.rabbitmq.middlewares=https-redirect
-
-
-
-
-

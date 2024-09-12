@@ -4,7 +4,7 @@ type EFactura {
 }
 
 input GenerateEfacturaDocumentInput{
-    h_id: String!
+    h_id_list: [String]
     regenerate: Boolean
 }
 

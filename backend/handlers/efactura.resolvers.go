@@ -9,9 +9,9 @@ import (
 	"backend/graph/model"
 	"backend/util"
 	"context"
-	"log"
-
 	"github.com/printesoi/e-factura-go/oauth2"
+	"log"
+	"sync"
 )
 
 // GenerateEfacturaAuthorizationLink is the resolver for the generateEfacturaAuthorizationLink field.
@@ -35,31 +35,51 @@ func (r *mutationResolver) GenerateEfacturaAuthorizationLink(ctx context.Context
 
 // UploadEfacturaDocument is the resolver for the uploadEfacturaDocument field.
 func (r *mutationResolver) UploadEfacturaDocument(ctx context.Context, input model.GenerateEfacturaDocumentInput) (*string, error) {
-	docID := util.StrToUUID(&input.HID)
 	regenerate := false
 	if input.Regenerate != nil {
 		regenerate = *input.Regenerate
 	}
-	efacturaDocID, _, err := r._EfacturaGenerateAndUpload(ctx, docID, regenerate)
-	if err != nil {
-		return nil, err
+
+	var wg sync.WaitGroup
+
+	for _, hid := range input.HIDList {
+
+		wg.Add(1) // Increment the WaitGroup counter
+
+		go func(hid *string) {
+			defer wg.Done() // Decrement the counter when the goroutine completes
+
+			docID := util.StrToUUID(hid)
+			efacturaDocID, _, err := r._EfacturaGenerateAndUpload(ctx, docID, regenerate)
+			if err != nil {
+				log.Printf("Error generating and uploading document for HID: %s, error: %s", *hid, err.Error())
+				return
+			}
+
+			// Create the task message for RabbitMQ
+			message := TaskMessage{
+				Task:               "CheckEfacturaUploadState",
+				EfacturaDocumentID: efacturaDocID.String(),
+				CheckInterval:      1000,  // 1 second
+				MaxWaitTime:        10000, // 10 seconds
+			}
+
+			// Send the message to RabbitMQ
+			err2 := r.sendToRabbitMQ(ctx, message)
+			if err2 != nil {
+				log.Printf("Failed to send message to RabbitMQ for document %s, error: %s", efacturaDocID.String(), err2.Error())
+				return // Log the error and continue
+			}
+
+		}(hid)
 	}
 
-	message := TaskMessage{
-		Task:               "CheckEfacturaUploadState",
-		EfacturaDocumentID: efacturaDocID.String(),
-		CheckInterval:      1000,  // 1 second
-		MaxWaitTime:        10000, // 10 seconds
-	}
+	// Wait for all goroutines to finish
+	wg.Wait()
 
-	err2 := r.sendToRabbitMQ(ctx, message)
-	if err2 != nil {
-		log.Print("\"message\":Failed to send message, "+"\"error\": ", err2.Error())
-		return nil, _err.Error(ctx, "Failed upload invoice", "InternalError")
-
-	}
-
-	return util.StringPtr(efacturaDocID.String()), nil
+	// Return a success message
+	response := "success"
+	return &response, nil
 }
 
 // CheckEfacturaUploadState is the resolver for the checkEfacturaUploadState field.
