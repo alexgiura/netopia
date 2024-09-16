@@ -10,11 +10,11 @@ services:
       - "8080:8080"
     environment:
       - POSTGRES_SSL_CERT=../certificate.pem
-      - POSTGRES_DB_HOST=db-postgresql-ams3-03234-do-user-15103733-0.m.db.ondigitalocean.com
-      - POSTGRES_DB_PORT=25060
-      - POSTGRES_DB_USER=doadmin
-      - POSTGRES_DB_PASSWORD=AVNS_krl7n3uDLGw6cUFMJfU
-      - POSTGRES_DB_NAME=prod
+      - POSTGRES_DB_HOST=$POSTGRES_DB_HOST
+      - POSTGRES_DB_PORT=$POSTGRES_DB_PORT
+      - POSTGRES_DB_USER=$POSTGRES_DB_USER
+      - POSTGRES_DB_PASSWORD=$POSTGRES_DB_PASSWORD
+      - POSTGRES_DB_NAME=$POSTGRES_DB_NAME
 
 #    depends_on:
 #      - erp-postgres
