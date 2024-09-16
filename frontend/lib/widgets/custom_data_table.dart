@@ -3,7 +3,7 @@ import 'package:erp_frontend_v2/constants/style.dart';
 import 'package:erp_frontend_v2/utils/util_functions.dart';
 import 'package:erp_frontend_v2/widgets/custom_checkbox.dart';
 import 'package:erp_frontend_v2/widgets/custom_pagination.dart';
-import 'package:erp_frontend_v2/widgets/snack_bar/documents_snack_bar.dart';
+
 import 'package:flutter/material.dart';
 
 class CustomDataTable extends StatefulWidget {

@@ -1,6 +1,6 @@
 import 'package:erp_frontend_v2/constants/style.dart';
 import 'package:erp_frontend_v2/models/app_localizations.dart';
-import 'package:erp_frontend_v2/providers/user_provider.dart';
+
 import 'package:erp_frontend_v2/utils/responsiveness.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -17,7 +17,6 @@ class CustomAccountButton extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final userState = ref.watch(userProvider);
     final isDropdownVisible = ref.watch(dropdownVisibilityProvider);
 
     // Folosim un GlobalKey pentru a obține poziția widget-ului de referință
@@ -120,27 +119,13 @@ class CustomAccountButton extends ConsumerWidget {
               ),
             ),
           ),
-          userState.when(
-            skipLoadingOnReload: true,
-            skipLoadingOnRefresh: true,
-            data: (user) {
-              return !ResponsiveWidget.isSmallScreen(context)
-                  ? Padding(
-                      padding: const EdgeInsets.only(left: 8),
-                      child: Text(
-                        user.company!.name,
-                        style: CustomStyle.medium16(),
-                      ),
-                    )
-                  : Container();
-            },
-            loading: () {
-              return const CircularProgressIndicator.adaptive();
-            },
-            error: (error, stackTrace) {
-              return Container();
-            },
-          ),
+          Padding(
+            padding: const EdgeInsets.only(left: 8),
+            child: Text(
+              "Netopia SRL",
+              style: CustomStyle.medium16(),
+            ),
+          )
         ],
       ),
     );

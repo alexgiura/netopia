@@ -8,7 +8,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:flutter_web_plugins/flutter_web_plugins.dart';
-import 'package:erp_frontend_v2/models/user/user.dart' as custom_user;
 
 void main() async {
   await Firebase.initializeApp(

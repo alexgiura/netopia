@@ -1,7 +1,0 @@
-scalar Time
-scalar Date
-scalar Decimal
-scalar Upload
-scalar JSON
-
-directive @isAuthenticated on FIELD | FIELD_DEFINITION

@@ -1,7 +1,6 @@
 package handlers
 
 import (
-	"backend/config"
 	"backend/db"
 
 	"github.com/jackc/pgx/v4/pgxpool"
@@ -13,9 +12,7 @@ import (
 // It serves as dependency injection for your app, add any dependencies you require here.
 
 type Resolver struct {
-	Logger           *zap.Logger
-	DBProvider       *db.Queries
-	DBPool           *pgxpool.Pool
-	EfacturaSettings config.EfacturaSettings
-	RabbitMQSettings config.RabbitMqSettings
+	Logger     *zap.Logger
+	DBProvider *db.Queries
+	DBPool     *pgxpool.Pool
 }

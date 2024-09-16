@@ -70,17 +70,17 @@ func IntArrayToInt32Array(intSlice []int) []int32 {
 	return int32Slice
 }
 
-func StringArrayToInt32Array(strSlice []string) ([]int32, error) {
+func StringArrayToInt32Array(strSlice []string) []int32 {
 	var int32Slice []int32
 	for _, str := range strSlice {
 		num, err := strconv.Atoi(str) // Convert string to int
 		if err != nil {
-			print(err)
-			return nil, err // Return error if conversion fails
+			// Skip invalid string conversions
+			continue
 		}
 		int32Slice = append(int32Slice, int32(num)) // Convert int to int32 and append
 	}
-	return int32Slice, nil
+	return int32Slice
 }
 
 func NullableUuid(uid uuid.UUID) uuid.NullUUID {

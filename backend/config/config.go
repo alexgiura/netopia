@@ -26,25 +26,9 @@ type DatabaseSettings struct {
 	Password string `env:"POSTGRES_DB_PASSWORD" envDefault:"postgres"`
 }
 
-type EfacturaSettings struct {
-	ClientID     string `env:"EFACTURA_CLIENT_ID,notEmpty"`
-	ClientSecret string `env:"EFACTURA_CLIENT_SECRET,notEmpty"`
-	CallbackURL  string `env:"EFACTURA_CALLBACK_URL,notEmpty"`
-	CallbackPath string `env:"EFACTURA_CALLBACK_PATH,notEmpty"`
-}
-
-type RabbitMqSettings struct {
-	User     string `env:"RABBITMQ_USER"`
-	Password string `env:"RABBITMQ_PASSWORD"`
-	Host     string `env:"RABBITMQ_HOST"`
-	Port     string `env:"RABBITMQ_PORT"`
-}
-
 type Config struct {
 	AppSettings      AppSettings `yaml:"AppSettings"`
 	DatabaseSettings DatabaseSettings
-	EfacturaSettings EfacturaSettings
-	RabbitMqSettings RabbitMqSettings
 }
 
 func Load() (*Config, error) {

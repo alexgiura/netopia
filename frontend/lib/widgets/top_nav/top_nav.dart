@@ -1,5 +1,4 @@
 import 'package:erp_frontend_v2/models/app_localizations.dart';
-import 'package:erp_frontend_v2/providers/user_provider.dart';
 import 'package:erp_frontend_v2/routing/routes.dart';
 import 'package:erp_frontend_v2/widgets/top_nav/account_button.dart';
 import 'package:erp_frontend_v2/widgets/custom_text_field_1.dart';
@@ -20,7 +19,6 @@ class TopNav extends ConsumerWidget implements PreferredSizeWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final userState = ref.watch(userProvider);
     return AppBar(
       toolbarHeight: 76,
       titleSpacing: 0.0,
@@ -65,37 +63,8 @@ class TopNav extends ConsumerWidget implements PreferredSizeWidget {
                   child: IconButton(
                       splashRadius: 20,
                       icon: const Icon(Icons.settings_outlined),
-                      onPressed: () {
-                        context.go(settingsPageRoute);
-                      }),
+                      onPressed: () {}),
                 ),
-                userState.when(
-                  skipLoadingOnReload: true,
-                  skipLoadingOnRefresh: true,
-                  data: (user) {
-                    return user.eFacturaAuth == false
-                        ? Positioned(
-                            top: 7,
-                            right: 7,
-                            child: Container(
-                              width: 12,
-                              height: 12,
-                              decoration: BoxDecoration(
-                                  color: CustomColor.error,
-                                  borderRadius: BorderRadius.circular(30),
-                                  border: Border.all(
-                                      color: CustomColor.lightest, width: 2)),
-                            ),
-                          )
-                        : Container();
-                  },
-                  loading: () {
-                    return Container();
-                  },
-                  error: (error, stackTrace) {
-                    return Container();
-                  },
-                )
               ],
             ),
             const Gap(8),

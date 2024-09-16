@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_localization/flutter_localization.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../constants/theme.dart';
 import '../models/app_localizations.dart';
@@ -24,25 +25,27 @@ class App extends StatelessWidget {
       ],
       initLanguageCode: 'ro',
     );
-    return MaterialApp.router(
-      debugShowCheckedModeBanner: false,
-      theme: customTheme(context),
-      localizationsDelegates: const [
-        AppLocalizations.delegate,
-        GlobalMaterialLocalizations.delegate,
-        GlobalWidgetsLocalizations.delegate,
-      ],
-      supportedLocales: _localization.supportedLocales,
-      localeResolutionCallback: (locale, supportedLocales) {
-        for (var supportedLocale in supportedLocales) {
-          if (supportedLocale.languageCode == locale!.languageCode &&
-              supportedLocale.countryCode == locale.countryCode) {
-            return supportedLocale;
+    return ProviderScope(
+      child: MaterialApp.router(
+        debugShowCheckedModeBanner: false,
+        theme: customTheme(context),
+        localizationsDelegates: const [
+          AppLocalizations.delegate,
+          GlobalMaterialLocalizations.delegate,
+          GlobalWidgetsLocalizations.delegate,
+        ],
+        supportedLocales: _localization.supportedLocales,
+        localeResolutionCallback: (locale, supportedLocales) {
+          for (var supportedLocale in supportedLocales) {
+            if (supportedLocale.languageCode == locale!.languageCode &&
+                supportedLocale.countryCode == locale.countryCode) {
+              return supportedLocale;
+            }
           }
-        }
-        return supportedLocales.first;
-      },
-      routerConfig: router,
+          return supportedLocales.first;
+        },
+        routerConfig: router,
+      ),
     );
   }
 }

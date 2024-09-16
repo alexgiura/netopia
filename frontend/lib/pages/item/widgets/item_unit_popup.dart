@@ -1,46 +1,43 @@
 import 'package:erp_frontend_v2/models/app_localizations.dart';
-import 'package:erp_frontend_v2/models/item/um_model.dart';
-import 'package:erp_frontend_v2/utils/util_widgets.dart';
+import 'package:erp_frontend_v2/models/department_model.dart';
+import 'package:erp_frontend_v2/services/departments.dart';
 import 'package:erp_frontend_v2/widgets/buttons/primary_button.dart';
 import 'package:erp_frontend_v2/widgets/buttons/secondary_button.dart';
 import 'package:erp_frontend_v2/widgets/custom_text_field_1.dart';
 import 'package:erp_frontend_v2/widgets/custom_toggle.dart';
+import 'package:erp_frontend_v2/widgets/department_chip_selector.dart';
 import 'package:erp_frontend_v2/widgets/dialog_widgets/custom_toast.dart';
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
 import '../../../constants/style.dart';
-import '../../../providers/item_provider.dart';
-import '../../../services/item.dart';
+import '../../../providers/department_provider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class ItemUnitPopup extends ConsumerStatefulWidget {
-  const ItemUnitPopup({super.key, this.um});
-  final Um? um;
-  // final void Function(ItemCategory) onSave;
+class DepartmentPopup extends ConsumerStatefulWidget {
+  const DepartmentPopup({super.key, this.department});
+  final Department? department;
+
   @override
-  ConsumerState<ItemUnitPopup> createState() => _ItemUnitPopupState();
+  ConsumerState<DepartmentPopup> createState() => _DepartmentPopupState();
 }
 
-class _ItemUnitPopupState extends ConsumerState<ItemUnitPopup>
+class _DepartmentPopupState extends ConsumerState<DepartmentPopup>
     with SingleTickerProviderStateMixin {
   final GlobalKey<FormState> _itemUnitFormKey = GlobalKey<FormState>();
 
-  Um _um = Um.empty();
-
-  bool validateOnSave = false;
-  bool formIsValid = true;
-
-  String umId = '';
+  late Department _department;
 
   @override
   void initState() {
     super.initState();
-
-    _um = widget.um ?? Um.empty();
+    _department = widget.department ?? Department.empty();
   }
 
   @override
   Widget build(BuildContext context) {
+    // Watch the departmentsProvider to get the list of departments asynchronously
+    final departmentsAsyncValue = ref.watch(departmentsProvider);
+
     return Dialog(
       child: SizedBox(
         width: 450,
@@ -56,13 +53,13 @@ class _ItemUnitPopupState extends ConsumerState<ItemUnitPopup>
                 Row(
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
-                    widget.um != null
+                    widget.department != null
                         ? Text(
-                            'edit_measurement_unit'.tr(context),
+                            'edit_department'.tr(context),
                             style: CustomStyle.bold24(),
                           )
                         : Text(
-                            'add_measurement_unit'.tr(context),
+                            'add_department'.tr(context),
                             style: CustomStyle.bold24(),
                           ),
                     const Spacer(),
@@ -79,7 +76,7 @@ class _ItemUnitPopupState extends ConsumerState<ItemUnitPopup>
                 ),
                 Gap(24),
                 CustomTextField1(
-                  initialValue: _um.name,
+                  initialValue: _department.name,
                   validator: (value) {
                     if (value!.isEmpty) {
                       return 'error_required_field'.tr(context);
@@ -88,46 +85,34 @@ class _ItemUnitPopupState extends ConsumerState<ItemUnitPopup>
                   },
                   keyboardType: TextInputType.name,
                   labelText: 'name'.tr(context),
-                  hintText: 'item_unit_name'.tr(context),
+                  hintText: 'department_name'.tr(context),
                   onValueChanged: (value) {
-                    _um.name = value;
+                    _department.name = value;
                   },
                   required: true,
                 ),
-                Gap(4),
-                CustomTextField1(
-                  initialValue: _um.name,
-                  validator: (value) {
-                    if (value!.isEmpty) {
-                      return 'error_required_field'.tr(context);
-                    }
-                    return null;
-                  },
-                  keyboardType: TextInputType.name,
-                  labelText: 'efactura_standard_code'.tr(context),
-                  hintText: 'item_unit_code'.tr(context),
-                  helperText: buildTextWithLink(
-                    text: 'check_measurement_unit_list'.tr(context),
-                    linkText: 'here'.tr(context),
-                    url: Uri.parse(
-                        "https://happyweb.ro//public/uploads/e-factura-unitati-masura.xlsx"),
-                    textStyle:
-                        CustomStyle.semibold12(color: CustomColor.slate_400),
-                    linkStyle: CustomStyle.semibold12(
-                        color: CustomColor.textPrimary, isUnderline: true),
+                Gap(16),
+                departmentsAsyncValue.when(
+                  loading: () => const CircularProgressIndicator(),
+                  error: (err, stack) => Text('Error: $err'),
+                  data: (departments) => DepartmentChipsSelector(
+                    title: "Selecteaza departamentele parinte",
+                    departments: departments,
+                    selectedDepartments: _department.parents,
+                    onSelectionChanged: (updatedSelectedDepartments) {
+                      setState(() {
+                        _department.parents = updatedSelectedDepartments;
+                      });
+                    },
                   ),
-                  onValueChanged: (value) {
-                    _um.code = value;
-                  },
-                  required: true,
                 ),
                 Gap(24),
                 CustomToggle(
                   title: 'active'.tr(context),
                   subtitle: 'measurement_unit_activ_description'.tr(context),
-                  initialValue: _um.isActive,
+                  initialValue: _department.flags == 1 ? true : false,
                   onChanged: (value) {
-                    _um.isActive = value;
+                    _department.flags = value ? 1 : 2;
                   },
                 ),
                 Gap(40),
@@ -149,17 +134,18 @@ class _ItemUnitPopupState extends ConsumerState<ItemUnitPopup>
                         onPressed: () async {
                           if (_itemUnitFormKey.currentState!.validate()) {
                             try {
-                              await ItemService().saveUm(um: _um);
-
+                              await DepartmentService()
+                                  .saveDepartment(department: _department);
                               ref
-                                  .read(itemUnitsProvider.notifier)
+                                  .read(departmentsProvider.notifier)
                                   .refreshItemUnits();
                               Navigator.of(context).pop();
                               showToast(
-                                  _um.id == null
-                                      ? 'suceess_add_um'.tr(context)
-                                      : 'suceess_edit_um'.tr(context),
-                                  ToastType.success);
+                                _department.id == null
+                                    ? 'suceess_add_department'.tr(context)
+                                    : 'suceess_edit_department'.tr(context),
+                                ToastType.success,
+                              );
                             } catch (e) {
                               Navigator.of(context).pop();
                               showToast('error'.tr(context), ToastType.error);

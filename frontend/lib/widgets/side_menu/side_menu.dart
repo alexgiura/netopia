@@ -4,7 +4,6 @@ import 'package:erp_frontend_v2/utils/extensions.dart';
 import 'package:erp_frontend_v2/utils/responsiveness.dart';
 import 'package:erp_frontend_v2/widgets/buttons/primary_button.dart';
 import 'package:erp_frontend_v2/widgets/custom_expansiontile.dart';
-import 'package:erp_frontend_v2/widgets/side_menu/widgets/menu_efactura_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:gap/gap.dart';
@@ -75,7 +74,6 @@ class _SideMenuState extends State<SideMenu> {
                             },
                           ),
                         ),
-                        MenuEfacturaWidget(),
                       ],
                     ),
                   ),
@@ -90,10 +88,10 @@ class _SideMenuState extends State<SideMenu> {
 
   Container _topLogo() {
     return Container(
-      margin: const EdgeInsets.only(top: 10, bottom: 32),
+      margin: const EdgeInsets.only(top: 24, bottom: 24),
       width: 104,
       child: Image.asset(
-        'assets/images/logo.png',
+        'assets/images/netopia-payments.png',
         fit: BoxFit.contain,
       ),
     );

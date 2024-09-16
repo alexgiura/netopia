@@ -1,0 +1,28 @@
+
+
+type Department{
+    id: Int!
+    name: String!
+    flags: Int!
+    parents:[Department]
+
+}
+
+
+input DepartmentInput{
+    id: Int
+    name: String!
+    flags:Int!
+    parents_ids:[Int!]
+
+}
+
+
+extend type Query {
+    getDepartments: [Department]
+
+}
+extend type Mutation {
+    saveDepartment(input: DepartmentInput!): Department
+
+}

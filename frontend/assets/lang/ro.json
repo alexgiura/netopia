@@ -106,9 +106,9 @@
     "cancel": "Anulează",
     "canceled": "Anulate",
     "measurement_units": "Unități de Măsură",
-    "edit_measurement_unit": "Editează Unitate de Măsură",
-    "add_measurement_unit": "Adaugă Unitate de Măsură",
-    "name": "Denumire",
+    "edit_department": "Editează Departamentul",
+    "add_department": "Adaugă Departament",
+    
     "efactura_standard_code": "Cod standard e-Factura",
     "efactura_code": "Cod e-Factura",
     "active": "Activ",
@@ -117,8 +117,8 @@
     "check_measurement_unit_list": "Consultă lista completă de unități de măsură",
     "here": " aici",
     "close": "Închide",
-    "suceess_add_um": "O noua unitatea de măsură a fost adăugată cu succes!",
-    "suceess_edit_um": "Unitatea de măsură a fost modificată cu succes!",
+    "suceess_add_department": "Un nou departament a fost adăugat cu succes!",
+    "suceess_edit_department": "Departamentul a fost modificat cu succes!",
     "suceess_add_category": "Categoria a fost adăugată cu succes!",
     "suceess_edit_category": "Categoria a fost modificată cu succes!",
     "error_try_again": "A apărut o eroare. Vă rugăm să încercați din nou!",
@@ -145,7 +145,7 @@
     "canceled_feminin": "Anulate", 
     "valid_masculin": "Valid",
     "canceled_masculin": "Anulat",
-    "document_hint_search": "Caută după serie sau număr document",
+    "document_hint_search": "Caută după denumire",
     "number_hint_search": "Caută după număr",
     "partner": "Partener",
     "date": "Dată",
@@ -232,7 +232,7 @@
     "emit_eInvoice": "Emite e-Factura!",
     "authotize_SPV_access__for_emit_eInvoice": "Autorizează accesul în S.P.V. pentru emiterea e-Facturilor",
     "authorize_access": "Autorizează",
-    "item_unit_name": "Denumirea unității de măsură",
+    "department_name": "Denumirea departamentului",
     "item_unit_code": "Codul unității de măsură",
     "recipes": "Rețete",
     "production_notes": "Rapoarte Producție",
@@ -286,5 +286,8 @@
     "logout": "Deconectează-te",
     "send_eInvoice_error": "Exista documente selectate care au fost deja trimise către e-Factura",
     "select_count": "selecții",
-    "not_found_results": "Nu s-au găsit rezultate"
+    "not_found_results": "Nu s-au găsit rezultate",
+    "departments": "Departamente",
+    "name": "Denumire"
+ 
 }

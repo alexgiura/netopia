@@ -1,136 +1,29 @@
 version: "3.7"
-
-networks:
-  default:
-    name: traff
-    external: true
-
 services:
-  erp-backend-dev:
-    container_name: "erp-backend-dev"
-    image: neobytesolutions/erp-backend:dev
-    restart: unless-stopped
+  netopia-app:
+    container_name: "netopia-api"
     build:
       context: .
       dockerfile: Dockerfile
-    labels:
-      - traefik.enable=true
-      - traefik.http.routers.erp-backend-dev.rule=Host(`dev-api.optimanage.ro`)
-      - traefik.port=80
-      - traefik.docker.network=traff
-      - traefik.http.routers.erp-backend-dev.tls=true
-      - traefik.http.routers.erp-backend-dev.tls.certresolver=myresolver
-      - traefik.http.middlewares.https-redirect.redirectscheme.scheme=https
-      - traefik.http.middlewares.https-redirect.redirectscheme.permanent=true
-      - traefik.http.routers.erp-backend-dev.middlewares=https-redirect
-
-
-    environment:
-      - POSTGRES_SSL_CERT=../certificate.pem
-      - POSTGRES_DB_HOST=$POSTGRES_DB_HOST
-      - POSTGRES_DB_PORT=$POSTGRES_DB_PORT
-      - POSTGRES_DB_USER=$POSTGRES_DB_USER
-      - POSTGRES_DB_PASSWORD=$POSTGRES_DB_PASSWORD
-      - POSTGRES_DB_NAME=$POSTGRES_DB_NAME
-      - EFACTURA_CLIENT_ID=$EFACTURA_CLIENT_ID
-      - EFACTURA_CLIENT_SECRET=$EFACTURA_CLIENT_SECRET
-      - EFACTURA_CALLBACK_URL=$EFACTURA_CALLBACK_URL
-      - EFACTURA_CALLBACK_PATH=$EFACTURA_CALLBACK_PATH
-      - RABBITMQ_USER=$RABBITMQ_USER
-      - RABBITMQ_PASSWORD=$RABBITMQ_PASSWORD
-      - RABBITMQ_HOST=rabbitmq
-      - RABBITMQ_PORT=5672
-
-    env_file: ./.env
-    depends_on:
-          - rabbitmq
-
-  erp-app-live:
-    container_name: "erp-api-live"
-    build:
-      context: .
-      dockerfile: Dockerfile
-    image: erp-api:live
-    # ports:
-    #   - "8080:8080"
-    labels:
-      - "traefik.enable=true"
-      - "traefik.http.routers.erp-api-live.rule=Host(`api.optimanage.ro`)"
-      - "traefik.port=80"
-      - "traefik.docker.network=traff"
-
-    environment:
-      - POSTGRES_SSL_CERT=../certificate.pem
-      - POSTGRES_DB_HOST=$POSTGRES_DB_HOST
-      - POSTGRES_DB_PORT=$POSTGRES_DB_PORT
-      - POSTGRES_DB_USER=$POSTGRES_DB_USER
-      - POSTGRES_DB_PASSWORD=$POSTGRES_DB_PASSWORD
-      - POSTGRES_DB_NAME=$POSTGRES_DB_NAME
-      - EFACTURA_CLIENT_ID=$EFACTURA_CLIENT_ID
-      - EFACTURA_CLIENT_SECRET=$EFACTURA_CLIENT_SECRET
-      - EFACTURA_CALLBACK_URL=$EFACTURA_CALLBACK_URL
-      - EFACTURA_CALLBACK_PATH=$EFACTURA_CALLBACK_PATH
-      - RABBITMQ_USER=$RABBITMQ_USER
-      - RABBITMQ_PASSWORD=$RABBITMQ_PASSWORD
-      - RABBITMQ_HOST=rabbitmq
-      - RABBITMQ_PORT=5672
-
-    env_file: ./.env
-    depends_on:
-      - rabbitmq
-
-
-  erp-frontend-dev:
-    container_name: "erp-frontend-dev"
-    image: neobytesolutions/erp-frontend:dev
-    restart: unless-stopped
-    build:
-      context: ../frontend
-      dockerfile: frontend/Dockerfile
-      args:
-          - BRANCH=dev
-    labels:
-      - traefik.enable=true
-      - traefik.http.routers.erp-frontend-dev.rule=Host(`dev.optimanage.ro`)
-      - traefik.port=80
-      - traefik.docker.network=traff
-      - traefik.http.routers.erp-frontend-dev.tls=true
-      - traefik.http.routers.erp-frontend-dev.tls.certresolver=myresolver
-      - traefik.http.middlewares.https-redirect.redirectscheme.scheme=https
-      - traefik.http.middlewares.https-redirect.redirectscheme.permanent=true
-      - traefik.http.routers.erp-frontend-dev.middlewares=https-redirect
-
-
-  erp-frontend-live:
-    container_name: "erp-frontend-live"
-    build:
-      context: ../frontend
-      dockerfile: Dockerfile
-    labels:
-      - "traefik.enable=true"
-      - "traefik.http.routers.erp-frontend-live.rule=Host(`optimanage.ro`)"
-      - "traefik.port=80"
-      - "traefik.docker.network=traff"
-
-  rabbitmq:
-    image: rabbitmq:3-management
-    restart: unless-stopped
-    container_name: "rabbitmq"
-    networks:
-      - default
+    image: netopia-api:latest
     ports:
-      - "5672:5672"   # RabbitMQ broker port
-      - "15672:15672" # RabbitMQ management UI port
+      - "8080:8080"
     environment:
-      RABBITMQ_DEFAULT_USER: $RABBITMQ_USER
-      RABBITMQ_DEFAULT_PASS: $RABBITMQ_PASSWORD
-    labels:
-      - traefik.enable=true
-      - traefik.http.routers.rabbitmq.rule=Host(`rabbitmq.optimanage.ro`)
-      - traefik.port=80
-      - traefik.docker.network=traff
-      - traefik.http.routers.rabbitmq.tls=true
-      - traefik.http.routers.rabbitmq.tls.certresolver=myresolver
-      - traefik.http.middlewares.https-redirect.redirectscheme.scheme=https
-      - traefik.http.middlewares.https-redirect.redirectscheme.permanent=true
-      - traefik.http.routers.rabbitmq.middlewares=https-redirect
+      - POSTGRES_SSL_CERT=../certificate.pem
+      - POSTGRES_DB_HOST=$POSTGRES_DB_HOST
+      - POSTGRES_DB_PORT=$POSTGRES_DB_PORT
+      - POSTGRES_DB_USER=$POSTGRES_DB_USER
+      - POSTGRES_DB_PASSWORD=$POSTGRES_DB_PASSWORD
+      - POSTGRES_DB_NAME=$POSTGRES_DB_NAME
+
+#    depends_on:
+#      - erp-postgres
+    env_file: ./.env
+
+#  erp-frontend:
+#    container_name: "erp-frontend"
+#    build:
+#      context: ../frontend
+#      dockerfile: Dockerfile
+#    ports:
+#      - "80:80"

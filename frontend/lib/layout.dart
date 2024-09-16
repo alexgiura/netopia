@@ -1,5 +1,4 @@
 import 'package:erp_frontend_v2/constants/style.dart';
-import 'package:erp_frontend_v2/providers/user_provider.dart';
 import 'package:erp_frontend_v2/utils/responsiveness.dart';
 import 'package:erp_frontend_v2/utils/util_widgets.dart';
 import 'package:erp_frontend_v2/widgets/side_menu/side_menu.dart';
@@ -22,9 +21,6 @@ class _AppLayoutState extends ConsumerState<AppLayout> {
   @override
   void initState() {
     super.initState();
-    ref
-        .read(userProvider.notifier)
-        .getUserById(FirebaseAuth.instance.currentUser!.uid);
   }
 
   @override

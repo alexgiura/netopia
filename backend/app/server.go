@@ -6,16 +6,12 @@ import (
 	"backend/graph/generated"
 	"backend/handlers"
 	"backend/middleware"
-	"backend/util"
 	"context"
-	"errors"
 	"fmt"
 	"log"
 	"net/http"
-	"net/url"
 	"time"
 
-	"github.com/99designs/gqlgen/graphql"
 	"github.com/99designs/gqlgen/graphql/handler"
 	"github.com/99designs/gqlgen/graphql/playground"
 	"github.com/gorilla/mux"
@@ -44,19 +40,13 @@ func (app *App) Run() error {
 		log.Fatalf("Failed to get resolver dependency: %v", err)
 	}
 
-	// Start the RabbitMQ consumer in a separate goroutine
-	go func() {
-		if err := app.services.ConsumeFromRabbitMQ(); err != nil {
-			app.services.Logger.Fatal("Failed to consume from RabbitMQ", zap.Error(err))
-		}
-	}()
-
 	graphMiddleware := func(next http.Handler) http.Handler {
 		handler := next
 		// Add the cors function to the router
 		handler = middleware.CorsMiddleware(handler)
 		// Add DataLoader middleware
 		handler = middleware.LoadersMiddleware(app.services.DBProvider)(handler)
+
 		// Add the middleware function to the router
 		//handler = middleware.AuthMiddleware(handler)
 		return handler
@@ -64,17 +54,6 @@ func (app *App) Run() error {
 
 	// Initialize GraphQL server
 	graphQlConfig := generated.Config{Resolvers: app.services}
-
-	// Add the isAuthenticated directive logic to the GraphQL configuration
-	graphQlConfig.Directives.IsAuthenticated = func(ctx context.Context, obj interface{}, next graphql.Resolver) (res interface{}, err error) {
-		// Assuming you have a middleware that sets a "userId" in the context if authenticated
-		if ctxUserIdVal := ctx.Value("userId"); ctxUserIdVal != nil {
-			if _, ok := ctxUserIdVal.(string); ok {
-				return next(ctx)
-			}
-		}
-		return nil, fmt.Errorf("Access denied")
-	}
 
 	srv := handler.NewDefaultServer(generated.NewExecutableSchema(graphQlConfig))
 	app.router.Handle("/", graphMiddleware(
@@ -87,31 +66,6 @@ func (app *App) Run() error {
 			w.WriteHeader(http.StatusMethodNotAllowed)
 		}
 	})))
-
-	app.router.HandleFunc(app.cfg.EfacturaSettings.CallbackPath, func(w http.ResponseWriter, r *http.Request) {
-		redirect := func(redirectURL string, err error) {
-			status := "success"
-			if err != nil {
-				status = "authorization_error"
-			}
-			redirectURL, _ = util.AddGetParams(redirectURL, url.Values{
-				"efactura_auth_status": {status},
-			})
-			http.Redirect(w, r, redirectURL, http.StatusSeeOther)
-		}
-		company, err := app.services.DBProvider.GetCompany(r.Context())
-		if err != nil {
-			w.WriteHeader(http.StatusInternalServerError)
-			return
-		}
-		var authorizationStatus db.CoreEfacturaAuthorizationStatus
-		if authorizationStatus, err = app.services.EfacturaProcessAuthorizationCallback(r); err != nil {
-			app.services.Logger.Error("ProcessAuthorizationCallback failed: %v", zap.Error(err))
-		} else if authorizationStatus != db.CoreEfacturaAuthorizationStatusSuccess {
-			err = errors.New("authorization_error")
-		}
-		redirect(company.FrontendUrl.String, err)
-	})
 
 	addr := fmt.Sprintf("%s:%s", app.cfg.AppSettings.ServerHost, app.cfg.AppSettings.ServerPort)
 
@@ -166,20 +120,11 @@ func (app *App) GetResolverDependencies() (*handlers.Resolver, error) {
 
 	// Create the resolver
 	resolver := &handlers.Resolver{
-		Logger:           logger,
-		DBProvider:       dbProvider,
-		DBPool:           pool,
-		EfacturaSettings: app.cfg.EfacturaSettings,
-		RabbitMQSettings: app.cfg.RabbitMqSettings,
+		Logger:     logger,
+		DBProvider: dbProvider,
+		DBPool:     pool,
 	}
 
 	return resolver, nil
 
-}
-func (app *App) StartConsumer() {
-	go func() {
-		if err := app.services.ConsumeFromRabbitMQ(); err != nil {
-			app.services.Logger.Fatal("failed to consume from RabbitMQ", zap.Error(err))
-		}
-	}()
 }
