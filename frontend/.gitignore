@@ -46,3 +46,5 @@ app.*.map.json
 
 *.env
 /backend/.env
+/backend/middleware/bildauth-firebase-adminsdk.json
+
